@@ -1,7 +1,7 @@
 {
   "name": "kraken",
   "version": "1.0.0",
-  "description": "A framework for making 2d games",
+  "description": "A framework for making 2d platformer games",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,10 +21,14 @@
   "dependencies": {
     "@babel/polyfill": "^7.4.0",
     "reset-css": "^4.0.1",
+    "stats-js": "^1.0.0",
     "webpack": "^4.29.6"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
     "@types/node": "^11.13.0",
     "@types/webpack": "^4.4.26",
     "autoprefixer": "^9.5.0",

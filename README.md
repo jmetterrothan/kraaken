@@ -1,2 +1,2 @@
 # kraken
-A framework for making 2d games
+A framework for making 2d platformer games
