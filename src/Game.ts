@@ -1,6 +1,9 @@
 import Stats from 'stats-js';
 
-import StateManager from '@src/StateManager';
+import StateManager from '@src/states/StateManager';
+import LevelState from '@src/states/LevelState';
+import MenuState from '@src/states/MenuState';
+
 import { configSvc } from '@shared/services/config.service';
 
 const instanceSym = Symbol('instance');
@@ -11,6 +14,7 @@ let gl: WebGLRenderingContext;
 
 class Game {
   private static MS_PER_UPDATE = 1000 / 30;
+  private static SCALE = 4;
 
   private events: Map<string, CallableFunction|null>;
 
@@ -60,6 +64,10 @@ class Game {
     this.resize(this.width, this.height);
 
     this.stateManager.init();
+    this.stateManager.add(0, new MenuState());
+    this.stateManager.add(1, new LevelState());
+
+    this.stateManager.currentState = 1;
 
     // Events
     window.addEventListener('keyup', (e) => this.stateManager.handleKeyboardInput(e.key, false), false);
@@ -67,10 +75,10 @@ class Game {
       if(e.key == 'F11') { e.preventDefault(); }
       this.stateManager.handleKeyboardInput(e.key, true);
     }, false);
-    canvas.addEventListener('mouseup', () => this.stateManager.handleMousePressed(false), false);
-    canvas.addEventListener('mousedown', () => this.stateManager.handleMousePressed(true), false);
+    canvas.addEventListener('mouseup', (e) => this.stateManager.handleMousePressed(e.button, false, e.offsetX, e.offsetY), false);
+    canvas.addEventListener('mousedown', (e) => this.stateManager.handleMousePressed(e.button, true, e.offsetX, e.offsetY), false);
     canvas.addEventListener('mousemove', (e) => this.stateManager.handleMouseMove(e.offsetX, e.offsetY), false);
-    canvas.addEventListener('click', (e) => this.stateManager.handleMouseClick(e.offsetX, e.offsetY), false);
+
     document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('mozfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('msfullscreenchange', this.fullscreenChange, false);
@@ -117,11 +125,11 @@ class Game {
 
   public resize(targetWidth: number, targetHeight: number) {
     const ratio: number = window.devicePixelRatio || 1;
-    const scale: number = Math.round(4 * ratio);
+    const scale: number = Math.round(Game.SCALE * ratio);
 
     // fix for tearing issues
-    let w: number = Math.round(targetWidth / 8) * 8;
-    let h: number = Math.round(targetHeight / 8) * 8;
+    let w: number = Math.round(targetWidth / Game.SCALE) * Game.SCALE;
+    let h: number = Math.round(targetHeight / Game.SCALE) * Game.SCALE;
 
     let hdpiW: number = Math.trunc(w * ratio);
     let hdpiH: number = Math.trunc(h * ratio);
