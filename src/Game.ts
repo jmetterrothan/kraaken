@@ -5,6 +5,7 @@ import LevelState from '@src/states/LevelState';
 import MenuState from '@src/states/MenuState';
 
 import { configSvc } from '@shared/services/config.service';
+import { IDimension, IGameOptions } from '@shared/models/game.model';
 
 const instanceSym = Symbol('instance');
 
@@ -16,11 +17,13 @@ class Game {
   private static MS_PER_UPDATE = 1000 / 30;
   private static SCALE = 4;
 
+  private options: IGameOptions;
+
   private events: Map<string, CallableFunction|null>;
 
   private scale: number;
-  private width: number;
-  private height: number;
+  private frameSize: IDimension;
+  private innerSize: IDimension;
 
   private stateManager: StateManager;
 
@@ -35,7 +38,9 @@ class Game {
 
   private paused: boolean;
 
-  private constructor() {
+  private constructor(options: IGameOptions) {
+    this.options = options;
+  
     this.stateManager = new StateManager();
 
     this.events = new Map<string, CallableFunction|null>();
@@ -51,17 +56,17 @@ class Game {
     this.ups = 0;
     this.ticks = 0;
 
-    this.width = 800;
-    this.height = 600;
-
     this.paused = false;
+
+    this.frameSize = { w: -1, h: -1 };
+    this.innerSize = { w: -1, h: -1 };
   }
 
   private init() {
     this.initCanvas();
     this.initWebGL();
     
-    this.resize(this.width, this.height);
+    this.resize(this.options.width, this.options.height);
 
     this.stateManager.init();
     this.stateManager.add(0, new MenuState());
@@ -143,8 +148,11 @@ class Game {
       wrapper.style.width = `${w}px`;
       wrapper.style.height = `${h}px`;
 
-      this.width = canvas.width / scale;
-      this.height = canvas.height  / scale;
+      this.innerSize.w = canvas.width / scale;
+      this.innerSize.h = canvas.height  / scale;
+
+      this.frameSize.w = w;
+      this.frameSize.h = h;
 
       this.scale = scale;
 
@@ -152,7 +160,7 @@ class Game {
 
       const resizeCallback = this.events.get('resize');
       if (resizeCallback) {
-        resizeCallback(this.width, this.height);
+        resizeCallback(this.frameSize, this.innerSize);
       }
     }
   }
@@ -226,23 +234,32 @@ class Game {
     if (b) {
       const element = document.documentElement;
 
-      if (element.requestFullscreen) {
+      if (this.options.allowFullscreen && element.requestFullscreen) {
         element.requestFullscreen();
+        this.resize(window.screen.width, window.screen.height);
       }
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
+        this.resize(this.options.width, this.options.height);
       }
     }
   }
 
   get fullscreen(): boolean {
+    // @ts-ignore
     return document.fullscreenElement !== null;
   }
 
-  static instance(): Game {
+  static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
-      Game[instanceSym] = new Game();
+      const mergedOptions = Object.assign({}, {
+        width: 800,
+        height: 600,
+        allowFullscreen: true
+      }, options);
+
+      Game[instanceSym] = new Game(mergedOptions);
       Game[instanceSym].init();
     }
     return Game[instanceSym];

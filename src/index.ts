@@ -2,26 +2,15 @@ import '@sass/main.scss';
 
 import Game from '@src/Game';
 
-const dimension = { w: 800, h: 600 };
-const game = Game.instance();
-
-game.on('resize', (w: number, h: number) => {
-  console.log(`w: ${w}, h: ${h}`);
-
-  if (game.fullscreen) {
-    game.resize(window.screen.width, window.screen.height);
-  }
+const game = Game.create({
+  width: 800,
+  height: 480,
+  allowFullscreen: true
 });
 
-game.on('fullscreen', (b: boolean) => {
-  console.log(`f: ${b}`);
-  
-  if (b) {
-    game.resize(window.screen.width, window.screen.height);
-  }
-  else {
-    game.resize(dimension.w, dimension.h);
-  }
+game.on('resize', (frameSize: any, innerSize: any) => {
+  // console.log(`frame size: ${JSON.stringify(frameSize)}`);
+  // console.log(`inner size: ${JSON.stringify(innerSize)}`);
 });
 
 window.addEventListener('keydown', (e) => {
@@ -30,5 +19,4 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-game.resize(dimension.w, dimension.h);
 game.run();
