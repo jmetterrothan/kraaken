@@ -3,9 +3,10 @@ import Stats from 'stats-js';
 import StateManager from '@src/states/StateManager';
 import LevelState from '@src/states/LevelState';
 import MenuState from '@src/states/MenuState';
+import EditorState from '@src/states/EditorState';
 
 import { configSvc } from '@shared/services/config.service';
-import { IDimension, IGameOptions } from '@shared/models/game.model';
+import { GameStates, IDimension, IGameOptions } from '@shared/models/game.model';
 
 const instanceSym = Symbol('instance');
 
@@ -68,11 +69,14 @@ class Game {
     
     this.resize(this.options.width, this.options.height);
 
+    // State manager
     this.stateManager.init();
-    this.stateManager.add(0, new MenuState());
-    this.stateManager.add(1, new LevelState());
+  
+    this.stateManager.add(GameStates.MENU, new MenuState());
+    this.stateManager.add(GameStates.LEVEL, new LevelState());
+    this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.currentState = 1;
+    this.stateManager.currentState = GameStates.LEVEL;
 
     // Events
     window.addEventListener('keyup', (e) => this.stateManager.handleKeyboardInput(e.key, false), false);

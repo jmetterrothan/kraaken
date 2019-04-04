@@ -8,3 +8,9 @@ export interface IGameOptions {
   height?: number;
   allowFullscreen?: boolean;
 };
+
+export enum GameStates {
+  MENU,
+  LEVEL,
+  EDITOR
+};
