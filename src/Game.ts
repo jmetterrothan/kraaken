@@ -15,7 +15,7 @@ let canvas : HTMLCanvasElement;
 let gl: WebGLRenderingContext;
 
 class Game {
-  private static MS_PER_UPDATE: number = 1000 / 30;
+  private static MS_PER_UPDATE: number = 1000 / 120;
   private static SCALE: number = 4;
   private static DEFAULT_OPTIONS: IGameOptions = {
     width: 800,
@@ -55,14 +55,14 @@ class Game {
 
     this.lag = 0;
     this.lastTime = window.performance.now();
-    this.nextTime = window.performance.now();
+    this.nextTime = this.lastTime + 1000;
 
     this.stats = new Stats();
     this.upsPanel = this.stats.addPanel(new Stats.Panel('UPS', '#ff8', '#221'));
     this.ups = 0;
     this.ticks = 0;
 
-    this.paused = false;
+    this.paused = !document.hasFocus();
 
     this.frameSize = { w: -1, h: -1 };
     this.innerSize = { w: -1, h: -1 };
@@ -155,11 +155,11 @@ class Game {
     });
 
     window.addEventListener('focus', () => {
-      this.lastTime = window.performance.now();
-      this.nextTime = this.lastTime + 1000;
-      this.lag = 0;
-      this.ups = 0;
       this.paused = false;
+
+      const elapsed = this.nextTime - this.lastTime;
+      this.lastTime = window.performance.now();
+      this.nextTime = this.lastTime + elapsed;
     });
   }
 
@@ -209,45 +209,46 @@ class Game {
     this.events.set(event, callback);
   }
 
-  public update() {
-    this.stateManager.update();
+  public update(delta: number) {
+    this.stateManager.update(delta);
   }
 
-  public render(delta: number) {
+  public render(alpha: number) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    this.stateManager.render(delta);
+    this.stateManager.render(alpha);
   }
 
   public run() {
     this.stats.begin();
 
-    const time = window.performance.now();
-    const elapsed = time - this.lastTime;
-
-    if (time >= this.nextTime) {
-      this.nextTime += 1000;
-
-      this.upsPanel.update(this.ups);
-      this.ups = 0;
-    }
-
     if (!this.paused) {
-        this.lastTime = time;
-        this.lag += elapsed;
+      const time = window.performance.now();
+      const elapsed = time - this.lastTime;
 
-        let nbOfSteps = 0;
-        while (this.lag >= Game.MS_PER_UPDATE) {
-            this.update();
+      if (time > this.nextTime) {
+        this.nextTime += 1000;
+  
+        this.upsPanel.update(this.ups);
+        this.ups = 0;
+      }
 
-            this.ups++;
-            this.ticks++;
+      this.lastTime = time;
+      this.lag += elapsed;
 
-            this.lag -= Game.MS_PER_UPDATE;
+      let nbOfSteps = 0;
 
-            if (++nbOfSteps >= 240) {
-                this.lag = 0;
-            }
+      while (this.lag >= Game.MS_PER_UPDATE) {
+        this.update(Game.MS_PER_UPDATE);
+
+        this.ups++;
+        this.ticks++;
+
+        this.lag -= Game.MS_PER_UPDATE;
+
+        if (++nbOfSteps >= 240) {
+          this.lag = 0;
         }
+      }
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);

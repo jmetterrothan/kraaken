@@ -17,11 +17,11 @@ class EditorState extends State {
     
   }
 
-  update() {
+  update(delta: number) {
 
   }
 
-  render(delta: number) {
+  render(alpha: number) {
 
   }
 

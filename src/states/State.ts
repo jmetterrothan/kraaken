@@ -9,9 +9,9 @@ abstract class State {
 
   abstract dismounted();
 
-  abstract update();
+  abstract update(delta: number);
 
-  abstract render(delta: number);
+  abstract render(alpha: number);
 
   abstract handleKeyboardInput(key: string, active: boolean);
 

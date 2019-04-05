@@ -1,9 +1,6 @@
 import State from '@src/states/State';
 
-interface IStateWrapper {
-  state: State;
-  initialized: boolean;
-};
+import { IStateWrapper } from './../shared/models/state.model';
 
 class StateManager {
   private states: Map<number, IStateWrapper>;
@@ -24,12 +21,12 @@ class StateManager {
     this.states.set(index, { initialized: false, state });
   }
 
-  update() {
-    this.currentState.state.update();
+  update(delta: number) {
+    this.currentState.state.update(delta);
   }
 
-  render(delta: number) {
-    this.currentState.state.render(delta);
+  render(alpha: number) {
+    this.currentState.state.render(alpha);
   }
 
   handleKeyboardInput(key: string, active: boolean) {
