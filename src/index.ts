@@ -8,15 +8,4 @@ const game = Game.create({
   allowFullscreen: true
 });
 
-game.on('resize', (frameSize: any, innerSize: any) => {
-  // console.log(`frame size: ${JSON.stringify(frameSize)}`);
-  // console.log(`inner size: ${JSON.stringify(innerSize)}`);
-});
-
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'f') {
-    game.fullscreen = !game.fullscreen;
-  }
-});
-
 game.run();

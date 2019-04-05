@@ -15,8 +15,13 @@ let canvas : HTMLCanvasElement;
 let gl: WebGLRenderingContext;
 
 class Game {
-  private static MS_PER_UPDATE = 1000 / 30;
-  private static SCALE = 4;
+  private static MS_PER_UPDATE: number = 1000 / 30;
+  private static SCALE: number = 4;
+  private static DEFAULT_OPTIONS: IGameOptions = {
+    width: 800,
+    height: 600,
+    allowFullscreen: true
+  };
 
   private options: IGameOptions;
 
@@ -78,21 +83,34 @@ class Game {
 
     this.stateManager.currentState = GameStates.LEVEL;
 
-    // Events
+    // Keyboard events
     window.addEventListener('keyup', (e) => this.stateManager.handleKeyboardInput(e.key, false), false);
     window.addEventListener('keydown', (e) => {
-      if(e.key == 'F11') { e.preventDefault(); }
+      switch(e.key) {
+        case 'F11':
+          e.preventDefault();
+          break;
+        
+        case 'f':
+          this.fullscreen = !this.fullscreen;
+          break;
+      }
+
       this.stateManager.handleKeyboardInput(e.key, true);
     }, false);
+
+    // Click events
     canvas.addEventListener('mouseup', (e) => this.stateManager.handleMousePressed(e.button, false, e.offsetX, e.offsetY), false);
     canvas.addEventListener('mousedown', (e) => this.stateManager.handleMousePressed(e.button, true, e.offsetX, e.offsetY), false);
     canvas.addEventListener('mousemove', (e) => this.stateManager.handleMouseMove(e.offsetX, e.offsetY), false);
-
+    
+    // Fullscreen events
     document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('mozfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('msfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('fullscreenchange', this.fullscreenChange, false);
 
+    // Stats
     this.stats.showPanel(3);
     this.stats.dom.style.display = configSvc.debug ? 'block' : 'none';
 
@@ -257,11 +275,7 @@ class Game {
 
   static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
-      const mergedOptions = Object.assign({}, {
-        width: 800,
-        height: 600,
-        allowFullscreen: true
-      }, options);
+      const mergedOptions = Object.assign({}, Game.DEFAULT_OPTIONS, options);
 
       Game[instanceSym] = new Game(mergedOptions);
       Game[instanceSym].init();
