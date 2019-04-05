@@ -20,6 +20,11 @@
   "homepage": "https://github.com/jmetterrothan/kraken#readme",
   "dependencies": {
     "@babel/polyfill": "^7.4.0",
+    "@types/gl-matrix": "^2.4.5",
+    "@types/md5": "^2.1.33",
+    "@types/webgl2": "0.0.4",
+    "gl-matrix": "^3.0.0",
+    "md5": "^2.2.1",
     "reset-css": "^4.0.1",
     "stats-js": "^1.0.0",
     "webpack": "^4.29.6"

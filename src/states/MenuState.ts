@@ -1,3 +1,5 @@
+import { vec2 } from 'gl-matrix';
+
 import State from '@src/states/State';
 
 class MenuState extends State {
@@ -29,11 +31,11 @@ class MenuState extends State {
     
   }
 
-  handleMousePressed(button: number, active: boolean, x: number, y: number) {
+  handleMousePressed(button: number, active: boolean, position: vec2) {
     
   }
 
-  handleMouseMove(x: number, y: number) {
+  handleMouseMove(position: vec2) {
     
   }
 

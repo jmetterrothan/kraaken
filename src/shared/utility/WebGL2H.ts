@@ -1,11 +1,11 @@
-const createShader = (gl: WebGLRenderingContext, type: number, source: string): WebGLShader => {
+const createShader = (gl: WebGL2RenderingContext, type: number, source: string): WebGLShader => {
   const shader: WebGLShader = gl.createShader(type);
 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.log(gl.getShaderInfoLog(shader), source);
+    console.warn(gl.getShaderInfoLog(shader), source);
 
     gl.deleteShader(shader);
     return null;
@@ -14,7 +14,7 @@ const createShader = (gl: WebGLRenderingContext, type: number, source: string): 
   return shader;
 };
 
-const createProgram = (gl: WebGLRenderingContext, vsSource: string, fsSource: string, validate: boolean = false): WebGLProgram => {
+const createProgram = (gl: WebGL2RenderingContext, vsSource: string, fsSource: string, validate: boolean = false): WebGLProgram => {
   const vertexShader: WebGLShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
   const fragmentShader: WebGLShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
 

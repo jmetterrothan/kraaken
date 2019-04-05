@@ -1,3 +1,4 @@
+import { vec2 } from 'gl-matrix';
 import Stats from 'stats-js';
 
 import StateManager from '@src/states/StateManager';
@@ -12,10 +13,11 @@ const instanceSym = Symbol('instance');
 
 let wrapper: HTMLElement;
 let canvas : HTMLCanvasElement;
-let gl: WebGLRenderingContext;
+let gl: WebGL2RenderingContext;
 
 class Game {
-  private static MS_PER_UPDATE: number = 1000 / 120;
+  private static TARGET_UPS: number = 30;
+  private static MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
   private static SCALE: number = 4;
   private static DEFAULT_OPTIONS: IGameOptions = {
     width: 800,
@@ -55,7 +57,7 @@ class Game {
 
     this.lag = 0;
     this.lastTime = window.performance.now();
-    this.nextTime = this.lastTime + 1000;
+    this.nextTime = this.lastTime;
 
     this.stats = new Stats();
     this.upsPanel = this.stats.addPanel(new Stats.Panel('UPS', '#ff8', '#221'));
@@ -103,7 +105,7 @@ class Game {
 
   private initWebGL() {
     // Webgl
-    gl = <WebGLRenderingContext>canvas.getContext('webgl2');
+    gl = <WebGL2RenderingContext>canvas.getContext('webgl2');
 
     if (!gl) {
       throw new Error('WebGL2 context is not available.');
@@ -139,10 +141,15 @@ class Game {
       this.stateManager.handleKeyboardInput(e.key, true);
     }, false);
 
+    const getCoord = (c: HTMLCanvasElement, x: number, y: number): vec2 => {
+      const rect = c.getBoundingClientRect();
+      return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
+    };
+
     // Click events
-    canvas.addEventListener('mouseup', (e) => this.stateManager.handleMousePressed(e.button, false, e.offsetX, e.offsetY), false);
-    canvas.addEventListener('mousedown', (e) => this.stateManager.handleMousePressed(e.button, true, e.offsetX, e.offsetY), false);
-    canvas.addEventListener('mousemove', (e) => this.stateManager.handleMouseMove(e.offsetX, e.offsetY), false);
+    canvas.addEventListener('mouseup', (e) => this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, e.offsetX, e.offsetY)), false);
+    canvas.addEventListener('mousedown', (e) => this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, e.offsetX, e.offsetY)), false);
+    canvas.addEventListener('mousemove', (e) => this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY)), false);
     
     // Fullscreen events
     document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);

@@ -1,8 +1,6 @@
+import { vec2 } from "gl-matrix";
+
 abstract class State {
-  constructor() {
-
-  }
-
   abstract async init();
 
   abstract mounted();
@@ -15,9 +13,9 @@ abstract class State {
 
   abstract handleKeyboardInput(key: string, active: boolean);
 
-  abstract handleMousePressed(button: number, active: boolean, x: number, y: number);
+  abstract handleMousePressed(button: number, active: boolean, position: vec2);
 
-  abstract handleMouseMove(x: number, y: number);
+  abstract handleMouseMove(position: vec2);
 
   abstract handleFullscreenChange(b: boolean);
 }

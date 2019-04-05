@@ -1,3 +1,5 @@
+import { vec2 } from 'gl-matrix';
+
 import State from '@src/states/State';
 
 import { IStateWrapper } from './../shared/models/state.model';
@@ -22,27 +24,39 @@ class StateManager {
   }
 
   update(delta: number) {
-    this.currentState.state.update(delta);
+    if (this.currentState.initialized) {
+      this.currentState.state.update(delta);
+    }
   }
 
   render(alpha: number) {
-    this.currentState.state.render(alpha);
+    if (this.currentState.initialized) {
+      this.currentState.state.render(alpha);
+    }
   }
 
   handleKeyboardInput(key: string, active: boolean) {
-    this.currentState.state.handleKeyboardInput(key, active);
+    if (this.currentState.initialized) {
+      this.currentState.state.handleKeyboardInput(key, active);
+    }
   }
 
-  handleMousePressed(button: number, active: boolean, x: number, y: number) {
-    this.currentState.state.handleMousePressed(button, active, x, y);
+  handleMousePressed(button: number, active: boolean, position: vec2) {
+    if (this.currentState.initialized) {
+      this.currentState.state.handleMousePressed(button, active, position);
+    }
   }
 
-  handleMouseMove(x: number, y: number) {
-    this.currentState.state.handleMouseMove(x, y);
+  handleMouseMove(position: vec2) {
+    if (this.currentState.initialized) {
+      this.currentState.state.handleMouseMove(position);
+    }
   }
 
   handleFullscreenChange(b: boolean) {
-    this.currentState.state.handleFullscreenChange(b);
+    if (this.currentState.initialized) {
+      this.currentState.state.handleFullscreenChange(b);
+    }
   }
 
   async switch(index: number) {
