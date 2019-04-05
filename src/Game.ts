@@ -149,6 +149,18 @@ class Game {
     document.addEventListener('mozfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('msfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('fullscreenchange', this.fullscreenChange, false);
+
+    window.addEventListener('blur', () => {
+      this.paused = true;
+    });
+
+    window.addEventListener('focus', () => {
+      this.lastTime = window.performance.now();
+      this.nextTime = this.lastTime + 1000;
+      this.lag = 0;
+      this.ups = 0;
+      this.paused = false;
+    });
   }
 
   public resize(targetWidth: number, targetHeight: number) {
