@@ -1,5 +1,9 @@
 abstract class State {
-  abstract init();
+  constructor() {
+
+  }
+
+  abstract async init();
 
   abstract mounted();
 

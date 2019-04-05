@@ -1,7 +1,11 @@
 import State from '@src/states/State';
 
-class MenuState implements State {
-  init() {
+class MenuState extends State {
+  constructor() {
+    super();
+  }
+
+  async init() {
 
   }
 

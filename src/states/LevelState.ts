@@ -1,12 +1,16 @@
 import State from '@src/states/State';
 
-class LevelState implements State {
-  init() {
+class LevelState  extends State {
+  constructor() {
+    super();
+  }
 
+  async init() {
+    console.info('Level init');
   }
 
   mounted() {
-    
+    console.info('Level mounted');
   }
 
   dismounted() {

@@ -1,7 +1,11 @@
 import State from '@src/states/State';
 
-class EditorState implements State {
-  init() {
+class EditorState extends State {
+  constructor() {
+    super();
+  }
+
+  async init() {
 
   }
 
