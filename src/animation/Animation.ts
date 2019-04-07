@@ -1,3 +1,5 @@
+import { mat3, vec2 } from 'gl-matrix';
+
 import Sprite from '@src/animation/Sprite';
 
 import { IAnimation, IAnimationFrame } from '@shared/models/animation.model';
@@ -12,7 +14,7 @@ class Animation
 
   private active: boolean;
   private paused: boolean;
-  
+
   private time: number;
   private freezeTime: number;
   private played: number;
@@ -92,7 +94,7 @@ class Animation
     return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
-  render(world: any, transform: any, position: any, orientation: number) {
+  render(world: mat3, transform: mat3, position: mat3, orientation: vec2) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
     const renderable = this.loop || !this.playedOnce();

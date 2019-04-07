@@ -120,7 +120,7 @@ class Sprite extends Material
     this.loaded = true;
   }
 
-  render(world: any, transform: any, position: any, row: number, col: number, orientation: number) {
+  render(world: mat3, transform: mat3, position: mat3, row: number, col: number, orientation: vec2) {
     if (this.loaded) {
       this.uniforms.u_world.value = world;
       this.uniforms.u_view.value = transform;
@@ -210,6 +210,9 @@ class Sprite extends Material
   }
 
   static get(alias) {
+    if (!Sprite.LOADED_SPRITES.has(alias)) {
+      throw new Error(`Sprite referenced by alias "${alias}" is missing`);
+    }
     return Sprite.LOADED_SPRITES.get(alias);
   }
 }
