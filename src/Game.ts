@@ -7,7 +7,7 @@ import MenuState from '@src/states/MenuState';
 import EditorState from '@src/states/EditorState';
 
 import { configSvc } from '@shared/services/config.service';
-import { GameStates, IDimension, IGameOptions } from '@shared/models/game.model';
+import { GameStates, IGameOptions } from '@shared/models/game.model';
 
 const instanceSym = Symbol('instance');
 
@@ -16,9 +16,10 @@ let canvas : HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
 
 class Game {
-  private static TARGET_UPS: number = 30;
-  private static MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  private static SCALE: number = 4;
+  public static readonly TARGET_UPS: number = 30;
+  public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
+  public static readonly TARGET_SCALE: number = 3;
+
   private static DEFAULT_OPTIONS: IGameOptions = {
     width: 800,
     height: 600,
@@ -28,10 +29,6 @@ class Game {
   private options: IGameOptions;
 
   private events: Map<string, CallableFunction|null>;
-
-  private scale: number;
-  private frameSize: IDimension;
-  private innerSize: IDimension;
 
   private stateManager: StateManager;
 
@@ -64,10 +61,7 @@ class Game {
     this.ups = 0;
     this.ticks = 0;
 
-    this.paused = !document.hasFocus();
-
-    this.frameSize = { w: -1, h: -1 };
-    this.innerSize = { w: -1, h: -1 };
+    this.paused = false; // !document.hasFocus();
   }
 
   private init() {
@@ -172,11 +166,11 @@ class Game {
 
   public resize(targetWidth: number, targetHeight: number) {
     const ratio: number = window.devicePixelRatio || 1;
-    const scale: number = Math.round(Game.SCALE * ratio);
+    const scale: number = Math.round(Game.TARGET_SCALE * ratio);
 
     // fix for tearing issues
-    let w: number = Math.round(targetWidth / Game.SCALE) * Game.SCALE;
-    let h: number = Math.round(targetHeight / Game.SCALE) * Game.SCALE;
+    let w: number = Math.round(targetWidth / Game.TARGET_SCALE) * Game.TARGET_SCALE;
+    let h: number = Math.round(targetHeight / Game.TARGET_SCALE) * Game.TARGET_SCALE;
 
     let hdpiW: number = Math.trunc(w * ratio);
     let hdpiH: number = Math.trunc(h * ratio);
@@ -190,19 +184,19 @@ class Game {
       wrapper.style.width = `${w}px`;
       wrapper.style.height = `${h}px`;
 
-      this.innerSize.w = canvas.width / scale;
-      this.innerSize.h = canvas.height  / scale;
+      configSvc.innerSize.w = canvas.width / scale;
+      configSvc.innerSize.h = canvas.height  / scale;
 
-      this.frameSize.w = w;
-      this.frameSize.h = h;
+      configSvc.frameSize.w = w;
+      configSvc.frameSize.h = h;
 
-      this.scale = scale;
+      configSvc.scale = scale;
 
       gl.viewport(0, 0, canvas.width, canvas.height);
 
       const resizeCallback = this.events.get('resize');
       if (resizeCallback) {
-        resizeCallback(this.frameSize, this.innerSize);
+        resizeCallback(configSvc.frameSize, configSvc.innerSize);
       }
     }
   }
