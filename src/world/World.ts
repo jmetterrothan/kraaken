@@ -5,6 +5,7 @@ import Animation from '@src/animation/Animation';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Box2d from "@src/Box2d";
+import Object2d from "@src/Object2d";
 
 import { configSvc } from "@src/shared/services/config.service";
 
@@ -32,45 +33,71 @@ const LOOT_CHERRY = {
   }
 };
 
-class World {
-  private test1: Box2d;
-  private test2: Animation;
+class Entity extends Box2d {
+  private animation: Animation;
 
+  constructor(x: number, y: number) {
+    super(x, y, 32, 32);
+    this.animation = new Animation('idle', LOOT_CHERRY.animations.idle);
+  }
+
+  update(delta: number) {
+    this.animation.update();
+    this.updateModelMatrix();
+  }
+
+  render(worldSpaceMatrix: mat3, viewMatrix: mat3) {
+    this.animation.render(worldSpaceMatrix, viewMatrix, this.modelMatrix, vec2.fromValues(1, 1));
+  }
+}
+
+class World {
   private worldSpaceMatrix: mat3;
   private camera: Camera;
 
   private boundaries: Box2d;
 
+  protected entities: Entity[];
+
   constructor() {
     this.worldSpaceMatrix = mat3.create();
     this.camera = new Camera();
+
+    this.boundaries = new Box2d(0, 0, 4096, 2048);
+
+    this.entities = [];
   }
 
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
-    this.test1 = new Box2d(128, 128, 32, 32);
-    this.test2 = new Animation('idle', LOOT_CHERRY.animations.idle);
+    const player = new Entity(3072, 1024);
+    this.add(player);
 
-    this.boundaries = new Box2d(0, 0, 16 * 32, 16 * 32);
-
-    this.camera.follow(this.test1);
+    this.camera.follow(player);
 
     console.info('World initialized');
   }
 
-  update(delta: number) {
-    mat3.projection(this.worldSpaceMatrix, canvas.width, canvas.height);
+  add(object: Entity) {
+    this.entities.push(object);
+  }
 
-    this.test1.update(delta);
-    this.test2.update();
+  update(delta: number) {
+    mat3.projection(this.worldSpaceMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
+
+    for (const entity of this.entities) {
+      entity.update(delta);
+    }
 
     this.camera.clamp(this.boundaries);
     this.camera.update(delta);
   }
 
   render(alpha: number) {
-    this.test2.render(this.worldSpaceMatrix, this.camera.getViewMatrix(), this.test1.getModelMatrix(), vec2.fromValues(1, 1));
+    for (const entity of this.entities) {
+      entity.render(this.worldSpaceMatrix, this.camera.getViewMatrix());
+    }
   }
   
   handleKeyboardInput(key: string, active: boolean) {
@@ -78,7 +105,12 @@ class World {
   }
 
   handleMousePressed(button: number, active: boolean, position: vec2) {
+    if (active) {
+      const coords = this.camera.screenToCameraCoords(position);
+      const entity = new Entity(coords[0] - 16, coords[1] - 16);
 
+      this.add(entity);
+    }
   }
 
   handleMouseMove(position: vec2) {

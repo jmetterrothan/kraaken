@@ -22,7 +22,7 @@ class Box2d extends Object2d
   }
 
   updateModelMatrix(): void {
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), vec2.fromValues(Math.trunc(this.x1 - this.offsetLeft), Math.trunc(this.y1 - this.offsetTop)));
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), vec2.fromValues(Math.trunc(this.x - this.offsetLeft), Math.trunc(this.y - this.offsetTop)));
   }
 
   collisionWithBox(b: Box2d) {
@@ -42,23 +42,17 @@ class Box2d extends Object2d
   }
 
   getCenter(): vec2 {
-    return vec2.fromValues(this.x1 + this.width / 2, this.y1 + this.height / 2);
+    return vec2.fromValues(this.x + this.width / 2, this.y + this.height / 2);
   }
 
-  get x1() { return this.position[0]; }
-  get y1() { return this.position[1]; }
-
-  set x1(x: number) { this.position[0] = x; }
-  set y1(y: number) { this.position[1] = y; }
-
-  get x2() { return this.position[0] + this.width; }
-  get y2() { return this.position[1] + this.height; }
+  get x2() { return this.x + this.width; }
+  get y2() { return this.y + this.height; }
 
   static collisionWithBox(a: Box2d, b: Box2d): boolean {     
-    if( (b.x1 >= a.x2) ||
-      (b.x2 <= a.x1) ||
-      (b.y1 >= a.y2) ||
-      (b.y2 <= a.y1) ){
+    if( (b.x >= a.x2) ||
+      (b.x2 <= a.x) ||
+      (b.y >= a.y2) ||
+      (b.y2 <= a.y) ){
       return false;
     }
 
@@ -66,9 +60,9 @@ class Box2d extends Object2d
   }
 
   static collisionWithPoint(a: Box2d, x: number, y: number): boolean {
-    if( x >= a.x1 &&
+    if( x >= a.x &&
       x <= a.x2 &&
-      y >= a.y1 &&
+      y >= a.y &&
       y <= a.y2 ){
       return true;
     }

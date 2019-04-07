@@ -187,8 +187,8 @@ class Game {
       configSvc.innerSize.w = canvas.width / scale;
       configSvc.innerSize.h = canvas.height  / scale;
 
-      configSvc.frameSize.w = w;
-      configSvc.frameSize.h = h;
+      configSvc.frameSize.w = canvas.width;
+      configSvc.frameSize.h = canvas.height;
 
       configSvc.scale = scale;
 
