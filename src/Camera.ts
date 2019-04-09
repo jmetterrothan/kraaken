@@ -1,31 +1,36 @@
 import { vec2, mat3 } from "gl-matrix";
 
 import Object2d from "@src/Object2d";
-import Box2d from "@src/Box2d";
-import { lerp } from '@shared/utility/MathHelpers';
+import Box2 from "@src/shared/math/Box2";
 
-import { configSvc } from "./shared/services/config.service";
+import { lerp } from '@shared/utility/MathHelpers';
+import { configSvc } from "@shared/services/config.service";
+import Vector2 from "@shared/math/Vector2";
 
 class Camera extends Object2d
 {
-  private viewMatrix: mat3;
-  private viewMatrixInverse: mat3;
+  private projectionMatrix: mat3;
+  private projectionMatrixInverse: mat3;
 
-  private viewBox: Box2d;
-  private shouldUpdateViewMatrix: boolean;
+  private viewBox: Box2;
+  private shouldUpdateProjectionMatrix: boolean;
 
   private target: Object2d;
 
+  private previousPosition: Vector2;
+
   constructor() {
-    super(vec2.create());
+    super(0, 0);
 
-    this.viewMatrix = mat3.create();
-    this.viewMatrixInverse = mat3.create();
+    this.projectionMatrix = mat3.create();
+    this.projectionMatrixInverse = mat3.create();
 
-    this.viewBox = new Box2d();
-    this.shouldUpdateViewMatrix = true;
+    this.viewBox = new Box2();
+    this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
+
+    this.previousPosition = new Vector2();
   }
 
   follow(target: Object2d) {
@@ -34,89 +39,98 @@ class Camera extends Object2d
     this.recenter();
   }
 
-  recenter(point?: vec2) {
+  recenter(point?: Vector2) {
     let center = point;
     if (!point) {
-      center = this.target.getCenter();
+      center = this.target.getPosition();
     }
 
-    this.setPosition(center);
+    this.position.copy(center);
 
-    this.shouldUpdateViewMatrix = true;
+    this.shouldUpdateProjectionMatrix = true;
   }
 
-  clamp(boundaries: Box2d) {
-    const bx1 = boundaries.x + configSvc.innerSize.w / 2;
-    const bx2 = boundaries.x2 - configSvc.innerSize.w / 2;
-    const by1 = boundaries.y + configSvc.innerSize.h / 2;
-    const by2 = boundaries.y2 - configSvc.innerSize.h / 2;
+  clamp(boundaries: Box2) {
+    const x1 = boundaries.getMinX() + configSvc.innerSize.w / 2;
+    const x2 = boundaries.getMaxX() - configSvc.innerSize.w / 2;
+    const y1 = boundaries.getMinY() + configSvc.innerSize.h / 2;
+    const y2 = boundaries.getMaxY() - configSvc.innerSize.h / 2;
 
-    if (this.x < bx1) {
-        this.x = bx1;
+    if (this.position.x < x1) {
+        this.position.x = x1;
     }
-    if (this.y < by1) {
-        this.y = by1;
+    if (this.position.y < y1) {
+        this.position.y = y1;
     }
-    if (this.x > bx2) {
-        this.x = bx2;
+    if (this.position.x > x2) {
+        this.position.x = x2;
     }
-    if (this.y > by2) {
-        this.y = by2;
+    if (this.position.y > y2) {
+        this.position.y = y2;
     }
   }
 
   updateViewBox() {
-    this.viewMatrixInverse = mat3.invert(mat3.create(), this.viewMatrix);
+    this.projectionMatrixInverse = mat3.invert(mat3.create(), this.projectionMatrix);
 
-    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.viewMatrixInverse);
-    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), this.viewMatrixInverse);
-    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), this.viewMatrixInverse);
-    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), this.viewMatrixInverse);
+    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.projectionMatrixInverse);
+    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), this.projectionMatrixInverse);
+    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), this.projectionMatrixInverse);
+    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), this.projectionMatrixInverse);
 
     const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
     const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
 
-    this.viewBox.x = min[0];
-    this.viewBox.y = min[1];
-    this.viewBox.setWidth(max[0] - min[0]);
-    this.viewBox.setHeight(max[1] - min[1]);
+    this.viewBox.setMin(min[0], min[1]);
+    this.viewBox.setMax(max[0], max[1]);
 
+    console.log(min, max)
     console.log('updated viewbox')
   }
 
   update(delta: number) {
     // Follow target
     if (this.target) {
-      const center: vec2 = this.target.getCenter();
+      const center: Vector2 = this.target.getPosition();
 
-      this.x = Math.trunc(lerp(this.x, center[0], 0.075));
-      this.y = Math.trunc(lerp(this.y, center[1], 0.075));
+      this.position.x = Math.trunc(lerp(this.position.x, center.x, 0.075));
+      this.position.y = Math.trunc(lerp(this.position.y, center.y, 0.075));
     }
 
-    if (this.shouldUpdateViewMatrix) {
+    if (!this.position.equals(this.previousPosition)) {
+      this.shouldUpdateProjectionMatrix = true;
+    }
+
+    this.previousPosition.copy(this.position);
+    
+    if (this.shouldUpdateProjectionMatrix) {
       const position = mat3.create();
       const offset = mat3.create();
       const zoom = mat3.create();
       
-      mat3.fromTranslation(offset, vec2.fromValues(Math.trunc(configSvc.innerSize.w / 2), Math.trunc(configSvc.innerSize.h / 2)));
-      mat3.fromTranslation(position, vec2.fromValues(-this.x, -this.y));
+      mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
+      mat3.fromTranslation(position, this.position.clone().negate().toGlArray());
       mat3.fromScaling(zoom, [ configSvc.scale, configSvc.scale ]);
       
-      mat3.multiply(this.viewMatrix, mat3.create(), zoom);
-      mat3.multiply(this.viewMatrix, this.viewMatrix, position);
-      mat3.multiply(this.viewMatrix, this.viewMatrix, offset);
+      mat3.multiply(this.projectionMatrix, mat3.create(), zoom);
+      mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);
+      mat3.multiply(this.projectionMatrix, this.projectionMatrix, offset);
 
       this.updateViewBox();
-      this.shouldUpdateViewMatrix = false;
+      this.shouldUpdateProjectionMatrix = false;
     }
   }
 
-  screenToCameraCoords(coords: vec2): vec2 {
-    return vec2.transformMat3(vec2.create(), coords, this.viewMatrixInverse);
+  isFrustumCulled(object: Object2d): boolean {
+    return !this.viewBox.containsPoint(object.getPosition());
   }
 
-  getViewMatrix(): mat3 {
-    return this.viewMatrix;
+  screenToCameraCoords(coords: vec2): vec2 {
+    return vec2.transformMat3(vec2.create(), coords, this.projectionMatrixInverse);
+  }
+
+  getProjectionMatrix(): mat3 {
+    return this.projectionMatrix;
   }
 }
 
