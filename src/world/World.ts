@@ -1,13 +1,14 @@
 import { mat3, vec3, vec2 } from "gl-matrix";
 
-import { canvas } from "@src/Game";
 import Animation from '@src/animation/Animation';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
-import Box2d from "@src/Box2d";
 import Object2d from "@src/Object2d";
 
-import { configSvc } from "@src/shared/services/config.service";
+import Box2 from "@shared/math/Box2";
+import Vector2 from '@shared/math/Vector2';
+
+import { configSvc } from "@shared/services/config.service";
 
 import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
 
@@ -33,11 +34,11 @@ const LOOT_CHERRY = {
   }
 };
 
-class Entity extends Box2d {
+class Entity extends Object2d {
   private animation: Animation;
 
   constructor(x: number, y: number) {
-    super(x, y, 32, 32);
+    super(x, y);
     this.animation = new Animation('idle', LOOT_CHERRY.animations.idle);
   }
 
@@ -46,24 +47,24 @@ class Entity extends Box2d {
     this.updateModelMatrix();
   }
 
-  render(worldSpaceMatrix: mat3, viewMatrix: mat3) {
-    this.animation.render(worldSpaceMatrix, viewMatrix, this.modelMatrix, vec2.fromValues(1, 1));
+  render(viewProjectionMatrix: mat3) {
+    this.animation.render(viewProjectionMatrix, this.modelMatrix, vec2.fromValues(1, 1));
   }
 }
 
 class World {
-  private worldSpaceMatrix: mat3;
+  private viewMatrix: mat3;
   private camera: Camera;
 
-  private boundaries: Box2d;
+  private boundaries: Box2;
 
   protected entities: Entity[];
 
   constructor() {
-    this.worldSpaceMatrix = mat3.create();
+    this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.boundaries = new Box2d(0, 0, 4096, 2048);
+    this.boundaries = new Box2(0, 0, 800, 600);
 
     this.entities = [];
   }
@@ -71,7 +72,7 @@ class World {
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
-    const player = new Entity(3072, 1024);
+    const player = new Entity(400, 300);
     this.add(player);
 
     this.camera.follow(player);
@@ -84,7 +85,7 @@ class World {
   }
 
   update(delta: number) {
-    mat3.projection(this.worldSpaceMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
+    mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
     for (const entity of this.entities) {
       entity.update(delta);
@@ -95,9 +96,19 @@ class World {
   }
 
   render(alpha: number) {
+    const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
+
+    let i = 0;
     for (const entity of this.entities) {
-      entity.render(this.worldSpaceMatrix, this.camera.getViewMatrix());
+      if (!entity.isVisible() || this.camera.isFrustumCulled(entity)) {
+        continue;
+      }
+
+      entity.render(viewProjectionMatrix);
+      i++;
     }
+
+    console.log(`${i}/${this.entities.length}`);
   }
   
   handleKeyboardInput(key: string, active: boolean) {
@@ -108,8 +119,10 @@ class World {
     if (active) {
       const coords = this.camera.screenToCameraCoords(position);
       const entity = new Entity(coords[0] - 16, coords[1] - 16);
-
-      this.add(entity);
+      
+      if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
+        this.add(entity);
+      }
     }
   }
 

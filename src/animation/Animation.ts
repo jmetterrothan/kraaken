@@ -94,13 +94,13 @@ class Animation
     return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
-  render(world: mat3, transform: mat3, position: mat3, orientation: vec2) {
+  render(viewProjectionMatrix: mat3, modelMatrix: mat3, orientation: vec2) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
-        this.sprite.render(world, transform, position, this.keyframes[this.frame].row, this.keyframes[this.frame].col, orientation);
+        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, orientation);
     }
   }
 

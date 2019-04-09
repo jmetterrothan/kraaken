@@ -4,9 +4,10 @@ import { mat3, vec2 } from 'gl-matrix';
 import Material from '@src/animation/Material';
 import { gl } from '@src/Game';
 
-import { IAttributes, IUniforms } from './../shared/models/sprite.model';
+import WebGL2H from '@shared/utility/WebGL2H';
+import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 
-import vs from '@assets/shaders/sprite.vs.glsl';
+import vs from '@assets/shaders/object.vs.glsl';
 import fs from '@assets/shaders/sprite.fs.glsl';
 
 class Sprite extends Material
@@ -61,10 +62,8 @@ class Sprite extends Material
     };
 
     this.uniforms = {
-      u_world: { type: "Matrix3fv", value: mat3.create() },
-      u_view: { type: "Matrix3fv", value: mat3.create() },
+      u_mvp: { type: "Matrix3fv", value: mat3.create() },
       u_frame: { type: "2fv", value: vec2.create() },
-      u_object: { type: "Matrix3fv", value: mat3.create() },
       u_image: { type: "1i", value: 0 },
     };
   }
@@ -120,11 +119,10 @@ class Sprite extends Material
     this.loaded = true;
   }
 
-  render(world: mat3, transform: mat3, position: mat3, row: number, col: number, orientation: vec2) {
+  render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, orientation: vec2) {
     if (this.loaded) {
-      this.uniforms.u_world.value = world;
-      this.uniforms.u_view.value = transform;
-      this.uniforms.u_object.value = position;
+      this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
+      
       this.uniforms.u_frame.value[0] = ((col + (orientation[0] === -1 ? 1 : 0)) * this.tileWidth / this.width) * orientation[0];
       this.uniforms.u_frame.value[1] = ((row + (orientation[1] === -1 ? 1 : 0)) * this.tileHeight / this.height) * orientation[1];
 
@@ -134,33 +132,7 @@ class Sprite extends Material
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-      /*
-      for (let key in this.uniforms) {
-        const uniform = this.uniforms[key];
-      
-        switch(uniform.type) {
-          case '1i': this.gl.uniform1i(uniform.location, uniform.value); break;
-          case '1f': this.gl.uniform1f(uniform.location, uniform.value); break;
-          case '2f':  this.gl.uniform2f(uniform.location, uniform.value[0], uniform.value[1]); break;
-          case '3f': this.gl.uniform3f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2]); break;
-          case '4f': this.gl.uniform4f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2], uniform.value[3]); break;
-          case '1iv': this.gl.uniform1iv(uniform.location, uniform.value); break;
-          case '3iv': this.gl.uniform3iv(uniform.location, uniform.value); break;
-          case '1fv': this.gl.uniform1fv(uniform.location, uniform.value); break;
-          case '2fv': this.gl.uniform2fv(uniform.location, uniform.value); break;
-          case '3fv': this.gl.uniform3fv(uniform.location, uniform.value);break;
-          case '4fv': this.gl.uniform4fv(uniform.location, uniform.value); break;
-          case 'Matrix3fv': this.gl.uniformMatrix3fv(uniform.location, false, uniform.value); break;
-          case 'Matrix4fv': this.gl.uniformMatrix4fv(uniform.location, false, uniform.value); break;
-        }
-      }
-      */
-
-      gl.uniformMatrix3fv(this.uniforms.u_world.location, false, this.uniforms.u_world.value);
-      gl.uniformMatrix3fv(this.uniforms.u_view.location, false, this.uniforms.u_view.value);
-      gl.uniformMatrix3fv(this.uniforms.u_object.location, false, this.uniforms.u_object.value);
-      gl.uniform1i(this.uniforms.u_image.location, this.uniforms.u_image.value);
-      gl.uniform2fv(this.uniforms.u_frame.location, this.uniforms.u_frame.value);
+      WebGL2H.setUniforms(gl, this.uniforms);
       
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
     }

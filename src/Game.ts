@@ -169,8 +169,8 @@ class Game {
     const scale: number = Math.round(Game.TARGET_SCALE * ratio);
 
     // fix for tearing issues
-    let w: number = Math.round(targetWidth / Game.TARGET_SCALE) * Game.TARGET_SCALE;
-    let h: number = Math.round(targetHeight / Game.TARGET_SCALE) * Game.TARGET_SCALE;
+    let w: number = Math.round(targetWidth / 2) * 2;
+    let h: number = Math.round(targetHeight / 2) * 2;
 
     let hdpiW: number = Math.trunc(w * ratio);
     let hdpiH: number = Math.trunc(h * ratio);
