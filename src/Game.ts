@@ -38,6 +38,7 @@ class Game {
 
   private stats: Stats;
   private upsPanel: Stats.Panel;
+
   private ups: number;
   private ticks: number;
 
@@ -58,6 +59,7 @@ class Game {
 
     this.stats = new Stats();
     this.upsPanel = this.stats.addPanel(new Stats.Panel('UPS', '#ff8', '#221'));
+
     this.ups = 0;
     this.ticks = 0;
 

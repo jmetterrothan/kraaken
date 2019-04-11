@@ -1,10 +1,9 @@
-import { mat3, vec3, vec2 } from "gl-matrix";
+import { mat3, vec2 } from "gl-matrix";
 
-import Animation from '@src/animation/Animation';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
-import Object2d from "@src/Object2d";
 
+import Entity from "@src/objects/Entity";
 import Box2 from "@shared/math/Box2";
 import Vector2 from '@shared/math/Vector2';
 
@@ -13,11 +12,8 @@ import { configSvc } from "@shared/services/config.service";
 import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
 
 const LOOT_CHERRY = {
-  type: 'CHERRY',
-  width: 16,
-  height: 16,
-  offset: { left: 8, top: 8 },
-  animations: {
+  defaultAnimationKey: 'idle',
+  animationList: {
       idle: {
           sprite: 'atlas',
           loop:  true,
@@ -33,24 +29,6 @@ const LOOT_CHERRY = {
       }
   }
 };
-
-class Entity extends Object2d {
-  private animation: Animation;
-
-  constructor(x: number, y: number) {
-    super(x, y);
-    this.animation = new Animation('idle', LOOT_CHERRY.animations.idle);
-  }
-
-  update(delta: number) {
-    this.animation.update();
-    this.updateModelMatrix();
-  }
-
-  render(viewProjectionMatrix: mat3) {
-    this.animation.render(viewProjectionMatrix, this.modelMatrix, vec2.fromValues(1, 1));
-  }
-}
 
 class World {
   private viewMatrix: mat3;
@@ -68,11 +46,11 @@ class World {
 
     this.entities = [];
   }
-      
+  
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
-    const player = new Entity(400, 300);
+    const player = new Entity(400, 300, LOOT_CHERRY);
     this.add(player);
 
     this.camera.follow(player);
@@ -108,7 +86,7 @@ class World {
       i++;
     }
 
-    // console.log(`${i}/${this.entities.length}`);
+    // console.log(`entities : ${i}/${this.entities.length}`);
   }
   
   handleKeyboardInput(key: string, active: boolean) {
@@ -118,7 +96,7 @@ class World {
   handleMousePressed(button: number, active: boolean, position: vec2) {
     if (active) {
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new Entity(coords[0] - 16, coords[1] - 16);
+      const entity = new Entity(coords[0] - 16, coords[1] - 16, LOOT_CHERRY);
       
       if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
         this.add(entity);
