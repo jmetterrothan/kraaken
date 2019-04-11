@@ -42,6 +42,10 @@ class EditorState extends State {
   handleFullscreenChange(b: boolean) {
     
   }
+
+  handleResize() {
+    
+  }
 }
 
 export default EditorState;

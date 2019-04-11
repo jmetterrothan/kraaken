@@ -69,8 +69,6 @@ class Game {
     this.initWebGL();
     this.initEvents();
 
-    this.resize(this.options.width, this.options.height);
-
     // Stats
     this.stats.showPanel(3);
     this.stats.dom.style.display = configSvc.debug ? 'block' : 'none';
@@ -83,6 +81,9 @@ class Game {
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
     this.stateManager.switch(GameStates.LEVEL);
+
+
+    this.resize(this.options.width, this.options.height);
   }
 
   private initCanvas() {
@@ -162,6 +163,15 @@ class Game {
       this.lastTime = window.performance.now();
       this.nextTime = this.lastTime + elapsed;
     });
+
+    window.addEventListener('resize', () => {
+      // needed if we switch screen and the pixel ratio has changed
+      if (this.fullscreen) {
+        this.resize(window.screen.width, window.screen.height);
+      } else {
+        this.resize(this.options.width, this.options.height);
+      }
+    });
   }
 
   public resize(targetWidth: number, targetHeight: number) {
@@ -198,6 +208,8 @@ class Game {
       if (resizeCallback) {
         resizeCallback(configSvc.frameSize, configSvc.innerSize);
       }
+      
+      this.stateManager.handleResize();
     }
   }
 

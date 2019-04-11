@@ -47,6 +47,10 @@ class LevelState  extends State {
   handleFullscreenChange(b: boolean) {
     this.world.handleFullscreenChange(b);
   }
+
+  handleResize() {
+    this.world.handleResize();
+  }
 }
 
 export default LevelState;
