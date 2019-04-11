@@ -1,6 +1,6 @@
 import { vec2, mat3 } from "gl-matrix";
 
-import Object2d from "@src/Object2d";
+import Object2d from "@src/objects/Object2d";
 import Box2 from "@src/shared/math/Box2";
 
 import { lerp } from '@shared/utility/MathHelpers';
@@ -17,8 +17,6 @@ class Camera extends Object2d
 
   private target: Object2d;
 
-  private previousPosition: Vector2;
-
   constructor() {
     super(0, 0);
 
@@ -29,8 +27,6 @@ class Camera extends Object2d
     this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
-
-    this.previousPosition = new Vector2();
   }
 
   follow(target: Object2d) {
@@ -45,7 +41,7 @@ class Camera extends Object2d
       center = this.target.getPosition();
     }
 
-    this.position.copy(center);
+    this.setPositionFromVector2(center);
 
     this.shouldUpdateProjectionMatrix = true;
   }
@@ -56,17 +52,17 @@ class Camera extends Object2d
     const y1 = boundaries.getMinY() + configSvc.innerSize.h / 2;
     const y2 = boundaries.getMaxY() - configSvc.innerSize.h / 2;
 
-    if (this.position.x < x1) {
-        this.position.x = x1;
+    if (this.getX() < x1) {
+        this.setX(x1);
     }
-    if (this.position.y < y1) {
-        this.position.y = y1;
+    if (this.getY() < y1) {
+        this.setY(y1);
     }
-    if (this.position.x > x2) {
-        this.position.x = x2;
+    if (this.getX() > x2) {
+        this.setX(x2);
     }
-    if (this.position.y > y2) {
-        this.position.y = y2;
+    if (this.getY() > y2) {
+        this.setY(y2);
     }
   }
 
@@ -83,6 +79,8 @@ class Camera extends Object2d
 
     this.viewBox.setMin(min[0], min[1]);
     this.viewBox.setMax(max[0], max[1]);
+
+    console.log(`${this.toString()} | viewbox`);
   }
 
   update(delta: number) {
@@ -90,23 +88,23 @@ class Camera extends Object2d
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
-      this.position.x = Math.trunc(lerp(this.position.x, center.x, 0.075));
-      this.position.y = Math.trunc(lerp(this.position.y, center.y, 0.075));
+      this.setPosition(
+        Math.trunc(lerp(this.getX(), center.x, 0.075)),
+        Math.trunc(lerp(this.getY(), center.y, 0.075))
+      );
     }
 
-    if (!this.position.equals(this.previousPosition)) {
+    if (this.hasChangedPosition()) {
       this.shouldUpdateProjectionMatrix = true;
     }
 
-    this.previousPosition.copy(this.position);
-    
     if (this.shouldUpdateProjectionMatrix) {
       const position = mat3.create();
       const offset = mat3.create();
       const zoom = mat3.create();
       
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
-      mat3.fromTranslation(position, this.position.clone().negate().toGlArray());
+      mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
       mat3.fromScaling(zoom, [ configSvc.scale, configSvc.scale ]);
       
       mat3.multiply(this.projectionMatrix, mat3.create(), zoom);
