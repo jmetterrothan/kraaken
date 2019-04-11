@@ -42,6 +42,10 @@ class MenuState extends State {
   handleFullscreenChange(b: boolean) {
     
   }
+
+  handleResize() {
+    
+  }
 }
 
 export default MenuState;

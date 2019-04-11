@@ -68,7 +68,7 @@ class World {
 
     this.entities = [];
   }
-
+      
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
@@ -108,7 +108,7 @@ class World {
       i++;
     }
 
-    console.log(`${i}/${this.entities.length}`);
+    // console.log(`${i}/${this.entities.length}`);
   }
   
   handleKeyboardInput(key: string, active: boolean) {
@@ -131,6 +131,10 @@ class World {
   }
   
   handleFullscreenChange(b: boolean) {
+  
+  }
+
+  handleResize() {
     this.camera.recenter();
   }
 }

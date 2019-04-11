@@ -2,7 +2,7 @@ import { vec2 } from 'gl-matrix';
 
 import State from '@src/states/State';
 
-import { IStateWrapper } from './../shared/models/state.model';
+import { IStateWrapper } from '@shared/models/state.model';
 
 class StateManager {
   private states: Map<number, IStateWrapper>;
@@ -56,6 +56,12 @@ class StateManager {
   handleFullscreenChange(b: boolean) {
     if (this.currentState.initialized) {
       this.currentState.state.handleFullscreenChange(b);
+    }
+  }
+
+  handleResize() {
+    if (this.currentState.initialized) {
+      this.currentState.state.handleResize();
     }
   }
 

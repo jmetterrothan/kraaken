@@ -18,6 +18,8 @@ abstract class State {
   abstract handleMouseMove(position: vec2);
 
   abstract handleFullscreenChange(b: boolean);
+
+  abstract handleResize();
 }
 
 export default State;
