@@ -6,8 +6,8 @@ class Box2
   private max: Vector2;
 
   constructor(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
-    this.min = new Vector2(x, y);
-    this.max = new Vector2(x + w, y + h);
+    this.min = new Vector2(x - w / 2, y - h / 2);
+    this.max = new Vector2(x + w / 2, y + h / 2);
   }
 
   containsBox(box: Box2): boolean {
