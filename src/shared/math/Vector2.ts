@@ -179,6 +179,10 @@ class Vector2 {
     return v.x === this.x && v.y === this.y;
   }
 
+  notEquals(v: Vector2): boolean {
+    return v.x !== this.x || v.y !== this.y;
+  }
+
   setX(x: number) { this.x = x; }
 
   setY(y: number) { this.y = y; }
