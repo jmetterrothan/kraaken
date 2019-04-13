@@ -80,7 +80,7 @@ class Object2d
     this.dirty = b;
   }
 
-  hasChangedPosition(): boolean { return !this.position.equals(this._previousPosition); }
+  hasChangedPosition(): boolean { return this.position.notEquals(this._previousPosition); }
 
   toString(): string { return this.uuid; }
   getUUID(): string { return this.uuid; }

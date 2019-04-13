@@ -51,7 +51,9 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.boundaries = new Box2(0, 0, 800, 600);
+    const w = 2048;
+    const h = 2048;
+    this.boundaries = new Box2(w / 2, h / 2, w, h);
 
     this.children = new Map<string, Object2d>();
   }
@@ -59,8 +61,10 @@ class World {
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
-    const player = new Entity(400, 300, CherryCfg);
+    const player = new Entity(1024, 512, CherryCfg);
+
     this.add(player);
+    this.add(new Entity(0, 0, CherryCfg));
 
     this.camera.follow(player);
 
@@ -117,9 +121,9 @@ class World {
   }
 
   handleMousePressed(button: number, active: boolean, position: vec2) {
-    if (active && button === 0) {
+    if (active && button === 0) {    console.log(position);
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new Entity(coords[0] - 16, coords[1] - 16, LOOT_CHERRY);
+      const entity = new Entity(coords[0] - 16, coords[1] - 16, CherryCfg);
       
       if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
         setTimeout(() => entity.setDirty(true), 2000);
