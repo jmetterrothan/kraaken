@@ -15,6 +15,11 @@ class Entity extends Object2d {
   constructor(x: number, y: number, data: IEntityData) {
     super(x, y);
 
+    this.orientation = vec2.fromValues(
+      data.defaultState.orientation.x,
+      data.defaultState.orientation.y
+    );
+
     // convert animation parameters in Animation objects
     this.currentAnimationKey = data.defaultAnimationKey;
     this.animationList = {};
@@ -22,8 +27,6 @@ class Entity extends Object2d {
     for(const key of Object.keys(data.animationList)) {
       this.animationList[key] = new Animation(key, data.animationList[key]);
     }
-
-    this.orientation = vec2.fromValues(1, 1);
   }
 
   update(delta: number) {

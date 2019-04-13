@@ -3,18 +3,27 @@ import { mat3, vec2 } from "gl-matrix";
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 
-import Entity from "@src/objects/Entity";
-import Box2 from "@shared/math/Box2";
+import Entity from '@src/objects/Entity';
+import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
+import Object2d from '@src/objects/Object2d';
+import Lifo from "@src/shared/utility/Lifo";
 
-import { configSvc } from "@shared/services/config.service";
+import { configSvc } from '@shared/services/config.service';
+import { IEntityData } from '@src/shared/models/entity.model';
 
 import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
 
-const LOOT_CHERRY = {
+const CherryCfg: IEntityData = {
+  defaultState: {
+    orientation: {
+      x: 1,
+      y: 1
+    }
+  },
   defaultAnimationKey: 'idle',
   animationList: {
-      idle: {
+    idle: {
           sprite: 'atlas',
           loop:  true,
           keyframes: [
