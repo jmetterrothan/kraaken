@@ -24,18 +24,18 @@ const CherryCfg: IEntityData = {
   defaultAnimationKey: 'idle',
   animationList: {
     idle: {
-          sprite: 'atlas',
-          loop:  true,
-          keyframes: [
-              { row: 1, col:  0, duration: 75 },
-              { row: 1, col:  1, duration: 75 },
-              { row: 1, col:  2, duration: 75 },
-              { row: 1, col:  3, duration: 75 },
-              { row: 1, col:  4, duration: 75 },
-              { row: 1, col:  5, duration: 75 },
-              { row: 1, col:  6, duration: 75 },
-          ]
-      }
+      sprite: 'atlas',
+      loop:  true,
+      keyframes: [
+        { row: 1, col:  0, duration: 75 },
+        { row: 1, col:  1, duration: 75 },
+        { row: 1, col:  2, duration: 75 },
+        { row: 1, col:  3, duration: 75 },
+        { row: 1, col:  4, duration: 75 },
+        { row: 1, col:  5, duration: 75 },
+        { row: 1, col:  6, duration: 75 },
+      ]
+    }
   }
 };
 
@@ -45,7 +45,7 @@ class World {
 
   private boundaries: Box2;
 
-  protected entities: Entity[];
+  protected children: Map<string, Object2d>;
 
   constructor() {
     this.viewMatrix = mat3.create();
@@ -53,13 +53,13 @@ class World {
 
     this.boundaries = new Box2(0, 0, 800, 600);
 
-    this.entities = [];
+    this.children = new Map<string, Object2d>();
   }
   
   async init() {
     await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
 
-    const player = new Entity(400, 300, LOOT_CHERRY);
+    const player = new Entity(400, 300, CherryCfg);
     this.add(player);
 
     this.camera.follow(player);
@@ -67,16 +67,25 @@ class World {
     console.info('World initialized');
   }
 
-  add(object: Entity) {
-    this.entities.push(object);
+  add(object: Object2d) {
+    this.children.set(object.getUUID(), object);
+  }
+
+  delete(object: Object2d) {
+    this.children.delete(object.getUUID());
   }
 
   update(delta: number) {
     mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
-    for (const entity of this.entities) {
-      entity.update(delta);
-    }
+    this.children.forEach((child: Object2d) => {
+      if (this.canBeCleanedUp(child)) {
+        this.delete(child);
+        return;
+      }
+
+      child.update(delta);
+    });
 
     this.camera.clamp(this.boundaries);
     this.camera.update(delta);
@@ -86,28 +95,34 @@ class World {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
     let i = 0;
-    for (const entity of this.entities) {
-      if (!entity.isVisible() || this.camera.isFrustumCulled(entity)) {
-        continue;
+    this.children.forEach(child => {
+      if (!child.isVisible() || this.camera.isFrustumCulled(child)) {
+        return;
       }
 
-      entity.render(viewProjectionMatrix);
+      child.render(viewProjectionMatrix);
       i++;
-    }
+    });
 
     // console.log(`entities : ${i}/${this.entities.length}`);
   }
   
+  canBeCleanedUp(object: Object2d): boolean {
+    // TODO: clean only if all children are dirty too
+    return object.isDirty();
+  }
+
   handleKeyboardInput(key: string, active: boolean) {
     
   }
 
   handleMousePressed(button: number, active: boolean, position: vec2) {
-    if (active) {
+    if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
       const entity = new Entity(coords[0] - 16, coords[1] - 16, LOOT_CHERRY);
       
       if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
+        setTimeout(() => entity.setDirty(true), 2000);
         this.add(entity);
       }
     }

@@ -31,11 +31,14 @@ class Entity extends Object2d {
 
   update(delta: number) {
     this.animationList[this.currentAnimationKey].update();
+
     super.update(delta);
   }
 
   render(viewProjectionMatrix: mat3) {
     this.animationList[this.currentAnimationKey].render(viewProjectionMatrix, this.modelMatrix, this.orientation);
+
+    super.render(viewProjectionMatrix);
   }
 }
 

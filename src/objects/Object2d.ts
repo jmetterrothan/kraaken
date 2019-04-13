@@ -1,4 +1,4 @@
-import { mat3, vec3, vec2 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
 import { uuid } from '@shared/utility/Utility';
 import Vector2 from "@shared/math/Vector2";
@@ -10,9 +10,12 @@ class Object2d
 
   private uuid: string;
   protected visible: boolean;
+  private dirty: boolean;
 
   protected modelMatrix: mat3;
   private shouldUpdateModelMatrix: boolean;
+
+  private children: Map<string, Object2d>;
 
   constructor(x: number, y: number) {
     this.position = new Vector2(x, y);
@@ -20,21 +23,33 @@ class Object2d
 
     this.uuid = uuid();
     this.visible = true;
+    this.dirty = false;
 
     this.modelMatrix = mat3.create();
     this.shouldUpdateModelMatrix = true;
+
+    this.children = new Map<string, Object2d>();
   }
 
   update(delta: number) {
     if (this.shouldUpdateModelMatrix) {
-      this.updateModelMatrix();
+      this.modelMatrix = mat3.fromTranslation(mat3.create(), this.position.toGlArray());
+      this.shouldUpdateModelMatrix = false;
     }
+  
+    this.children.forEach(child => child.update(delta));
   }
 
-  updateModelMatrix() {
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.position.toGlArray());
-    this.shouldUpdateModelMatrix = false;
-    console.log(`${this.uuid} | pos`);
+  render(viewProjectionMatrix: mat3) {
+    this.children.forEach(child => child.render(viewProjectionMatrix));
+  }
+
+  add(object: Object2d) {
+    this.children.set(object.getUUID(), object);
+  }
+
+  remove(object: Object2d) {
+    this.children.delete(object.getUUID());
   }
 
   setPosition(x: number, y: number) {
@@ -59,9 +74,16 @@ class Object2d
 
   isVisible(): boolean { return this.visible; }
 
+  isDirty(): boolean { return this.dirty; }
+
+  setDirty(b: boolean) {
+    this.dirty = b;
+  }
+
   hasChangedPosition(): boolean { return !this.position.equals(this._previousPosition); }
 
   toString(): string { return this.uuid; }
+  getUUID(): string { return this.uuid; }
 }
 
 export default Object2d;
