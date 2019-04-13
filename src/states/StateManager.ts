@@ -7,7 +7,7 @@ import { IStateWrapper } from '@shared/models/state.model';
 class StateManager {
   private states: Map<number, IStateWrapper>;
   private currentIndex: number;
-  private _loading: boolean;
+  private loading: boolean;
 
   constructor() {
     this.states = new Map<number, IStateWrapper>();
@@ -91,13 +91,13 @@ class StateManager {
     this.currentState.state.mounted();
   }
 
-  set loading(b: boolean) {
+  setLoading(b: boolean) {
     // TODO: show loading UI
-    this._loading = b;
+    this.loading = b;
   }
 
-  get loading(): boolean {
-    return this._loading;
+  getLoading(): boolean {
+    return this.loading;
   }
 
   get currentState(): IStateWrapper {

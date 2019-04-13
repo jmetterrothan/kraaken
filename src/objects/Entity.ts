@@ -3,12 +3,8 @@ import { mat3, vec2 } from "gl-matrix";
 import Animation from '@src/animation/Animation';
 import Object2d from '@src/objects/Object2d';
 
-import { IAnimationCfgList, IAnimationList } from "@src/shared/models/animation.model";
-
-interface IEntityData {
-  animationList: IAnimationCfgList;
-  defaultAnimationKey: string;
-};
+import { IAnimationList } from "@src/shared/models/animation.model";
+import { IEntityData } from "@src/shared/models/entity.model";
 
 class Entity extends Object2d {
   private animationList: IAnimationList;
@@ -31,16 +27,12 @@ class Entity extends Object2d {
   }
 
   update(delta: number) {
-    this.currentAnimation.update();
+    this.animationList[this.currentAnimationKey].update();
     super.update(delta);
   }
 
   render(viewProjectionMatrix: mat3) {
-    this.currentAnimation.render(viewProjectionMatrix, this.modelMatrix, this.orientation);
-  }
-
-  get currentAnimation(): Animation {
-    return this.animationList[this.currentAnimationKey];
+    this.animationList[this.currentAnimationKey].render(viewProjectionMatrix, this.modelMatrix, this.orientation);
   }
 }
 
