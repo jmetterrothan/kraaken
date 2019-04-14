@@ -9,3 +9,10 @@ export type IUniforms = {
     location?: WebGLUniformLocation;
   };
 };
+
+export interface ISpriteData {
+  src: string;
+  name: string;
+  tileWidth: number;
+  tileHeight: number;
+};

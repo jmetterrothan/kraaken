@@ -80,7 +80,7 @@ class Camera extends Object2d
     this.viewBox.setMin(min[0], min[1]);
     this.viewBox.setMax(max[0], max[1]);
 
-    console.log(`${this.toString()} | viewbox`);
+    console.log(`${this.toString()} | viewbox matrix`);
   }
 
   update(delta: number) {

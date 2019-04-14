@@ -35,6 +35,8 @@ class Object2d
     if (this.shouldUpdateModelMatrix) {
       this.modelMatrix = mat3.fromTranslation(mat3.create(), this.position.toGlArray());
       this.shouldUpdateModelMatrix = false;
+
+      console.log(`${this.toString()} | model matrix`);
     }
   
     this.children.forEach(child => child.update(delta));

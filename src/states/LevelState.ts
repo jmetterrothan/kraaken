@@ -3,12 +3,14 @@ import { vec2 } from 'gl-matrix';
 import State from '@src/states/State';
 import World from '@src/world/World';
 
+import data from '@src/data';
+
 class LevelState  extends State {
   private world: World;
   
   constructor() {
     super();
-    this.world = new World();
+    this.world = new World(data);
   }
 
   async init() {

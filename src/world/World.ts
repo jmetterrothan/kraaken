@@ -2,44 +2,18 @@ import { mat3, vec2 } from "gl-matrix";
 
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
-
 import Entity from '@src/objects/Entity';
 import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
 import Object2d from '@src/objects/Object2d';
-import Lifo from "@src/shared/utility/Lifo";
 
 import { configSvc } from '@shared/services/config.service';
-import { IEntityData } from '@src/shared/models/entity.model';
 
-import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
-
-const CherryCfg: IEntityData = {
-  defaultState: {
-    orientation: {
-      x: 1,
-      y: 1
-    }
-  },
-  defaultAnimationKey: 'idle',
-  animationList: {
-    idle: {
-      sprite: 'atlas',
-      loop:  true,
-      keyframes: [
-        { row: 1, col:  0, duration: 75 },
-        { row: 1, col:  1, duration: 75 },
-        { row: 1, col:  2, duration: 75 },
-        { row: 1, col:  3, duration: 75 },
-        { row: 1, col:  4, duration: 75 },
-        { row: 1, col:  5, duration: 75 },
-        { row: 1, col:  6, duration: 75 },
-      ]
-    }
-  }
-};
+import { IWorldData } from '@src/shared/models/world.model';
 
 class World {
+  private data: IWorldData;
+
   private viewMatrix: mat3;
   private camera: Camera;
 
@@ -47,24 +21,27 @@ class World {
 
   protected children: Map<string, Object2d>;
 
-  constructor() {
+  constructor(data: IWorldData) {
+    this.data = data;
+
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    const w = 2048;
-    const h = 2048;
+    const w = data.cols * 32;
+    const h = data.rows * 32;
     this.boundaries = new Box2(w / 2, h / 2, w, h);
 
     this.children = new Map<string, Object2d>();
   }
   
   async init() {
-    await Sprite.create(imgAtlas32x32, 'atlas', 32, 32);
+    for (const sprite of this.data.sprites) {
+      await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
+    }
 
-    const player = new Entity(1024, 512, CherryCfg);
-
+    const player = new Entity(64, 64, this.data.characters.fox);
     this.add(player);
-    this.add(new Entity(0, 0, CherryCfg));
+    this.add(new Entity(0, 0, this.data.characters.cherry));
 
     this.camera.follow(player);
 
@@ -121,7 +98,7 @@ class World {
   handleMousePressed(button: number, active: boolean, position: vec2) {
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new Entity(coords[0] - 16, coords[1] - 16, CherryCfg);
+      const entity = new Entity(coords[0] - 16, coords[1] - 16, this.data.characters.cherry);
       
       if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
         setTimeout(() => entity.setDirty(true), 2000);
