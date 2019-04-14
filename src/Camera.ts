@@ -92,10 +92,14 @@ class Camera extends Object2d
         Math.trunc(lerp(this.getX(), center.x, 0.075)),
         Math.trunc(lerp(this.getY(), center.y, 0.075))
       );
-    }
 
-    if (this.hasChangedPosition()) {
-      this.shouldUpdateProjectionMatrix = true;
+      if (this.target.hasChangedPosition()) {
+        this.shouldUpdateProjectionMatrix = true;
+      }
+    } else {
+      if (this.hasChangedPosition()) {
+        this.shouldUpdateProjectionMatrix = true;
+      }
     }
 
     if (this.shouldUpdateProjectionMatrix) {
@@ -105,7 +109,7 @@ class Camera extends Object2d
       
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
-      mat3.fromScaling(zoom, [ configSvc.scale, configSvc.scale ]);
+      mat3.fromScaling(zoom, [configSvc.scale, configSvc.scale]);
       
       mat3.multiply(this.projectionMatrix, mat3.create(), zoom);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);

@@ -6,7 +6,7 @@ import Vector2 from "@shared/math/Vector2";
 class Object2d
 {
   private position: Vector2;
-  private _previousPosition: Vector2;
+  public _previousPosition: Vector2;
 
   private uuid: string;
   protected visible: boolean;
@@ -19,7 +19,7 @@ class Object2d
 
   constructor(x: number, y: number) {
     this.position = new Vector2(x, y);
-    this._previousPosition = new Vector2();
+    this._previousPosition = new Vector2(x, y);
 
     this.uuid = uuid();
     this.visible = true;

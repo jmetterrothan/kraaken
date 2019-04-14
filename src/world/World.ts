@@ -98,14 +98,12 @@ class World {
   render(alpha: number) {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
-    let i = 0;
     this.children.forEach(child => {
       if (!child.isVisible() || this.camera.isFrustumCulled(child)) {
         return;
       }
 
       child.render(viewProjectionMatrix);
-      i++;
     });
 
     // console.log(`entities : ${i}/${this.entities.length}`);
@@ -121,7 +119,7 @@ class World {
   }
 
   handleMousePressed(button: number, active: boolean, position: vec2) {
-    if (active && button === 0) {    console.log(position);
+    if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
       const entity = new Entity(coords[0] - 16, coords[1] - 16, CherryCfg);
       
