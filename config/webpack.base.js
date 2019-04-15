@@ -11,7 +11,7 @@ module.exports = {
   entry: {
     bundle: [
       '@babel/polyfill',
-      path.join(PATHS.SRC, 'index.ts'),
+      path.join(PATHS.SRC, 'index.tsx'),
       path.join(PATHS.SASS, 'main.scss')
     ]
   },
@@ -23,7 +23,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         enforce: 'pre',
         exclude: '/node_modules/',
         use: [
