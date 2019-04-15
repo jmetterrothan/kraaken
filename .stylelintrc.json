@@ -1,0 +1,8 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "font-weight-notation": "numeric",
+    "color-named": "never",
+    "max-line-length": 250
+  }
+}

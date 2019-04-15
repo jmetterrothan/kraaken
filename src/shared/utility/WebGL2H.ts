@@ -39,7 +39,7 @@ const createProgram = (gl: WebGL2RenderingContext, vsSource: string, fsSource: s
 
   if (validate) {
     gl.validateProgram(program);
-    
+
     if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
       console.error(gl.getProgramInfoLog(program));
 
@@ -57,29 +57,31 @@ const createProgram = (gl: WebGL2RenderingContext, vsSource: string, fsSource: s
 };
 
 const setUniforms = (gl: WebGL2RenderingContext, uniforms: IUniforms): void => {
-  for (let key in uniforms) {
-    const uniform = uniforms[key];
-  
-    switch(uniform.type) {
-      case '1i': gl.uniform1i(uniform.location, uniform.value); break;
-      case '1f': gl.uniform1f(uniform.location, uniform.value); break;
-      case '2f':  gl.uniform2f(uniform.location, uniform.value[0], uniform.value[1]); break;
-      case '3f': gl.uniform3f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2]); break;
-      case '4f': gl.uniform4f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2], uniform.value[3]); break;
-      case '1iv': gl.uniform1iv(uniform.location, uniform.value); break;
-      case '3iv': gl.uniform3iv(uniform.location, uniform.value); break;
-      case '1fv': gl.uniform1fv(uniform.location, uniform.value); break;
-      case '2fv': gl.uniform2fv(uniform.location, uniform.value); break;
-      case '3fv': gl.uniform3fv(uniform.location, uniform.value);break;
-      case '4fv': gl.uniform4fv(uniform.location, uniform.value); break;
-      case 'Matrix3fv': gl.uniformMatrix3fv(uniform.location, false, uniform.value); break;
-      case 'Matrix4fv': gl.uniformMatrix4fv(uniform.location, false, uniform.value); break;
+  for (const key in uniforms) {
+    if (uniforms[key]) {
+      const uniform = uniforms[key];
+
+      switch (uniform.type) {
+        case '1i': gl.uniform1i(uniform.location, uniform.value); break;
+        case '1f': gl.uniform1f(uniform.location, uniform.value); break;
+        case '2f':  gl.uniform2f(uniform.location, uniform.value[0], uniform.value[1]); break;
+        case '3f': gl.uniform3f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2]); break;
+        case '4f': gl.uniform4f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2], uniform.value[3]); break;
+        case '1iv': gl.uniform1iv(uniform.location, uniform.value); break;
+        case '3iv': gl.uniform3iv(uniform.location, uniform.value); break;
+        case '1fv': gl.uniform1fv(uniform.location, uniform.value); break;
+        case '2fv': gl.uniform2fv(uniform.location, uniform.value); break;
+        case '3fv': gl.uniform3fv(uniform.location, uniform.value); break;
+        case '4fv': gl.uniform4fv(uniform.location, uniform.value); break;
+        case 'Matrix3fv': gl.uniformMatrix3fv(uniform.location, false, uniform.value); break;
+        case 'Matrix4fv': gl.uniformMatrix4fv(uniform.location, false, uniform.value); break;
+      }
     }
   }
-}
+};
 
 export default {
   createShader,
   createProgram,
-  setUniforms
+  setUniforms,
 };

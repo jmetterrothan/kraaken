@@ -4,18 +4,18 @@ export interface IAnimationFrame {
   row: number;
   col: number;
   duration: number;
-};
+}
 
-export interface IAnimationCfg {
+export interface IAnimationData {
   sprite: string;
   loop: boolean;
   keyframes: IAnimationFrame[];
-};
+}
 
-export type IAnimationCfgList = {
-  [key: string]: IAnimationCfg;
-};
+export interface IAnimationDataList {
+  [key: string]: IAnimationData;
+}
 
-export type IAnimationList = {
+export interface IAnimationList {
   [key: string]: Animation;
-};
+}

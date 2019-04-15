@@ -1,25 +1,25 @@
-import { vec2 } from "gl-matrix";
+import { vec2 } from 'gl-matrix';
 
 abstract class State {
-  abstract async init();
+  public abstract async init();
 
-  abstract mounted();
+  public abstract mounted();
 
-  abstract dismounted();
+  public abstract dismounted();
 
-  abstract update(delta: number);
+  public abstract update(delta: number);
 
-  abstract render(alpha: number);
+  public abstract render(alpha: number);
 
-  abstract handleKeyboardInput(key: string, active: boolean);
+  public abstract handleKeyboardInput(key: string, active: boolean);
 
-  abstract handleMousePressed(button: number, active: boolean, position: vec2);
+  public abstract handleMousePressed(button: number, active: boolean, position: vec2);
 
-  abstract handleMouseMove(position: vec2);
+  public abstract handleMouseMove(position: vec2);
 
-  abstract handleFullscreenChange(b: boolean);
+  public abstract handleFullscreenChange(b: boolean);
 
-  abstract handleResize();
+  public abstract handleResize();
 }
 
 export default State;

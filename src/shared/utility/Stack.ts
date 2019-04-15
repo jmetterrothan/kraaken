@@ -10,17 +10,17 @@ abstract class Stack<T> {
   /**
    * @param {T} item
    */
-  abstract push(item: T);
+  public abstract push(item: T);
 
   /**
    * @return {T}
    */
-  abstract pop(): T;
+  public abstract pop(): T;
 
   /**
    * @return {boolean}
    */
-  isEmpty(): boolean {
+  public isEmpty(): boolean {
     return this.size === 0;
   }
 }

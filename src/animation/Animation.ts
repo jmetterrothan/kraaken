@@ -2,10 +2,9 @@ import { mat3, vec2 } from 'gl-matrix';
 
 import Sprite from '@src/animation/Sprite';
 
-import { IAnimation, IAnimationFrame } from '@shared/models/animation.model';
+import { IAnimationData, IAnimationFrame } from '@shared/models/animation.model';
 
-class Animation
-{
+class Animation {
   private name: string;
   private keyframes: IAnimationFrame[];
   private loop: boolean;
@@ -23,7 +22,7 @@ class Animation
   private flickering: boolean;
   private flickeringSpeed: number;
 
-  constructor(name: string, data: IAnimation) {
+  constructor(name: string, data: IAnimationData) {
     this.name = name;
     this.loop = data.loop;
     this.keyframes = data.keyframes;
@@ -42,7 +41,7 @@ class Animation
     this.flickeringSpeed = 150;
   }
 
-  update() {
+  public update() {
     if (!this.active) { return; }
 
     const now = window.performance.now();
@@ -55,10 +54,10 @@ class Animation
       this.time = now + this.keyframes[0].duration;
     }
 
-    if (this.loop || this.played == 0) {
+    if (this.loop || this.played === 0) {
       if (!this.paused && now >= this.time) {
         this.frame++;
-        
+
         if (this.frame >= this.keyframes.length) {
           this.frame = 0;
           this.played++;
@@ -69,12 +68,12 @@ class Animation
     }
   }
 
-  pause() {
+  public pause() {
     this.paused = true;
     this.freezeTime = window.performance.now();
   }
 
-  resume() {
+  public resume() {
     this.paused = false;
 
     if (this.freezeTime !== -1) {
@@ -82,19 +81,19 @@ class Animation
     }
   }
 
-  reset() {
+  public reset() {
     this.time = -1;
   }
 
-  playedOnce() {
+  public playedOnce() {
     return this.played > 0;
   }
-  
-  getDuration() {
+
+  public getDuration() {
     return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
-  render(viewProjectionMatrix: mat3, modelMatrix: mat3, orientation: vec2) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, orientation: vec2) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
     const renderable = this.loop || !this.playedOnce();
@@ -104,7 +103,7 @@ class Animation
     }
   }
 
-  toString() {
+  public toString() {
     return this.name;
   }
 }

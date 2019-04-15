@@ -1,13 +1,12 @@
 import Stack from '@shared/utility/Stack';
 
-class Lifo<T> extends Stack<T>
-{
-  push(item: T) {
+class Lifo<T> extends Stack<T> {
+  public push(item: T) {
     this.size++;
     this.list.push(item);
   }
 
-  pop(): T {
+  public pop(): T {
     this.size--;
     return this.list.shift();
   }

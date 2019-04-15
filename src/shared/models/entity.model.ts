@@ -1,12 +1,12 @@
-import { IAnimationCfgList } from "@src/shared/models/animation.model";
+import { IAnimationDataList } from '@src/shared/models/animation.model';
 
 export interface IEntityData {
   defaultState: {
     orientation: {
       x: number;
       y: number;
-    }
-  },
-  animationList: IAnimationCfgList;
+    },
+  };
+  animationList: IAnimationDataList;
   defaultAnimationKey: string;
-};
+}

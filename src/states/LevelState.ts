@@ -7,50 +7,50 @@ import data from '@src/data';
 
 class LevelState  extends State {
   private world: World;
-  
+
   constructor() {
     super();
     this.world = new World(data);
   }
 
-  async init() {
+  public async init() {
     console.info('Level initialized');
     await this.world.init();
   }
 
-  mounted() {
+  public mounted() {
     console.info('Level mounted');
   }
 
-  dismounted() {
-    
+  public dismounted() {
+
   }
 
-  update(delta: number) {
+  public update(delta: number) {
     this.world.update(delta);
   }
 
-  render(alpha: number) {
+  public render(alpha: number) {
     this.world.render(alpha);
   }
 
-  handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean) {
     this.world.handleKeyboardInput(key, active);
   }
 
-  handleMousePressed(button: number, active: boolean, position: vec2) {
+  public handleMousePressed(button: number, active: boolean, position: vec2) {
     this.world.handleMousePressed(button, active, position);
   }
 
-  handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2) {
     this.world.handleMouseMove(position);
   }
 
-  handleFullscreenChange(b: boolean) {
+  public handleFullscreenChange(b: boolean) {
     this.world.handleFullscreenChange(b);
   }
 
-  handleResize() {
+  public handleResize() {
     this.world.handleResize();
   }
 }

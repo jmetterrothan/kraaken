@@ -15,7 +15,7 @@ class StateManager {
     this.loading = false;
   }
 
-  add(index: number, state: State) {
+  public add(index: number, state: State) {
     if (this.states.has(index)) {
       throw new Error(`State manager has already a State defined @ index "${index}"`);
     }
@@ -23,49 +23,49 @@ class StateManager {
     this.states.set(index, { initialized: false, state });
   }
 
-  update(delta: number) {
+  public update(delta: number) {
     if (this.currentState.initialized) {
       this.currentState.state.update(delta);
     }
   }
 
-  render(alpha: number) {
+  public render(alpha: number) {
     if (this.currentState.initialized) {
       this.currentState.state.render(alpha);
     }
   }
 
-  handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean) {
     if (this.currentState.initialized) {
       this.currentState.state.handleKeyboardInput(key, active);
     }
   }
 
-  handleMousePressed(button: number, active: boolean, position: vec2) {
+  public handleMousePressed(button: number, active: boolean, position: vec2) {
     if (this.currentState.initialized) {
       this.currentState.state.handleMousePressed(button, active, position);
     }
   }
 
-  handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2) {
     if (this.currentState.initialized) {
       this.currentState.state.handleMouseMove(position);
     }
   }
 
-  handleFullscreenChange(b: boolean) {
+  public handleFullscreenChange(b: boolean) {
     if (this.currentState.initialized) {
       this.currentState.state.handleFullscreenChange(b);
     }
   }
 
-  handleResize() {
+  public handleResize() {
     if (this.currentState.initialized) {
       this.currentState.state.handleResize();
     }
   }
 
-  async switch(index: number) {
+  public async switch(index: number) {
     if (!this.states.has(index)) {
       throw new Error(`Invalid state index provided "${index}"`);
     }
@@ -82,7 +82,7 @@ class StateManager {
 
     if (!this.currentState.initialized) {
       this.loading = true;
-      
+
       await this.currentState.state.init();
       this.currentState.initialized = true;
       this.loading = false;
@@ -91,12 +91,12 @@ class StateManager {
     this.currentState.state.mounted();
   }
 
-  setLoading(b: boolean) {
+  public setLoading(b: boolean) {
     // TODO: show loading UI
     this.loading = b;
   }
 
-  getLoading(): boolean {
+  public getLoading(): boolean {
     return this.loading;
   }
 

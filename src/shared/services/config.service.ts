@@ -10,7 +10,7 @@ class ConfigService {
 
   constructor() {
     this.debug = true;
-    
+
     this.frameSize = { w: -1, h: -1 };
     this.innerSize = { w: -1, h: -1 };
   }

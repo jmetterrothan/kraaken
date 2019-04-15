@@ -1,14 +1,13 @@
-import { vec2, mat3 } from "gl-matrix";
+import { mat3, vec2 } from 'gl-matrix';
 
-import Object2d from "@src/objects/Object2d";
-import Box2 from "@src/shared/math/Box2";
+import Object2d from '@src/objects/Object2d';
+import Box2 from '@src/shared/math/Box2';
 
+import Vector2 from '@shared/math/Vector2';
+import { configSvc } from '@shared/services/config.service';
 import { lerp } from '@shared/utility/MathHelpers';
-import { configSvc } from "@shared/services/config.service";
-import Vector2 from "@shared/math/Vector2";
 
-class Camera extends Object2d
-{
+class Camera extends Object2d {
   private projectionMatrix: mat3;
   private projectionMatrixInverse: mat3;
 
@@ -29,13 +28,13 @@ class Camera extends Object2d
     this.visible = false;
   }
 
-  follow(target: Object2d) {
+  public follow(target: Object2d) {
     this.target = target;
 
     this.recenter();
   }
 
-  recenter(point?: Vector2) {
+  public recenter(point?: Vector2) {
     let center = point;
     if (!point) {
       center = this.target.getPosition();
@@ -46,7 +45,7 @@ class Camera extends Object2d
     this.shouldUpdateProjectionMatrix = true;
   }
 
-  clamp(boundaries: Box2) {
+  public clamp(boundaries: Box2) {
     const x1 = boundaries.getMinX() + configSvc.innerSize.w / 2;
     const x2 = boundaries.getMaxX() - configSvc.innerSize.w / 2;
     const y1 = boundaries.getMinY() + configSvc.innerSize.h / 2;
@@ -66,7 +65,7 @@ class Camera extends Object2d
     }
   }
 
-  updateViewBox() {
+  public updateViewBox() {
     this.projectionMatrixInverse = mat3.invert(mat3.create(), this.projectionMatrix);
 
     const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.projectionMatrixInverse);
@@ -83,14 +82,14 @@ class Camera extends Object2d
     console.log(`${this.toString()} | viewbox matrix`);
   }
 
-  update(delta: number) {
+  public update(delta: number) {
     // Follow target
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
       this.setPosition(
         Math.trunc(lerp(this.getX(), center.x, 0.075)),
-        Math.trunc(lerp(this.getY(), center.y, 0.075))
+        Math.trunc(lerp(this.getY(), center.y, 0.075)),
       );
 
       if (this.target.hasChangedPosition()) {
@@ -106,11 +105,11 @@ class Camera extends Object2d
       const position = mat3.create();
       const offset = mat3.create();
       const zoom = mat3.create();
-      
+
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
       mat3.fromScaling(zoom, [configSvc.scale, configSvc.scale]);
-      
+
       mat3.multiply(this.projectionMatrix, mat3.create(), zoom);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, offset);
@@ -120,15 +119,15 @@ class Camera extends Object2d
     }
   }
 
-  isFrustumCulled(object: Object2d): boolean {
+  public isFrustumCulled(object: Object2d): boolean {
     return !this.viewBox.containsPoint(object.getPosition());
   }
 
-  screenToCameraCoords(coords: vec2): vec2 {
+  public screenToCameraCoords(coords: vec2): vec2 {
     return vec2.transformMat3(vec2.create(), coords, this.projectionMatrixInverse);
   }
 
-  getProjectionMatrix(): mat3 {
+  public getProjectionMatrix(): mat3 {
     return this.projectionMatrix;
   }
 }

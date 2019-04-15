@@ -7,45 +7,25 @@ class EditorState extends State {
     super();
   }
 
-  async init() {
+  public async init() { }
 
-  }
+  public mounted() { }
 
-  mounted() {
-    
-  }
+  public dismounted() { }
 
-  dismounted() {
-    
-  }
+  public update(delta: number) { }
 
-  update(delta: number) {
+  public render(alpha: number) { }
 
-  }
+  public handleKeyboardInput(key: string, active: boolean) { }
 
-  render(alpha: number) {
+  public handleMousePressed(button: number, active: boolean, position: vec2) { }
 
-  }
+  public handleMouseMove(position: vec2) { }
 
-  handleKeyboardInput(key: string, active: boolean) {
-    
-  }
+  public handleFullscreenChange(b: boolean) { }
 
-  handleMousePressed(button: number, active: boolean, position: vec2) {
-    
-  }
-
-  handleMouseMove(position: vec2) {
-    
-  }
-
-  handleFullscreenChange(b: boolean) {
-    
-  }
-
-  handleResize() {
-    
-  }
+  public handleResize() { }
 }
 
 export default EditorState;

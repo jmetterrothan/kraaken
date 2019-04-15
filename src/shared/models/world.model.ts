@@ -6,6 +6,6 @@ export interface IWorldData {
   cols: number;
   sprites: ISpriteData[];
   characters: {
-    [key: string]: IEntityData
-  }
-};
+    [key: string]: IEntityData,
+  };
+}
