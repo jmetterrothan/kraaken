@@ -11,7 +11,6 @@ import vs from '@assets/shaders/object.vs.glsl';
 import fs from '@assets/shaders/sprite.fs.glsl';
 
 class Sprite extends Material {
-
   public static createQuadVertices(x: number, y: number, w: number, h: number): Float32Array {
     return new Float32Array([
       x, y + h,

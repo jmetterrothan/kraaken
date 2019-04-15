@@ -1,13 +1,17 @@
 import { mat3 } from 'gl-matrix';
 
+import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
 import { uuid } from '@shared/utility/Utility';
 
+import { configSvc } from '@shared/services/config.service';
+
 class Object2d {
-  public previousPosition: Vector2;
   protected visible: boolean;
 
   protected modelMatrix: mat3;
+  protected previousPosition: Vector2;
+
   private position: Vector2;
 
   private uuid: string;
@@ -32,7 +36,7 @@ class Object2d {
 
   public update(delta: number) {
     if (this.shouldUpdateModelMatrix) {
-      this.modelMatrix = mat3.fromTranslation(mat3.create(), this.position.toGlArray());
+      this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().addScalar(-16).toGlArray());
       this.shouldUpdateModelMatrix = false;
 
       console.log(`${this.toString()} | model matrix`);
@@ -43,6 +47,26 @@ class Object2d {
 
   public render(viewProjectionMatrix: mat3) {
     this.children.forEach((child) => child.render(viewProjectionMatrix));
+  }
+
+  public clamp(boundaries: Box2) {
+    const x1 = boundaries.getMinX();
+    const x2 = boundaries.getMaxX();
+    const y1 = boundaries.getMinY();
+    const y2 = boundaries.getMaxY();
+
+    if (this.getX() < x1) {
+        this.setX(x1);
+    }
+    if (this.getY() < y1) {
+        this.setY(y1);
+    }
+    if (this.getX() > x2) {
+        this.setX(x2);
+    }
+    if (this.getY() > y2) {
+        this.setY(y2);
+    }
   }
 
   public add(object: Object2d) {
@@ -71,15 +95,14 @@ class Object2d {
   public getY(): number { return this.position.y; }
 
   public getPosition(): Vector2 { return this.position.clone(); }
+  public getPreviousPosition(): Vector2 { return this.previousPosition.clone(); }
+
   public getModelMatrix(): mat3 { return this.modelMatrix; }
 
   public isVisible(): boolean { return this.visible; }
 
   public isDirty(): boolean { return this.dirty; }
-
-  public setDirty(b: boolean) {
-    this.dirty = b;
-  }
+  public setDirty(b: boolean) { this.dirty = b; }
 
   public hasChangedPosition(): boolean { return this.position.notEquals(this.previousPosition); }
 

@@ -45,6 +45,23 @@ class Camera extends Object2d {
     this.shouldUpdateProjectionMatrix = true;
   }
 
+  public updateViewBox() {
+    this.projectionMatrixInverse = mat3.invert(mat3.create(), this.projectionMatrix);
+
+    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.projectionMatrixInverse);
+    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), this.projectionMatrixInverse);
+    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), this.projectionMatrixInverse);
+    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), this.projectionMatrixInverse);
+
+    const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
+    const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
+
+    this.viewBox.setMin(min[0], min[1]);
+    this.viewBox.setMax(max[0], max[1]);
+
+    console.log(`${this.toString()} | viewbox matrix`);
+  }
+
   public clamp(boundaries: Box2) {
     const x1 = boundaries.getMinX() + configSvc.innerSize.w / 2;
     const x2 = boundaries.getMaxX() - configSvc.innerSize.w / 2;
@@ -65,31 +82,14 @@ class Camera extends Object2d {
     }
   }
 
-  public updateViewBox() {
-    this.projectionMatrixInverse = mat3.invert(mat3.create(), this.projectionMatrix);
-
-    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.projectionMatrixInverse);
-    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), this.projectionMatrixInverse);
-    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), this.projectionMatrixInverse);
-    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), this.projectionMatrixInverse);
-
-    const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
-    const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
-
-    this.viewBox.setMin(min[0], min[1]);
-    this.viewBox.setMax(max[0], max[1]);
-
-    console.log(`${this.toString()} | viewbox matrix`);
-  }
-
   public update(delta: number) {
     // Follow target
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
       this.setPosition(
-        Math.trunc(lerp(this.getX(), center.x, 0.075)),
-        Math.trunc(lerp(this.getY(), center.y, 0.075)),
+        Math.trunc(lerp(center.x, this.getX(), 0.075)),
+        Math.trunc(lerp(center.y, this.getY(), 0.075)),
       );
 
       if (this.target.hasChangedPosition()) {

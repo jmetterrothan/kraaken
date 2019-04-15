@@ -6,6 +6,7 @@ import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/Entity';
 import Object2d from '@src/objects/Object2d';
+import Player from '@src/objects/Player';
 
 import { configSvc } from '@shared/services/config.service';
 
@@ -20,6 +21,8 @@ class World {
   private camera: Camera;
 
   private boundaries: Box2;
+
+  private player: Player;
 
   constructor(data: IWorldData) {
     this.data = data;
@@ -39,11 +42,13 @@ class World {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    const player = new Entity(64, 64, this.data.characters.fox);
-    this.add(player);
-    this.add(new Entity(0, 0, this.data.characters.cherry));
+    this.player = new Player(512, 512, this.data.characters.fox);
+    this.camera.follow(this.player);
 
-    this.camera.follow(player);
+    this.add(this.player);
+    this.add(this.camera);
+
+    // this.add(new Entity(0, 0, this.data.characters.cherry));
 
     console.info('World initialized');
   }
@@ -66,10 +71,8 @@ class World {
       }
 
       child.update(delta);
+      child.clamp(this.boundaries);
     });
-
-    this.camera.clamp(this.boundaries);
-    this.camera.update(delta);
   }
 
   public render(alpha: number) {
@@ -92,16 +95,16 @@ class World {
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
-
+    this.player.handleKeyboardInput(key, active);
   }
 
   public handleMousePressed(button: number, active: boolean, position: vec2) {
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new Entity(coords[0] - 16, coords[1] - 16, this.data.characters.cherry);
+      const entity = new Entity(coords[0], coords[1], this.data.characters.cherry);
 
       if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
-        setTimeout(() => entity.setDirty(true), 2000);
+        setTimeout(() => entity.setDirty(true), 200000);
         this.add(entity);
       }
     }

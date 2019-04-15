@@ -174,7 +174,7 @@ class Game {
       let nbOfSteps = 0;
 
       while (this.lag >= Game.MS_PER_UPDATE) {
-        this.update(Game.MS_PER_UPDATE);
+        this.update(Game.MS_PER_UPDATE / 1000);
 
         this.ups++;
         this.ticks++;

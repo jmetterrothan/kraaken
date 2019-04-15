@@ -3,8 +3,8 @@ import { IWorldData } from '@src/shared/models/world.model';
 import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
 
 const data: IWorldData = {
-  cols: 16,
-  rows: 16,
+  cols: 32,
+  rows: 32,
   sprites : [
     {
       src: imgAtlas32x32,
