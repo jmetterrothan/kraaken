@@ -2,7 +2,7 @@ import { IAnimationDataList } from '@src/shared/models/animation.model';
 
 export interface IEntityData {
   defaultState: {
-    orientation: {
+    direction: {
       x: number;
       y: number;
     },

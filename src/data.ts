@@ -16,7 +16,7 @@ const data: IWorldData = {
   characters: {
     fox: {
       defaultState: {
-        orientation: {
+        direction: {
           x: 1,
           y: 1,
         },
@@ -87,7 +87,7 @@ const data: IWorldData = {
     },
     cherry: {
       defaultState: {
-        orientation: {
+        direction: {
           x: 1,
           y: 1,
         },

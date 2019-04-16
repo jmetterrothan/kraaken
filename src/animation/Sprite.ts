@@ -3,6 +3,7 @@ import md5 from 'md5';
 
 import Material from '@src/animation/Material';
 import { gl } from '@src/Game';
+import Vector2 from '@src/shared/math/Vector2';
 
 import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 import WebGL2H from '@shared/utility/WebGL2H';
@@ -168,12 +169,12 @@ class Sprite extends Material {
     this.loaded = true;
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, orientation: vec2) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2) {
     if (this.loaded) {
       this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
 
-      this.uniforms.u_frame.value[0] = ((col + (orientation[0] === -1 ? 1 : 0)) * this.tileWidth / this.width) * orientation[0];
-      this.uniforms.u_frame.value[1] = ((row + (orientation[1] === -1 ? 1 : 0)) * this.tileHeight / this.height) * orientation[1];
+      this.uniforms.u_frame.value[0] = ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x;
+      this.uniforms.u_frame.value[1] = ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y;
 
       gl.useProgram(this.program);
 

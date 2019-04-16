@@ -1,8 +1,9 @@
-import { mat3, vec2 } from 'gl-matrix';
+import { mat3 } from 'gl-matrix';
 
 import Sprite from '@src/animation/Sprite';
 
 import { IAnimationData, IAnimationFrame } from '@shared/models/animation.model';
+import Vector2 from '@src/shared/math/Vector2';
 
 class Animation {
   private name: string;
@@ -93,13 +94,13 @@ class Animation {
     return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, orientation: vec2) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
-        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, orientation);
+        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, direction);
     }
   }
 
