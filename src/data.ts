@@ -5,15 +5,15 @@ import imgAtlas48x48 from '@assets/textures/atlas48x48.png';
 
 const data: IWorldData = {
   level: {
-    cols: 32,
-    rows: 32,
+    cols: 24,
+    rows: 16,
     player: {
       key: 'fox',
       spawn: { x: 512, y: 512 },
     },
     entities: [
       {
-        key: 'fox',
+        key: 'frog',
         spawn: { x: 64, y: 64 },
       },
     ],
@@ -73,9 +73,28 @@ const data: IWorldData = {
     },
   },
   entities: {
+    frog:  {
+      metadata: {
+        bbox: { w: 26, h: 19 },
+        direction: { x: 1, y: 1 },
+      },
+      defaultAnimationKey: 'default',
+      animationList: {
+        default: {
+          sprite: 'atlas2',
+          loop:  true,
+          keyframes: [
+            { row: 2, col:  2, duration: 100 },
+            { row: 2, col:  3, duration: 150 },
+            { row: 2, col:  4, duration: 550 },
+            { row: 2, col:  5, duration: 100 },
+          ],
+        },
+      },
+    },
     fox: {
       metadata: {
-        bbox: { w: 19, h: 21 },
+        bbox: { w: 20, h: 32 },
         direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'idle',
@@ -166,7 +185,7 @@ const data: IWorldData = {
     },
     gemstone: {
       metadata: {
-        bbox: { w: 13, h: 11 },
+        bbox: { w: 14, h: 12 },
         direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
