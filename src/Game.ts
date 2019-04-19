@@ -270,9 +270,20 @@ class Game {
     };
 
     // Click events
-    canvas.addEventListener('mouseup', (e) => this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, e.offsetX, e.offsetY)), false);
-    canvas.addEventListener('mousedown', (e) => this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, e.offsetX, e.offsetY)), false);
-    canvas.addEventListener('mousemove', (e) => this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY)), false);
+    canvas.addEventListener('mouseup', (e) => {
+      e.preventDefault();
+      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, e.offsetX, e.offsetY));
+    }, false);
+
+    canvas.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, e.offsetX, e.offsetY));
+    }, false);
+
+    canvas.addEventListener('mousemove', (e) => {
+      e.preventDefault();
+      this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY));
+    }, false);
 
     // Fullscreen events
     document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);
