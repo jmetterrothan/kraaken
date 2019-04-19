@@ -1,22 +1,20 @@
-import { mat3 } from 'gl-matrix';
-
 import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
 import { uuid } from '@shared/utility/Utility';
-
-import { configSvc } from '@shared/services/config.service';
+import World from '@src/world/World';
+import { mat3 } from 'gl-matrix';
 
 class Object2d {
   protected visible: boolean;
 
   protected modelMatrix: mat3;
   protected previousPosition: Vector2;
+  protected shouldUpdateModelMatrix: boolean;
 
   private position: Vector2;
 
   private uuid: string;
   private dirty: boolean;
-  private shouldUpdateModelMatrix: boolean;
 
   private children: Map<string, Object2d>;
 
@@ -28,21 +26,21 @@ class Object2d {
     this.visible = true;
     this.dirty = false;
 
-    this.modelMatrix = mat3.create();
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
     this.shouldUpdateModelMatrix = true;
 
     this.children = new Map<string, Object2d>();
   }
 
-  public update(delta: number) {
+  public update(world: World, delta: number) {
     if (this.shouldUpdateModelMatrix) {
-      this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().addScalar(-16).toGlArray());
+      this.updateModelMatrix();
       this.shouldUpdateModelMatrix = false;
 
-      console.log(`${this.toString()} | model matrix`);
+      // console.log(`${this.toString()} | model matrix`);
     }
 
-    this.children.forEach((child) => child.update(delta));
+    this.children.forEach((child) => child.update(world, delta));
   }
 
   public render(viewProjectionMatrix: mat3) {
@@ -100,6 +98,7 @@ class Object2d {
   public getModelMatrix(): mat3 { return this.modelMatrix; }
 
   public isVisible(): boolean { return this.visible; }
+  public setVisible(b: boolean) { return this.visible = b; }
 
   public isDirty(): boolean { return this.dirty; }
   public setDirty(b: boolean) { this.dirty = b; }
@@ -108,6 +107,12 @@ class Object2d {
 
   public toString(): string { return this.uuid; }
   public getUUID(): string { return this.uuid; }
+
+  public getChildren(): Object2d[] { return Array.from(this.children.values()); }
+
+  protected updateModelMatrix() {
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
+  }
 }
 
 export default Object2d;

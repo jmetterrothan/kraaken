@@ -19,3 +19,8 @@ export interface IAnimationDataList {
 export interface IAnimationList {
   [key: string]: Animation;
 }
+
+export enum CharacterAnimationKeys {
+  idle = 'idle',
+  walking = 'walking',
+}

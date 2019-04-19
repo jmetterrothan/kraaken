@@ -1,20 +1,12 @@
-import Vector2 from '@shared/math/Vector2';
-import AnimatedObject2d from '@src/objects/AnimatedObject2';
+import { CharacterAnimationKeys } from '@shared/models/animation.model';
+import { IEntityData } from '@shared/models/entity.model';
+import Entity from '@src/objects/entity/Entity';
 
-import { IEntityData } from '@src/shared/models/entity.model';
-
-enum CHARACTER_ANIMATION_KEYS {
-  idle = 'idle',
-  walking = 'walking',
-}
-
-class Entity extends AnimatedObject2d {
+class Player extends Entity {
   protected left: boolean;
   protected right: boolean;
   protected up: boolean;
   protected down: boolean;
-
-  protected velocity: Vector2;
 
   constructor(x: number, y: number, data: IEntityData) {
     super(x, y, data);
@@ -23,19 +15,10 @@ class Entity extends AnimatedObject2d {
     this.right = false;
     this.up = false;
     this.down = false;
-
-    this.velocity = new Vector2();
-  }
-
-  public update(delta: number) {
-    this.move(delta);
-    super.update(delta);
   }
 
   public move(delta: number) {
     const speed = 100;
-
-    const position = this.getPosition();
 
     this.velocity.x = 0;
     this.velocity.y = 0;
@@ -59,16 +42,34 @@ class Entity extends AnimatedObject2d {
         this.direction.x = direction.x;
       }
     }
+  }
 
-    this.setPositionFromVector2(position.add(this.velocity.clone().multiplyScalar(delta)).floor());
+  public handleKeyboardInput(key: string, active: boolean) {
+    switch (key) {
+      case 'ArrowLeft':
+        this.left = active;
+        break;
+
+      case 'ArrowRight':
+        this.right = active;
+        break;
+
+      case 'ArrowUp':
+        this.up = active;
+        break;
+
+      case 'ArrowDown':
+        this.down = active;
+        break;
+    }
   }
 
   protected updateCurrentAnimationKey(): string {
     if (this.left || this.right) {
-      return CHARACTER_ANIMATION_KEYS.walking;
+      return CharacterAnimationKeys.walking;
     }
-    return CHARACTER_ANIMATION_KEYS.idle;
+    return CharacterAnimationKeys.idle;
   }
 }
 
-export default Entity;
+export default Player;
