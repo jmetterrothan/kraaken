@@ -2,10 +2,10 @@
 
 precision mediump float;
 
-in vec2 v_texture_coord;
+uniform vec4 u_color;
 
 out vec4 fragColor;
 
 void main() {
-    fragColor = vec4(1, 0, 0, 1);
+    fragColor = u_color;
 }

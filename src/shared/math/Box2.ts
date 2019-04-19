@@ -1,4 +1,7 @@
 import Vector2 from '@shared/math/Vector2';
+import Box2Helper from '@src/shared/helper/Box2Helper';
+
+import { IRGBColorData } from '../models/color.model';
 
 class Box2 {
   private min: Vector2;
@@ -61,9 +64,14 @@ class Box2 {
   public getMaxX(): number { return this.max.x; }
   public getMinY(): number { return this.min.y; }
   public getMaxY(): number { return this.max.y; }
+  public getCenterX(): number { return this.min.x + (this.max.x - this.min.x) / 2; }
+  public getCenterY(): number { return this.min.y + (this.max.y - this.min.y) / 2; }
 
   public getCenter(): Vector2 {
-    return new Vector2().addVectors(this.min, this.max).multiplyScalar(0.5);
+    return this.min.clone().addVectors(this.min, this.max).multiplyScalar(0.5);
+  }
+  public createHelper(color: IRGBColorData = { r: 0, g: 0, b: 0 }): Box2Helper {
+    return new Box2Helper(this, color);
   }
 }
 

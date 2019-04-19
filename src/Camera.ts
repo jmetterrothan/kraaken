@@ -1,10 +1,12 @@
 import { mat3, vec2 } from 'gl-matrix';
 
+import Vector2 from '@shared/math/Vector2';
+import Entity from '@src/objects/entity/Entity';
 import Object2d from '@src/objects/Object2d';
+import Box2Helper from '@src/shared/helper/Box2Helper';
 import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
-import Vector2 from '@shared/math/Vector2';
 import { configSvc } from '@shared/services/config.service';
 import { lerp } from '@shared/utility/MathHelpers';
 
@@ -83,9 +85,7 @@ class Camera extends Object2d {
     }
   }
 
-  public update(world: World, delta: number) {
-    // super.update(world, delta);
-
+  public update() {
     // Follow target
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
@@ -122,7 +122,15 @@ class Camera extends Object2d {
     }
   }
 
-  public isFrustumCulled(object: Object2d): boolean {
+  public isFrustumCulled(object: Entity | Box2Helper | Object2d): boolean {
+    if (object instanceof Box2Helper && this.viewBox.intersectBox((object as Box2Helper).getBox2())) {
+      return false;
+    }
+
+    if (object instanceof Entity && this.viewBox.intersectBox((object as Entity).getBbox())) {
+      return false;
+    }
+
     return !this.viewBox.containsPoint(object.getPosition());
   }
 
