@@ -36,6 +36,8 @@ class World {
     this.boundaries = new Box2(w / 2, h / 2, w, h);
 
     this.children = new Map<string, Object2d>();
+
+    this.add(this.boundaries.createHelper());
   }
 
   public async init() {
@@ -44,7 +46,6 @@ class World {
     }
 
     this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
-
     this.camera.follow(this.player);
 
     this.add(this.player);
@@ -54,7 +55,7 @@ class World {
       this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
     }
 
-    this.add(new HealEffectConsummable(512, 512, this.data.entities.cherry));
+    this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
 
     console.info('World initialized');
   }
@@ -77,7 +78,6 @@ class World {
       }
 
       child.update(this, delta);
-      child.clamp(this.boundaries);
     });
   }
 
@@ -92,7 +92,7 @@ class World {
       child.render(viewProjectionMatrix);
     });
 
-    // console.log(`entities : ${i}/${this.entities.length}`);
+    // console.log(`entities : ${i}/${this.children.size}`);
   }
 
   public canBeCleanedUp(target: Object2d | Object2d[]): boolean {
@@ -143,7 +143,8 @@ class World {
     this.camera.recenter();
   }
 
-  public getPlayer() { return this.player; }
+  public getPlayer(): Player { return this.player; }
+  public getBoundaries(): Box2 { return this.boundaries; }
 }
 
 export default World;

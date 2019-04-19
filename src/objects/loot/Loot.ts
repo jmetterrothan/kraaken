@@ -1,7 +1,9 @@
-import { IConsummable } from '@shared/models/loot.model';
 import Entity from '@src/objects/entity/Entity';
-import { IEntityData } from '@src/shared/models/entity.model';
+import Box2Helper from '@src/shared/helper/Box2Helper';
 import World from '@src/world/World';
+
+import { IConsummable } from '@shared/models/loot.model';
+import { IEntityData } from '@src/shared/models/entity.model';
 
 abstract class Loot extends Entity implements IConsummable {
   private consummated: boolean;
@@ -10,6 +12,8 @@ abstract class Loot extends Entity implements IConsummable {
     super(x, y, data);
 
     this.consummated = false;
+
+    // this.add(new Box2Helper(this.getBbox(), { r: 1, g: 0, b: 0 }));
   }
 
   public update(world: World, delta: number) {

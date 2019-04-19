@@ -1,6 +1,8 @@
+import Entity from '@src/objects/entity/Entity';
+import Box2Helper from '@src/shared/helper/Box2Helper';
+
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
 import { IEntityData } from '@shared/models/entity.model';
-import Entity from '@src/objects/entity/Entity';
 
 class Player extends Entity {
   protected left: boolean;
@@ -15,6 +17,8 @@ class Player extends Entity {
     this.right = false;
     this.up = false;
     this.down = false;
+
+    this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
   }
 
   public move(delta: number) {
@@ -33,14 +37,6 @@ class Player extends Entity {
       this.velocity.y = -speed;
     } else if (this.down) {
       this.velocity.y = speed;
-    }
-
-    // change direction based of velocity
-    if (this.velocity.x !== 0) {
-      const direction = this.velocity.clone().normalize().ceil();
-      if (direction.x !== 0) {
-        this.direction.x = direction.x;
-      }
     }
   }
 

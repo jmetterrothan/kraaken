@@ -18,7 +18,7 @@ class Entity extends AnimatedObject2d {
   }
 
   public collideWith(object: Entity | Object2d): boolean {
-    if (object instanceof Entity && this.bbox.containsBox(object.getBbox())) {
+    if (object instanceof Entity && this.bbox.intersectBox((object as Entity).getBbox())) {
       return true;
     }
 
@@ -29,19 +29,64 @@ class Entity extends AnimatedObject2d {
     return false;
   }
 
-  public update(world: World, delta: number) {
+  public updateMovement(world: World, delta: number) {
+    // update velocity values
     if (this.move !== undefined) {
       this.move(delta);
     }
 
+    // change direction based of new velocity
     if (this.velocity.x !== 0 || this.velocity.y !== 0) {
+      const direction = this.velocity.clone().normalize().ceil();
+      if (direction.x !== 0) {
+        this.direction.x = direction.x;
+      }
+
       this.setPositionFromVector2(
         this.getPosition().add(this.velocity.clone().multiplyScalar(delta)).floor(),
       );
     }
+  }
 
-    this.bbox.setPositionFromCenter(this.getX(), this.getY());
+  public update(world: World, delta: number) {
+    this.updateMovement(world, delta);
     super.update(world, delta);
+  }
+
+  public clamp(boundaries: Box2) {
+    const bboxHWidth = this.bbox.getWidth() / 2;
+    const bboxHHeight = this.bbox.getHeight() / 2;
+
+    const x1 = boundaries.getMinX() + bboxHWidth;
+    const x2 = boundaries.getMaxX() - bboxHWidth;
+    const y1 = boundaries.getMinY() + bboxHHeight;
+    const y2 = boundaries.getMaxY() - bboxHHeight;
+
+    let x = this.getX();
+    let y = this.getY();
+
+    if (this.getX() < x1) {
+        x = x1;
+        this.velocity.x = 0;
+    }
+    if (this.getY() < y1) {
+        y = y1;
+        this.velocity.y = 0;
+    }
+    if (this.getX() > x2) {
+        x =  x2;
+        this.velocity.x = 0;
+    }
+    if (this.getY() > y2) {
+        y = y2;
+        this.velocity.y = 0;
+    }
+
+    if (x !== this.getX() || y !== this.getY()) {
+      this.setPosition(x, y);
+    }
+
+    this.bbox.setPositionFromCenter(x, y);
   }
 
   public move(delta: number) { }

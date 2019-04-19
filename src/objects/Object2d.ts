@@ -1,8 +1,12 @@
+
+import { mat3 } from 'gl-matrix';
+
 import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
 import { uuid } from '@shared/utility/Utility';
 import World from '@src/world/World';
-import { mat3 } from 'gl-matrix';
+
+import { configSvc } from '@shared/services/config.service';
 
 class Object2d {
   protected visible: boolean;
@@ -32,7 +36,9 @@ class Object2d {
     this.children = new Map<string, Object2d>();
   }
 
-  public update(world: World, delta: number) {
+  public update(world: World, delta?: number) {
+    this.clamp(world.getBoundaries());
+
     if (this.shouldUpdateModelMatrix) {
       this.updateModelMatrix();
       this.shouldUpdateModelMatrix = false;
