@@ -2,12 +2,14 @@ export interface IAttributes {
   [key: string]: number;
 }
 
+export interface IUniform {
+  type: string;
+  value: any;
+  location?: WebGLUniformLocation;
+}
+
 export interface IUniforms {
-  [key: string]: {
-    type: string;
-    value: any;
-    location?: WebGLUniformLocation;
-  };
+  [key: string]: IUniform;
 }
 
 export interface ISpriteData {

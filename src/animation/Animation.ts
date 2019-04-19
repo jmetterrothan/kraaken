@@ -95,12 +95,13 @@ class Animation {
   }
 
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2, wireframe: boolean = false) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
-        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, direction);
+        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, direction, wireframe);
     }
   }
 

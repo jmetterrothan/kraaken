@@ -1,4 +1,4 @@
-import { mat3, vec2 } from 'gl-matrix';
+import { mat3, vec2, vec3 } from 'gl-matrix';
 import md5 from 'md5';
 
 import Material from '@src/animation/Material';
@@ -8,19 +8,10 @@ import Vector2 from '@src/shared/math/Vector2';
 import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 import WebGL2H from '@shared/utility/WebGL2H';
 
-import vs from '@assets/shaders/object.vs.glsl';
-import fs from '@assets/shaders/sprite.fs.glsl';
+import vsObject from '@assets/shaders/object.vs.glsl';
+import fsSprite from '@assets/shaders/sprite.fs.glsl';
 
-class Sprite extends Material {
-  public static createQuadVertices(x: number, y: number, w: number, h: number): Float32Array {
-    return new Float32Array([
-      x, y + h,
-      x, y,
-      x + w, y,
-      x + w, y + h,
-    ]);
-  }
-
+class Sprite {
   public static async load(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
       const hash: string = md5(src);
@@ -61,9 +52,13 @@ class Sprite extends Material {
     }
     return Sprite.LOADED_SPRITES.get(alias);
   }
+
   private static LOADED_SPRITES: Map<string, Sprite> = new Map<string, Sprite>();
   private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
   private static INDICES: Uint16Array = new Uint16Array([ 3, 2, 1, 3, 1, 0 ]);
+
+  private wireframe: boolean;
+  private textureMaterial: Material;
 
   private src: string;
   private alias: string;
@@ -86,7 +81,7 @@ class Sprite extends Material {
   private uniforms: IUniforms;
 
   constructor(src: string, alias: string, tw: number, th: number) {
-    super(vs, fs);
+    this.textureMaterial = new Material(vsObject, fsSprite);
 
     this.src = src;
     this.alias = alias;
@@ -106,13 +101,15 @@ class Sprite extends Material {
     this.texture = gl.createTexture();
 
     this.attributes = {
-      a_position: gl.getAttribLocation(this.program, 'a_position'),
-      a_texture_coord: gl.getAttribLocation(this.program, 'a_texture_coord'),
+      a_position: gl.getAttribLocation(this.textureMaterial.program, 'a_position'),
+      a_texture_coord: gl.getAttribLocation(this.textureMaterial.program, 'a_texture_coord'),
     };
 
     this.uniforms = {
       u_mvp: { type: 'Matrix3fv', value: mat3.create() },
       u_frame: { type: '2fv', value: vec2.create() },
+      u_color: { type: '3fv', value: vec3.create() },
+      u_wireframe: { type: '1i', value: 0 },
       u_image: { type: '1i', value: 0 },
     };
   }
@@ -120,7 +117,7 @@ class Sprite extends Material {
   public async init() {
     for (const key in this.uniforms) {
       if (this.uniforms[key]) {
-        this.uniforms[key].location = gl.getUniformLocation(this.program, key);
+        this.uniforms[key].location = gl.getUniformLocation(this.textureMaterial.program, key);
       }
     }
 
@@ -134,10 +131,10 @@ class Sprite extends Material {
   }
 
   public setup(image: HTMLImageElement) {
-    gl.useProgram(this.program);
+    gl.useProgram(this.textureMaterial.program);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, Sprite.createQuadVertices(0, 0, this.tileWidth, this.tileHeight), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth, this.tileHeight), gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, Sprite.INDICES, gl.STATIC_DRAW);
@@ -149,7 +146,7 @@ class Sprite extends Material {
 
     // texture
     gl.bindBuffer(gl.ARRAY_BUFFER, this.tbo);
-    gl.bufferData(gl.ARRAY_BUFFER, Sprite.createQuadVertices(0, 0, this.tileWidth / this.width, this.tileHeight / this.height), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth / this.width, this.tileHeight / this.height), gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this.attributes.a_texture_coord);
     gl.vertexAttribPointer(this.attributes.a_texture_coord, 2, gl.FLOAT, false, 0, 0);
@@ -169,14 +166,15 @@ class Sprite extends Material {
     this.loaded = true;
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean) {
     if (this.loaded) {
       this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
 
       this.uniforms.u_frame.value[0] = ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x;
       this.uniforms.u_frame.value[1] = ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y;
+      this.uniforms.u_wireframe.value = false;
 
-      gl.useProgram(this.program);
+      gl.useProgram(this.textureMaterial.program);
 
       gl.bindVertexArray(this.vao);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
@@ -185,8 +183,18 @@ class Sprite extends Material {
       WebGL2H.setUniforms(gl, this.uniforms);
 
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+
+      if (wireframe) {
+        this.uniforms.u_wireframe.value = true;
+        WebGL2H.setUniform(gl, this.uniforms.u_wireframe);
+
+        gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
+      }
     }
   }
+
+  public getTileWidth() { return this.tileWidth; }
+  public getTileHeight() { return this.tileHeight; }
 }
 
 export default Sprite;
