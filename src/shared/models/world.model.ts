@@ -1,11 +1,18 @@
-import { IEntityData } from '@src/shared/models/entity.model';
+import { IEntityData, IEntityLevelData } from '@src/shared/models/entity.model';
 import { ISpriteData } from '@src/shared/models/sprite.model';
 
 export interface IWorldData {
-  rows: number;
-  cols: number;
+  level: {
+    rows: number;
+    cols: number;
+    player: IEntityLevelData;
+    entities: IEntityLevelData[];
+  };
   sprites: ISpriteData[];
-  characters: {
+  sfx: {
+    [key: string]: IEntityData,
+  };
+  entities: {
     [key: string]: IEntityData,
   };
 }

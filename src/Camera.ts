@@ -2,6 +2,7 @@ import { mat3, vec2 } from 'gl-matrix';
 
 import Object2d from '@src/objects/Object2d';
 import Box2 from '@src/shared/math/Box2';
+import World from '@src/world/World';
 
 import Vector2 from '@shared/math/Vector2';
 import { configSvc } from '@shared/services/config.service';
@@ -59,7 +60,7 @@ class Camera extends Object2d {
     this.viewBox.setMin(min[0], min[1]);
     this.viewBox.setMax(max[0], max[1]);
 
-    console.log(`${this.toString()} | viewbox matrix`);
+    // console.log(`${this.toString()} | viewbox matrix`);
   }
 
   public clamp(boundaries: Box2) {
@@ -82,7 +83,9 @@ class Camera extends Object2d {
     }
   }
 
-  public update(delta: number) {
+  public update(world: World, delta: number) {
+    // super.update(world, delta);
+
     // Follow target
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
