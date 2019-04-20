@@ -58,7 +58,7 @@ class AnimatedObject2d extends Object2d {
   public render(viewProjectionMatrix: mat3) {
     super.render(viewProjectionMatrix);
 
-    if (this.isVisible()) {
+    if (this.isVisible() && !this.isCulled()) {
       this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe);
     }
   }

@@ -1,7 +1,6 @@
 import { mat3, vec2 } from 'gl-matrix';
 
 import Box2 from '@shared/math/Box2';
-import Vector2 from '@shared/math/Vector2';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/entity/Entity';
@@ -56,13 +55,17 @@ class World {
     this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
 
     console.info('World initialized');
+
+    setInterval(() => {
+      console.log(`entities : ${this.countVisibleObjects()}/${this.countAllObjects()}`);
+    }, 1000);
   }
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
   }
 
-  public delete(object: Object2d) {
+  public remove(object: Object2d) {
     this.children.delete(object.getUUID());
   }
 
@@ -71,11 +74,12 @@ class World {
 
     this.children.forEach((child: Object2d) => {
       if (this.canBeCleanedUp(child)) {
-        this.delete(child);
+        this.remove(child);
         return;
       }
 
       child.update(this, delta);
+      child.setCulled(this.camera.isFrustumCulled(child));
     });
   }
 
@@ -83,14 +87,37 @@ class World {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
     this.children.forEach((child) => {
-      if (this.camera.isFrustumCulled(child)) {
-        return;
-      }
-
       child.render(viewProjectionMatrix);
     });
 
     // console.log(`entities : ${i}/${this.children.size}`);
+  }
+
+  public countObjects(target: Object2d | Object2d[], test: any): number {
+    if (Array.isArray(target)) {
+      const a = target as Object2d[];
+      if (a.length === 0) {
+        return 0;
+      }
+
+      return a.reduce((acc, child) => acc + this.countObjects(child, test), 0);
+    }
+
+    return test(target) + this.countObjects((target as Object2d).getChildren(), test);
+  }
+
+  public countAllObjects(): number {
+    return this.countObjects(
+      Array.from(this.children.values()),
+      (object: Object2d) => object instanceof Object2d,
+    );
+  }
+
+  public countVisibleObjects(): number {
+    return this.countObjects(
+      Array.from(this.children.values()),
+      (object: Object2d) => !object.isCulled() && object.isVisible(),
+    );
   }
 
   public canBeCleanedUp(target: Object2d | Object2d[]): boolean {
@@ -140,6 +167,7 @@ class World {
   }
 
   public getPlayer(): Player { return this.player; }
+  public getCamera(): Camera { return this.camera; }
   public getTileMap(): TileMap { return this.tileMap; }
   public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
 }
