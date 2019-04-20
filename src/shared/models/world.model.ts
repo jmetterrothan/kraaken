@@ -5,6 +5,7 @@ export interface IWorldData {
   level: {
     rows: number;
     cols: number;
+    tileSize: number;
     player: IEntityLevelData;
     entities: IEntityLevelData[];
   };

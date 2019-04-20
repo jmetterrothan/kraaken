@@ -55,9 +55,7 @@ class Sprite {
 
   private static LOADED_SPRITES: Map<string, Sprite> = new Map<string, Sprite>();
   private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
-  private static INDICES: Uint16Array = new Uint16Array([ 3, 2, 1, 3, 1, 0 ]);
 
-  private wireframe: boolean;
   private textureMaterial: Material;
 
   private src: string;
@@ -130,42 +128,6 @@ class Sprite {
     this.setup(image);
   }
 
-  public setup(image: HTMLImageElement) {
-    gl.useProgram(this.textureMaterial.program);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth, this.tileHeight), gl.STATIC_DRAW);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, Sprite.INDICES, gl.STATIC_DRAW);
-
-    gl.bindVertexArray(this.vao);
-
-    gl.enableVertexAttribArray(this.attributes.a_position);
-    gl.vertexAttribPointer(this.attributes.a_position, 2, gl.FLOAT, false, 0, 0);
-
-    // texture
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.tbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth / this.width, this.tileHeight / this.height), gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this.attributes.a_texture_coord);
-    gl.vertexAttribPointer(this.attributes.a_texture_coord, 2, gl.FLOAT, false, 0, 0);
-
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-    gl.bindTexture(gl.TEXTURE_2D, null);
-
-    this.loaded = true;
-  }
-
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean) {
     if (this.loaded) {
       this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
@@ -195,6 +157,42 @@ class Sprite {
 
   public getTileWidth() { return this.tileWidth; }
   public getTileHeight() { return this.tileHeight; }
+
+  private setup(image: HTMLImageElement) {
+    gl.useProgram(this.textureMaterial.program);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth, this.tileHeight), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([ 3, 2, 1, 3, 1, 0 ]), gl.STATIC_DRAW);
+
+    gl.bindVertexArray(this.vao);
+
+    gl.enableVertexAttribArray(this.attributes.a_position);
+    gl.vertexAttribPointer(this.attributes.a_position, 2, gl.FLOAT, false, 0, 0);
+
+    // texture
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.tbo);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth / this.width, this.tileHeight / this.height), gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this.attributes.a_texture_coord);
+    gl.vertexAttribPointer(this.attributes.a_texture_coord, 2, gl.FLOAT, false, 0, 0);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    this.loaded = true;
+  }
 }
 
 export default Sprite;

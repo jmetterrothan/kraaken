@@ -8,6 +8,7 @@ import Entity from '@src/objects/entity/Entity';
 import Player from '@src/objects/entity/Player';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
 import Object2d from '@src/objects/Object2d';
+import TileMap from '@src/world/TileMap';
 
 import { configSvc } from '@shared/services/config.service';
 
@@ -19,10 +20,9 @@ class World {
   private data: IWorldData;
 
   private viewMatrix: mat3;
+
   private camera: Camera;
-
-  private boundaries: Box2;
-
+  private tileMap: TileMap;
   private player: Player;
 
   constructor(data: IWorldData) {
@@ -31,9 +31,7 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    const w = data.level.cols * 32;
-    const h = data.level.rows * 32;
-    this.boundaries = new Box2(w / 2, h / 2, w, h);
+    this.tileMap = new TileMap(data.level.cols, data.level.rows, data.level.tileSize);
 
     this.children = new Map<string, Object2d>();
   }
@@ -43,8 +41,9 @@ class World {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
+    this.add(this.tileMap.getBoundaries().createHelper());
 
+    this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
     this.camera.follow(this.player);
 
     this.add(this.player);
@@ -54,7 +53,7 @@ class World {
       this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
     }
 
-    this.add(new HealEffectConsummable(512, 512, this.data.entities.cherry));
+    this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
 
     console.info('World initialized');
   }
@@ -77,7 +76,6 @@ class World {
       }
 
       child.update(this, delta);
-      child.clamp(this.boundaries);
     });
   }
 
@@ -92,7 +90,7 @@ class World {
       child.render(viewProjectionMatrix);
     });
 
-    // console.log(`entities : ${i}/${this.entities.length}`);
+    // console.log(`entities : ${i}/${this.children.size}`);
   }
 
   public canBeCleanedUp(target: Object2d | Object2d[]): boolean {
@@ -125,9 +123,7 @@ class World {
       const coords = this.camera.screenToCameraCoords(position);
       const entity = new HealEffectConsummable(coords[0], coords[1], this.data.entities[choices[getRandomInt(0, choices.length)]]);
 
-      if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
-        this.add(entity);
-      }
+      this.add(entity);
     }
   }
 
@@ -143,7 +139,9 @@ class World {
     this.camera.recenter();
   }
 
-  public getPlayer() { return this.player; }
+  public getPlayer(): Player { return this.player; }
+  public getTileMap(): TileMap { return this.tileMap; }
+  public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
 }
 
 export default World;

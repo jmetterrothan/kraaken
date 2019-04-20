@@ -39,7 +39,7 @@ class Game {
   }
   public static readonly TARGET_UPS: number = 30;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly TARGET_SCALE: number = 3;
+  public static readonly DEFAULT_SCALE: number = 3;
 
   public static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
@@ -74,6 +74,7 @@ class Game {
   private ticks: number;
 
   private paused: boolean;
+  private targetScale: number;
 
   private constructor(options: IGameOptions) {
     this.options = options;
@@ -95,11 +96,13 @@ class Game {
     this.ticks = 0;
 
     this.paused = false; // !document.hasFocus();
+
+    this.targetScale = Game.DEFAULT_SCALE;
   }
 
   public resize(targetWidth: number, targetHeight: number) {
     const ratio: number = window.devicePixelRatio || 1;
-    const scale: number = Math.round(Game.TARGET_SCALE * ratio);
+    const scale: number = Math.round(this.targetScale * ratio);
 
     // fix for tearing issues
     const w: number = Math.round(targetWidth / 2) * 2;
@@ -108,7 +111,7 @@ class Game {
     const hdpiW: number = Math.trunc(w * ratio);
     const hdpiH: number = Math.trunc(h * ratio);
 
-    if (hdpiW !== canvas.width || hdpiH !== canvas.height) {
+    if (hdpiW !== canvas.width || hdpiH !== canvas.height || configSvc.scale !== scale) {
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       canvas.width = hdpiW;
@@ -118,7 +121,7 @@ class Game {
       wrapper.style.height = `${h}px`;
 
       configSvc.innerSize.w = canvas.width / scale;
-      configSvc.innerSize.h = canvas.height  / scale;
+      configSvc.innerSize.h = canvas.height / scale;
 
       configSvc.frameSize.w = canvas.width;
       configSvc.frameSize.h = canvas.height;
@@ -285,6 +288,15 @@ class Game {
       this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY));
     }, false);
 
+    canvas.addEventListener('mousewheel', (e: WheelEvent) => {
+      this.targetScale += e.deltaY > 0 ? -1 : 1;
+      if (this.targetScale <= 0) {
+        this.targetScale = 1;
+      }
+
+      this.refreshScreenSize();
+    });
+
     // Fullscreen events
     document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);
     document.addEventListener('mozfullscreenchange', this.fullscreenChange, false);
@@ -305,12 +317,16 @@ class Game {
 
     window.addEventListener('resize', () => {
       // needed if we switch screen and the pixel ratio has changed
-      if (this.fullscreen) {
-        this.resize(window.screen.width, window.screen.height);
-      } else {
-        this.resize(this.options.width, this.options.height);
-      }
+      this.refreshScreenSize();
     });
+  }
+
+  private refreshScreenSize = () => {
+    if (this.fullscreen) {
+      this.resize(window.screen.width, window.screen.height);
+    } else {
+      this.resize(this.options.width, this.options.height);
+    }
   }
 
   private fullscreenChange = () => {

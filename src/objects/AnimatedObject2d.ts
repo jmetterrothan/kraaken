@@ -39,7 +39,7 @@ class AnimatedObject2d extends Object2d {
     this.updateModelMatrix();
   }
 
-  public update(world: World, delta: number) {
+  public updateAnimation(world: World, delta: number) {
     this.previousAnimationKey = this.currentAnimationKey;
     this.currentAnimationKey = this.updateCurrentAnimationKey();
 
@@ -48,6 +48,10 @@ class AnimatedObject2d extends Object2d {
     }
 
     this.animation.update();
+  }
+
+  public update(world: World, delta: number) {
+    this.updateAnimation(world, delta);
     super.update(world, delta);
   }
 
