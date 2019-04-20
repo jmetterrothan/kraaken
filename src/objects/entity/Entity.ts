@@ -1,9 +1,11 @@
+import { mat3 } from 'gl-matrix';
+
 import Vector2 from '@shared/math/Vector2';
 import AnimatedObject2d from '@src/objects/AnimatedObject2d';
+import Object2d from '@src/objects/Object2d';
 import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
-import Object2d from '@src/objects/Object2d';
 import { IEntityData } from '@src/shared/models/entity.model';
 
 class Entity extends AnimatedObject2d {

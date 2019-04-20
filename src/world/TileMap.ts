@@ -1,4 +1,5 @@
 import Box2 from '@shared/math/Box2';
+import World from '@src/world/World';
 
 class TileMap {
   private readonly nbCols: number;
@@ -18,6 +19,10 @@ class TileMap {
     this.sizeY = this.nbRows * this.tileSize;
 
     this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
+  }
+
+  public update(world: World, delta: number) {
+
   }
 
   public getBoundaries(): Box2 { return this.boundaries; }

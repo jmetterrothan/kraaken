@@ -98,6 +98,14 @@ class Animation {
     return new Vector2(-this.sprite.getTileWidth() / 2, -this.sprite.getTileHeight() / 2);
   }
 
+  public getWidth() {
+    return this.sprite.getTileWidth();
+  }
+
+  public getHeight() {
+    return this.sprite.getTileHeight();
+  }
+
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2, wireframe: boolean = false) {
     // flickering effect
     const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;

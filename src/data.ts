@@ -10,7 +10,7 @@ const data: IWorldData = {
     tileSize: 32,
     player: {
       key: 'fox',
-      spawn: { x: 512, y: 512 },
+      spawn: { x: 24 * 32 / 2, y: 16 * 32 / 2 },
     },
     entities: [
       {
@@ -95,7 +95,7 @@ const data: IWorldData = {
     },
     fox: {
       metadata: {
-        bbox: { w: 20, h: 32 },
+        bbox: { w: 16, h: 20 },
         direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'idle',

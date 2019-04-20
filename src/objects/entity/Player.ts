@@ -1,5 +1,6 @@
+import { mat3 } from 'gl-matrix';
+
 import Entity from '@src/objects/entity/Entity';
-import Box2Helper from '@src/shared/helper/Box2Helper';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
 import { IEntityData } from '@shared/models/entity.model';
@@ -58,6 +59,13 @@ class Player extends Entity {
         this.down = active;
         break;
     }
+  }
+
+  protected updateModelMatrix() {
+    const offset = this.animation.getOffset();
+    if (this.bbox) { offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2; }
+    console.log(offset);
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(offset).toGlArray());
   }
 
   protected updateCurrentAnimationKey(): string {

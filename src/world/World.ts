@@ -81,6 +81,8 @@ class World {
       child.update(this, delta);
       child.setCulled(this.camera.isFrustumCulled(child));
     });
+
+    this.tileMap.update(this, delta);
   }
 
   public render(alpha: number) {
