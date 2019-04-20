@@ -27,12 +27,12 @@ class World {
   constructor(data: IWorldData) {
     this.data = data;
 
+    this.children = new Map<string, Object2d>();
+
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
     this.tileMap = new TileMap(data.level.cols, data.level.rows, data.level.tileSize);
-
-    this.children = new Map<string, Object2d>();
   }
 
   public async init() {

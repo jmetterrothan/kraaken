@@ -274,20 +274,25 @@ class Game {
       return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
     };
 
+    const getMouseOffsetX = (e: MouseEvent) => {
+      return e.clientX - document.body.scrollLeft + canvas.scrollLeft;
+    };
+
+    const getMouseOffsetY = (e: MouseEvent) => {
+      return e.clientY - document.body.scrollTop + canvas.scrollTop;
+    };
+
     // Click events
-    canvas.addEventListener('mouseup', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mouseup', (e: MouseEvent) => {
+      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
-    canvas.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mousedown', (e: MouseEvent) => {
+      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
-    canvas.addEventListener('mousemove', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mousemove', (e: MouseEvent) => {
+      this.stateManager.handleMouseMove(getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
     canvas.addEventListener('mousewheel', (e: WheelEvent) => {
