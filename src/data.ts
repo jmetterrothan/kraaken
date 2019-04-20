@@ -7,6 +7,7 @@ const data: IWorldData = {
   level: {
     cols: 24,
     rows: 16,
+    tileSize: 32,
     player: {
       key: 'fox',
       spawn: { x: 512, y: 512 },

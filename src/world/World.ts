@@ -8,6 +8,7 @@ import Entity from '@src/objects/entity/Entity';
 import Player from '@src/objects/entity/Player';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
 import Object2d from '@src/objects/Object2d';
+import TileMap from '@src/world/TileMap';
 
 import { configSvc } from '@shared/services/config.service';
 
@@ -19,10 +20,9 @@ class World {
   private data: IWorldData;
 
   private viewMatrix: mat3;
+
   private camera: Camera;
-
-  private boundaries: Box2;
-
+  private tileMap: TileMap;
   private player: Player;
 
   constructor(data: IWorldData) {
@@ -31,19 +31,17 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    const w = data.level.cols * 32;
-    const h = data.level.rows * 32;
-    this.boundaries = new Box2(w / 2, h / 2, w, h);
+    this.tileMap = new TileMap(data.level.cols, data.level.rows, data.level.tileSize);
 
     this.children = new Map<string, Object2d>();
-
-    this.add(this.boundaries.createHelper());
   }
 
   public async init() {
     for (const sprite of this.data.sprites) {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
+
+    this.add(this.tileMap.getBoundaries().createHelper());
 
     this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
     this.camera.follow(this.player);
@@ -125,9 +123,7 @@ class World {
       const coords = this.camera.screenToCameraCoords(position);
       const entity = new HealEffectConsummable(coords[0], coords[1], this.data.entities[choices[getRandomInt(0, choices.length)]]);
 
-      if (this.boundaries.containsPoint(new Vector2(coords[0], coords[1]))) {
-        this.add(entity);
-      }
+      this.add(entity);
     }
   }
 
@@ -144,7 +140,8 @@ class World {
   }
 
   public getPlayer(): Player { return this.player; }
-  public getBoundaries(): Box2 { return this.boundaries; }
+  public getTileMap(): TileMap { return this.tileMap; }
+  public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
 }
 
 export default World;
