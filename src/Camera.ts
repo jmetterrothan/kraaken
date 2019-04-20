@@ -18,6 +18,7 @@ class Camera extends Object2d {
   private shouldUpdateProjectionMatrix: boolean;
 
   private target: Object2d;
+  private speed: number;
 
   constructor() {
     super(0, 0);
@@ -29,6 +30,7 @@ class Camera extends Object2d {
     this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
+    this.speed = 0.175;
   }
 
   public follow(target: Object2d) {
@@ -85,15 +87,17 @@ class Camera extends Object2d {
     }
   }
 
-  public update() {
+  public update(world: World, delta: number) {
     // Follow target
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
       this.setPosition(
-        Math.trunc(lerp(center.x, this.getX(), 0.075)),
-        Math.trunc(lerp(center.y, this.getY(), 0.075)),
+        Math.floor(lerp(this.getX(), center.x, this.speed)),
+        Math.floor(lerp(this.getY(), center.y, this.speed)),
       );
+
+      this.clamp(world.getBoundaries());
 
       if (this.target.hasChangedPosition()) {
         this.shouldUpdateProjectionMatrix = true;
@@ -107,13 +111,13 @@ class Camera extends Object2d {
     if (this.shouldUpdateProjectionMatrix) {
       const position = mat3.create();
       const offset = mat3.create();
-      const zoom = mat3.create();
+      const scale = mat3.create();
 
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
-      mat3.fromScaling(zoom, [configSvc.scale, configSvc.scale]);
+      mat3.fromScaling(scale, [configSvc.scale, configSvc.scale]);
 
-      mat3.multiply(this.projectionMatrix, mat3.create(), zoom);
+      mat3.multiply(this.projectionMatrix, mat3.create(), scale);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, offset);
 
