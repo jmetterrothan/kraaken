@@ -10,6 +10,7 @@ const game = Game.create({
   allowFullscreen: true,
   height: 600,
   width: 800,
+  root: document.getElementById('game'),
 });
 
 game.run();

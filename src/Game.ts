@@ -58,6 +58,7 @@ class Game {
   };
 
   private options: IGameOptions;
+  private root: HTMLElement;
 
   private events: Map<string, CallableFunction|null>;
 
@@ -78,6 +79,7 @@ class Game {
 
   private constructor(options: IGameOptions) {
     this.options = options;
+    this.root = options.root || document.body;
 
     this.stateManager = new StateManager();
 
@@ -205,7 +207,7 @@ class Game {
     this.stats.showPanel(3);
     this.stats.dom.style.display = configSvc.debug ? 'block' : 'none';
 
-    document.body.appendChild(this.stats.dom);
+    this.root.appendChild(this.stats.dom);
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
@@ -226,7 +228,7 @@ class Game {
     canvas.classList.add('kraken-canvas');
 
     wrapper.appendChild(canvas);
-    document.body.appendChild(wrapper);
+    this.root.appendChild(wrapper);
   }
 
   private initWebGL() {
