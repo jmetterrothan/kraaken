@@ -5,8 +5,10 @@ import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/entity/Entity';
 import Player from '@src/objects/entity/Player';
+import DamageEffectConsummable from '@src/objects/loot/DamageEffectConsummable';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
 import Object2d from '@src/objects/Object2d';
+import SFX from '@src/objects/sfx/SFX';
 import TileMap from '@src/world/TileMap';
 
 import { configSvc } from '@shared/services/config.service';
@@ -24,6 +26,8 @@ class World {
   private tileMap: TileMap;
   private player: Player;
 
+  private entities: Entity[];
+
   constructor(data: IWorldData) {
     this.data = data;
 
@@ -34,6 +38,7 @@ class World {
 
     this.tileMap = new TileMap(data.level.tileMap);
 
+    this.entities = [];
   }
 
   public async init() {
@@ -62,15 +67,38 @@ class World {
     setInterval(() => {
       console.log(`entities : ${this.countVisibleObjects()}/${this.countAllObjects()}`);
     }, 1000);
+
+    setInterval(() => {
+      for (const [key, val] of SFX.POOL.entries()) {
+        if (SFX.POOL.has(key)) {
+          console.log(`${key} => ${SFX.POOL.get(key).length()}`);
+        }
+      }
+    }, 1000);
     */
   }
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
-  public remove(object: Object2d) {
+  public remove(objects: Object2d | Object2d[]) {
+    if (Array.isArray(objects)) {
+      for (const temp of objects as Object2d[]) {
+        this.remove(temp);
+      }
+      return;
+    }
+
+    const object = objects as Object2d;
+
+    this.remove(object.getChildren());
+
+    object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
+
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
   public update(delta: number) {
@@ -99,6 +127,10 @@ class World {
     });
 
     // console.log(`entities : ${i}/${this.children.size}`);
+  }
+
+  public getActiveEntities(): Entity[] {
+    return this.entities;
   }
 
   public countObjects(target: Object2d | Object2d[], test: any): number {
@@ -156,7 +188,14 @@ class World {
 
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new HealEffectConsummable(coords[0], coords[1], this.data.entities[choices[getRandomInt(0, choices.length)]]);
+
+      const entity = Math.random() >= 0.5 ? new HealEffectConsummable(
+          coords[0], coords[1],
+          this.data.entities[choices[getRandomInt(0, choices.length)]],
+        ) : new DamageEffectConsummable(
+          coords[0], coords[1],
+          this.data.entities[choices[getRandomInt(0, choices.length)]],
+        );
 
       this.add(entity);
     }

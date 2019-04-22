@@ -6,7 +6,7 @@ import Object2d from '@src/objects/Object2d';
 import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
-import { IEntityData } from '@src/shared/models/entity.model';
+import { IEntityData, IMovement } from '@src/shared/models/entity.model';
 
 class Entity extends AnimatedObject2d {
   protected velocity: Vector2;
@@ -31,10 +31,10 @@ class Entity extends AnimatedObject2d {
     return false;
   }
 
-  public updateMovement(world: World, delta: number) {
+  public updatePosition(world: World, delta: number) {
     // update velocity values
     if ('move' in this) {
-      this.move(delta);
+      (this as IMovement).move(delta);
     }
 
     // change direction based of new velocity
@@ -51,7 +51,8 @@ class Entity extends AnimatedObject2d {
   }
 
   public update(world: World, delta: number) {
-    this.updateMovement(world, delta);
+    this.updatePosition(world, delta);
+    this.clamp(world.getBoundaries());
     this.updateAnimation(world, delta);
     super.update(world, delta);
   }

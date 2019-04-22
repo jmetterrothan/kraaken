@@ -115,6 +115,20 @@ const data: IWorldData = {
       },
     },
   },
+  loot: {
+    'health-potion': {
+      metadata: {
+        sfx: 'star',
+      },
+      entity: 'cherry',
+    },
+    'damage-potion': {
+      metadata: {
+        sfx: 'explosion',
+      },
+      entity: 'gemstone',
+    },
+  },
   entities: {
     frog:  {
       metadata: {

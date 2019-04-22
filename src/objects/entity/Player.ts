@@ -1,11 +1,11 @@
 import { mat3 } from 'gl-matrix';
 
-import Entity from '@src/objects/entity/Entity';
+import Character from '@src/objects/entity/Character';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
 import { IEntityData, IMovement } from '@shared/models/entity.model';
 
-class Player extends Entity implements IMovement {
+class Player extends Character implements IMovement {
   protected left: boolean;
   protected right: boolean;
   protected up: boolean;

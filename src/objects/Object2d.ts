@@ -37,8 +37,6 @@ class Object2d {
   }
 
   public update(world: World, delta?: number) {
-    this.clamp(world.getBoundaries());
-
     if (this.shouldUpdateModelMatrix) {
       this.updateModelMatrix();
       this.shouldUpdateModelMatrix = false;
@@ -48,6 +46,7 @@ class Object2d {
 
     this.children.forEach((child) => {
       if (world.canBeCleanedUp(child)) {
+        console.log(child);
         this.remove(child);
         return;
       }
@@ -89,17 +88,37 @@ class Object2d {
     this.children.set(object.getUUID(), object);
   }
 
-  public remove(object: Object2d) {
+  public remove(objects: Object2d | Object2d[]) {
+    if (Array.isArray(objects)) {
+      for (const temp of objects as Object2d[]) {
+        this.remove(temp);
+      }
+      return;
+    }
+
+    const object = objects as Object2d;
+
+    this.remove(object.getChildren());
+
+    object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
   }
 
-  public setPosition(x: number, y: number) {
+  public objectWillBeAdded(x: number, y: number): void { }
+
+  public objectWillBeRemoved(): void { }
+
+  public setPosition(x: number, y: number, forceUpdate: boolean = false) {
     this.shouldUpdateModelMatrix = this.shouldUpdateModelMatrix || this.position.x !== x || this.position.y !== y;
 
     this.previousPosition.copy(this.position);
-
     this.position.x = x;
     this.position.y = y;
+
+    if (forceUpdate) {
+      this.updateModelMatrix();
+      this.shouldUpdateModelMatrix = false;
+    }
   }
 
   public setPositionFromVector2(v: Vector2) { this.setPosition(v.x, v.y); }

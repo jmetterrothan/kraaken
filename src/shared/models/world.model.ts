@@ -15,4 +15,10 @@ export interface IWorldData {
   entities: {
     [key: string]: IEntityData,
   };
+  loot: {
+    [key: string]: {
+      metadata: any,
+      entity: string;
+    };
+  };
 }
