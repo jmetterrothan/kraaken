@@ -32,7 +32,8 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.tileMap = new TileMap(data.level.cols, data.level.rows, data.level.tileSize);
+    this.tileMap = new TileMap(data.level.tileMap);
+
   }
 
   public async init() {
@@ -40,7 +41,8 @@ class World {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    this.add(this.tileMap.getBoundaries().createHelper());
+    this.tileMap.init();
+    // this.add(this.tileMap.getBoundaries().createHelper());
 
     this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
     this.camera.follow(this.player);
@@ -84,11 +86,13 @@ class World {
       child.setCulled(this.camera.isFrustumCulled(child));
     });
 
-    this.tileMap.update(this, delta);
+    this.tileMap.update();
   }
 
   public render(alpha: number) {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
+
+    this.tileMap.render(viewProjectionMatrix);
 
     this.children.forEach((child) => {
       child.render(viewProjectionMatrix);
