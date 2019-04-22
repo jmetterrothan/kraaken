@@ -30,7 +30,7 @@ class Camera extends Object2d {
     this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
-    this.speed = 0.175;
+    this.speed = 0.25;
   }
 
   public follow(target: Object2d) {

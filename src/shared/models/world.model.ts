@@ -1,11 +1,10 @@
 import { IEntityData, IEntityLevelData } from '@src/shared/models/entity.model';
 import { ISpriteData } from '@src/shared/models/sprite.model';
+import { ITileMapData } from '@src/shared/models/tilemap.model';
 
 export interface IWorldData {
   level: {
-    rows: number;
-    cols: number;
-    tileSize: number;
+    tileMap: ITileMapData;
     player: IEntityLevelData;
     entities: IEntityLevelData[];
   };

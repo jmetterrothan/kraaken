@@ -24,3 +24,7 @@ export interface IEntityLevelData {
   key: string;
   spawn: IVector2Data;
 }
+
+export interface IMovement {
+  move(delta: number);
+}

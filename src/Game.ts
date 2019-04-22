@@ -37,9 +37,10 @@ class Game {
     // @ts-ignore
     return document.fullscreenElement !== null;
   }
+
   public static readonly TARGET_UPS: number = 30;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly DEFAULT_SCALE: number = 3;
+  public static readonly DEFAULT_SCALE: number = 4;
 
   public static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
@@ -55,6 +56,7 @@ class Game {
     allowFullscreen: true,
     height: 600,
     width: 800,
+    root: undefined,
   };
 
   private options: IGameOptions;

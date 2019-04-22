@@ -2,7 +2,7 @@ import Entity from '@src/objects/entity/Entity';
 import Loot from '@src/objects/loot/Loot';
 import SFX from '@src/objects/sfx/SFX';
 
-import data from '@src/data';
+import data from '@src/data/data';
 
 class HealEffectConsummable extends Loot {
   public consummatedBy(entity: Entity): void {

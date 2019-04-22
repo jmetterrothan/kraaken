@@ -52,13 +52,15 @@ class World {
       this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
     }
 
-    this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
+    // this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
 
     console.info('World initialized');
 
+    /*
     setInterval(() => {
       console.log(`entities : ${this.countVisibleObjects()}/${this.countAllObjects()}`);
     }, 1000);
+    */
   }
 
   public add(object: Object2d) {

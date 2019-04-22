@@ -1,10 +1,12 @@
+import { mat3 } from 'gl-matrix';
+
 import Animation from '@src/animation/Animation';
 import Object2d from '@src/objects/Object2d';
 import Vector2 from '@src/shared/math/Vector2';
+import World from '@src/world/World';
+
 import { IAnimationList } from '@src/shared/models/animation.model';
 import { IEntityData } from '@src/shared/models/entity.model';
-import World from '@src/world/World';
-import { mat3 } from 'gl-matrix';
 
 class AnimatedObject2d extends Object2d {
   protected wireframe: boolean;
@@ -48,11 +50,6 @@ class AnimatedObject2d extends Object2d {
     }
 
     this.animation.update();
-  }
-
-  public update(world: World, delta: number) {
-    this.updateAnimation(world, delta);
-    super.update(world, delta);
   }
 
   public render(viewProjectionMatrix: mat3) {

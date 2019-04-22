@@ -20,9 +20,6 @@ class Animation {
   private played: number;
   private frame: number;
 
-  private flickering: boolean;
-  private flickeringSpeed: number;
-
   constructor(name: string, data: IAnimationData) {
     this.name = name;
     this.loop = data.loop;
@@ -37,9 +34,6 @@ class Animation {
     this.freezeTime = -1;
     this.played = 0; // times played
     this.frame = 0; // current frame
-
-    this.flickering = false;
-    this.flickeringSpeed = 150;
   }
 
   public update() {
@@ -106,13 +100,14 @@ class Animation {
     return this.sprite.getTileHeight();
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2, wireframe: boolean = false) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, direction: Vector2, wireframe: boolean = false, flickering: boolean = false) {
     // flickering effect
-    const flicker = this.flickering && Math.floor(window.performance.now() / this.flickeringSpeed) % 2;
+    const flicker = flickering && Math.floor(window.performance.now() / 150) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
-        this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, direction, wireframe);
+      this.sprite.use();
+      this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, direction, wireframe);
     }
   }
 

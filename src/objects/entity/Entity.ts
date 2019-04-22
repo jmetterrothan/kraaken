@@ -33,7 +33,7 @@ class Entity extends AnimatedObject2d {
 
   public updateMovement(world: World, delta: number) {
     // update velocity values
-    if (this.move !== undefined) {
+    if ('move' in this) {
       this.move(delta);
     }
 
@@ -52,6 +52,7 @@ class Entity extends AnimatedObject2d {
 
   public update(world: World, delta: number) {
     this.updateMovement(world, delta);
+    this.updateAnimation(world, delta);
     super.update(world, delta);
   }
 
@@ -90,8 +91,6 @@ class Entity extends AnimatedObject2d {
 
     this.bbox.setPositionFromCenter(x, y);
   }
-
-  public move(delta: number) { }
 
   public getBbox(): Box2 { return this.bbox; }
 }

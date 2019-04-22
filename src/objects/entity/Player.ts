@@ -3,9 +3,9 @@ import { mat3 } from 'gl-matrix';
 import Entity from '@src/objects/entity/Entity';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
-import { IEntityData } from '@shared/models/entity.model';
+import { IEntityData, IMovement } from '@shared/models/entity.model';
 
-class Player extends Entity {
+class Player extends Entity implements IMovement {
   protected left: boolean;
   protected right: boolean;
   protected up: boolean;
@@ -63,8 +63,12 @@ class Player extends Entity {
 
   protected updateModelMatrix() {
     const offset = this.animation.getOffset();
-    if (this.bbox) { offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2; }
-    console.log(offset);
+
+    // correction accounting for bbox beeing at the bottom of the tile
+    if (this.bbox) {
+      offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2;
+    }
+
     this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(offset).toGlArray());
   }
 
