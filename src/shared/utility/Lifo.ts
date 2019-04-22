@@ -7,8 +7,11 @@ class Lifo<T> extends Stack<T> {
   }
 
   public pop(): T {
-    this.size--;
-    return this.list.shift();
+    const temp: T = this.list.shift();
+    if (temp) {
+      this.size--;
+    }
+    return temp;
   }
 }
 
