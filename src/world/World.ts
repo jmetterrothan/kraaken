@@ -8,7 +8,6 @@ import Player from '@src/objects/entity/Player';
 import DamageEffectConsummable from '@src/objects/loot/DamageEffectConsummable';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
 import Object2d from '@src/objects/Object2d';
-import SFX from '@src/objects/sfx/SFX';
 import TileMap from '@src/world/TileMap';
 
 import { configSvc } from '@shared/services/config.service';
@@ -58,8 +57,6 @@ class World {
     for (const entityData of this.data.level.entities) {
       this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
     }
-
-    // this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
 
     console.info('World initialized');
 
@@ -114,7 +111,7 @@ class World {
       child.setCulled(this.camera.isFrustumCulled(child));
     });
 
-    this.tileMap.update();
+    this.tileMap.update(this, delta);
   }
 
   public render(alpha: number) {
@@ -188,11 +185,8 @@ class World {
 
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-
-      const entity = Math.random() >= 0.5 ? new HealEffectConsummable(
-          coords[0], coords[1],
-          this.data.entities[choices[getRandomInt(0, choices.length)]],
-        ) : new DamageEffectConsummable(
+      const className = Math.random() >= 0.5 ? HealEffectConsummable : DamageEffectConsummable;
+      const entity = new className(
           coords[0], coords[1],
           this.data.entities[choices[getRandomInt(0, choices.length)]],
         );
