@@ -45,7 +45,7 @@ class Camera extends Object2d {
       center = this.target.getPosition();
     }
 
-    this.setPositionFromVector2(center);
+    this.setPositionFromVector2(center.trunc());
 
     this.shouldUpdateProjectionMatrix = true;
   }
