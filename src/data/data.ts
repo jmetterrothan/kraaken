@@ -35,15 +35,14 @@ const data: IWorldData = {
     },
     player: {
       key: 'fox',
-      spawn: {
-        x: 24 * 16,
-        y: 8 * 16 - 10,
-      },
+      spawn: { x: 24 * 16, y: 8 * 16 - 10 },
+      direction: { x: 1, y: 1 },
     },
     entities: [
       {
         key: 'frog',
-        spawn: { x: 64, y: 64 },
+        spawn: { x: 22 * 16, y: 7 * 16 - 8 },
+        direction: { x: -1, y: 1 },
       },
     ],
   },
@@ -69,9 +68,7 @@ const data: IWorldData = {
   ],
   sfx: {
     star: {
-      metadata: {
-        direction: { x: 1, y: 1 },
-      },
+      metadata: { },
       defaultAnimationKey: 'default',
       animationList: {
         default: {
@@ -87,9 +84,7 @@ const data: IWorldData = {
       },
     },
     explosion: {
-      metadata: {
-        direction: { x: 1, y: 1 },
-      },
+      metadata: { },
       defaultAnimationKey: 'default',
       animationList: {
         default: {
@@ -125,7 +120,6 @@ const data: IWorldData = {
     frog:  {
       metadata: {
         bbox: { w: 26, h: 19 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {
@@ -144,7 +138,6 @@ const data: IWorldData = {
     fox: {
       metadata: {
         bbox: { w: 16, h: 20 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'idle',
       animationList: {
@@ -213,7 +206,6 @@ const data: IWorldData = {
     cherry: {
       metadata: {
         bbox: { w: 16, h: 16 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {
@@ -235,7 +227,6 @@ const data: IWorldData = {
     gemstone: {
       metadata: {
         bbox: { w: 14, h: 12 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {

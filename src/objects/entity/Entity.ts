@@ -12,8 +12,8 @@ class Entity extends AnimatedObject2d {
   protected velocity: Vector2;
   protected bbox: Box2;
 
-  constructor(x: number, y: number, data: IEntityData) {
-    super(x, y, data);
+  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
+    super(x, y, direction, data);
 
     this.velocity = new Vector2(0, 0);
     this.bbox = new Box2(x, y, data.metadata.bbox.w, data.metadata.bbox.h);

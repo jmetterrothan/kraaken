@@ -46,7 +46,6 @@ class Object2d {
 
     this.children.forEach((child) => {
       if (world.canBeCleanedUp(child)) {
-        console.log(child);
         this.remove(child);
         return;
       }

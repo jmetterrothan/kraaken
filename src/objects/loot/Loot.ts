@@ -1,3 +1,4 @@
+import Vector2 from '@shared/math/Vector2';
 import Entity from '@src/objects/entity/Entity';
 import World from '@src/world/World';
 
@@ -7,8 +8,8 @@ import { IEntityData } from '@src/shared/models/entity.model';
 abstract class Loot extends Entity implements IConsummable {
   private consummated: boolean;
 
-  constructor(x: number, y: number, entityData: IEntityData) {
-    super(x, y, entityData);
+  constructor(x: number, y: number, direction: Vector2, entityData: IEntityData) {
+    super(x, y, direction, entityData);
 
     this.consummated = false;
 

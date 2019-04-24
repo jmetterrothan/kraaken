@@ -1,6 +1,7 @@
 import { mat3, vec2 } from 'gl-matrix';
 
 import Box2 from '@shared/math/Box2';
+import Vector2 from '@shared/math/Vector2';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/entity/Entity';
@@ -48,14 +49,16 @@ class World {
     this.tileMap.init();
     // this.add(this.tileMap.getBoundaries().createHelper());
 
-    this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
+    const playerInfo = this.data.level.player;
+    this.player = new Player(playerInfo.spawn.x, playerInfo.spawn.y, new Vector2(playerInfo.direction.x, playerInfo.direction.y), this.data.entities[playerInfo.key]);
+
     this.camera.follow(this.player);
 
     this.add(this.player);
     this.add(this.camera);
 
     for (const entityData of this.data.level.entities) {
-      this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
+      this.add(new Entity(entityData.spawn.x, entityData.spawn.y, new Vector2(entityData.direction.x, entityData.direction.y), this.data.entities[entityData.key]));
     }
 
     console.info('World initialized');
@@ -188,6 +191,7 @@ class World {
       const className = Math.random() >= 0.5 ? HealEffectConsummable : DamageEffectConsummable;
       const entity = new className(
           coords[0], coords[1],
+          new Vector2(1, 1),
           this.data.entities[choices[getRandomInt(0, choices.length)]],
         );
 

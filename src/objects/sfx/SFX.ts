@@ -1,4 +1,5 @@
 import AnimatedObject2d from '@src/objects/AnimatedObject2d';
+import Vector2 from '@src/shared/math/Vector2';
 import Fifo from '@src/shared/utility/Fifo';
 import World from '@src/world/World';
 
@@ -11,12 +12,12 @@ class SFX extends AnimatedObject2d {
     }
   }
 
-  public static create(x: number, y: number, name: string): SFX {
+  public static create(x: number, y: number, direction: Vector2, name: string): SFX {
     SFX.createPoolIfNotExists(name);
 
     const sfx = SFX.POOL.get(name).pop();
     if (!sfx) {
-      return new SFX(x, y, name);
+      return new SFX(x, y, direction, name);
     }
 
     sfx.objectWillBeAdded(x, y);
@@ -26,8 +27,8 @@ class SFX extends AnimatedObject2d {
   private static POOL: Map<string, Fifo<SFX>> = new Map<string, Fifo<SFX>>();
   private reference: string;
 
-  constructor(x: number, y: number, reference: string) {
-    super(x, y, data.sfx[reference]);
+  constructor(x: number, y: number, direction: Vector2, reference: string) {
+    super(x, y, direction, data.sfx[reference]);
     this.reference = reference;
   }
 
