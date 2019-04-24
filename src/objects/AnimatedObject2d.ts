@@ -17,15 +17,11 @@ class AnimatedObject2d extends Object2d {
   private previousAnimationKey: string;
   private defaultAnimationKey: string;
 
-  constructor(x: number, y: number, data: IEntityData) {
+  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y);
 
     this.wireframe = false;
-
-    this.direction = new Vector2(
-      data.metadata.direction.x,
-      data.metadata.direction.y,
-    );
+    this.direction = direction;
 
     // convert animation parameters in Animation objects
     this.defaultAnimationKey = data.defaultAnimationKey;

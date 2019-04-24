@@ -34,19 +34,18 @@ class Entity extends AnimatedObject2d {
   public updatePosition(world: World, delta: number) {
     // update velocity values
     if ('move' in this) {
-      (this as IMovement).move(delta);
+      (this as IMovement).move();
     }
 
     // change direction based of new velocity
     if (this.velocity.x !== 0 || this.velocity.y !== 0) {
-      const direction = this.velocity.clone().normalize().ceil();
+      const direction = this.velocity.clone().setY(0).normalize();
+
       if (direction.x !== 0) {
         this.direction.x = direction.x;
       }
 
-      this.setPositionFromVector2(
-        this.getPosition().add(this.velocity.clone().multiplyScalar(delta)).floor(),
-      );
+      this.setPositionFromVector2(this.getPosition().add(this.velocity.clone().multiplyScalar(delta)));
     }
   }
 

@@ -123,6 +123,13 @@ class Vector2 {
     return this;
   }
 
+  public trunc(): Vector2 {
+    this.x = Math.trunc(this.x);
+    this.y = Math.trunc(this.y);
+
+    return this;
+  }
+
   public clamp(min: Vector2, max: Vector2): Vector2 {
     this.x = Math.max(min.x, Math.min(max.x, this.x));
     this.y = Math.max(min.y, Math.min(max.y, this.y));
@@ -183,9 +190,9 @@ class Vector2 {
     return v.x !== this.x || v.y !== this.y;
   }
 
-  public setX(x: number) { this.x = x; }
+  public setX(x: number) { this.x = x; return this; }
 
-  public setY(y: number) { this.y = y; }
+  public setY(y: number) { this.y = y; return this; }
 
   public getX(x): number { return x; }
 
