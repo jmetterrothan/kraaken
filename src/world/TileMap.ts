@@ -5,7 +5,7 @@ import Sprite from '@src/animation/Sprite';
 import Vector2 from '@src/shared/math/Vector2';
 import World from '@src/world/World';
 
-import { ITileMapData } from '@shared/models/tilemap.model';
+import { ITile, ITileMapData } from '@shared/models/tilemap.model';
 import { configSvc } from '@src/shared/services/config.service';
 
 class TileMap {
@@ -27,7 +27,7 @@ class TileMap {
 
   private boundaries: Box2;
 
-  private tiles: any[][];
+  private tiles: ITile[][];
 
   private atlas: Sprite;
 
@@ -47,10 +47,16 @@ class TileMap {
       this.tiles[r] = new Array(this.nbCols);
 
       for (let c = 0; c < this.nbCols; c++) {
+        const type = data.tileTypes[data.tiles[this.getIndex(r, c)]];
         this.tiles[r][c] = {
-          type: data.tileTypes[data.tiles[this.getIndex(r, c)]],
+          type: {
+            collision: type && type.collision || false,
+            row: type && type.row || 0,
+            col: type && type.col || 0,
+          },
           model: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
           orientation: new Vector2(1, 1),
+          position: new Vector2(c * this.tileSize, r * this.tileSize),
         };
       }
     }
@@ -101,14 +107,21 @@ class TileMap {
             this.tiles[r][c].type.row,
             this.tiles[r][c].type.col,
             this.tiles[r][c].orientation,
-            false,
+            true,
           );
         }
       }
     }
   }
 
+  public getTileAt(x: number, y: number): ITile | undefined {
+    const r = Math.trunc(y / this.tileSize);
+    const c = Math.trunc(x / this.tileSize);
+    return this.tiles[r] && this.tiles[r][c] || undefined;
+  }
+
   public getBoundaries(): Box2 { return this.boundaries; }
+  public getTileSize(): number { return this.tileSize; }
 }
 
 export default TileMap;

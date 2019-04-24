@@ -4,6 +4,7 @@ import Vector2 from '@shared/math/Vector2';
 import AnimatedObject2d from '@src/objects/AnimatedObject2d';
 import Object2d from '@src/objects/Object2d';
 import Box2 from '@src/shared/math/Box2';
+import TileMap from '@src/world/TileMap';
 import World from '@src/world/World';
 
 import { IEntityData, IMovement } from '@src/shared/models/entity.model';
@@ -49,10 +50,84 @@ class Entity extends AnimatedObject2d {
     }
   }
 
+  public handleCollisions(map: TileMap, delta: number) {
+    const x1 = this.bbox.getMinX();
+    const y1 = this.bbox.getMinY();
+    const x2 = this.bbox.getMaxX();
+    const y2 = this.bbox.getMaxY();
+    const w = this.bbox.getWidth();
+    const h = this.bbox.getHeight();
+
+    const velocity = this.velocity.clone().multiplyScalar(delta);
+
+    // bottom collision
+    if (this.velocity.y > 0) {
+        const tl = map.getTileAt(x1, y2 + velocity.y);
+        const tr = map.getTileAt(x2, y2 + velocity.y);
+
+        const t = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
+
+        if (t) {
+            this.setY(t.position.y - h / 2 - 0.01);
+            this.velocity.y = 0;
+
+            // this.falling = false;
+        } else {
+            // this.falling = true;
+        }
+    }
+
+    // top collision
+    if (this.velocity.y < 0) {
+        const bl = map.getTileAt(x1, y1 + velocity.y);
+        const br = map.getTileAt(x2, y1 + velocity.y);
+
+        const t = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
+
+        if (t) {
+            this.setY(t.position.y + map.getTileSize() + h / 2 + 0.01);
+            this.velocity.y = 0;
+
+            // this.falling = true;
+            // this.jumping = false;
+        }
+    }
+
+    // right collision
+    if (this.velocity.x > 0) {
+        const tr = map.getTileAt(x2 + velocity.x, y1);
+        const br = map.getTileAt(x2 + velocity.x, y2);
+
+        const t = (tr && tr.type.collision) ? tr : ((br && br.type.collision) ? br : null);
+
+        if (t) {
+            this.setX(t.position.x - w / 2 - 0.01);
+            this.velocity.x = 0;
+        }
+    }
+
+    // left collision
+    if (this.velocity.x < 0) {
+        const tl = map.getTileAt(x1 + velocity.x, y1);
+        const bl = map.getTileAt(x1 + velocity.x, y2);
+
+        const t = (tl && tl.type.collision) ? tl : ((bl && bl.type.collision) ? bl : null);
+
+        if (t) {
+            this.setX(t.position.x + map.getTileSize() + w / 2 + 0.01);
+            this.velocity.x = 0;
+        }
+    }
+  }
+
   public update(world: World, delta: number) {
     this.updatePosition(world, delta);
+
+    this.handleCollisions(world.getTileMap(), delta);
     this.clamp(world.getBoundaries());
+
     this.updateAnimation(world, delta);
+
     super.update(world, delta);
   }
 

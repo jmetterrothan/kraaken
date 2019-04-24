@@ -27,8 +27,8 @@ class Player extends Character implements IMovement {
 
     this.acceleration = new Vector2(15, 0);
     this.deceleration = new Vector2(25, 0);
-    this.speed = new Vector2(100, 0);
-    this.gravity = new Vector2(0, 0);
+    this.speed = new Vector2(110, 0);
+    this.gravity = new Vector2(0, 20);
 
     this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
   }
