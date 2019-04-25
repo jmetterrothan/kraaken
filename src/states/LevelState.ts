@@ -3,7 +3,7 @@ import { vec2 } from 'gl-matrix';
 import State from '@src/states/State';
 import World from '@src/world/World';
 
-import data from '@src/data';
+import data from '@src/data/data';
 
 class LevelState  extends State {
   private world: World;

@@ -37,9 +37,10 @@ class Game {
     // @ts-ignore
     return document.fullscreenElement !== null;
   }
+
   public static readonly TARGET_UPS: number = 30;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly DEFAULT_SCALE: number = 3;
+  public static readonly DEFAULT_SCALE: number = 4;
 
   public static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
@@ -55,9 +56,11 @@ class Game {
     allowFullscreen: true,
     height: 600,
     width: 800,
+    root: undefined,
   };
 
   private options: IGameOptions;
+  private root: HTMLElement;
 
   private events: Map<string, CallableFunction|null>;
 
@@ -78,6 +81,7 @@ class Game {
 
   private constructor(options: IGameOptions) {
     this.options = options;
+    this.root = options.root || document.body;
 
     this.stateManager = new StateManager();
 
@@ -205,7 +209,7 @@ class Game {
     this.stats.showPanel(3);
     this.stats.dom.style.display = configSvc.debug ? 'block' : 'none';
 
-    document.body.appendChild(this.stats.dom);
+    this.root.appendChild(this.stats.dom);
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
@@ -226,7 +230,7 @@ class Game {
     canvas.classList.add('kraken-canvas');
 
     wrapper.appendChild(canvas);
-    document.body.appendChild(wrapper);
+    this.root.appendChild(wrapper);
   }
 
   private initWebGL() {
@@ -272,20 +276,25 @@ class Game {
       return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
     };
 
+    const getMouseOffsetX = (e: MouseEvent) => {
+      return e.clientX - document.body.scrollLeft + canvas.scrollLeft;
+    };
+
+    const getMouseOffsetY = (e: MouseEvent) => {
+      return e.clientY - document.body.scrollTop + canvas.scrollTop;
+    };
+
     // Click events
-    canvas.addEventListener('mouseup', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mouseup', (e: MouseEvent) => {
+      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
-    canvas.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mousedown', (e: MouseEvent) => {
+      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
-    canvas.addEventListener('mousemove', (e) => {
-      e.preventDefault();
-      this.stateManager.handleMouseMove(getCoord(canvas, e.offsetX, e.offsetY));
+    canvas.addEventListener('mousemove', (e: MouseEvent) => {
+      this.stateManager.handleMouseMove(getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
     }, false);
 
     canvas.addEventListener('mousewheel', (e: WheelEvent) => {

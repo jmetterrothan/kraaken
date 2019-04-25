@@ -1,10 +1,12 @@
+import { mat3 } from 'gl-matrix';
+
 import Animation from '@src/animation/Animation';
 import Object2d from '@src/objects/Object2d';
 import Vector2 from '@src/shared/math/Vector2';
+import World from '@src/world/World';
+
 import { IAnimationList } from '@src/shared/models/animation.model';
 import { IEntityData } from '@src/shared/models/entity.model';
-import World from '@src/world/World';
-import { mat3 } from 'gl-matrix';
 
 class AnimatedObject2d extends Object2d {
   protected wireframe: boolean;
@@ -15,15 +17,11 @@ class AnimatedObject2d extends Object2d {
   private previousAnimationKey: string;
   private defaultAnimationKey: string;
 
-  constructor(x: number, y: number, data: IEntityData) {
+  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y);
 
     this.wireframe = false;
-
-    this.direction = new Vector2(
-      data.metadata.direction.x,
-      data.metadata.direction.y,
-    );
+    this.direction = direction;
 
     // convert animation parameters in Animation objects
     this.defaultAnimationKey = data.defaultAnimationKey;
@@ -50,15 +48,10 @@ class AnimatedObject2d extends Object2d {
     this.animation.update();
   }
 
-  public update(world: World, delta: number) {
-    this.updateAnimation(world, delta);
-    super.update(world, delta);
-  }
-
   public render(viewProjectionMatrix: mat3) {
     super.render(viewProjectionMatrix);
 
-    if (this.isVisible()) {
+    if (this.isVisible() && !this.isCulled()) {
       this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe);
     }
   }

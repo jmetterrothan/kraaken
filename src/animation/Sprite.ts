@@ -53,6 +53,8 @@ class Sprite {
     return Sprite.LOADED_SPRITES.get(alias);
   }
 
+  protected static CURRENT_SPRITE: string;
+
   private static LOADED_SPRITES: Map<string, Sprite> = new Map<string, Sprite>();
   private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
 
@@ -128,6 +130,16 @@ class Sprite {
     this.setup(image);
   }
 
+  public use() {
+    Sprite.CURRENT_SPRITE = this.alias;
+
+    gl.useProgram(this.textureMaterial.program);
+
+    gl.bindVertexArray(this.vao);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+  }
+
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean) {
     if (this.loaded) {
       this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
@@ -136,15 +148,9 @@ class Sprite {
       this.uniforms.u_frame.value[1] = ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y;
       this.uniforms.u_wireframe.value = false;
 
-      gl.useProgram(this.textureMaterial.program);
-
-      gl.bindVertexArray(this.vao);
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-      gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
       WebGL2H.setUniforms(gl, this.uniforms);
 
-      gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
 
       if (wireframe) {
         this.uniforms.u_wireframe.value = true;

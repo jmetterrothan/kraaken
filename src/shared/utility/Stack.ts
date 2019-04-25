@@ -23,6 +23,10 @@ abstract class Stack<T> {
   public isEmpty(): boolean {
     return this.size === 0;
   }
+
+  public length(): number {
+    return this.size;
+  }
 }
 
 export default Stack;

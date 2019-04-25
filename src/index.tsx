@@ -8,8 +8,9 @@ import '@sass/main.scss';
 
 const game = Game.create({
   allowFullscreen: true,
-  height: 600,
-  width: 800,
+  height: 640,
+  width: 1024,
+  root: document.getElementById('game'),
 });
 
 game.run();

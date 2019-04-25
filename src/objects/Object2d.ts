@@ -6,8 +6,6 @@ import Vector2 from '@shared/math/Vector2';
 import { uuid } from '@shared/utility/Utility';
 import World from '@src/world/World';
 
-import { configSvc } from '@shared/services/config.service';
-
 class Object2d {
   protected visible: boolean;
 
@@ -19,6 +17,7 @@ class Object2d {
 
   private uuid: string;
   private dirty: boolean;
+  private culled: boolean;
 
   private children: Map<string, Object2d>;
 
@@ -29,6 +28,7 @@ class Object2d {
     this.uuid = uuid();
     this.visible = true;
     this.dirty = false;
+    this.culled = false;
 
     this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
     this.shouldUpdateModelMatrix = true;
@@ -37,8 +37,6 @@ class Object2d {
   }
 
   public update(world: World, delta?: number) {
-    this.clamp(world.getBoundaries());
-
     if (this.shouldUpdateModelMatrix) {
       this.updateModelMatrix();
       this.shouldUpdateModelMatrix = false;
@@ -46,11 +44,23 @@ class Object2d {
       // console.log(`${this.toString()} | model matrix`);
     }
 
-    this.children.forEach((child) => child.update(world, delta));
+    this.children.forEach((child) => {
+      if (world.canBeCleanedUp(child)) {
+        this.remove(child);
+        return;
+      }
+
+      child.update(world, delta);
+      child.setCulled(world.getCamera().isFrustumCulled(child));
+    });
   }
 
   public render(viewProjectionMatrix: mat3) {
-    this.children.forEach((child) => child.render(viewProjectionMatrix));
+    this.children.forEach((child) => {
+      if (!child.isCulled()) {
+        child.render(viewProjectionMatrix);
+      }
+    });
   }
 
   public clamp(boundaries: Box2) {
@@ -77,17 +87,37 @@ class Object2d {
     this.children.set(object.getUUID(), object);
   }
 
-  public remove(object: Object2d) {
+  public remove(objects: Object2d | Object2d[]) {
+    if (Array.isArray(objects)) {
+      for (const temp of objects as Object2d[]) {
+        this.remove(temp);
+      }
+      return;
+    }
+
+    const object = objects as Object2d;
+
+    this.remove(object.getChildren());
+
+    object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
   }
 
-  public setPosition(x: number, y: number) {
+  public objectWillBeAdded(x: number, y: number): void { }
+
+  public objectWillBeRemoved(): void { }
+
+  public setPosition(x: number, y: number, forceUpdate: boolean = false) {
     this.shouldUpdateModelMatrix = this.shouldUpdateModelMatrix || this.position.x !== x || this.position.y !== y;
 
     this.previousPosition.copy(this.position);
-
     this.position.x = x;
     this.position.y = y;
+
+    if (forceUpdate) {
+      this.updateModelMatrix();
+      this.shouldUpdateModelMatrix = false;
+    }
   }
 
   public setPositionFromVector2(v: Vector2) { this.setPosition(v.x, v.y); }
@@ -108,6 +138,9 @@ class Object2d {
 
   public isDirty(): boolean { return this.dirty; }
   public setDirty(b: boolean) { this.dirty = b; }
+
+  public isCulled(): boolean { return this.culled; }
+  public setCulled(b: boolean) { this.culled = b; }
 
   public hasChangedPosition(): boolean { return this.position.notEquals(this.previousPosition); }
 

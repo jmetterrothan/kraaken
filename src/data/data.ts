@@ -2,24 +2,57 @@ import { IWorldData } from '@src/shared/models/world.model';
 
 import imgAtlas32x32 from '@assets/textures/atlas32x32.png';
 import imgAtlas48x48 from '@assets/textures/atlas48x48.png';
+import imgTileset from '@assets/textures/tileset.png';
 
 const data: IWorldData = {
   level: {
-    cols: 24,
-    rows: 16,
-    tileSize: 32,
+    tileMap: {
+      cols: 48,
+      rows: 16,
+      tileSize: 16,
+      tileTypes: {
+        0: undefined,
+        1: { row: 7, col: 17, collision: true },
+      },
+      tiles: [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      ],
+    },
     player: {
       key: 'fox',
-      spawn: { x: 512, y: 512 },
+      spawn: { x: 1 * 16, y: 1 * 16 - 10 },
+      direction: { x: 1, y: 1 },
     },
     entities: [
       {
         key: 'frog',
-        spawn: { x: 64, y: 64 },
+        spawn: { x: 22 * 16, y: 7 * 16 - 8 },
+        direction: { x: -1, y: 1 },
       },
     ],
   },
   sprites : [
+    {
+      src: imgTileset,
+      name: 'tileset',
+      tileWidth: 16,
+      tileHeight: 16,
+    },
     {
       src: imgAtlas32x32,
       name: 'atlas',
@@ -35,9 +68,7 @@ const data: IWorldData = {
   ],
   sfx: {
     star: {
-      metadata: {
-        direction: { x: 1, y: 1 },
-      },
+      metadata: { },
       defaultAnimationKey: 'default',
       animationList: {
         default: {
@@ -53,9 +84,7 @@ const data: IWorldData = {
       },
     },
     explosion: {
-      metadata: {
-        direction: { x: 1, y: 1 },
-      },
+      metadata: { },
       defaultAnimationKey: 'default',
       animationList: {
         default: {
@@ -73,11 +102,24 @@ const data: IWorldData = {
       },
     },
   },
+  loot: {
+    'health-potion': {
+      metadata: {
+        sfx: 'star',
+      },
+      entity: 'cherry',
+    },
+    'damage-potion': {
+      metadata: {
+        sfx: 'explosion',
+      },
+      entity: 'gemstone',
+    },
+  },
   entities: {
     frog:  {
       metadata: {
         bbox: { w: 26, h: 19 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {
@@ -95,8 +137,7 @@ const data: IWorldData = {
     },
     fox: {
       metadata: {
-        bbox: { w: 20, h: 32 },
-        direction: { x: 1, y: 1 },
+        bbox: { w: 14, h: 20 },
       },
       defaultAnimationKey: 'idle',
       animationList: {
@@ -165,7 +206,6 @@ const data: IWorldData = {
     cherry: {
       metadata: {
         bbox: { w: 16, h: 16 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {
@@ -187,7 +227,6 @@ const data: IWorldData = {
     gemstone: {
       metadata: {
         bbox: { w: 14, h: 12 },
-        direction: { x: 1, y: 1 },
       },
       defaultAnimationKey: 'default',
       animationList: {

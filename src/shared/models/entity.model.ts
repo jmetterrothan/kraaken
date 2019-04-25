@@ -7,10 +7,6 @@ export interface IVector2Data {
 
 export interface IEntityData {
   metadata: {
-    direction: {
-      x: number;
-      y: number;
-    };
     bbox?: {
       w: number;
       h: number;
@@ -23,4 +19,12 @@ export interface IEntityData {
 export interface IEntityLevelData {
   key: string;
   spawn: IVector2Data;
+  direction: {
+    x: number;
+    y: number;
+  };
+}
+
+export interface IMovement {
+  move(): void;
 }

@@ -7,8 +7,11 @@ class Fifo<T> extends Stack<T> {
   }
 
   public pop(): T {
-    this.size--;
-    return this.list.pop();
+    const temp: T = this.list.pop();
+    if (temp) {
+      this.size--;
+    }
+    return temp;
   }
 }
 

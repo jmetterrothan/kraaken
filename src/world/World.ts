@@ -6,6 +6,7 @@ import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/entity/Entity';
 import Player from '@src/objects/entity/Player';
+import DamageEffectConsummable from '@src/objects/loot/DamageEffectConsummable';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
 import Object2d from '@src/objects/Object2d';
 import TileMap from '@src/world/TileMap';
@@ -25,15 +26,19 @@ class World {
   private tileMap: TileMap;
   private player: Player;
 
+  private entities: Entity[];
+
   constructor(data: IWorldData) {
     this.data = data;
+
+    this.children = new Map<string, Object2d>();
 
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.tileMap = new TileMap(data.level.cols, data.level.rows, data.level.tileSize);
+    this.tileMap = new TileMap(data.level.tileMap);
 
-    this.children = new Map<string, Object2d>();
+    this.entities = [];
   }
 
   public async init() {
@@ -41,29 +46,59 @@ class World {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    this.add(this.tileMap.getBoundaries().createHelper());
+    this.tileMap.init();
+    // this.add(this.tileMap.getBoundaries().createHelper());
 
-    this.player = new Player(this.data.level.player.spawn.x, this.data.level.player.spawn.y, this.data.entities[this.data.level.player.key]);
+    const playerInfo = this.data.level.player;
+    this.player = new Player(playerInfo.spawn.x, playerInfo.spawn.y, new Vector2(playerInfo.direction.x, playerInfo.direction.y), this.data.entities[playerInfo.key]);
+
     this.camera.follow(this.player);
 
     this.add(this.player);
     this.add(this.camera);
 
     for (const entityData of this.data.level.entities) {
-      this.add(new Entity(entityData.spawn.x, entityData.spawn.y, this.data.entities[entityData.key]));
+      this.add(new Entity(entityData.spawn.x, entityData.spawn.y, new Vector2(entityData.direction.x, entityData.direction.y), this.data.entities[entityData.key]));
     }
 
-    this.add(new HealEffectConsummable(512 - 48, 512, this.data.entities.cherry));
-
     console.info('World initialized');
+
+    /*
+    setInterval(() => {
+      console.log(`entities : ${this.countVisibleObjects()}/${this.countAllObjects()}`);
+    }, 1000);
+
+    setInterval(() => {
+      for (const [key, val] of SFX.POOL.entries()) {
+        if (SFX.POOL.has(key)) {
+          console.log(`${key} => ${SFX.POOL.get(key).length()}`);
+        }
+      }
+    }, 1000);
+    */
   }
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
-  public delete(object: Object2d) {
+  public remove(objects: Object2d | Object2d[]) {
+    if (Array.isArray(objects)) {
+      for (const temp of objects as Object2d[]) {
+        this.remove(temp);
+      }
+      return;
+    }
+
+    const object = objects as Object2d;
+
+    this.remove(object.getChildren());
+
+    object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
+
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
   public update(delta: number) {
@@ -71,26 +106,58 @@ class World {
 
     this.children.forEach((child: Object2d) => {
       if (this.canBeCleanedUp(child)) {
-        this.delete(child);
+        this.remove(child);
         return;
       }
 
       child.update(this, delta);
+      child.setCulled(this.camera.isFrustumCulled(child));
     });
+
+    this.tileMap.update(this, delta);
   }
 
   public render(alpha: number) {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
-    this.children.forEach((child) => {
-      if (this.camera.isFrustumCulled(child)) {
-        return;
-      }
+    this.tileMap.render(viewProjectionMatrix);
 
+    this.children.forEach((child) => {
       child.render(viewProjectionMatrix);
     });
 
     // console.log(`entities : ${i}/${this.children.size}`);
+  }
+
+  public getActiveEntities(): Entity[] {
+    return this.entities;
+  }
+
+  public countObjects(target: Object2d | Object2d[], test: any): number {
+    if (Array.isArray(target)) {
+      const a = target as Object2d[];
+      if (a.length === 0) {
+        return 0;
+      }
+
+      return a.reduce((acc, child) => acc + this.countObjects(child, test), 0);
+    }
+
+    return test(target) + this.countObjects((target as Object2d).getChildren(), test);
+  }
+
+  public countAllObjects(): number {
+    return this.countObjects(
+      Array.from(this.children.values()),
+      (object: Object2d) => object instanceof Object2d,
+    );
+  }
+
+  public countVisibleObjects(): number {
+    return this.countObjects(
+      Array.from(this.children.values()),
+      (object: Object2d) => !object.isCulled() && object.isVisible(),
+    );
   }
 
   public canBeCleanedUp(target: Object2d | Object2d[]): boolean {
@@ -121,7 +188,12 @@ class World {
 
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-      const entity = new HealEffectConsummable(coords[0], coords[1], this.data.entities[choices[getRandomInt(0, choices.length)]]);
+      const className = Math.random() >= 0.5 ? HealEffectConsummable : DamageEffectConsummable;
+      const entity = new className(
+          coords[0], coords[1],
+          new Vector2(1, 1),
+          this.data.entities[choices[getRandomInt(0, choices.length)]],
+        );
 
       this.add(entity);
     }
@@ -140,6 +212,7 @@ class World {
   }
 
   public getPlayer(): Player { return this.player; }
+  public getCamera(): Camera { return this.camera; }
   public getTileMap(): TileMap { return this.tileMap; }
   public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
 }
