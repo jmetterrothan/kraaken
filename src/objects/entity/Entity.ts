@@ -25,7 +25,6 @@ class Entity extends AnimatedObject2d {
     this.climbing = false;
     this.falling = false;
     this.jumping = false;
-
   }
 
   public collideWith(object: Entity | Object2d): boolean {
@@ -168,14 +167,22 @@ class Entity extends AnimatedObject2d {
         this.velocity.y = 0;
     }
 
-    if (x !== this.getX() || y !== this.getY()) {
-      this.setPosition(x, y);
-    }
-
-    this.bbox.setPositionFromCenter(x, y);
+    this.setPosition(x, y);
   }
 
   public getBbox(): Box2 { return this.bbox; }
+
+  public getVelocity(): Vector2 {
+    if (this.velocity) {
+      return this.velocity.clone();
+    }
+    return new Vector2();
+  }
+
+  public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
+    const t = this.getVelocity().multiplyScalar(delta);
+    return (this.getPosition().lerp(this.getPosition().add(t), alpha)).ceil();
+  }
 }
 
 export default Entity;

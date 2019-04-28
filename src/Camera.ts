@@ -30,7 +30,7 @@ class Camera extends Object2d {
     this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
-    this.speed = 0.25;
+    this.speed = 4;
   }
 
   public follow(target: Object2d) {
@@ -92,10 +92,7 @@ class Camera extends Object2d {
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
-      this.setPosition(
-        Math.floor(lerp(this.getX(), center.x, this.speed)),
-        Math.floor(lerp(this.getY(), center.y, this.speed)),
-      );
+      this.setPositionFromVector2(this.getPosition().lerp(center, this.speed * delta).floor());
 
       this.clamp(world.getBoundaries());
 

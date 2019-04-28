@@ -44,6 +44,10 @@ class Box2 {
     this.max.y = y + hh;
   }
 
+  public setPositionFromCenterVector2(v: Vector2) {
+    this.setPositionFromCenter(v.x, v.y);
+  }
+
   public setMin(x: number, y: number) {
     this.min.x = x;
     this.min.y = y;
