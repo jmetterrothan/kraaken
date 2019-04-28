@@ -12,6 +12,7 @@ import { configSvc } from '@shared/services/config.service';
 class Camera extends Object2d {
   private projectionMatrix: mat3;
   private projectionMatrixInverse: mat3;
+  private shouldUpdateProjectionMatrix: boolean;
 
   private viewBox: Box2;
 
@@ -24,6 +25,7 @@ class Camera extends Object2d {
 
     this.projectionMatrix = mat3.create();
     this.projectionMatrixInverse = mat3.create();
+    this.shouldUpdateProjectionMatrix = true;
 
     this.viewBox = new Box2();
 
@@ -45,6 +47,7 @@ class Camera extends Object2d {
     }
 
     this.setPositionFromVector2(center.trunc());
+    this.shouldUpdateProjectionMatrix = true;
   }
 
   public updateViewBox() {
@@ -93,7 +96,9 @@ class Camera extends Object2d {
       this.clamp(world.getBoundaries());
     }
 
-    if (this.hasChangedPosition() || this.zoom !== configSvc.scale) {
+    this.shouldUpdateProjectionMatrix = this.shouldUpdateProjectionMatrix || this.hasChangedPosition();
+
+    if (this.shouldUpdateProjectionMatrix) {
       this.zoom = configSvc.scale;
 
       const position = mat3.create();
