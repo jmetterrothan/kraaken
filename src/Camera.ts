@@ -14,7 +14,6 @@ class Camera extends Object2d {
   private projectionMatrixInverse: mat3;
 
   private viewBox: Box2;
-  private shouldUpdateProjectionMatrix: boolean;
 
   private target: Object2d;
   private speed: number;
@@ -26,7 +25,6 @@ class Camera extends Object2d {
     this.projectionMatrixInverse = mat3.create();
 
     this.viewBox = new Box2();
-    this.shouldUpdateProjectionMatrix = true;
 
     this.visible = false;
     this.speed = 4;
@@ -45,8 +43,6 @@ class Camera extends Object2d {
     }
 
     this.setPositionFromVector2(center.trunc());
-
-    this.shouldUpdateProjectionMatrix = true;
   }
 
   public updateViewBox() {
@@ -93,17 +89,9 @@ class Camera extends Object2d {
 
       this.setPositionFromVector2(this.getPosition().lerp(center, this.speed * delta).floor());
       this.clamp(world.getBoundaries());
-
-      if (this.target.hasChangedPosition()) {
-        this.shouldUpdateProjectionMatrix = true;
-      }
-    } else {
-      if (this.hasChangedPosition()) {
-        this.shouldUpdateProjectionMatrix = true;
-      }
     }
 
-    if (this.shouldUpdateProjectionMatrix) {
+    if (this.hasChangedPosition()) {
       const position = mat3.create();
       const offset = mat3.create();
       const scale = mat3.create();
@@ -117,7 +105,6 @@ class Camera extends Object2d {
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, offset);
 
       this.updateViewBox();
-      this.shouldUpdateProjectionMatrix = false;
     }
   }
 
