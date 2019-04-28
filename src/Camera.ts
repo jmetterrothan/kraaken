@@ -8,6 +8,7 @@ import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
 import { configSvc } from '@shared/services/config.service';
+import { lerp } from './shared/utility/MathHelpers';
 
 class Camera extends Object2d {
   private projectionMatrix: mat3;
@@ -17,7 +18,7 @@ class Camera extends Object2d {
   private viewBox: Box2;
 
   private target: Object2d;
-  private speed: number;
+  private speed: Vector2;
   private zoom: number;
 
   constructor() {
@@ -30,7 +31,7 @@ class Camera extends Object2d {
     this.viewBox = new Box2();
 
     this.visible = false;
-    this.speed = 4;
+    this.speed = new Vector2(4, 2);
     this.zoom = 1;
   }
 
@@ -92,7 +93,11 @@ class Camera extends Object2d {
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
-      this.setPositionFromVector2(this.getPosition().lerp(center, this.speed * delta).floor());
+      this.setPosition(
+        Math.floor(lerp(this.getX(), center.x, this.speed.x * delta)),
+        Math.floor(lerp(this.getY(), center.y, this.speed.y * delta)),
+      );
+
       this.clamp(world.getBoundaries());
     }
 
