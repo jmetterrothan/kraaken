@@ -23,4 +23,6 @@ export interface IAnimationList {
 export enum CharacterAnimationKeys {
   idle = 'idle',
   walking = 'walking',
+  falling = 'falling',
+  jumping = 'jumping',
 }

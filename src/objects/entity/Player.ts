@@ -5,6 +5,7 @@ import Character from '@src/objects/entity/Character';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
 import { IEntityData, IMovement } from '@shared/models/entity.model';
+import { lerp } from '@src/shared/utility/MathHelpers';
 
 class Player extends Character implements IMovement {
   protected left: boolean;
@@ -26,14 +27,28 @@ class Player extends Character implements IMovement {
     this.down = false;
 
     this.acceleration = new Vector2(15, 0);
-    this.deceleration = new Vector2(25, 0);
+    this.deceleration = new Vector2(30, 0);
     this.speed = new Vector2(110, 0);
     this.gravity = new Vector2(0, 20);
+    this.interpPos = new Vector2(0, 0);
 
     this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
   }
 
-  public move(): void {
+  public move(delta: number): void {
+    if (this.up) {
+      if (!this.falling) {
+        if (!this.jumping) {
+          this.jumping = true;
+          this.velocity.y = -6000 * delta; // initial boost
+        } else {
+          this.velocity.y -= 320 * delta; // maintain momentum
+        }
+      }
+    } else {
+      this.jumping = false;
+    }
+
     if (this.left) {
       this.velocity.x -= this.acceleration.x;
       if (this.velocity.x < -this.speed.x) {
@@ -94,6 +109,12 @@ class Player extends Character implements IMovement {
   }
 
   protected updateCurrentAnimationKey(): string {
+    if (this.falling) {
+      return CharacterAnimationKeys.falling;
+    }
+    if (this.jumping) {
+      return CharacterAnimationKeys.jumping;
+    }
     if (this.left || this.right) {
       return CharacterAnimationKeys.walking;
     }

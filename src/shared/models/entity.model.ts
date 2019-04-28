@@ -26,5 +26,5 @@ export interface IEntityLevelData {
 }
 
 export interface IMovement {
-  move(): void;
+  move(delta: number): void;
 }
