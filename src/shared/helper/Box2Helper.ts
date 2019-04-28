@@ -71,23 +71,26 @@ class Box2Helper extends Object2d {
 
   public update(world: World, delta: number) {
     this.setPositionFromVector2(this.box.getMin());
-    this.updateModelMatrix();
   }
 
-  public render(viewProjectionMatrix: mat3) {
-    this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix);
+  public render(viewProjectionMatrix: mat3, alpha: number, delta: number) {
+    this.updateModelMatrix(alpha, delta);
 
     gl.useProgram(this.colorMaterial.program);
-
     gl.bindVertexArray(this.vao);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
 
-    WebGL2H.setUniforms(gl, this.uniforms);
+    this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix));
 
     gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
   }
 
   public getBox2() { return this.box; }
+
+  private setUniform(key: string, value: any) {
+    this.uniforms[key].value = value;
+    WebGL2H.setUniform(gl, this.uniforms[key]);
+  }
 }
 
 export default Box2Helper;

@@ -142,27 +142,29 @@ class Sprite {
 
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean) {
     if (this.loaded) {
-      this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix);
-
-      this.uniforms.u_frame.value[0] = ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x;
-      this.uniforms.u_frame.value[1] = ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y;
-      this.uniforms.u_wireframe.value = false;
-
-      WebGL2H.setUniforms(gl, this.uniforms);
-
-      gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
+      this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
+      this.setUniform('u_frame', [
+        ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x,
+        ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y,
+      ]);
 
       if (wireframe) {
-        this.uniforms.u_wireframe.value = true;
-        WebGL2H.setUniform(gl, this.uniforms.u_wireframe);
-
+        this.setUniform('u_wireframe', true);
         gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
+      } else {
+        this.setUniform('u_wireframe', false);
+        gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
       }
     }
   }
 
   public getTileWidth() { return this.tileWidth; }
   public getTileHeight() { return this.tileHeight; }
+
+  private setUniform(key: string, value: any) {
+    this.uniforms[key].value = value;
+    WebGL2H.setUniform(gl, this.uniforms[key]);
+  }
 
   private setup(image: HTMLImageElement) {
     gl.useProgram(this.textureMaterial.program);
