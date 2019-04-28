@@ -1,5 +1,3 @@
-import { mat3 } from 'gl-matrix';
-
 import Vector2 from '@shared/math/Vector2';
 import AnimatedObject2d from '@src/objects/AnimatedObject2d';
 import Object2d from '@src/objects/Object2d';
@@ -8,16 +6,26 @@ import TileMap from '@src/world/TileMap';
 import World from '@src/world/World';
 
 import { IEntityData, IMovement } from '@src/shared/models/entity.model';
+import { mat3 } from 'gl-matrix';
 
 class Entity extends AnimatedObject2d {
   protected velocity: Vector2;
   protected bbox: Box2;
+
+  protected climbing: boolean;
+  protected falling: boolean;
+  protected jumping: boolean;
 
   constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y, direction, data);
 
     this.velocity = new Vector2(0, 0);
     this.bbox = new Box2(x, y, data.metadata.bbox.w, data.metadata.bbox.h);
+
+    this.climbing = false;
+    this.falling = false;
+    this.jumping = false;
+
   }
 
   public collideWith(object: Entity | Object2d): boolean {
@@ -35,7 +43,7 @@ class Entity extends AnimatedObject2d {
   public updatePosition(world: World, delta: number) {
     // update velocity values
     if ('move' in this) {
-      (this as IMovement).move();
+      (this as IMovement).move(delta);
     }
 
     // change direction based of new velocity
@@ -67,14 +75,10 @@ class Entity extends AnimatedObject2d {
 
         const t = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
 
-        if (t) {
-            this.setY(t.position.y - h / 2 - 0.01);
-            this.velocity.y = 0;
-
-            // this.falling = false;
-        } else {
-            // this.falling = true;
-        }
+      if (t) {
+        this.setY(t.position.y - h / 2 - 0.01);
+        this.velocity.y = 0;
+      }
     }
 
     // top collision
@@ -84,13 +88,10 @@ class Entity extends AnimatedObject2d {
 
         const t = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
 
-        if (t) {
-            this.setY(t.position.y + map.getTileSize() + h / 2 + 0.01);
-            this.velocity.y = 0;
-
-            // this.falling = true;
-            // this.jumping = false;
-        }
+      if (t) {
+        this.setY(t.position.y + map.getTileSize() + h / 2 + 0.01);
+        this.velocity.y = 0;
+      }
     }
 
     // right collision
@@ -125,6 +126,7 @@ class Entity extends AnimatedObject2d {
 
     this.handleCollisions(world.getTileMap(), delta);
     this.clamp(world.getBoundaries());
+    this.falling = this.velocity.y > 0;
 
     this.updateAnimation(world, delta);
 
