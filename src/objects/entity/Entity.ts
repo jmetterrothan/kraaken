@@ -39,24 +39,6 @@ class Entity extends AnimatedObject2d {
     return false;
   }
 
-  public updatePosition(world: World, delta: number) {
-    // update velocity values
-    if ('move' in this) {
-      (this as IMovement).move(delta);
-    }
-
-    // change direction based of new velocity
-    if (this.velocity.x !== 0 || this.velocity.y !== 0) {
-      const direction = this.velocity.clone().setY(0).normalize();
-
-      if (direction.x !== 0) {
-        this.direction.x = direction.x;
-      }
-
-      this.setPositionFromVector2(this.getPosition().add(this.velocity.clone().multiplyScalar(delta)));
-    }
-  }
-
   public handleCollisions(map: TileMap, delta: number) {
     const x1 = this.bbox.getMinX();
     const y1 = this.bbox.getMinY();
@@ -66,74 +48,80 @@ class Entity extends AnimatedObject2d {
     const h = this.bbox.getHeight();
 
     const velocity = this.velocity.clone().multiplyScalar(delta);
+    const newPosition = this.getPosition().add(velocity);
 
-    let x = this.getX();
-    let y = this.getY();
-
-    // bottom collision
-    if (this.velocity.y > 0) {
-      const tl = map.getTileAt(x1, y2 + velocity.y);
-      const tr = map.getTileAt(x2, y2 + velocity.y);
-
-      const tile = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
-
-      if (tile) {
-        y = tile.position.y - h / 2 - 0.01;
-        this.velocity.y = 0;
-        this.falling = false;
-      }
-    }
-
-    // top collision
-    if (this.velocity.y < 0) {
-      const bl = map.getTileAt(x1, y1 + velocity.y);
-      const br = map.getTileAt(x2, y1 + velocity.y);
-
-      const tile = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
-
-      if (tile) {
-        y = tile.position.y + map.getTileSize() + h / 2 + 0.01;
-        this.velocity.y = 0;
-      }
-    }
-
-    // right collision
-    if (this.velocity.x > 0) {
+    if (this.velocity.x > 0) { // right collision
       const tr = map.getTileAt(x2 + velocity.x, y1);
       const br = map.getTileAt(x2 + velocity.x, y2);
 
       const tile = (tr && tr.type.collision) ? tr : ((br && br.type.collision) ? br : undefined);
 
       if (tile) {
-        x = tile.position.x - w / 2 - 0.01;
+        newPosition.x = tile.position.x - w / 2 - 0.01;
         this.velocity.x = 0;
       }
-    }
-
-    // left collision
-    if (this.velocity.x < 0) {
+    } else if (this.velocity.x < 0) { // left collision
       const tl = map.getTileAt(x1 + velocity.x, y1);
       const bl = map.getTileAt(x1 + velocity.x, y2);
 
       const tile = (tl && tl.type.collision) ? tl : ((bl && bl.type.collision) ? bl : undefined);
 
       if (tile) {
-        x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
+        newPosition.x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
         this.velocity.x = 0;
       }
     }
 
-    this.setPosition(x, y);
+    if (this.velocity.y > 0) { // bottom collision
+      const tl = map.getTileAt(x1, y2 + velocity.y);
+      const tr = map.getTileAt(x2, y2 + velocity.y);
+
+      const tile = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
+
+      if (tile) {
+        newPosition.y = tile.position.y - h / 2 - 0.01;
+        this.velocity.y = 0;
+      }
+    } else if (this.velocity.y < 0) { // top collision
+      const bl = map.getTileAt(x1, y1 + velocity.y);
+      const br = map.getTileAt(x2, y1 + velocity.y);
+
+      const tile = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
+
+      if (tile) {
+        newPosition.y = tile.position.y + map.getTileSize() + h / 2 + 0.01;
+        this.velocity.y = 0;
+      }
+    }
+
+    this.setPositionFromVector2(newPosition);
   }
 
   public update(world: World, delta: number) {
-    this.updatePosition(world, delta);
+    // update velocity values
+    if ('move' in this) {
+      (this as IMovement).move(delta);
+    }
 
     this.handleCollisions(world.getTileMap(), delta);
     this.clamp(world.getBoundaries());
-    this.falling = this.velocity.y > 0;
+
+    // change direction based of new velocity
+    if (this.velocity.x !== 0 || this.velocity.y !== 0) {
+      const direction = this.velocity.clone().setY(0).normalize();
+
+      if (direction.x !== 0) {
+        this.direction.x = direction.x;
+      }
+    }
+
+    // update bbox position
     this.bbox.setPositionFromCenter(this.getX(), this.getY());
 
+    // update falling flag
+    this.falling = this.velocity.y > 0;
+
+    // update animation and model matrix
     this.updateAnimation(world, delta);
     super.update(world, delta);
   }
@@ -151,19 +139,19 @@ class Entity extends AnimatedObject2d {
     let y = this.getY();
 
     if (this.getX() < x1) {
-        x = x1 + 0.01;
+        x = x1;
         this.velocity.x = 0;
     }
     if (this.getY() < y1) {
-        y = y1 + 0.01;
+        y = y1;
         this.velocity.y = 0;
     }
     if (this.getX() > x2) {
-        x = x2 - 0.01;
+        x = x2;
         this.velocity.x = 0;
     }
     if (this.getY() > y2) {
-        y = y2 - 0.01;
+        y = y2;
         this.velocity.y = 0;
     }
 
