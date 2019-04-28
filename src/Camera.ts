@@ -8,7 +8,6 @@ import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
 import { configSvc } from '@shared/services/config.service';
-import { lerp } from '@shared/utility/MathHelpers';
 
 class Camera extends Object2d {
   private projectionMatrix: mat3;
@@ -93,7 +92,6 @@ class Camera extends Object2d {
       const center: Vector2 = this.target.getPosition();
 
       this.setPositionFromVector2(this.getPosition().lerp(center, this.speed * delta).floor());
-
       this.clamp(world.getBoundaries());
 
       if (this.target.hasChangedPosition()) {

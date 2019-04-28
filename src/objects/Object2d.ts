@@ -55,10 +55,10 @@ class Object2d {
     });
   }
 
-  public render(viewProjectionMatrix: mat3) {
+  public render(viewProjectionMatrix: mat3, alpha: number) {
     this.children.forEach((child) => {
       if (!child.isCulled()) {
-        child.render(viewProjectionMatrix);
+        child.render(viewProjectionMatrix, alpha);
       }
     });
   }

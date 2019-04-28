@@ -55,7 +55,6 @@ class World {
     this.camera.follow(this.player);
 
     this.add(this.player);
-    this.add(this.camera);
 
     for (const entityData of this.data.level.entities) {
       this.add(new Entity(entityData.spawn.x, entityData.spawn.y, new Vector2(entityData.direction.x, entityData.direction.y), this.data.entities[entityData.key]));
@@ -114,16 +113,17 @@ class World {
       child.setCulled(this.camera.isFrustumCulled(child));
     });
 
+    this.camera.update(this, delta);
     this.tileMap.update(this, delta);
   }
 
   public render(alpha: number) {
     const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
-    this.tileMap.render(viewProjectionMatrix);
+    this.tileMap.render(viewProjectionMatrix, alpha);
 
     this.children.forEach((child) => {
-      child.render(viewProjectionMatrix);
+      child.render(viewProjectionMatrix, alpha);
     });
 
     // console.log(`entities : ${i}/${this.children.size}`);
