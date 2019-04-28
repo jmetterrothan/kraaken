@@ -106,11 +106,11 @@ class Sprite {
     };
 
     this.uniforms = {
-      u_mvp: { type: 'Matrix3fv', value: mat3.create() },
-      u_frame: { type: '2fv', value: vec2.create() },
-      u_color: { type: '3fv', value: vec3.create() },
-      u_wireframe: { type: '1i', value: 0 },
-      u_image: { type: '1i', value: 0 },
+      u_mvp: { type: 'Matrix3fv', value: undefined },
+      u_frame: { type: '2fv', value: undefined },
+      u_color: { type: '3fv', value: undefined },
+      u_wireframe: { type: '1i', value: undefined },
+      u_image: { type: '1i', value: undefined },
     };
   }
 

@@ -15,6 +15,7 @@ import vsObject from '@assets/shaders/object.vs.glsl';
 
 class Box2Helper extends Object2d {
   private box: Box2;
+  private color: vec4;
 
   private colorMaterial: Material;
 
@@ -29,6 +30,7 @@ class Box2Helper extends Object2d {
     super(box.getCenterX(), box.getCenterY());
 
     this.box = box;
+    this.color = vec4.fromValues(color.r, color.g, color.b, 1);
 
     this.colorMaterial = new Material(vsObject, fsColor);
 
@@ -41,8 +43,8 @@ class Box2Helper extends Object2d {
     };
 
     this.uniforms = {
-      u_mvp: { type: 'Matrix3fv', value: mat3.create() },
-      u_color: { type: '4fv', value: vec4.fromValues(color.r, color.g, color.b, 1) },
+      u_mvp: { type: 'Matrix3fv', value: undefined },
+      u_color: { type: '4fv', value: undefined },
     };
 
     this.init();
@@ -81,6 +83,7 @@ class Box2Helper extends Object2d {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
 
     this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix));
+    this.setUniform('u_color', this.color);
 
     gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
   }
