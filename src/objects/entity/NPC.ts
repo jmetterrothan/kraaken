@@ -17,7 +17,7 @@ class NPC extends Entity {
     target.y -= 35 + Math.sin(window.performance.now() / 500) * 5;
     this.setPositionFromVector2(this.getPosition().lerp(target, 0.1));
 
-    this.direction.x = world.getPlayer().getDirection().x * -1;
+    this.parameters.direction.x = world.getPlayer().getDirection().x * -1;
   }
 
   protected updateModelMatrix() {

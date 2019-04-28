@@ -7,16 +7,15 @@ import World from '@src/world/World';
 
 import { IAnimationList } from '@src/shared/models/animation.model';
 import { IEntityData } from '@src/shared/models/entity.model';
+import { ISpriteRenderParameters } from './../shared/models/animation.model';
 
 class AnimatedObject2d extends Object2d {
-
   get animation(): Animation {
     return this.animationList[this.currentAnimationKey];
   }
+
   public ghost: boolean;
-  protected wireframe: boolean;
-  protected flickering: boolean;
-  protected direction: Vector2;
+  protected parameters: ISpriteRenderParameters;
 
   private animationList: IAnimationList;
   private currentAnimationKey: string;
@@ -26,10 +25,11 @@ class AnimatedObject2d extends Object2d {
   constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y);
 
-    this.wireframe = false;
-    this.flickering = false;
-    this.direction = direction;
-    this.ghost = false;
+    this.parameters = {
+      direction,
+      wireframe: false,
+      flickering: false,
+    };
 
     // convert animation parameters in Animation objects
     this.defaultAnimationKey = data.defaultAnimationKey;
@@ -43,6 +43,8 @@ class AnimatedObject2d extends Object2d {
     }
 
     this.updateModelMatrix();
+
+    this.ghost = false;
   }
 
   public updateAnimation(world: World, delta: number) {
@@ -60,7 +62,7 @@ class AnimatedObject2d extends Object2d {
     super.render(viewProjectionMatrix, alpha);
 
     if (this.isVisible() && !this.isCulled()) {
-      this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe, this.flickering, this.ghost);
+      this.animation.render(viewProjectionMatrix, this.modelMatrix, this.parameters, this.ghost);
     }
   }
 

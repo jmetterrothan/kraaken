@@ -1,3 +1,4 @@
+import Vector2 from '@shared/math/Vector2';
 import Animation from '@src/animation/Animation';
 
 export interface IAnimationFrame {
@@ -18,6 +19,12 @@ export interface IAnimationDataList {
 
 export interface IAnimationList {
   [key: string]: Animation;
+}
+
+export interface ISpriteRenderParameters {
+  flickering: boolean;
+  wireframe: boolean;
+  direction: Vector2;
 }
 
 export enum CharacterAnimationKeys {

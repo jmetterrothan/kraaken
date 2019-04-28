@@ -130,7 +130,7 @@ class Entity extends AnimatedObject2d {
       const direction = this.velocity.clone().setY(0).normalize();
 
       if (direction.x !== 0) {
-        this.direction.x = direction.x;
+        this.parameters.direction.x = direction.x;
       }
     }
 
@@ -189,7 +189,7 @@ class Entity extends AnimatedObject2d {
   }
 
   public getDirection(): Vector2 {
-    return this.direction;
+    return this.parameters.direction;
   }
 
   public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
