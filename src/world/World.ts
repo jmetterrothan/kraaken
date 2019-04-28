@@ -16,6 +16,7 @@ import { configSvc } from '@shared/services/config.service';
 
 import { IObjectLevelData } from '@src/shared/models/entity.model';
 import { IWorldData } from '@src/shared/models/world.model';
+import { getRandomInt } from '@src/shared/utility/MathHelpers';
 
 class World {
   public readonly data: IWorldData;
@@ -184,21 +185,16 @@ class World {
   }
 
   public handleMousePressed(button: number, active: boolean, position: vec2) {
-    /*
-    const choices = ['cherry', 'gemstone'];
+    const choices = Object.keys(this.data.loots);
 
     if (active && button === 0) {
+      const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
+      const entityData = this.data.entities[lootData.ref];
       const coords = this.camera.screenToCameraCoords(position);
-      const className = Math.random() >= 0.5 ? HealEffectConsummable : DamageEffectConsummable;
-      const entity = new className(
-          coords[0], coords[1],
-          new Vector2(1, 1),
-          this.data.entities[choices[getRandomInt(0, choices.length)]],
-        );
 
-      this.add(entity);
+      const loot = new DamageEffectConsummable(coords[0], coords[1], new Vector2(1, 1), entityData, lootData.metadata);
+      this.add(loot);
     }
-    */
   }
 
   public handleMouseMove(position: vec2) {
