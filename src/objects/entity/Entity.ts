@@ -188,6 +188,10 @@ class Entity extends AnimatedObject2d {
     return new Vector2();
   }
 
+  public getDirection(): Vector2 {
+    return this.direction;
+  }
+
   public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
     const t = this.getVelocity().multiplyScalar(delta);
     return (this.getPosition().lerp(this.getPosition().add(t), alpha)).ceil();

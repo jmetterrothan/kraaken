@@ -1,4 +1,4 @@
-import { mat3, vec2, vec3 } from 'gl-matrix';
+import { mat3, vec2, vec3, vec4 } from 'gl-matrix';
 import md5 from 'md5';
 
 import Material from '@src/animation/Material';
@@ -111,6 +111,7 @@ class Sprite {
       u_color: { type: '3fv', value: undefined },
       u_wireframe: { type: '1i', value: undefined },
       u_image: { type: '1i', value: undefined },
+      u_ghost: { type: '4fv', value: undefined },
     };
   }
 
@@ -140,8 +141,9 @@ class Sprite {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean, ghost: boolean = false) {
     if (this.loaded) {
+      this.setUniform('u_ghost', ghost ? vec4.fromValues(0.5, 0.5, 0.5, 0.25) : vec4.fromValues(1, 1, 1, 1));
       this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
       this.setUniform('u_frame', [
         ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x,

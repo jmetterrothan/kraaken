@@ -188,17 +188,21 @@ class World {
     const choices = Object.keys(this.data.loots);
 
     if (active && button === 0) {
-      const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
-      const entityData = this.data.entities[lootData.ref];
       const coords = this.camera.screenToCameraCoords(position);
 
-      const loot = new DamageEffectConsummable(coords[0], coords[1], new Vector2(1, 1), entityData, lootData.metadata);
+      const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
+      const entityData = this.data.entities[lootData.ref];
+
+      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
       this.add(loot);
     }
   }
 
   public handleMouseMove(position: vec2) {
-
+    /*
+    const coords = this.camera.screenToCameraCoords(position);
+    console.log(coords.distanceTo(this.player.getPosition()));
+    */
   }
 
   public handleFullscreenChange(b: boolean) {

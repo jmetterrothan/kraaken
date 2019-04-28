@@ -134,8 +134,9 @@ class Camera extends Object2d {
     return !this.viewBox.containsPoint(object.getPosition());
   }
 
-  public screenToCameraCoords(coords: vec2): vec2 {
-    return vec2.transformMat3(vec2.create(), coords, this.projectionMatrixInverse);
+  public screenToCameraCoords(coords: vec2): Vector2 {
+    const v = vec2.transformMat3(vec2.create(), coords, this.projectionMatrixInverse);
+    return new Vector2(v[0], v[1]);
   }
 
   public getProjectionMatrix(): mat3 {

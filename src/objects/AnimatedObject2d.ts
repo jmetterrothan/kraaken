@@ -9,7 +9,13 @@ import { IAnimationList } from '@src/shared/models/animation.model';
 import { IEntityData } from '@src/shared/models/entity.model';
 
 class AnimatedObject2d extends Object2d {
+
+  get animation(): Animation {
+    return this.animationList[this.currentAnimationKey];
+  }
+  public ghost: boolean;
   protected wireframe: boolean;
+  protected flickering: boolean;
   protected direction: Vector2;
 
   private animationList: IAnimationList;
@@ -21,7 +27,9 @@ class AnimatedObject2d extends Object2d {
     super(x, y);
 
     this.wireframe = false;
+    this.flickering = false;
     this.direction = direction;
+    this.ghost = false;
 
     // convert animation parameters in Animation objects
     this.defaultAnimationKey = data.defaultAnimationKey;
@@ -52,7 +60,7 @@ class AnimatedObject2d extends Object2d {
     super.render(viewProjectionMatrix, alpha);
 
     if (this.isVisible() && !this.isCulled()) {
-      this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe);
+      this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe, this.flickering, this.ghost);
     }
   }
 
@@ -62,10 +70,6 @@ class AnimatedObject2d extends Object2d {
 
   protected updateModelMatrix() {
     this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(this.animation.getOffset()).toGlArray());
-  }
-
-  get animation(): Animation {
-    return this.animationList[this.currentAnimationKey];
   }
 }
 
