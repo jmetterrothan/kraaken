@@ -17,6 +17,7 @@ class Camera extends Object2d {
 
   private target: Object2d;
   private speed: number;
+  private zoom: number;
 
   constructor() {
     super(0, 0);
@@ -28,6 +29,7 @@ class Camera extends Object2d {
 
     this.visible = false;
     this.speed = 4;
+    this.zoom = 1;
   }
 
   public follow(target: Object2d) {
@@ -91,14 +93,16 @@ class Camera extends Object2d {
       this.clamp(world.getBoundaries());
     }
 
-    if (this.hasChangedPosition()) {
+    if (this.hasChangedPosition() || this.zoom !== configSvc.scale) {
+      this.zoom = configSvc.scale;
+
       const position = mat3.create();
       const offset = mat3.create();
       const scale = mat3.create();
 
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
-      mat3.fromScaling(scale, [configSvc.scale, configSvc.scale]);
+      mat3.fromScaling(scale, [this.zoom, this.zoom]);
 
       mat3.multiply(this.projectionMatrix, mat3.create(), scale);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);
