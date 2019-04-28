@@ -1,6 +1,6 @@
 import { vec2 } from 'gl-matrix';
 
-import { lerp2 } from '@shared/utility/MathHelpers';
+import { lerp, lerp2 } from '@shared/utility/MathHelpers';
 
 class Vector2 {
   public x: number;
@@ -172,8 +172,15 @@ class Vector2 {
   }
 
   public lerp(v: Vector2, a: number): Vector2 {
+    this.x = lerp(this.x, v.x, a);
+    this.y = lerp(this.y, v.y, a);
+
+    return this;
+  }
+
+  public lerp2(v: Vector2, a: number): Vector2 {
     this.x = lerp2(this.x, v.x, a);
-    this.x = lerp2(this.y, v.y, a);
+    this.y = lerp2(this.y, v.y, a);
 
     return this;
   }
