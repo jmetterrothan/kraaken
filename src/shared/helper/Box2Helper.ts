@@ -4,10 +4,10 @@ import WebGL2H from '@shared/utility/WebGL2H';
 import Material from '@src/animation/Material';
 import { gl } from '@src/Game';
 import Object2d from '@src/objects/Object2d';
+import Color from '@src/shared/helper/Color';
 import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
-import { IRGBColorData } from '@shared/models/color.model';
 import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 
 import fsColor from '@assets/shaders/color.fs.glsl';
@@ -25,10 +25,11 @@ class Box2Helper extends Object2d {
   private attributes: IAttributes;
   private uniforms: IUniforms;
 
-  constructor(box: Box2, color: IRGBColorData =  { r: 0, g: 0, b: 0 }) {
+  constructor(box: Box2, color: Color = new Color(1, 0, 0)) {
     super(box.getCenterX(), box.getCenterY());
 
     this.box = box;
+    this.color = color;
 
     this.colorMaterial = new Material(vsObject, fsColor);
 
@@ -41,8 +42,8 @@ class Box2Helper extends Object2d {
     };
 
     this.uniforms = {
-      u_mvp: { type: 'Matrix3fv', value: mat3.create() },
-      u_color: { type: '4fv', value: vec4.fromValues(color.r, color.g, color.b, 1) },
+      u_mvp: { type: 'Matrix3fv', value: undefined },
+      u_color: { type: '4fv', value: undefined },
     };
 
     this.init();
@@ -71,23 +72,27 @@ class Box2Helper extends Object2d {
 
   public update(world: World, delta: number) {
     this.setPositionFromVector2(this.box.getMin());
-    this.updateModelMatrix();
   }
 
-  public render(viewProjectionMatrix: mat3) {
-    this.uniforms.u_mvp.value = mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix);
+  public render(viewProjectionMatrix: mat3, alpha: number) {
+    this.updateModelMatrix();
 
     gl.useProgram(this.colorMaterial.program);
-
     gl.bindVertexArray(this.vao);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
 
-    WebGL2H.setUniforms(gl, this.uniforms);
+    this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix));
+    this.setUniform('u_color', this.color.toVec4());
 
     gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
   }
 
   public getBox2() { return this.box; }
+
+  private setUniform(key: string, value: any) {
+    this.uniforms[key].value = value;
+    WebGL2H.setUniform(gl, this.uniforms[key]);
+  }
 }
 
 export default Box2Helper;

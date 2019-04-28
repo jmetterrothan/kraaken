@@ -1,7 +1,6 @@
 import Vector2 from '@shared/math/Vector2';
 import Box2Helper from '@src/shared/helper/Box2Helper';
-
-import { IRGBColorData } from '../models/color.model';
+import Color from '@src/shared/helper/Color';
 
 class Box2 {
   private min: Vector2;
@@ -44,6 +43,10 @@ class Box2 {
     this.max.y = y + hh;
   }
 
+  public setPositionFromCenterVector2(v: Vector2) {
+    this.setPositionFromCenter(v.x, v.y);
+  }
+
   public setMin(x: number, y: number) {
     this.min.x = x;
     this.min.y = y;
@@ -70,7 +73,7 @@ class Box2 {
   public getCenter(): Vector2 {
     return this.min.clone().addVectors(this.min, this.max).multiplyScalar(0.5);
   }
-  public createHelper(color: IRGBColorData = { r: 0, g: 0, b: 0 }): Box2Helper {
+  public createHelper(color: Color = new Color(1, 0, 0)): Box2Helper {
     return new Box2Helper(this, color);
   }
 }

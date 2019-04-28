@@ -3,17 +3,15 @@ import Entity from '@src/objects/entity/Entity';
 import World from '@src/world/World';
 
 import { IConsummable } from '@shared/models/loot.model';
-import { IEntityData } from '@src/shared/models/entity.model';
+import { IEntityData, IMetadata } from '@src/shared/models/entity.model';
 
 abstract class Loot extends Entity implements IConsummable {
-  private consummated: boolean;
+  protected sfx: string;
+  protected consummated: boolean;
 
-  constructor(x: number, y: number, direction: Vector2, entityData: IEntityData) {
-    super(x, y, direction, entityData);
-
-    this.consummated = false;
-
-    // this.add(new Box2Helper(this.getBbox(), { r: 1, g: 0, b: 0 }));
+  constructor(x: number, y: number, direction: Vector2, data: IEntityData, metadata: IMetadata) {
+    super(x, y, direction, data);
+    this.sfx = metadata.sfx || undefined;
   }
 
   public update(world: World, delta: number) {
@@ -29,8 +27,6 @@ abstract class Loot extends Entity implements IConsummable {
 
         if (entity.collideWith(this)) {
           this.consummatedBy(entity);
-          this.consummated = true;
-
           break;
         }
       }

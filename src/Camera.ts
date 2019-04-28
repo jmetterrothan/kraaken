@@ -8,29 +8,30 @@ import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
 import { configSvc } from '@shared/services/config.service';
-import { lerp } from '@shared/utility/MathHelpers';
 
 class Camera extends Object2d {
   private projectionMatrix: mat3;
   private projectionMatrixInverse: mat3;
+  private shouldUpdateProjectionMatrix: boolean;
 
   private viewBox: Box2;
-  private shouldUpdateProjectionMatrix: boolean;
 
   private target: Object2d;
   private speed: number;
+  private zoom: number;
 
   constructor() {
     super(0, 0);
 
     this.projectionMatrix = mat3.create();
     this.projectionMatrixInverse = mat3.create();
-
-    this.viewBox = new Box2();
     this.shouldUpdateProjectionMatrix = true;
 
+    this.viewBox = new Box2();
+
     this.visible = false;
-    this.speed = 0.25;
+    this.speed = 4;
+    this.zoom = 1;
   }
 
   public follow(target: Object2d) {
@@ -46,7 +47,6 @@ class Camera extends Object2d {
     }
 
     this.setPositionFromVector2(center.trunc());
-
     this.shouldUpdateProjectionMatrix = true;
   }
 
@@ -92,37 +92,28 @@ class Camera extends Object2d {
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
-      this.setPosition(
-        Math.floor(lerp(this.getX(), center.x, this.speed)),
-        Math.floor(lerp(this.getY(), center.y, this.speed)),
-      );
-
+      this.setPositionFromVector2(this.getPosition().lerp(center, this.speed * delta).floor());
       this.clamp(world.getBoundaries());
-
-      if (this.target.hasChangedPosition()) {
-        this.shouldUpdateProjectionMatrix = true;
-      }
-    } else {
-      if (this.hasChangedPosition()) {
-        this.shouldUpdateProjectionMatrix = true;
-      }
     }
 
+    this.shouldUpdateProjectionMatrix = this.shouldUpdateProjectionMatrix || this.hasChangedPosition();
+
     if (this.shouldUpdateProjectionMatrix) {
+      this.zoom = configSvc.scale;
+
       const position = mat3.create();
       const offset = mat3.create();
       const scale = mat3.create();
 
       mat3.fromTranslation(offset, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(position, this.getPosition().negate().toGlArray());
-      mat3.fromScaling(scale, [configSvc.scale, configSvc.scale]);
+      mat3.fromScaling(scale, [this.zoom, this.zoom]);
 
       mat3.multiply(this.projectionMatrix, mat3.create(), scale);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, position);
       mat3.multiply(this.projectionMatrix, this.projectionMatrix, offset);
 
       this.updateViewBox();
-      this.shouldUpdateProjectionMatrix = false;
     }
   }
 

@@ -95,12 +95,12 @@ class TileMap {
     this.tileCountY = this.endRow - this.startRow;
   }
 
-  public render(viewProjectionMatrix: mat3) {
+  public render(viewProjectionMatrix: mat3, alpha: number) {
     this.atlas.use();
 
-    for (let r = this.startRow; r < this.endRow; r++) {
-      for (let c = this.startCol; c < this.endCol; c++) {
-        if (this.tiles[r][c].type) {
+    for (let r = this.startRow; r <= this.endRow; r++) {
+      for (let c = this.startCol; c <= this.endCol; c++) {
+        if (this.tiles[r][c].type.collision) {
           this.atlas.render(
             viewProjectionMatrix,
             this.tiles[r][c].model,

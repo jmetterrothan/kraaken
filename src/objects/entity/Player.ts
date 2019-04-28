@@ -1,12 +1,14 @@
 import { mat3 } from 'gl-matrix';
 
 import Vector2 from '@shared/math/Vector2';
-import Character from '@src/objects/entity/Character';
+import Entity from '@src/objects/entity/Entity';
+import Color from '@src/shared/helper/Color';
+import World from '@src/world/World';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
-import { IEntityData, IMovement } from '@shared/models/entity.model';
+import { IEntityData, IMetadata, IMovement } from '@shared/models/entity.model';
 
-class Player extends Character implements IMovement {
+class Player extends Entity implements IMovement {
   protected left: boolean;
   protected right: boolean;
   protected up: boolean;
@@ -15,7 +17,6 @@ class Player extends Character implements IMovement {
   protected acceleration: Vector2;
   protected deceleration: Vector2;
   protected speed: Vector2;
-  protected gravity: Vector2;
 
   constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y, direction, data);
@@ -26,14 +27,24 @@ class Player extends Character implements IMovement {
     this.down = false;
 
     this.acceleration = new Vector2(15, 0);
-    this.deceleration = new Vector2(25, 0);
+    this.deceleration = new Vector2(30, 0);
     this.speed = new Vector2(110, 0);
-    this.gravity = new Vector2(0, 20);
 
-    this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
+    this.color = new Color(0, 1, 0.75);
   }
 
-  public move(): void {
+  public move(world: World, delta: number): void {
+    if (this.up && !this.falling) {
+      if (!this.jumping && this.velocity.y === 0) {
+        this.jumping = true;
+        this.velocity.y = -6000 * delta; // initial boost
+      } else {
+        this.velocity.y -= 340 * delta; // maintain momentum
+      }
+    } else {
+      this.jumping = false;
+    }
+
     if (this.left) {
       this.velocity.x -= this.acceleration.x;
       if (this.velocity.x < -this.speed.x) {
@@ -59,7 +70,7 @@ class Player extends Character implements IMovement {
       }
     }
 
-    this.velocity.add(this.gravity);
+    this.velocity.add(world.getGravity());
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
@@ -94,6 +105,12 @@ class Player extends Character implements IMovement {
   }
 
   protected updateCurrentAnimationKey(): string {
+    if (this.falling) {
+      return CharacterAnimationKeys.falling;
+    }
+    if (this.jumping) {
+      return CharacterAnimationKeys.jumping;
+    }
     if (this.left || this.right) {
       return CharacterAnimationKeys.walking;
     }

@@ -48,8 +48,8 @@ class AnimatedObject2d extends Object2d {
     this.animation.update();
   }
 
-  public render(viewProjectionMatrix: mat3) {
-    super.render(viewProjectionMatrix);
+  public render(viewProjectionMatrix: mat3, alpha: number) {
+    super.render(viewProjectionMatrix, alpha);
 
     if (this.isVisible() && !this.isCulled()) {
       this.animation.render(viewProjectionMatrix, this.modelMatrix, this.direction, this.wireframe);

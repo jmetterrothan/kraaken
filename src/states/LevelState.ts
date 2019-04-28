@@ -7,15 +7,18 @@ import data from '@src/data/data';
 
 class LevelState  extends State {
   private world: World;
+  private ready: boolean;
 
   constructor() {
     super();
     this.world = new World(data);
+    this.ready = false;
   }
 
   public async init() {
     console.info('Level initialized');
     await this.world.init();
+    this.ready = true;
   }
 
   public mounted() {
@@ -27,11 +30,11 @@ class LevelState  extends State {
   }
 
   public update(delta: number) {
-    this.world.update(delta);
+    if (this.ready) { this.world.update(delta); }
   }
 
   public render(alpha: number) {
-    this.world.render(alpha);
+    if (this.ready) { this.world.render(alpha); }
   }
 
   public handleKeyboardInput(key: string, active: boolean) {

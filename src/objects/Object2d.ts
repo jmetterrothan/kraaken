@@ -4,6 +4,7 @@ import { mat3 } from 'gl-matrix';
 import Box2 from '@shared/math/Box2';
 import Vector2 from '@shared/math/Vector2';
 import { uuid } from '@shared/utility/Utility';
+import Color from '@src/shared/helper/Color';
 import World from '@src/world/World';
 
 class Object2d {
@@ -13,6 +14,7 @@ class Object2d {
   protected previousPosition: Vector2;
   protected shouldUpdateModelMatrix: boolean;
 
+  protected color: Color;
   private position: Vector2;
 
   private uuid: string;
@@ -29,6 +31,7 @@ class Object2d {
     this.visible = true;
     this.dirty = false;
     this.culled = false;
+    this.color = new Color(1, 0, 0);
 
     this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
     this.shouldUpdateModelMatrix = true;
@@ -55,10 +58,10 @@ class Object2d {
     });
   }
 
-  public render(viewProjectionMatrix: mat3) {
+  public render(viewProjectionMatrix: mat3, alpha: number) {
     this.children.forEach((child) => {
       if (!child.isCulled()) {
-        child.render(viewProjectionMatrix);
+        child.render(viewProjectionMatrix, alpha);
       }
     });
   }
@@ -88,6 +91,10 @@ class Object2d {
   }
 
   public remove(objects: Object2d | Object2d[]) {
+    if (!objects) {
+      return;
+    }
+
     if (Array.isArray(objects)) {
       for (const temp of objects as Object2d[]) {
         this.remove(temp);
@@ -96,10 +103,8 @@ class Object2d {
     }
 
     const object = objects as Object2d;
-
-    this.remove(object.getChildren());
-
     object.objectWillBeRemoved();
+    this.remove(object.getChildren());
     this.children.delete(object.getUUID());
   }
 
