@@ -4,10 +4,10 @@ import WebGL2H from '@shared/utility/WebGL2H';
 import Material from '@src/animation/Material';
 import { gl } from '@src/Game';
 import Object2d from '@src/objects/Object2d';
+import Color from '@src/shared/helper/Color';
 import Box2 from '@src/shared/math/Box2';
 import World from '@src/world/World';
 
-import { IRGBColorData } from '@shared/models/color.model';
 import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 
 import fsColor from '@assets/shaders/color.fs.glsl';
@@ -15,7 +15,6 @@ import vsObject from '@assets/shaders/object.vs.glsl';
 
 class Box2Helper extends Object2d {
   private box: Box2;
-  private color: vec4;
 
   private colorMaterial: Material;
 
@@ -26,11 +25,11 @@ class Box2Helper extends Object2d {
   private attributes: IAttributes;
   private uniforms: IUniforms;
 
-  constructor(box: Box2, color: IRGBColorData =  { r: 0, g: 0, b: 0 }) {
+  constructor(box: Box2, color: Color = new Color(1, 0, 0)) {
     super(box.getCenterX(), box.getCenterY());
 
     this.box = box;
-    this.color = vec4.fromValues(color.r, color.g, color.b, 1);
+    this.color = color;
 
     this.colorMaterial = new Material(vsObject, fsColor);
 
@@ -83,7 +82,7 @@ class Box2Helper extends Object2d {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
 
     this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix));
-    this.setUniform('u_color', this.color);
+    this.setUniform('u_color', this.color.toVec4());
 
     gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
   }

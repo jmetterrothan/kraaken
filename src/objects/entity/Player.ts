@@ -30,7 +30,7 @@ class Player extends Character implements IMovement {
     this.speed = new Vector2(110, 0);
     this.gravity = new Vector2(0, 20);
 
-    this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
+    this.color = new Color(0, 1, 0.75);
   }
 
   public move(delta: number): void {
