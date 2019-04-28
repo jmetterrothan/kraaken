@@ -5,7 +5,6 @@ import Character from '@src/objects/entity/Character';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
 import { IEntityData, IMovement } from '@shared/models/entity.model';
-import { lerp } from '@src/shared/utility/MathHelpers';
 
 class Player extends Character implements IMovement {
   protected left: boolean;
@@ -30,7 +29,6 @@ class Player extends Character implements IMovement {
     this.deceleration = new Vector2(30, 0);
     this.speed = new Vector2(110, 0);
     this.gravity = new Vector2(0, 20);
-    this.interpPos = new Vector2(0, 0);
 
     this.add(this.getBbox().createHelper({ r: 1, g: 0, b: 0 }));
   }

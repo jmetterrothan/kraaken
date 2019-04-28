@@ -73,8 +73,8 @@ class Box2Helper extends Object2d {
     this.setPositionFromVector2(this.box.getMin());
   }
 
-  public render(viewProjectionMatrix: mat3, alpha: number, delta: number) {
-    this.updateModelMatrix(alpha, delta);
+  public render(viewProjectionMatrix: mat3) {
+    this.updateModelMatrix();
 
     gl.useProgram(this.colorMaterial.program);
     gl.bindVertexArray(this.vao);

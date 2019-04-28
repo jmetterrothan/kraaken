@@ -33,8 +33,8 @@ class LevelState  extends State {
     if (this.ready) { this.world.update(delta); }
   }
 
-  public render(alpha: number, delta: number) {
-    if (this.ready) { this.world.render(alpha, delta); }
+  public render(alpha: number) {
+    if (this.ready) { this.world.render(alpha); }
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
