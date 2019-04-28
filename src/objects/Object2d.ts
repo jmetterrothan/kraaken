@@ -91,6 +91,10 @@ class Object2d {
   }
 
   public remove(objects: Object2d | Object2d[]) {
+    if (!objects) {
+      return;
+    }
+
     if (Array.isArray(objects)) {
       for (const temp of objects as Object2d[]) {
         this.remove(temp);
@@ -99,10 +103,8 @@ class Object2d {
     }
 
     const object = objects as Object2d;
-
-    this.remove(object.getChildren());
-
     object.objectWillBeRemoved();
+    this.remove(object.getChildren());
     this.children.delete(object.getUUID());
   }
 

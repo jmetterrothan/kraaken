@@ -4,6 +4,7 @@ import Fifo from '@src/shared/utility/Fifo';
 import World from '@src/world/World';
 
 import data from '@src/data/data';
+import { mat3 } from 'gl-matrix';
 
 class SFX extends AnimatedObject2d {
   public static createPoolIfNotExists(name: string) {

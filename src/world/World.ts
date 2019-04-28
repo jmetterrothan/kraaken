@@ -5,6 +5,7 @@ import Vector2 from '@shared/math/Vector2';
 import Sprite from '@src/animation/Sprite';
 import Camera from '@src/Camera';
 import Entity from '@src/objects/entity/Entity';
+import NPC from '@src/objects/entity/NPC';
 import Player from '@src/objects/entity/Player';
 import DamageEffectConsummable from '@src/objects/loot/DamageEffectConsummable';
 import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
@@ -13,12 +14,13 @@ import TileMap from '@src/world/TileMap';
 
 import { configSvc } from '@shared/services/config.service';
 
+import { IObjectLevelData } from '@src/shared/models/entity.model';
 import { IWorldData } from '@src/shared/models/world.model';
-import { getRandomInt } from '@src/shared/utility/MathHelpers';
 
 class World {
+  public readonly data: IWorldData;
+
   protected children: Map<string, Object2d>;
-  private data: IWorldData;
 
   private viewMatrix: mat3;
 
@@ -28,6 +30,9 @@ class World {
 
   private entities: Entity[];
 
+  // physics
+  private gravity: Vector2;
+
   constructor(data: IWorldData) {
     this.data = data;
 
@@ -36,29 +41,24 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.tileMap = new TileMap(data.level.tileMap);
-
     this.entities = [];
   }
 
   public async init() {
-    for (const sprite of this.data.sprites) {
+    const { sprites, level } = this.data;
+
+    for (const sprite of sprites) {
       await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
+    this.gravity = new Vector2(level.physics.gravity.x, level.physics.gravity.y);
+
+    this.tileMap = new TileMap(level.tileMap);
     this.tileMap.init();
-    // this.add(this.tileMap.getBoundaries().createHelper());
 
-    const playerInfo = this.data.level.player;
-    this.player = new Player(playerInfo.spawn.x, playerInfo.spawn.y, new Vector2(playerInfo.direction.x, playerInfo.direction.y), this.data.entities[playerInfo.key]);
-
-    this.camera.follow(this.player);
-
-    this.add(this.player);
-
-    for (const entityData of this.data.level.entities) {
-      this.add(new Entity(entityData.spawn.x, entityData.spawn.y, new Vector2(entityData.direction.x, entityData.direction.y), this.data.entities[entityData.key]));
-    }
+    this.initPlayer(level.player);
+    this.initEntities(level.entities);
+    this.initLoots(level.loots);
 
     console.info('World initialized');
 
@@ -184,6 +184,7 @@ class World {
   }
 
   public handleMousePressed(button: number, active: boolean, position: vec2) {
+    /*
     const choices = ['cherry', 'gemstone'];
 
     if (active && button === 0) {
@@ -197,6 +198,7 @@ class World {
 
       this.add(entity);
     }
+    */
   }
 
   public handleMouseMove(position: vec2) {
@@ -215,6 +217,44 @@ class World {
   public getCamera(): Camera { return this.camera; }
   public getTileMap(): TileMap { return this.tileMap; }
   public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
+  public getGravity(): Vector2 { return this.gravity; }
+
+  private initPlayer({ ref, spawn, direction, debug }: IObjectLevelData) {
+    this.player = new Player(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[ref]);
+
+    if (debug) {
+      this.player.showDebug();
+    }
+    this.add(this.player);
+
+    this.camera.follow(this.player);
+  }
+
+  private initEntities(entities: IObjectLevelData[]) {
+    for (const entityLevelData of entities) {
+      const { ref, spawn, direction, debug } = entityLevelData;
+      const npc = new NPC(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[ref]);
+
+      if (debug) {
+        npc.showDebug();
+      }
+      this.add(npc);
+    }
+  }
+
+  private initLoots(loots: IObjectLevelData[]) {
+    for (const lootLevelData of loots) {
+      const { ref, spawn, direction, debug } = lootLevelData;
+      const lootData = this.data.loots[ref];
+
+      const loot = new DamageEffectConsummable(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[lootData.ref], lootData.metadata);
+
+      if (debug) {
+        loot.showDebug();
+      }
+      this.add(loot);
+    }
+  }
 }
 
 export default World;

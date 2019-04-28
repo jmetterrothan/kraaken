@@ -1,13 +1,21 @@
-import { IEntityData, IEntityLevelData } from '@src/shared/models/entity.model';
+import { IEntityData, ILootData, IObjectLevelData } from '@src/shared/models/entity.model';
 import { ISpriteData } from '@src/shared/models/sprite.model';
 import { ITileMapData } from '@src/shared/models/tilemap.model';
+import { IVector2Data } from './math.model';
 
 export interface IWorldData {
+  // level data
   level: {
+    physics: {
+      gravity: IVector2Data;
+    };
     tileMap: ITileMapData;
-    player: IEntityLevelData;
-    entities: IEntityLevelData[];
+    player: IObjectLevelData;
+    loots: IObjectLevelData[];
+    entities: IObjectLevelData[];
   };
+
+  // global data
   sprites: ISpriteData[];
   sfx: {
     [key: string]: IEntityData,
@@ -15,10 +23,7 @@ export interface IWorldData {
   entities: {
     [key: string]: IEntityData,
   };
-  loot: {
-    [key: string]: {
-      metadata: any,
-      entity: string;
-    };
+  loots: {
+    [key: string]: ILootData;
   };
 }
