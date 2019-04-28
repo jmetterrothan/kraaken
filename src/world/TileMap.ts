@@ -98,9 +98,9 @@ class TileMap {
   public render(viewProjectionMatrix: mat3) {
     this.atlas.use();
 
-    for (let r = this.startRow; r < this.endRow; r++) {
-      for (let c = this.startCol; c < this.endCol; c++) {
-        if (this.tiles[r][c].type) {
+    for (let r = this.startRow; r <= this.endRow; r++) {
+      for (let c = this.startCol; c <= this.endCol; c++) {
+        if (this.tiles[r][c].type.collision) {
           this.atlas.render(
             viewProjectionMatrix,
             this.tiles[r][c].model,
