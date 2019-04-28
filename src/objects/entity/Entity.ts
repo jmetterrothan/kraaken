@@ -68,57 +68,63 @@ class Entity extends AnimatedObject2d {
 
     const velocity = this.velocity.clone().multiplyScalar(delta);
 
+    let x = this.getX();
+    let y = this.getY();
+
     // bottom collision
     if (this.velocity.y > 0) {
-        const tl = map.getTileAt(x1, y2 + velocity.y);
-        const tr = map.getTileAt(x2, y2 + velocity.y);
+      const tl = map.getTileAt(x1, y2 + velocity.y);
+      const tr = map.getTileAt(x2, y2 + velocity.y);
 
-        const t = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
+      const tile = (tl && tl.type.collision) ? tl : ((tr && tr.type.collision) ? tr : undefined);
 
-      if (t) {
-        this.setY(t.position.y - h / 2 - 0.01);
+      if (tile) {
+        y = tile.position.y - h / 2 - 0.01;
         this.velocity.y = 0;
+        this.falling = false;
       }
     }
 
     // top collision
     if (this.velocity.y < 0) {
-        const bl = map.getTileAt(x1, y1 + velocity.y);
-        const br = map.getTileAt(x2, y1 + velocity.y);
+      const bl = map.getTileAt(x1, y1 + velocity.y);
+      const br = map.getTileAt(x2, y1 + velocity.y);
 
-        const t = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
+      const tile = (bl && bl.type.collision) ? bl : ((br && br.type.collision) ? br : undefined);
 
-      if (t) {
-        this.setY(t.position.y + map.getTileSize() + h / 2 + 0.01);
+      if (tile) {
+        y = tile.position.y + map.getTileSize() + h / 2 + 0.01;
         this.velocity.y = 0;
       }
     }
 
     // right collision
     if (this.velocity.x > 0) {
-        const tr = map.getTileAt(x2 + velocity.x, y1);
-        const br = map.getTileAt(x2 + velocity.x, y2);
+      const tr = map.getTileAt(x2 + velocity.x, y1);
+      const br = map.getTileAt(x2 + velocity.x, y2);
 
-        const t = (tr && tr.type.collision) ? tr : ((br && br.type.collision) ? br : null);
+      const tile = (tr && tr.type.collision) ? tr : ((br && br.type.collision) ? br : undefined);
 
-        if (t) {
-            this.setX(t.position.x - w / 2 - 0.01);
-            this.velocity.x = 0;
-        }
+      if (tile) {
+        x = tile.position.x - w / 2 - 0.01;
+        this.velocity.x = 0;
+      }
     }
 
     // left collision
     if (this.velocity.x < 0) {
-        const tl = map.getTileAt(x1 + velocity.x, y1);
-        const bl = map.getTileAt(x1 + velocity.x, y2);
+      const tl = map.getTileAt(x1 + velocity.x, y1);
+      const bl = map.getTileAt(x1 + velocity.x, y2);
 
-        const t = (tl && tl.type.collision) ? tl : ((bl && bl.type.collision) ? bl : null);
+      const tile = (tl && tl.type.collision) ? tl : ((bl && bl.type.collision) ? bl : undefined);
 
-        if (t) {
-            this.setX(t.position.x + map.getTileSize() + w / 2 + 0.01);
-            this.velocity.x = 0;
-        }
+      if (tile) {
+        x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
+        this.velocity.x = 0;
+      }
     }
+
+    this.setPosition(x, y);
   }
 
   public update(world: World, delta: number) {
@@ -127,9 +133,9 @@ class Entity extends AnimatedObject2d {
     this.handleCollisions(world.getTileMap(), delta);
     this.clamp(world.getBoundaries());
     this.falling = this.velocity.y > 0;
+    this.bbox.setPositionFromCenter(this.getX(), this.getY());
 
     this.updateAnimation(world, delta);
-
     super.update(world, delta);
   }
 
@@ -146,19 +152,19 @@ class Entity extends AnimatedObject2d {
     let y = this.getY();
 
     if (this.getX() < x1) {
-        x = x1;
+        x = x1 + 0.01;
         this.velocity.x = 0;
     }
     if (this.getY() < y1) {
-        y = y1;
+        y = y1 + 0.01;
         this.velocity.y = 0;
     }
     if (this.getX() > x2) {
-        x =  x2;
+        x = x2 - 0.01;
         this.velocity.x = 0;
     }
     if (this.getY() > y2) {
-        y = y2;
+        y = y2 - 0.01;
         this.velocity.y = 0;
     }
 
