@@ -9,7 +9,8 @@ import { IEntityData } from '@shared/models/entity.model';
 class NPC extends Entity {
   constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
     super(x, y, direction, data);
-    this.ghost = true;
+    this.parameters.grayscale = true;
+    this.parameters.alpha = 0.15;
   }
 
   public move(world: World, delta: number): void {

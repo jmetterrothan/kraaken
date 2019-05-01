@@ -41,6 +41,14 @@ class TileMap {
 
     this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
+    const tilemapRenderParameters = {
+      direction: new Vector2(1, 1),
+      wireframe: false,
+      grayscale: false,
+      flickering: false,
+      alpha: 1,
+    };
+
     // convert 1d array of tiles to a 2d array
     this.tiles = new Array(this.nbRows);
     for (let r = 0; r < this.nbRows; r++) {
@@ -56,11 +64,7 @@ class TileMap {
           },
           model: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
           position: new Vector2(c * this.tileSize, r * this.tileSize),
-          parameters: {
-            direction: new Vector2(1, 1),
-            wireframe: true,
-            flickering: false,
-          },
+          parameters: tilemapRenderParameters,
         };
       }
     }

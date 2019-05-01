@@ -24,7 +24,9 @@ export interface IAnimationList {
 export interface ISpriteRenderParameters {
   flickering: boolean;
   wireframe: boolean;
+  grayscale: boolean;
   direction: Vector2;
+  alpha: number;
 }
 
 export enum CharacterAnimationKeys {

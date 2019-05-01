@@ -4,6 +4,7 @@ precision mediump float;
 
 in vec2 v_texture_coord;
 
+uniform float u_alpha;
 uniform vec4 u_color;
 uniform sampler2D u_image;
 uniform bool u_wireframe;
@@ -23,7 +24,7 @@ vec4 color() {
         c = toGrayscale(c);
     }
 
-    return c;
+    return c * vec4(1, 1, 1, u_alpha);
 }
 
 void main() {

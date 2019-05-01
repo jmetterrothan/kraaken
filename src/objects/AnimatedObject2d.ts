@@ -5,16 +5,15 @@ import Object2d from '@src/objects/Object2d';
 import Vector2 from '@src/shared/math/Vector2';
 import World from '@src/world/World';
 
+import { ISpriteRenderParameters } from '@shared/models/animation.model';
 import { IAnimationList } from '@src/shared/models/animation.model';
 import { IEntityData } from '@src/shared/models/entity.model';
-import { ISpriteRenderParameters } from './../shared/models/animation.model';
 
 class AnimatedObject2d extends Object2d {
   get animation(): Animation {
     return this.animationList[this.currentAnimationKey];
   }
 
-  public ghost: boolean;
   protected parameters: ISpriteRenderParameters;
 
   private animationList: IAnimationList;
@@ -28,7 +27,9 @@ class AnimatedObject2d extends Object2d {
     this.parameters = {
       direction,
       wireframe: false,
+      grayscale: false,
       flickering: false,
+      alpha: 1,
     };
 
     // convert animation parameters in Animation objects
@@ -43,8 +44,6 @@ class AnimatedObject2d extends Object2d {
     }
 
     this.updateModelMatrix();
-
-    this.ghost = false;
   }
 
   public updateAnimation(world: World, delta: number) {
