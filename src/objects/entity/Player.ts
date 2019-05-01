@@ -39,7 +39,7 @@ class Player extends Entity implements IMovement {
         this.jumping = true;
         this.velocity.y = -6000 * delta; // initial boost
       } else {
-        this.velocity.y -= 340 * delta; // maintain momentum
+        this.velocity.y -= 350 * delta; // maintain momentum
       }
     } else {
       this.jumping = false;

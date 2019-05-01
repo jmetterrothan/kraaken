@@ -55,13 +55,11 @@ class TileMap {
       this.tiles[r] = new Array(this.nbCols);
 
       for (let c = 0; c < this.nbCols; c++) {
-        const type = data.tileTypes[data.tiles[this.getIndex(r, c)]];
+        const id = data.tiles[this.getIndex(r, c)];
+        const type = data.tileTypes[id];
+
         this.tiles[r][c] = {
-          type: {
-            collision: type && type.collision || false,
-            row: type && type.row || 0,
-            col: type && type.col || 0,
-          },
+          type,
           model: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
           position: new Vector2(c * this.tileSize, r * this.tileSize),
           parameters: tilemapRenderParameters,
@@ -108,7 +106,7 @@ class TileMap {
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
-        if (this.tiles[r][c].type.collision) {
+        if (this.tiles[r][c].type.key !== 'void') {
           this.atlas.render(
             viewProjectionMatrix,
             this.tiles[r][c].model,

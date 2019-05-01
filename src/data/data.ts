@@ -14,8 +14,8 @@ const data: IWorldData = {
       rows: 26,
       tileSize: 16,
       tileTypes: {
-        0: { row: 7, col: 17, collision: false },
-        1: { row: 7, col: 17, collision: true },
+        0: { key: 'void', row: 0, col: 0, collision: false },
+        1: { key: 'test', row: 7, col: 17, collision: true },
       },
       tiles: [
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

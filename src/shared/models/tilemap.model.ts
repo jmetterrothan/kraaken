@@ -14,6 +14,7 @@ export interface ITileMapData {
 }
 
 export interface ITileTypeData {
+  key: string;
   collision: boolean;
   row: number;
   col: number;
@@ -21,6 +22,7 @@ export interface ITileTypeData {
 
 export interface ITile {
   type: {
+    key: string;
     collision: boolean;
     row: number;
     col: number;

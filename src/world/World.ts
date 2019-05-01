@@ -192,21 +192,17 @@ class World {
       const tile = this.tileMap.getTileAt(coords.x, coords.y);
 
       if (tile) {
-        tile.type.collision = !tile.type.collision;
+        tile.type = this.data.level.tileMap.tileTypes[tile.type.key === 'void' ? 1 : 0];
       }
-    }
-
-    /*
-    if (active && button === 0) {
+    } else if (active && button === 1) {
       const coords = this.camera.screenToCameraCoords(position);
 
       const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
-      const entityData = this.data.entities[lootData.ref];f
+      const entityData = this.data.entities[lootData.ref];
 
       const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
       this.add(loot);
     }
-    */
   }
 
   public handleMouseMove(position: vec2) {
