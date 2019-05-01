@@ -55,8 +55,12 @@ class TileMap {
             col: type && type.col || 0,
           },
           model: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
-          orientation: new Vector2(1, 1),
           position: new Vector2(c * this.tileSize, r * this.tileSize),
+          parameters: {
+            direction: new Vector2(1, 1),
+            wireframe: true,
+            flickering: false,
+          },
         };
       }
     }
@@ -106,8 +110,7 @@ class TileMap {
             this.tiles[r][c].model,
             this.tiles[r][c].type.row,
             this.tiles[r][c].type.col,
-            this.tiles[r][c].orientation,
-            true,
+            this.tiles[r][c].parameters,
           );
         }
       }

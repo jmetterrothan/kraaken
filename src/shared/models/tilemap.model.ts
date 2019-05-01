@@ -1,6 +1,7 @@
 import { mat3 } from 'gl-matrix';
 
 import Vector2 from '@src/shared/math/Vector2';
+import { ISpriteRenderParameters } from './animation.model';
 
 export interface ITileMapData {
   rows: number;
@@ -25,6 +26,6 @@ export interface ITile {
     col: number;
   };
   model: mat3;
-  orientation: Vector2;
   position: Vector2;
+  parameters: ISpriteRenderParameters;
 }

@@ -101,14 +101,14 @@ class Animation {
     return this.sprite.getTileHeight();
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, parameters: ISpriteRenderParameters, ghost: boolean = false) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, parameters: ISpriteRenderParameters) {
     // flickering effect
     const flicker = parameters.flickering && Math.floor(window.performance.now() / 150) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
       this.sprite.use();
-      this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, parameters.direction, parameters.wireframe, ghost);
+      this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, parameters);
     }
   }
 

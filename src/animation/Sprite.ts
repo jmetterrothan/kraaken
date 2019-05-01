@@ -1,10 +1,12 @@
 import { mat3, vec2, vec3, vec4 } from 'gl-matrix';
+
 import md5 from 'md5';
 
 import Material from '@src/animation/Material';
 import { gl } from '@src/Game';
 import Vector2 from '@src/shared/math/Vector2';
 
+import { ISpriteRenderParameters } from '@shared/models/animation.model';
 import { IAttributes, IUniforms } from '@shared/models/sprite.model';
 import WebGL2H from '@shared/utility/WebGL2H';
 
@@ -108,10 +110,9 @@ class Sprite {
     this.uniforms = {
       u_mvp: { type: 'Matrix3fv', value: undefined },
       u_frame: { type: '2fv', value: undefined },
-      u_color: { type: '3fv', value: undefined },
+      u_color: { type: '4fv', value: undefined },
       u_wireframe: { type: '1i', value: undefined },
       u_image: { type: '1i', value: undefined },
-      u_ghost: { type: '4fv', value: undefined },
     };
   }
 
@@ -141,16 +142,16 @@ class Sprite {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2, wireframe: boolean, ghost: boolean = false) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, parameters: ISpriteRenderParameters) {
     if (this.loaded) {
-      this.setUniform('u_ghost', ghost ? vec4.fromValues(0.5, 0.5, 0.5, 0.25) : vec4.fromValues(1, 1, 1, 1));
+      this.setUniform('u_color', vec4.fromValues(0, 0, 0, 1));
       this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
       this.setUniform('u_frame', [
-        ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x,
-        ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y,
+        ((col + (parameters.direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * parameters.direction.x,
+        ((row + (parameters.direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * parameters.direction.y,
       ]);
 
-      if (wireframe) {
+      if (parameters.wireframe) {
         this.setUniform('u_wireframe', true);
         gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
       } else {
