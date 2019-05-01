@@ -189,13 +189,24 @@ class World {
 
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
+      const tile = this.tileMap.getTileAt(coords.x, coords.y);
+
+      if (tile) {
+        tile.type.collision = !tile.type.collision;
+      }
+    }
+
+    /*
+    if (active && button === 0) {
+      const coords = this.camera.screenToCameraCoords(position);
 
       const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
-      const entityData = this.data.entities[lootData.ref];
+      const entityData = this.data.entities[lootData.ref];f
 
       const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
       this.add(loot);
     }
+    */
   }
 
   public handleMouseMove(position: vec2) {

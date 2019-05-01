@@ -15,8 +15,8 @@ class NPC extends Entity {
 
   public move(world: World, delta: number): void {
     const target = world.getPlayer().getPosition();
-    target.y -= 35 + Math.sin(window.performance.now() / 500) * 5;
-    this.setPositionFromVector2(this.getPosition().lerp(target, 0.1));
+    target.y -= Math.sin(window.performance.now() / 500) * 5;
+    this.setPositionFromVector2(this.getPosition().lerp(target.sub(new Vector2(0, 35)), 0.1));
 
     this.parameters.direction.x = world.getPlayer().getDirection().x * -1;
   }
