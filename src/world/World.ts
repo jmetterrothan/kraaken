@@ -17,6 +17,7 @@ import { configSvc } from '@shared/services/config.service';
 import { IObjectLevelData } from '@src/shared/models/entity.model';
 import { IWorldData } from '@src/shared/models/world.model';
 import { getRandomInt } from '@src/shared/utility/MathHelpers';
+import { IPlayerData } from './../shared/models/entity.model';
 
 class World {
   public readonly data: IWorldData;
@@ -226,10 +227,14 @@ class World {
   public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
   public getGravity(): Vector2 { return this.gravity; }
 
-  private initPlayer({ ref, spawn, direction, debug }: IObjectLevelData) {
-    this.player = new Player(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[ref]);
+  private initPlayer(data: IObjectLevelData) {
+    this.player = new Player(
+      data.spawn.x, data.spawn.y,
+      new Vector2(data.direction.x, data.direction.y),
+      this.data.entities[data.ref] as IPlayerData,
+    );
 
-    if (debug) {
+    if (data.debug) {
       this.player.showDebug();
     }
     this.add(this.player);

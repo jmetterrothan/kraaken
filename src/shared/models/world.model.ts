@@ -1,4 +1,4 @@
-import { IEntityData, ILootData, IObjectLevelData } from '@src/shared/models/entity.model';
+import { IEntityData, ILootData, IObjectLevelData, IPlayerData } from '@src/shared/models/entity.model';
 import { ISpriteData } from '@src/shared/models/sprite.model';
 import { ITileMapData } from '@src/shared/models/tilemap.model';
 import { IVector2Data } from './math.model';
@@ -21,7 +21,7 @@ export interface IWorldData {
     [key: string]: IEntityData,
   };
   entities: {
-    [key: string]: IEntityData,
+    [key: string]: IEntityData | IPlayerData,
   };
   loots: {
     [key: string]: ILootData;

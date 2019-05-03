@@ -159,8 +159,13 @@ const data: IWorldData = {
       },
     },
     fox: {
+      deceleration: { x: 15, y: 0 },
+      acceleration: { x: 30, y: 0 },
+      speed: { x: 110, y: 0 },
+      max_jump_height: -6000,
+      jump_speed: -335,
       metadata: {
-        bbox: { w: 14, h: 20 },
+        bbox: { w: 14, h: 18 },
       },
       defaultAnimationKey: 'idle',
       animationList: {
@@ -168,9 +173,9 @@ const data: IWorldData = {
           sprite: 'atlas',
           loop:  true,
           keyframes: [
-            { row: 0, col:  12, duration: 125 },
-            { row: 1, col:  11, duration: 125 },
-            { row: 2, col:  13, duration: 125 },
+            { row: 0, col:  12, duration: 150 },
+            { row: 1, col:  11, duration: 150 },
+            { row: 2, col:  13, duration: 150 },
           ],
         },
         climbing: {

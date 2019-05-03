@@ -6,7 +6,7 @@ import Color from '@src/shared/helper/Color';
 import World from '@src/world/World';
 
 import { CharacterAnimationKeys } from '@shared/models/animation.model';
-import { IEntityData, IMetadata, IMovement } from '@shared/models/entity.model';
+import { IMovement, IPlayerData } from '@shared/models/entity.model';
 
 class Player extends Entity implements IMovement {
   protected left: boolean;
@@ -18,7 +18,10 @@ class Player extends Entity implements IMovement {
   protected deceleration: Vector2;
   protected speed: Vector2;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
+  protected maxJumpHeight: number;
+  protected jumpSpeed: number;
+
+  constructor(x: number, y: number, direction: Vector2, data: IPlayerData) {
     super(x, y, direction, data);
 
     this.left = false;
@@ -26,9 +29,12 @@ class Player extends Entity implements IMovement {
     this.up = false;
     this.down = false;
 
-    this.acceleration = new Vector2(15, 0);
-    this.deceleration = new Vector2(30, 0);
-    this.speed = new Vector2(110, 0);
+    this.acceleration = new Vector2(data.acceleration.x || 0, data.acceleration.y || 0);
+    this.deceleration = new Vector2(data.deceleration.x || 0, data.deceleration.y || 0);
+    this.speed = new Vector2(data.speed.x || 0, data.speed.y || 0);
+
+    this.maxJumpHeight = data.max_jump_height;
+    this.jumpSpeed = data.jump_speed;
 
     this.color = new Color(0, 1, 0.75);
   }
@@ -37,9 +43,9 @@ class Player extends Entity implements IMovement {
     if (this.up && !this.falling) {
       if (!this.jumping && this.velocity.y === 0) {
         this.jumping = true;
-        this.velocity.y = -6000 * delta; // initial boost
+        this.velocity.y = this.maxJumpHeight * delta; // initial boost
       } else {
-        this.velocity.y -= 350 * delta; // maintain momentum
+        this.velocity.y += this.jumpSpeed * delta; // maintain momentum
       }
     } else {
       this.jumping = false;
