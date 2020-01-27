@@ -2,9 +2,10 @@ root = true
 
 [*]
 indent_style = space
-indent_size = 4
+indent_size = 2
 end_of_line = crlf
 insert_final_newline = true
+charset = utf-8
 
 [*.md]
 trim_trailing_whitespace = false
@@ -12,9 +13,3 @@ trim_trailing_whitespace = false
 [*.yml]
 indent_size = 2
 
-[*.{php,js,jsx,ts,tsx}]
-charset = utf-8
-
-[*.{js,jsx,ts,tsx,json,scss,sass,css}]
-indent_style = space
-indent_size = 2
