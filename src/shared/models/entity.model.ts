@@ -1,9 +1,7 @@
-import { IEntityData } from '@src/shared/models/entity.model';
-import World from '@src/world/World';
-import { IPlayerData } from './entity.model';
+import World from "@src/world/World";
 
-import { IAnimationDataList } from '@src/shared/models/animation.model';
-import { IVector2Data } from '@src/shared/models/math.model';
+import { IAnimationDataList } from "@src/shared/models/animation.model";
+import { IVector2Data } from "@src/shared/models/math.model";
 
 export interface IMetadata {
   [key: string]: any;

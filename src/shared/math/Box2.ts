@@ -1,6 +1,6 @@
-import Vector2 from '@shared/math/Vector2';
-import Box2Helper from '@src/shared/helper/Box2Helper';
-import Color from '@src/shared/helper/Color';
+import Vector2 from "@shared/math/Vector2";
+import Box2Helper from "@src/shared/helper/Box2Helper";
+import Color from "@src/shared/helper/Color";
 
 class Box2 {
   private min: Vector2;
@@ -12,15 +12,30 @@ class Box2 {
   }
 
   public containsBox(box: Box2): boolean {
-    return this.min.x <= box.min.x && box.max.x <= this.max.x && this.min.y <= box.min.y && box.max.y <= this.max.y;
+    return (
+      this.min.x <= box.min.x &&
+      box.max.x <= this.max.x &&
+      this.min.y <= box.min.y &&
+      box.max.y <= this.max.y
+    );
   }
 
   public containsPoint(point: Vector2): boolean {
-    return (point.x < this.min.x || point.x > this.max.x || point.y < this.min.y || point.y > this.max.y) ? false : true;
+    return point.x < this.min.x ||
+      point.x > this.max.x ||
+      point.y < this.min.y ||
+      point.y > this.max.y
+      ? false
+      : true;
   }
 
   public intersectBox(box: Box2): boolean {
-    return (box.max.x < this.min.x || box.min.x > this.max.x || box.max.y < this.min.y || box.min.y > this.max.y) ? false : true;
+    return box.max.x < this.min.x ||
+      box.min.x > this.max.x ||
+      box.max.y < this.min.y ||
+      box.min.y > this.max.y
+      ? false
+      : true;
   }
 
   public setPosition(x: number, y: number) {
@@ -57,21 +72,44 @@ class Box2 {
     this.max.y = y;
   }
 
-  public getWidth(): number { return this.max.x - this.min.x; }
-  public getHeight(): number { return this.max.y - this.min.y; }
+  public getWidth(): number {
+    return this.max.x - this.min.x;
+  }
+  public getHeight(): number {
+    return this.max.y - this.min.y;
+  }
 
-  public getMin(): Vector2 { return this.min.clone(); }
-  public getMax(): Vector2 { return this.max.clone(); }
+  public getMin(): Vector2 {
+    return this.min.clone();
+  }
+  public getMax(): Vector2 {
+    return this.max.clone();
+  }
 
-  public getMinX(): number { return this.min.x; }
-  public getMaxX(): number { return this.max.x; }
-  public getMinY(): number { return this.min.y; }
-  public getMaxY(): number { return this.max.y; }
-  public getCenterX(): number { return this.min.x + (this.max.x - this.min.x) / 2; }
-  public getCenterY(): number { return this.min.y + (this.max.y - this.min.y) / 2; }
+  public getMinX(): number {
+    return this.min.x;
+  }
+  public getMaxX(): number {
+    return this.max.x;
+  }
+  public getMinY(): number {
+    return this.min.y;
+  }
+  public getMaxY(): number {
+    return this.max.y;
+  }
+  public getCenterX(): number {
+    return this.min.x + (this.max.x - this.min.x) / 2;
+  }
+  public getCenterY(): number {
+    return this.min.y + (this.max.y - this.min.y) / 2;
+  }
 
   public getCenter(): Vector2 {
-    return this.min.clone().addVectors(this.min, this.max).multiplyScalar(0.5);
+    return this.min
+      .clone()
+      .addVectors(this.min, this.max)
+      .multiplyScalar(0.5);
   }
   public createHelper(color: Color = new Color(1, 0, 0)): Box2Helper {
     return new Box2Helper(this, color);

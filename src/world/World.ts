@@ -1,23 +1,23 @@
-import { mat3, vec2 } from 'gl-matrix';
+import { mat3, vec2 } from "gl-matrix";
 
-import Box2 from '@shared/math/Box2';
-import Vector2 from '@shared/math/Vector2';
-import Sprite from '@src/animation/Sprite';
-import Camera from '@src/Camera';
-import Entity from '@src/objects/entity/Entity';
-import NPC from '@src/objects/entity/NPC';
-import Player from '@src/objects/entity/Player';
-import DamageEffectConsummable from '@src/objects/loot/DamageEffectConsummable';
-import HealEffectConsummable from '@src/objects/loot/HealEffectConsummable';
-import Object2d from '@src/objects/Object2d';
-import TileMap from '@src/world/TileMap';
+import Box2 from "@shared/math/Box2";
+import Vector2 from "@shared/math/Vector2";
+import Sprite from "@src/animation/Sprite";
+import Camera from "@src/Camera";
+import Entity from "@src/objects/entity/Entity";
+import NPC from "@src/objects/entity/NPC";
+import Player from "@src/objects/entity/Player";
+import DamageEffectConsummable from "@src/objects/loot/DamageEffectConsummable";
+import HealEffectConsummable from "@src/objects/loot/HealEffectConsummable";
+import Object2d from "@src/objects/Object2d";
+import TileMap from "@src/world/TileMap";
 
-import { configSvc } from '@shared/services/config.service';
+import { configSvc } from "@shared/services/config.service";
 
-import { IObjectLevelData } from '@src/shared/models/entity.model';
-import { IWorldData } from '@src/shared/models/world.model';
-import { getRandomInt } from '@src/shared/utility/MathHelpers';
-import { IPlayerData } from './../shared/models/entity.model';
+import { IObjectLevelData } from "@src/shared/models/entity.model";
+import { IWorldData } from "@src/shared/models/world.model";
+import { getRandomInt } from "@src/shared/utility/MathHelpers";
+import { IPlayerData } from "./../shared/models/entity.model";
 
 class World {
   public readonly data: IWorldData;
@@ -50,10 +50,18 @@ class World {
     const { sprites, level } = this.data;
 
     for (const sprite of sprites) {
-      await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
+      await Sprite.create(
+        sprite.src,
+        sprite.name,
+        sprite.tileWidth,
+        sprite.tileHeight
+      );
     }
 
-    this.gravity = new Vector2(level.physics.gravity.x, level.physics.gravity.y);
+    this.gravity = new Vector2(
+      level.physics.gravity.x,
+      level.physics.gravity.y
+    );
 
     this.tileMap = new TileMap(level.tileMap);
     this.tileMap.init();
@@ -62,7 +70,7 @@ class World {
     this.initEntities(level.entities);
     this.initLoots(level.loots);
 
-    console.info('World initialized');
+    console.info("World initialized");
 
     /*
     setInterval(() => {
@@ -81,7 +89,9 @@ class World {
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
-    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
+    this.entities = Array.from(this.children.values()).filter(
+      (child: any) => child instanceof Entity
+    ) as Entity[];
   }
 
   public remove(objects: Object2d | Object2d[]) {
@@ -99,11 +109,17 @@ class World {
     object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
 
-    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
+    this.entities = Array.from(this.children.values()).filter(
+      (child: any) => child instanceof Entity
+    ) as Entity[];
   }
 
   public update(delta: number) {
-    mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
+    mat3.projection(
+      this.viewMatrix,
+      configSvc.frameSize.w,
+      configSvc.frameSize.h
+    );
 
     this.children.forEach((child: Object2d) => {
       if (this.canBeCleanedUp(child)) {
@@ -120,11 +136,15 @@ class World {
   }
 
   public render(alpha: number) {
-    const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
+    const viewProjectionMatrix = mat3.multiply(
+      mat3.create(),
+      this.viewMatrix,
+      this.camera.getProjectionMatrix()
+    );
 
     this.tileMap.render(viewProjectionMatrix, alpha);
 
-    this.children.forEach((child) => {
+    this.children.forEach(child => {
       child.render(viewProjectionMatrix, alpha);
     });
 
@@ -145,20 +165,22 @@ class World {
       return a.reduce((acc, child) => acc + this.countObjects(child, test), 0);
     }
 
-    return test(target) + this.countObjects((target as Object2d).getChildren(), test);
+    return (
+      test(target) + this.countObjects((target as Object2d).getChildren(), test)
+    );
   }
 
   public countAllObjects(): number {
     return this.countObjects(
       Array.from(this.children.values()),
-      (object: Object2d) => object instanceof Object2d,
+      (object: Object2d) => object instanceof Object2d
     );
   }
 
   public countVisibleObjects(): number {
     return this.countObjects(
       Array.from(this.children.values()),
-      (object: Object2d) => !object.isCulled() && object.isVisible(),
+      (object: Object2d) => !object.isCulled() && object.isVisible()
     );
   }
 
@@ -193,15 +215,25 @@ class World {
       const tile = this.tileMap.getTileAt(coords.x, coords.y);
 
       if (tile) {
-        tile.type = this.data.level.tileMap.tileTypes[tile.type.key === 'void' ? 1 : 0];
+        tile.type = this.data.level.tileMap.tileTypes[
+          tile.type.key === "void" ? 1 : 0
+        ];
       }
     } else if (active && button === 1) {
       const coords = this.camera.screenToCameraCoords(position);
 
-      const lootData = this.data.loots[choices[getRandomInt(0, choices.length)]];
+      const lootData = this.data.loots[
+        choices[getRandomInt(0, choices.length)]
+      ];
       const entityData = this.data.entities[lootData.ref];
 
-      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
+      const loot = new DamageEffectConsummable(
+        coords.x,
+        coords.y,
+        new Vector2(1, 1),
+        entityData,
+        lootData.metadata
+      );
       this.add(loot);
     }
   }
@@ -213,25 +245,34 @@ class World {
     */
   }
 
-  public handleFullscreenChange(b: boolean) {
-
-  }
+  public handleFullscreenChange(b: boolean) {}
 
   public handleResize() {
     this.camera.recenter();
   }
 
-  public getPlayer(): Player { return this.player; }
-  public getCamera(): Camera { return this.camera; }
-  public getTileMap(): TileMap { return this.tileMap; }
-  public getBoundaries(): Box2 { return this.tileMap.getBoundaries(); }
-  public getGravity(): Vector2 { return this.gravity; }
+  public getPlayer(): Player {
+    return this.player;
+  }
+  public getCamera(): Camera {
+    return this.camera;
+  }
+  public getTileMap(): TileMap {
+    return this.tileMap;
+  }
+  public getBoundaries(): Box2 {
+    return this.tileMap.getBoundaries();
+  }
+  public getGravity(): Vector2 {
+    return this.gravity;
+  }
 
   private initPlayer(data: IObjectLevelData) {
     this.player = new Player(
-      data.spawn.x, data.spawn.y,
+      data.spawn.x,
+      data.spawn.y,
       new Vector2(data.direction.x, data.direction.y),
-      this.data.entities[data.ref] as IPlayerData,
+      this.data.entities[data.ref] as IPlayerData
     );
 
     if (data.debug) {
@@ -245,7 +286,12 @@ class World {
   private initEntities(entities: IObjectLevelData[]) {
     for (const entityLevelData of entities) {
       const { ref, spawn, direction, debug } = entityLevelData;
-      const npc = new NPC(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[ref]);
+      const npc = new NPC(
+        spawn.x,
+        spawn.y,
+        new Vector2(direction.x, direction.y),
+        this.data.entities[ref]
+      );
 
       if (debug) {
         npc.showDebug();
@@ -259,7 +305,13 @@ class World {
       const { ref, spawn, direction, debug } = lootLevelData;
       const lootData = this.data.loots[ref];
 
-      const loot = new DamageEffectConsummable(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.data.entities[lootData.ref], lootData.metadata);
+      const loot = new DamageEffectConsummable(
+        spawn.x,
+        spawn.y,
+        new Vector2(direction.x, direction.y),
+        this.data.entities[lootData.ref],
+        lootData.metadata
+      );
 
       if (debug) {
         loot.showDebug();

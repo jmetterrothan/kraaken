@@ -1,11 +1,10 @@
+import { mat3 } from "gl-matrix";
 
-import { mat3 } from 'gl-matrix';
-
-import Box2 from '@shared/math/Box2';
-import Vector2 from '@shared/math/Vector2';
-import { uuid } from '@shared/utility/Utility';
-import Color from '@src/shared/helper/Color';
-import World from '@src/world/World';
+import Box2 from "@shared/math/Box2";
+import Vector2 from "@shared/math/Vector2";
+import { uuid } from "@shared/utility/Utility";
+import Color from "@src/shared/helper/Color";
+import World from "@src/world/World";
 
 class Object2d {
   protected visible: boolean;
@@ -33,7 +32,10 @@ class Object2d {
     this.culled = false;
     this.color = new Color(1, 0, 0);
 
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
+    this.modelMatrix = mat3.fromTranslation(
+      mat3.create(),
+      this.getPosition().toGlArray()
+    );
     this.shouldUpdateModelMatrix = true;
 
     this.children = new Map<string, Object2d>();
@@ -47,7 +49,7 @@ class Object2d {
       // console.log(`${this.toString()} | model matrix`);
     }
 
-    this.children.forEach((child) => {
+    this.children.forEach(child => {
       if (world.canBeCleanedUp(child)) {
         this.remove(child);
         return;
@@ -59,7 +61,7 @@ class Object2d {
   }
 
   public render(viewProjectionMatrix: mat3, alpha: number) {
-    this.children.forEach((child) => {
+    this.children.forEach(child => {
       if (!child.isCulled()) {
         child.render(viewProjectionMatrix, alpha);
       }
@@ -73,16 +75,16 @@ class Object2d {
     const y2 = boundaries.getMaxY();
 
     if (this.getX() < x1) {
-        this.setX(x1);
+      this.setX(x1);
     }
     if (this.getY() < y1) {
-        this.setY(y1);
+      this.setY(y1);
     }
     if (this.getX() > x2) {
-        this.setX(x2);
+      this.setX(x2);
     }
     if (this.getY() > y2) {
-        this.setY(y2);
+      this.setY(y2);
     }
   }
 
@@ -108,12 +110,15 @@ class Object2d {
     this.children.delete(object.getUUID());
   }
 
-  public objectWillBeAdded(x: number, y: number): void { }
+  public objectWillBeAdded(x: number, y: number): void {}
 
-  public objectWillBeRemoved(): void { }
+  public objectWillBeRemoved(): void {}
 
   public setPosition(x: number, y: number, forceUpdate: boolean = false) {
-    this.shouldUpdateModelMatrix = this.shouldUpdateModelMatrix || this.position.x !== x || this.position.y !== y;
+    this.shouldUpdateModelMatrix =
+      this.shouldUpdateModelMatrix ||
+      this.position.x !== x ||
+      this.position.y !== y;
 
     this.previousPosition.copy(this.position);
     this.position.x = x;
@@ -125,37 +130,76 @@ class Object2d {
     }
   }
 
-  public setPositionFromVector2(v: Vector2) { this.setPosition(v.x, v.y); }
+  public setPositionFromVector2(v: Vector2) {
+    this.setPosition(v.x, v.y);
+  }
 
-  public setX(x: number) { this.setPosition(x, this.position.y); }
-  public setY(y: number) { this.setPosition(this.position.x, y); }
+  public setX(x: number) {
+    this.setPosition(x, this.position.y);
+  }
+  public setY(y: number) {
+    this.setPosition(this.position.x, y);
+  }
 
-  public getX(): number { return this.position.x; }
-  public getY(): number { return this.position.y; }
+  public getX(): number {
+    return this.position.x;
+  }
+  public getY(): number {
+    return this.position.y;
+  }
 
-  public getPosition(): Vector2 { return this.position.clone(); }
-  public getPreviousPosition(): Vector2 { return this.previousPosition.clone(); }
+  public getPosition(): Vector2 {
+    return this.position.clone();
+  }
+  public getPreviousPosition(): Vector2 {
+    return this.previousPosition.clone();
+  }
 
-  public getModelMatrix(): mat3 { return this.modelMatrix; }
+  public getModelMatrix(): mat3 {
+    return this.modelMatrix;
+  }
 
-  public isVisible(): boolean { return this.visible; }
-  public setVisible(b: boolean) { return this.visible = b; }
+  public isVisible(): boolean {
+    return this.visible;
+  }
+  public setVisible(b: boolean) {
+    return (this.visible = b);
+  }
 
-  public isDirty(): boolean { return this.dirty; }
-  public setDirty(b: boolean) { this.dirty = b; }
+  public isDirty(): boolean {
+    return this.dirty;
+  }
+  public setDirty(b: boolean) {
+    this.dirty = b;
+  }
 
-  public isCulled(): boolean { return this.culled; }
-  public setCulled(b: boolean) { this.culled = b; }
+  public isCulled(): boolean {
+    return this.culled;
+  }
+  public setCulled(b: boolean) {
+    this.culled = b;
+  }
 
-  public hasChangedPosition(): boolean { return this.position.notEquals(this.previousPosition); }
+  public hasChangedPosition(): boolean {
+    return this.position.notEquals(this.previousPosition);
+  }
 
-  public toString(): string { return this.uuid; }
-  public getUUID(): string { return this.uuid; }
+  public toString(): string {
+    return this.uuid;
+  }
+  public getUUID(): string {
+    return this.uuid;
+  }
 
-  public getChildren(): Object2d[] { return Array.from(this.children.values()); }
+  public getChildren(): Object2d[] {
+    return Array.from(this.children.values());
+  }
 
   protected updateModelMatrix() {
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
+    this.modelMatrix = mat3.fromTranslation(
+      mat3.create(),
+      this.getPosition().toGlArray()
+    );
   }
 }
 

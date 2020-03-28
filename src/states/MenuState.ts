@@ -1,6 +1,6 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
-import State from '@src/states/State';
+import State from "@src/states/State";
 
 class MenuState extends State {
   constructor() {

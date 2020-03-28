@@ -1,12 +1,12 @@
-import { mat3 } from 'gl-matrix';
+import { mat3 } from "gl-matrix";
 
-import Vector2 from '@shared/math/Vector2';
-import Entity from '@src/objects/entity/Entity';
-import Color from '@src/shared/helper/Color';
-import World from '@src/world/World';
+import Vector2 from "@shared/math/Vector2";
+import Entity from "@src/objects/entity/Entity";
+import Color from "@src/shared/helper/Color";
+import World from "@src/world/World";
 
-import { CharacterAnimationKeys } from '@shared/models/animation.model';
-import { IMovement, IPlayerData } from '@shared/models/entity.model';
+import { CharacterAnimationKeys } from "@shared/models/animation.model";
+import { IMovement, IPlayerData } from "@shared/models/entity.model";
 
 class Player extends Entity implements IMovement {
   protected left: boolean;
@@ -29,8 +29,14 @@ class Player extends Entity implements IMovement {
     this.up = false;
     this.down = false;
 
-    this.acceleration = new Vector2(data.acceleration.x || 0, data.acceleration.y || 0);
-    this.deceleration = new Vector2(data.deceleration.x || 0, data.deceleration.y || 0);
+    this.acceleration = new Vector2(
+      data.acceleration.x || 0,
+      data.acceleration.y || 0
+    );
+    this.deceleration = new Vector2(
+      data.deceleration.x || 0,
+      data.deceleration.y || 0
+    );
     this.speed = new Vector2(data.speed.x || 0, data.speed.y || 0);
 
     this.maxJumpHeight = data.max_jump_height;
@@ -81,19 +87,19 @@ class Player extends Entity implements IMovement {
 
   public handleKeyboardInput(key: string, active: boolean) {
     switch (key) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         this.left = active;
         break;
 
-      case 'ArrowRight':
+      case "ArrowRight":
         this.right = active;
         break;
 
-      case 'ArrowUp':
+      case "ArrowUp":
         this.up = active;
         break;
 
-      case 'ArrowDown':
+      case "ArrowDown":
         this.down = active;
         break;
     }
@@ -107,7 +113,12 @@ class Player extends Entity implements IMovement {
       offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2;
     }
 
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(offset).toGlArray());
+    this.modelMatrix = mat3.fromTranslation(
+      mat3.create(),
+      this.getPosition()
+        .add(offset)
+        .toGlArray()
+    );
   }
 
   protected updateCurrentAnimationKey(): string {

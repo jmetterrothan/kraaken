@@ -1,5 +1,5 @@
-import Vector2 from '@shared/math/Vector2';
-import Animation from '@src/animation/Animation';
+import Vector2 from "@shared/math/Vector2";
+import Animation from "@src/animation/Animation";
 
 export interface IAnimationFrame {
   row: number;
@@ -30,8 +30,8 @@ export interface ISpriteRenderParameters {
 }
 
 export enum CharacterAnimationKeys {
-  idle = 'idle',
-  walking = 'walking',
-  falling = 'falling',
-  jumping = 'jumping',
+  idle = "idle",
+  walking = "walking",
+  falling = "falling",
+  jumping = "jumping"
 }

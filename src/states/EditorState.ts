@@ -1,31 +1,31 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
-import State from '@src/states/State';
+import State from "@src/states/State";
 
 class EditorState extends State {
   constructor() {
     super();
   }
 
-  public async init() { }
+  public async init() {}
 
-  public mounted() { }
+  public mounted() {}
 
-  public dismounted() { }
+  public dismounted() {}
 
-  public update(delta: number) { }
+  public update(delta: number) {}
 
-  public render(alpha: number) { }
+  public render(alpha: number) {}
 
-  public handleKeyboardInput(key: string, active: boolean) { }
+  public handleKeyboardInput(key: string, active: boolean) {}
 
-  public handleMousePressed(button: number, active: boolean, position: vec2) { }
+  public handleMousePressed(button: number, active: boolean, position: vec2) {}
 
-  public handleMouseMove(position: vec2) { }
+  public handleMouseMove(position: vec2) {}
 
-  public handleFullscreenChange(b: boolean) { }
+  public handleFullscreenChange(b: boolean) {}
 
-  public handleResize() { }
+  public handleResize() {}
 }
 
 export default EditorState;

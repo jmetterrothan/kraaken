@@ -1,12 +1,12 @@
-import { mat3, vec2 } from 'gl-matrix';
+import { mat3, vec2 } from "gl-matrix";
 
-import Box2 from '@shared/math/Box2';
-import Sprite from '@src/animation/Sprite';
-import Vector2 from '@src/shared/math/Vector2';
-import World from '@src/world/World';
+import Box2 from "@shared/math/Box2";
+import Sprite from "@src/animation/Sprite";
+import Vector2 from "@src/shared/math/Vector2";
+import World from "@src/world/World";
 
-import { ITile, ITileMapData } from '@shared/models/tilemap.model';
-import { configSvc } from '@src/shared/services/config.service';
+import { ITile, ITileMapData } from "@shared/models/tilemap.model";
+import { configSvc } from "@src/shared/services/config.service";
 
 class TileMap {
   private startCol: number;
@@ -39,14 +39,19 @@ class TileMap {
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
 
-    this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
+    this.boundaries = new Box2(
+      this.sizeX / 2,
+      this.sizeY / 2,
+      this.sizeX,
+      this.sizeY
+    );
 
     const tilemapRenderParameters = {
       direction: new Vector2(1, 1),
       wireframe: false,
       grayscale: false,
       flickering: false,
-      alpha: 1,
+      alpha: 1
     };
 
     // convert 1d array of tiles to a 2d array
@@ -60,16 +65,19 @@ class TileMap {
 
         this.tiles[r][c] = {
           type,
-          model: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
+          model: mat3.fromTranslation(
+            mat3.create(),
+            vec2.fromValues(c * this.tileSize, r * this.tileSize)
+          ),
           position: new Vector2(c * this.tileSize, r * this.tileSize),
-          parameters: tilemapRenderParameters,
+          parameters: tilemapRenderParameters
         };
       }
     }
   }
 
   public init() {
-    this.atlas = Sprite.get('tileset');
+    this.atlas = Sprite.get("tileset");
   }
 
   public getIndex(row: number, col: number): number {
@@ -79,10 +87,18 @@ class TileMap {
   public update(world: World, delta: number) {
     const center = world.getCamera().getPosition();
 
-    this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
-    this.startRow = Math.floor((center.y - configSvc.innerSize.h / 2) / this.tileSize);
-    this.endCol = Math.ceil((center.x + configSvc.innerSize.w / 2) / this.tileSize);
-    this.endRow = Math.ceil((center.y + configSvc.innerSize.h / 2) / this.tileSize);
+    this.startCol = Math.floor(
+      (center.x - configSvc.innerSize.w / 2) / this.tileSize
+    );
+    this.startRow = Math.floor(
+      (center.y - configSvc.innerSize.h / 2) / this.tileSize
+    );
+    this.endCol = Math.ceil(
+      (center.x + configSvc.innerSize.w / 2) / this.tileSize
+    );
+    this.endRow = Math.ceil(
+      (center.y + configSvc.innerSize.h / 2) / this.tileSize
+    );
 
     if (this.startCol < 0) {
       this.startCol = 0;
@@ -106,13 +122,13 @@ class TileMap {
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
-        if (this.tiles[r][c].type.key !== 'void') {
+        if (this.tiles[r][c].type.key !== "void") {
           this.atlas.render(
             viewProjectionMatrix,
             this.tiles[r][c].model,
             this.tiles[r][c].type.row,
             this.tiles[r][c].type.col,
-            this.tiles[r][c].parameters,
+            this.tiles[r][c].parameters
           );
         }
       }
@@ -122,11 +138,15 @@ class TileMap {
   public getTileAt(x: number, y: number): ITile | undefined {
     const r = Math.trunc(y / this.tileSize);
     const c = Math.trunc(x / this.tileSize);
-    return this.tiles[r] && this.tiles[r][c] || undefined;
+    return (this.tiles[r] && this.tiles[r][c]) || undefined;
   }
 
-  public getBoundaries(): Box2 { return this.boundaries; }
-  public getTileSize(): number { return this.tileSize; }
+  public getBoundaries(): Box2 {
+    return this.boundaries;
+  }
+  public getTileSize(): number {
+    return this.tileSize;
+  }
 }
 
 export default TileMap;

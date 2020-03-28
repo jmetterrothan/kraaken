@@ -1,22 +1,21 @@
-import { vec2 } from 'gl-matrix';
-import Stats from 'stats-js';
+import { vec2 } from "gl-matrix";
+import Stats from "stats-js";
 
-import EditorState from '@src/states/EditorState';
-import LevelState from '@src/states/LevelState';
-import MenuState from '@src/states/MenuState';
-import StateManager from '@src/states/StateManager';
+import EditorState from "@src/states/EditorState";
+import LevelState from "@src/states/LevelState";
+import MenuState from "@src/states/MenuState";
+import StateManager from "@src/states/StateManager";
 
-import { GameStates, IGameOptions } from '@shared/models/game.model';
-import { configSvc } from '@shared/services/config.service';
+import { GameStates, IGameOptions } from "@shared/models/game.model";
+import { configSvc } from "@shared/services/config.service";
 
-const instanceSym = Symbol('instance');
+const instanceSym = Symbol("instance");
 
 let wrapper: HTMLElement;
 let canvas: HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
 
 class Game {
-
   set fullscreen(b: boolean) {
     if (b) {
       const element = document.documentElement;
@@ -56,13 +55,13 @@ class Game {
     allowFullscreen: true,
     height: 600,
     width: 800,
-    root: undefined,
+    root: undefined
   };
 
   private options: IGameOptions;
   private root: HTMLElement;
 
-  private events: Map<string, CallableFunction|null>;
+  private events: Map<string, CallableFunction | null>;
 
   private stateManager: StateManager;
 
@@ -85,16 +84,16 @@ class Game {
 
     this.stateManager = new StateManager();
 
-    this.events = new Map<string, CallableFunction|null>();
-    this.events.set('resize', null);
-    this.events.set('fullscreen', null);
+    this.events = new Map<string, CallableFunction | null>();
+    this.events.set("resize", null);
+    this.events.set("fullscreen", null);
 
     this.lag = 0;
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
 
     this.stats = new Stats();
-    this.upsPanel = this.stats.addPanel(new Stats.Panel('UPS', '#ff8', '#221'));
+    this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
 
     this.ups = 0;
     this.ticks = 0;
@@ -115,7 +114,11 @@ class Game {
     const hdpiW: number = Math.trunc(w * ratio);
     const hdpiH: number = Math.trunc(h * ratio);
 
-    if (hdpiW !== canvas.width || hdpiH !== canvas.height || configSvc.scale !== scale) {
+    if (
+      hdpiW !== canvas.width ||
+      hdpiH !== canvas.height ||
+      configSvc.scale !== scale
+    ) {
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       canvas.width = hdpiW;
@@ -134,7 +137,7 @@ class Game {
 
       gl.viewport(0, 0, canvas.width, canvas.height);
 
-      const resizeCallback = this.events.get('resize');
+      const resizeCallback = this.events.get("resize");
       if (resizeCallback) {
         resizeCallback(configSvc.frameSize, configSvc.innerSize);
       }
@@ -207,7 +210,7 @@ class Game {
 
     // Stats
     this.stats.showPanel(3);
-    this.stats.dom.style.display = configSvc.debug ? 'block' : 'none';
+    this.stats.dom.style.display = configSvc.debug ? "block" : "none";
 
     this.root.appendChild(this.stats.dom);
 
@@ -223,11 +226,11 @@ class Game {
 
   private initCanvas() {
     // Main elements
-    wrapper = document.createElement('div');
-    wrapper.classList.add('kraken-wrapper');
+    wrapper = document.createElement("div");
+    wrapper.classList.add("kraken-wrapper");
 
-    canvas = document.createElement('canvas');
-    canvas.classList.add('kraken-canvas');
+    canvas = document.createElement("canvas");
+    canvas.classList.add("kraken-canvas");
 
     wrapper.appendChild(canvas);
     this.root.appendChild(wrapper);
@@ -235,10 +238,10 @@ class Game {
 
   private initWebGL() {
     // Webgl
-    gl = canvas.getContext('webgl2') as WebGL2RenderingContext;
+    gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
     if (!gl) {
-      throw new Error('WebGL2 context is not available.');
+      throw new Error("WebGL2 context is not available.");
     }
 
     gl.enable(gl.DEPTH_TEST);
@@ -256,24 +259,35 @@ class Game {
 
   private initEvents() {
     // Keyboard events
-    window.addEventListener('keyup', (e) => this.stateManager.handleKeyboardInput(e.key, false), false);
-    window.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'F11':
-          e.preventDefault();
-          break;
+    window.addEventListener(
+      "keyup",
+      e => this.stateManager.handleKeyboardInput(e.key, false),
+      false
+    );
+    window.addEventListener(
+      "keydown",
+      e => {
+        switch (e.key) {
+          case "F11":
+            e.preventDefault();
+            break;
 
-        case 'f':
-          this.fullscreen = !this.fullscreen;
-          break;
-      }
+          case "f":
+            this.fullscreen = !this.fullscreen;
+            break;
+        }
 
-      this.stateManager.handleKeyboardInput(e.key, true);
-    }, false);
+        this.stateManager.handleKeyboardInput(e.key, true);
+      },
+      false
+    );
 
     const getCoord = (c: HTMLCanvasElement, x: number, y: number): vec2 => {
       const rect = c.getBoundingClientRect();
-      return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
+      return vec2.fromValues(
+        (x - rect.left) * window.devicePixelRatio,
+        (y - rect.top) * window.devicePixelRatio
+      );
     };
 
     const getMouseOffsetX = (e: MouseEvent) => {
@@ -285,19 +299,41 @@ class Game {
     };
 
     // Click events
-    canvas.addEventListener('mouseup', (e: MouseEvent) => {
-      this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
-    }, false);
+    canvas.addEventListener(
+      "mouseup",
+      (e: MouseEvent) => {
+        this.stateManager.handleMousePressed(
+          e.button,
+          false,
+          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
+        );
+      },
+      false
+    );
 
-    canvas.addEventListener('mousedown', (e: MouseEvent) => {
-      this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
-    }, false);
+    canvas.addEventListener(
+      "mousedown",
+      (e: MouseEvent) => {
+        this.stateManager.handleMousePressed(
+          e.button,
+          true,
+          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
+        );
+      },
+      false
+    );
 
-    canvas.addEventListener('mousemove', (e: MouseEvent) => {
-      this.stateManager.handleMouseMove(getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
-    }, false);
+    canvas.addEventListener(
+      "mousemove",
+      (e: MouseEvent) => {
+        this.stateManager.handleMouseMove(
+          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
+        );
+      },
+      false
+    );
 
-    canvas.addEventListener('mousewheel', (e: WheelEvent) => {
+    canvas.addEventListener("mousewheel", (e: WheelEvent) => {
       this.targetScale += e.deltaY > 0 ? -1 : 1;
       if (this.targetScale <= 0) {
         this.targetScale = 1;
@@ -307,16 +343,28 @@ class Game {
     });
 
     // Fullscreen events
-    document.addEventListener('webkitfullscreenchange', this.fullscreenChange, false);
-    document.addEventListener('mozfullscreenchange', this.fullscreenChange, false);
-    document.addEventListener('msfullscreenchange', this.fullscreenChange, false);
-    document.addEventListener('fullscreenchange', this.fullscreenChange, false);
+    document.addEventListener(
+      "webkitfullscreenchange",
+      this.fullscreenChange,
+      false
+    );
+    document.addEventListener(
+      "mozfullscreenchange",
+      this.fullscreenChange,
+      false
+    );
+    document.addEventListener(
+      "msfullscreenchange",
+      this.fullscreenChange,
+      false
+    );
+    document.addEventListener("fullscreenchange", this.fullscreenChange, false);
 
-    window.addEventListener('blur', () => {
+    window.addEventListener("blur", () => {
       this.paused = true;
     });
 
-    window.addEventListener('focus', () => {
+    window.addEventListener("focus", () => {
       this.paused = false;
 
       const elapsed = this.nextTime - this.lastTime;
@@ -324,7 +372,7 @@ class Game {
       this.nextTime = this.lastTime + elapsed;
     });
 
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       // needed if we switch screen and the pixel ratio has changed
       this.refreshScreenSize();
     });
@@ -336,16 +384,16 @@ class Game {
     } else {
       this.resize(this.options.width, this.options.height);
     }
-  }
+  };
 
   private fullscreenChange = () => {
-    const fullscreenCallback = this.events.get('fullscreen');
+    const fullscreenCallback = this.events.get("fullscreen");
     if (fullscreenCallback) {
       fullscreenCallback(this.fullscreen);
     }
 
     this.stateManager.handleFullscreenChange(this.fullscreen);
-  }
+  };
 }
 
 export { wrapper, canvas, gl };

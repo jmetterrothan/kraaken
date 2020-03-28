@@ -1,6 +1,6 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
-import { lerp, lerp2 } from '@shared/utility/MathHelpers';
+import { lerp, lerp2 } from "@shared/utility/MathHelpers";
 
 class Vector2 {
   public x: number;
@@ -46,14 +46,14 @@ class Vector2 {
     return this;
   }
 
-  public subScalar(s: number): Vector2  {
+  public subScalar(s: number): Vector2 {
     this.x -= s;
     this.y -= s;
 
     return this;
   }
 
-  public subVectors(a: Vector2, b: Vector2): Vector2  {
+  public subVectors(a: Vector2, b: Vector2): Vector2 {
     this.x = a.x - b.x;
     this.y = a.y - b.y;
 
@@ -67,7 +67,7 @@ class Vector2 {
     return this;
   }
 
-  public multiplyScalar(s: number): Vector2  {
+  public multiplyScalar(s: number): Vector2 {
     this.x *= s;
     this.y *= s;
 
@@ -81,13 +81,15 @@ class Vector2 {
     return this;
   }
 
-  public divideScalar(s: number): Vector2  {
+  public divideScalar(s: number): Vector2 {
     return this.multiplyScalar(1 / s);
   }
 
   public angle(): number {
     let angle = Math.atan2(this.y, this.x);
-    if (angle < 0) { angle += 2 * Math.PI; }
+    if (angle < 0) {
+      angle += 2 * Math.PI;
+    }
 
     return angle;
   }
@@ -186,7 +188,9 @@ class Vector2 {
   }
 
   public lerpVectors(v1: Vector2, v2: Vector2, a: number): Vector2 {
-    return this.subVectors(v2, v1).multiplyScalar(a).add(v1);
+    return this.subVectors(v2, v1)
+      .multiplyScalar(a)
+      .add(v1);
   }
 
   public equals(v: Vector2): boolean {
@@ -197,13 +201,23 @@ class Vector2 {
     return v.x !== this.x || v.y !== this.y;
   }
 
-  public setX(x: number) { this.x = x; return this; }
+  public setX(x: number) {
+    this.x = x;
+    return this;
+  }
 
-  public setY(y: number) { this.y = y; return this; }
+  public setY(y: number) {
+    this.y = y;
+    return this;
+  }
 
-  public getX(x): number { return x; }
+  public getX(x): number {
+    return x;
+  }
 
-  public getY(y): number { return y; }
+  public getY(y): number {
+    return y;
+  }
 
   public toGlArray(): vec2 {
     return vec2.fromValues(this.x, this.y);

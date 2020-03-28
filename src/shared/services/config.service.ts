@@ -1,4 +1,4 @@
-import { IDimension } from '@shared/models/game.model';
+import { IDimension } from "@shared/models/game.model";
 
 class ConfigService {
   public debug: boolean;

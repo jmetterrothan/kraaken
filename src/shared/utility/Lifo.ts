@@ -1,4 +1,4 @@
-import Stack from '@shared/utility/Stack';
+import Stack from "@shared/utility/Stack";
 
 class Lifo<T> extends Stack<T> {
   public push(item: T) {

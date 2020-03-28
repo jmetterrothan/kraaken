@@ -1,10 +1,9 @@
-import AnimatedObject2d from '@src/objects/AnimatedObject2d';
-import Vector2 from '@src/shared/math/Vector2';
-import Fifo from '@src/shared/utility/Fifo';
-import World from '@src/world/World';
+import AnimatedObject2d from "@src/objects/AnimatedObject2d";
+import Vector2 from "@src/shared/math/Vector2";
+import Fifo from "@src/shared/utility/Fifo";
+import World from "@src/world/World";
 
-import data from '@src/data/data';
-import { mat3 } from 'gl-matrix';
+import data from "@src/data/data";
 
 class SFX extends AnimatedObject2d {
   public static createPoolIfNotExists(name: string) {
@@ -13,7 +12,12 @@ class SFX extends AnimatedObject2d {
     }
   }
 
-  public static create(x: number, y: number, direction: Vector2, name: string): SFX {
+  public static create(
+    x: number,
+    y: number,
+    direction: Vector2,
+    name: string
+  ): SFX {
     SFX.createPoolIfNotExists(name);
 
     const sfx = SFX.POOL.get(name).pop();

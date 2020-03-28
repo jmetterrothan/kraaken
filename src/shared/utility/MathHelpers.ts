@@ -18,11 +18,11 @@ export const getRandomFloat = (a: number, b: number): number => {
 };
 
 export const radToDeg = (r: number): number => {
-  return r * 180 / Math.PI;
+  return (r * 180) / Math.PI;
 };
 
 export const degToRad = (d: number): number => {
-  return d * Math.PI / 180;
+  return (d * Math.PI) / 180;
 };
 
 export const clamp = (val: number, min: number, max: number): number => {

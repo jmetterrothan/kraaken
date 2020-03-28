@@ -1,13 +1,13 @@
-import Vector2 from '@shared/math/Vector2';
-import AnimatedObject2d from '@src/objects/AnimatedObject2d';
-import Object2d from '@src/objects/Object2d';
-import Box2Helper from '@src/shared/helper/Box2Helper';
-import Box2 from '@src/shared/math/Box2';
-import TileMap from '@src/world/TileMap';
-import World from '@src/world/World';
+import Vector2 from "@shared/math/Vector2";
+import AnimatedObject2d from "@src/objects/AnimatedObject2d";
+import Object2d from "@src/objects/Object2d";
+import Box2Helper from "@src/shared/helper/Box2Helper";
+import Box2 from "@src/shared/math/Box2";
+import TileMap from "@src/world/TileMap";
+import World from "@src/world/World";
 
-import { ITile } from '@shared/models/tilemap.model';
-import { IEntityData, IMovement } from '@src/shared/models/entity.model';
+import { ITile } from "@shared/models/tilemap.model";
+import { IEntityData, IMovement } from "@src/shared/models/entity.model";
 
 class Entity extends AnimatedObject2d {
   protected bbox: Box2;
@@ -36,11 +36,17 @@ class Entity extends AnimatedObject2d {
   }
 
   public collideWith(object: Entity | Object2d): boolean {
-    if (object instanceof Entity && this.bbox.intersectBox((object as Entity).getBbox())) {
+    if (
+      object instanceof Entity &&
+      this.bbox.intersectBox((object as Entity).getBbox())
+    ) {
       return true;
     }
 
-    if (object instanceof Object2d && this.bbox.containsPoint(object.getPosition())) {
+    if (
+      object instanceof Object2d &&
+      this.bbox.containsPoint(object.getPosition())
+    ) {
       return true;
     }
 
@@ -61,10 +67,14 @@ class Entity extends AnimatedObject2d {
 
     if (this.velocity.x > 0) {
       // right collision
-      const tile = this.testForCollision(map,
-        x2 + velocity.x, y1,
-        x2 + velocity.x, y1 + h / 2,
-        x2 + velocity.x, y2,
+      const tile = this.testForCollision(
+        map,
+        x2 + velocity.x,
+        y1,
+        x2 + velocity.x,
+        y1 + h / 2,
+        x2 + velocity.x,
+        y2
       );
 
       if (tile) {
@@ -73,10 +83,14 @@ class Entity extends AnimatedObject2d {
       }
     } else if (this.velocity.x < 0) {
       // left collision
-      const tile = this.testForCollision(map,
-        x1 + velocity.x, y1,
-        x1 + velocity.x, y1 + h / 2,
-        x1 + velocity.x, y2,
+      const tile = this.testForCollision(
+        map,
+        x1 + velocity.x,
+        y1,
+        x1 + velocity.x,
+        y1 + h / 2,
+        x1 + velocity.x,
+        y2
       );
 
       if (tile) {
@@ -87,10 +101,14 @@ class Entity extends AnimatedObject2d {
 
     if (this.velocity.y > 0) {
       // bottom collision
-      const tile = this.testForCollision(map,
-        x1, y2 + velocity.y,
-        x1 + w / 2, y2 + velocity.y,
-        x2, y2 + velocity.y,
+      const tile = this.testForCollision(
+        map,
+        x1,
+        y2 + velocity.y,
+        x1 + w / 2,
+        y2 + velocity.y,
+        x2,
+        y2 + velocity.y
       );
 
       if (tile !== undefined) {
@@ -99,10 +117,14 @@ class Entity extends AnimatedObject2d {
       }
     } else if (this.velocity.y < 0) {
       // top collision
-      const tile = this.testForCollision(map,
-        x1, y1 + velocity.y,
-        x1 + w / 2, y1 + velocity.y,
-        x2, y1 + velocity.y,
+      const tile = this.testForCollision(
+        map,
+        x1,
+        y1 + velocity.y,
+        x1 + w / 2,
+        y1 + velocity.y,
+        x2,
+        y1 + velocity.y
       );
 
       if (tile) {
@@ -116,7 +138,7 @@ class Entity extends AnimatedObject2d {
 
   public update(world: World, delta: number) {
     // update velocity values
-    if ('move' in this) {
+    if ("move" in this) {
       (this as IMovement).move(world, delta);
     }
 
@@ -127,7 +149,10 @@ class Entity extends AnimatedObject2d {
 
     // change direction based of new velocity
     if (this.velocity.x !== 0 || this.velocity.y !== 0) {
-      const direction = this.velocity.clone().setY(0).normalize();
+      const direction = this.velocity
+        .clone()
+        .setY(0)
+        .normalize();
 
       if (direction.x !== 0) {
         this.parameters.direction.x = direction.x;
@@ -160,26 +185,28 @@ class Entity extends AnimatedObject2d {
     let y = this.getY();
 
     if (this.getX() < x1) {
-        x = x1;
-        this.velocity.x = 0;
+      x = x1;
+      this.velocity.x = 0;
     }
     if (this.getY() < y1) {
-        y = y1;
-        this.velocity.y = 0;
+      y = y1;
+      this.velocity.y = 0;
     }
     if (this.getX() > x2) {
-        x = x2;
-        this.velocity.x = 0;
+      x = x2;
+      this.velocity.x = 0;
     }
     if (this.getY() > y2) {
-        y = y2;
-        this.velocity.y = 0;
+      y = y2;
+      this.velocity.y = 0;
     }
 
     this.setPosition(x, y);
   }
 
-  public getBbox(): Box2 { return this.bbox; }
+  public getBbox(): Box2 {
+    return this.bbox;
+  }
 
   public getVelocity(): Vector2 {
     if (this.velocity) {
@@ -194,7 +221,9 @@ class Entity extends AnimatedObject2d {
 
   public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
     const t = this.getVelocity().multiplyScalar(delta);
-    return (this.getPosition().lerp(this.getPosition().add(t), alpha)).ceil();
+    return this.getPosition()
+      .lerp(this.getPosition().add(t), alpha)
+      .ceil();
   }
 
   public showDebug() {
@@ -213,15 +242,29 @@ class Entity extends AnimatedObject2d {
     }
   }
 
-  private testForCollision(map: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): ITile | undefined {
+  private testForCollision(
+    map: TileMap,
+    a1x: number,
+    a1y: number,
+    b1x: number,
+    b1y: number,
+    c1x: number,
+    c1y: number
+  ): ITile | undefined {
     const a = map.getTileAt(a1x, a1y);
-    if (a && a.type.collision) { return a; }
+    if (a && a.type.collision) {
+      return a;
+    }
 
     const b = map.getTileAt(b1x, b1y);
-    if (b && b.type.collision) { return b; }
+    if (b && b.type.collision) {
+      return b;
+    }
 
     const c = map.getTileAt(c1x, c1y);
-    if (c && c.type.collision) { return c; }
+    if (c && c.type.collision) {
+      return c;
+    }
 
     return undefined;
   }

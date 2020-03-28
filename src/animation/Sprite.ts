@@ -1,17 +1,17 @@
-import { mat3, vec2, vec3, vec4 } from 'gl-matrix';
+import { mat3, vec2, vec3, vec4 } from "gl-matrix";
 
-import md5 from 'md5';
+import md5 from "md5";
 
-import Material from '@src/animation/Material';
-import { gl } from '@src/Game';
+import Material from "@src/animation/Material";
+import { gl } from "@src/Game";
 
-import Vector2 from '@shared/math/Vector2';
-import { ISpriteRenderParameters } from '@shared/models/animation.model';
-import { IAttributes, IUniforms } from '@shared/models/sprite.model';
-import WebGL2H from '@shared/utility/WebGL2H';
+import Vector2 from "@shared/math/Vector2";
+import { ISpriteRenderParameters } from "@shared/models/animation.model";
+import { IAttributes, IUniforms } from "@shared/models/sprite.model";
+import WebGL2H from "@shared/utility/WebGL2H";
 
-import vsObject from '@assets/shaders/object.vs.glsl';
-import fsSprite from '@assets/shaders/sprite.fs.glsl';
+import vsObject from "@assets/shaders/object.vs.glsl";
+import fsSprite from "@assets/shaders/sprite.fs.glsl";
 
 class Sprite {
   public static async load(src: string): Promise<HTMLImageElement> {
@@ -36,7 +36,12 @@ class Sprite {
     });
   }
 
-  public static async create(src: string, alias: string, tw: number, th: number): Promise<Sprite> {
+  public static async create(
+    src: string,
+    alias: string,
+    tw: number,
+    th: number
+  ): Promise<Sprite> {
     if (Sprite.LOADED_SPRITES.has(alias) === true) {
       return Sprite.LOADED_SPRITES.get(alias);
     }
@@ -58,8 +63,14 @@ class Sprite {
   protected static WIREFRAME_COLOR: vec4 = vec4.fromValues(0, 0, 0, 1);
   protected static CURRENT_SPRITE: string;
 
-  private static LOADED_SPRITES: Map<string, Sprite> = new Map<string, Sprite>();
-  private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
+  private static LOADED_SPRITES: Map<string, Sprite> = new Map<
+    string,
+    Sprite
+  >();
+  private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<
+    string,
+    HTMLImageElement
+  >();
 
   private textureMaterial: Material;
 
@@ -104,30 +115,41 @@ class Sprite {
     this.texture = gl.createTexture();
 
     this.attributes = {
-      a_position: gl.getAttribLocation(this.textureMaterial.program, 'a_position'),
-      a_texture_coord: gl.getAttribLocation(this.textureMaterial.program, 'a_texture_coord'),
+      a_position: gl.getAttribLocation(
+        this.textureMaterial.program,
+        "a_position"
+      ),
+      a_texture_coord: gl.getAttribLocation(
+        this.textureMaterial.program,
+        "a_texture_coord"
+      )
     };
 
     this.uniforms = {
-      u_mvp: { type: 'Matrix3fv', value: undefined },
-      u_frame: { type: '2fv', value: undefined },
-      u_color: { type: '4fv', value: undefined },
-      u_wireframe: { type: '1i', value: false },
-      u_grayscale: { type: '1i', value: false },
-      u_image: { type: '1i', value: undefined },
-      u_alpha: { type: '1f', value: 1 },
+      u_mvp: { type: "Matrix3fv", value: undefined },
+      u_frame: { type: "2fv", value: undefined },
+      u_color: { type: "4fv", value: undefined },
+      u_wireframe: { type: "1i", value: false },
+      u_grayscale: { type: "1i", value: false },
+      u_image: { type: "1i", value: undefined },
+      u_alpha: { type: "1f", value: 1 }
     };
   }
 
   public async init() {
     for (const key in this.uniforms) {
       if (this.uniforms[key]) {
-        this.uniforms[key].location = gl.getUniformLocation(this.textureMaterial.program, key);
+        this.uniforms[key].location = gl.getUniformLocation(
+          this.textureMaterial.program,
+          key
+        );
       }
     }
 
     const image: HTMLImageElement = await Sprite.load(this.src);
-    console.info(`Loaded sprite "${this.alias}" ${this.tileWidth}x${this.tileHeight}`);
+    console.info(
+      `Loaded sprite "${this.alias}" ${this.tileWidth}x${this.tileHeight}`
+    );
 
     this.width = image.width;
     this.height = image.height;
@@ -145,28 +167,51 @@ class Sprite {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, parameters: ISpriteRenderParameters) {
+  public render(
+    viewProjectionMatrix: mat3,
+    modelMatrix: mat3,
+    row: number,
+    col: number,
+    parameters: ISpriteRenderParameters
+  ) {
     if (this.loaded) {
-      this.setUniform('u_alpha', parameters.alpha);
-      this.setUniform('u_grayscale', parameters.grayscale);
-      this.setUniform('u_wireframe', parameters.wireframe);
-      this.setUniform('u_color', Sprite.WIREFRAME_COLOR);
-      this.setUniform('u_mvp', mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
-      this.setUniform('u_frame', this.getFrameCoords(row, col, parameters.direction));
+      this.setUniform("u_alpha", parameters.alpha);
+      this.setUniform("u_grayscale", parameters.grayscale);
+      this.setUniform("u_wireframe", parameters.wireframe);
+      this.setUniform("u_color", Sprite.WIREFRAME_COLOR);
+      this.setUniform(
+        "u_mvp",
+        mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix)
+      );
+      this.setUniform(
+        "u_frame",
+        this.getFrameCoords(row, col, parameters.direction)
+      );
 
-      gl.drawElements(parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(
+        parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN,
+        6,
+        gl.UNSIGNED_SHORT,
+        0
+      );
     }
   }
 
   public getFrameCoords(row: number, col: number, direction: Vector2) {
     return [
-      ((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth / this.width) * direction.x,
-      ((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight / this.height) * direction.y,
+      (((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth) / this.width) *
+        direction.x,
+      (((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight) / this.height) *
+        direction.y
     ];
   }
 
-  public getTileWidth() { return this.tileWidth; }
-  public getTileHeight() { return this.tileHeight; }
+  public getTileWidth() {
+    return this.tileWidth;
+  }
+  public getTileHeight() {
+    return this.tileHeight;
+  }
 
   private setUniform(key: string, value: any) {
     this.uniforms[key].value = value;
@@ -177,22 +222,53 @@ class Sprite {
     gl.useProgram(this.textureMaterial.program);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth, this.tileHeight), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      WebGL2H.createQuadVertices(0, 0, this.tileWidth, this.tileHeight),
+      gl.STATIC_DRAW
+    );
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([ 3, 2, 1, 3, 1, 0 ]), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array([3, 2, 1, 3, 1, 0]),
+      gl.STATIC_DRAW
+    );
 
     gl.bindVertexArray(this.vao);
 
     gl.enableVertexAttribArray(this.attributes.a_position);
-    gl.vertexAttribPointer(this.attributes.a_position, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(
+      this.attributes.a_position,
+      2,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    );
 
     // texture
     gl.bindBuffer(gl.ARRAY_BUFFER, this.tbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.tileWidth / this.width, this.tileHeight / this.height), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      WebGL2H.createQuadVertices(
+        0,
+        0,
+        this.tileWidth / this.width,
+        this.tileHeight / this.height
+      ),
+      gl.STATIC_DRAW
+    );
 
     gl.enableVertexAttribArray(this.attributes.a_texture_coord);
-    gl.vertexAttribPointer(this.attributes.a_texture_coord, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(
+      this.attributes.a_texture_coord,
+      2,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    );
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

@@ -1,7 +1,12 @@
-import { IEntityData, ILootData, IObjectLevelData, IPlayerData } from '@src/shared/models/entity.model';
-import { ISpriteData } from '@src/shared/models/sprite.model';
-import { ITileMapData } from '@src/shared/models/tilemap.model';
-import { IVector2Data } from './math.model';
+import {
+  IEntityData,
+  ILootData,
+  IObjectLevelData,
+  IPlayerData
+} from "@src/shared/models/entity.model";
+import { ISpriteData } from "@src/shared/models/sprite.model";
+import { ITileMapData } from "@src/shared/models/tilemap.model";
+import { IVector2Data } from "./math.model";
 
 export interface IWorldData {
   // level data
@@ -18,10 +23,10 @@ export interface IWorldData {
   // global data
   sprites: ISpriteData[];
   sfx: {
-    [key: string]: IEntityData,
+    [key: string]: IEntityData;
   };
   entities: {
-    [key: string]: IEntityData | IPlayerData,
+    [key: string]: IEntityData | IPlayerData;
   };
   loots: {
     [key: string]: ILootData;

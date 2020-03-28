@@ -1,4 +1,4 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
 abstract class State {
   public abstract async init();
@@ -13,7 +13,11 @@ abstract class State {
 
   public abstract handleKeyboardInput(key: string, active: boolean);
 
-  public abstract handleMousePressed(button: number, active: boolean, position: vec2);
+  public abstract handleMousePressed(
+    button: number,
+    active: boolean,
+    position: vec2
+  );
 
   public abstract handleMouseMove(position: vec2);
 

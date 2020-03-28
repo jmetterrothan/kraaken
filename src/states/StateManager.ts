@@ -1,8 +1,8 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
-import State from '@src/states/State';
+import State from "@src/states/State";
 
-import { IStateWrapper } from '@shared/models/state.model';
+import { IStateWrapper } from "@shared/models/state.model";
 
 class StateManager {
   private states: Map<number, IStateWrapper>;
@@ -17,7 +17,9 @@ class StateManager {
 
   public add(index: number, state: State) {
     if (this.states.has(index)) {
-      throw new Error(`State manager has already a State defined @ index "${index}"`);
+      throw new Error(
+        `State manager has already a State defined @ index "${index}"`
+      );
     }
 
     this.states.set(index, { initialized: false, state });

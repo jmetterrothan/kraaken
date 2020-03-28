@@ -1,15 +1,21 @@
-import Vector2 from '@shared/math/Vector2';
-import Entity from '@src/objects/entity/Entity';
-import World from '@src/world/World';
+import Vector2 from "@shared/math/Vector2";
+import Entity from "@src/objects/entity/Entity";
+import World from "@src/world/World";
 
-import { IConsummable } from '@shared/models/loot.model';
-import { IEntityData, IMetadata } from '@src/shared/models/entity.model';
+import { IConsummable } from "@shared/models/loot.model";
+import { IEntityData, IMetadata } from "@src/shared/models/entity.model";
 
 abstract class Loot extends Entity implements IConsummable {
   protected sfx: string;
   protected consummated: boolean;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntityData, metadata: IMetadata) {
+  constructor(
+    x: number,
+    y: number,
+    direction: Vector2,
+    data: IEntityData,
+    metadata: IMetadata
+  ) {
     super(x, y, direction, data);
     this.sfx = metadata.sfx || undefined;
   }
@@ -21,7 +27,11 @@ abstract class Loot extends Entity implements IConsummable {
       const entities = world.getActiveEntities();
 
       for (const entity of entities) {
-        if (!(entity instanceof Entity) || !this.canBeConsummatedBy(entity) || this === entity) {
+        if (
+          !(entity instanceof Entity) ||
+          !this.canBeConsummatedBy(entity) ||
+          this === entity
+        ) {
           continue;
         }
 

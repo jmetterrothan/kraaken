@@ -1,7 +1,7 @@
-import { mat3 } from 'gl-matrix';
+import { mat3 } from "gl-matrix";
 
-import Vector2 from '@src/shared/math/Vector2';
-import { ISpriteRenderParameters } from './animation.model';
+import Vector2 from "@src/shared/math/Vector2";
+import { ISpriteRenderParameters } from "./animation.model";
 
 export interface ITileMapData {
   rows: number;

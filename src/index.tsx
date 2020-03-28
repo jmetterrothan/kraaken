@@ -1,18 +1,17 @@
+import React from "react";
+import ReactDOM from "react-dom";
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import Game from "@src/Game";
 
-import Game from '@src/Game';
-
-import '@sass/main.scss';
+import "@sass/main.scss";
 
 const game = Game.create({
   allowFullscreen: true,
   width: 1440,
   height: 800,
-  root: document.getElementById('game'),
+  root: document.getElementById("game")
 });
 
 game.run();
 
-ReactDOM.render(<div/>, document.getElementById('root'));
+ReactDOM.render(<div />, document.getElementById("root"));

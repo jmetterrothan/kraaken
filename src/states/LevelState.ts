@@ -1,11 +1,11 @@
-import { vec2 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
 
-import State from '@src/states/State';
-import World from '@src/world/World';
+import State from "@src/states/State";
+import World from "@src/world/World";
 
-import data from '@src/data/data';
+import data from "@src/data/data";
 
-class LevelState  extends State {
+class LevelState extends State {
   private world: World;
   private ready: boolean;
 
@@ -16,25 +16,27 @@ class LevelState  extends State {
   }
 
   public async init() {
-    console.info('Level initialized');
+    console.info("Level initialized");
     await this.world.init();
     this.ready = true;
   }
 
   public mounted() {
-    console.info('Level mounted');
+    console.info("Level mounted");
   }
 
-  public dismounted() {
-
-  }
+  public dismounted() {}
 
   public update(delta: number) {
-    if (this.ready) { this.world.update(delta); }
+    if (this.ready) {
+      this.world.update(delta);
+    }
   }
 
   public render(alpha: number) {
-    if (this.ready) { this.world.render(alpha); }
+    if (this.ready) {
+      this.world.render(alpha);
+    }
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
