@@ -1,6 +1,6 @@
-const path = require('path');
+const path = require("path");
 
-const PATHS = require('./paths');
+const PATHS = require("./paths");
 
 module.exports = {
   "@src": path.resolve(PATHS.SRC),
