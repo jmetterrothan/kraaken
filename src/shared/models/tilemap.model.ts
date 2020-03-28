@@ -3,14 +3,19 @@ import { mat3 } from "gl-matrix";
 import Vector2 from "@src/shared/math/Vector2";
 import { ISpriteRenderParameters } from "./animation.model";
 
+export interface ITileTypes {
+  [key: string]: ITileTypeData;
+}
+
 export interface ITileMapData {
   rows: number;
   cols: number;
   tileSize: number;
-  tileTypes: {
-    [key: string]: ITileTypeData;
+  tileTypes: ITileTypes;
+  layers: {
+    layer1: number[];
+    layer2: number[];
   };
-  tiles: number[];
 }
 
 export interface ITileTypeData {

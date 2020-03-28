@@ -11,3 +11,13 @@ export const uuid = (): string => {
 export const isPowerOf2 = (value: number): boolean => {
   return (value & (value - 1)) === 0;
 };
+
+export const create2DArray = <T>(rows: number, cols: number): T[][] => {
+  const a: T[][] = new Array(rows);
+
+  for (let r = 0; r < rows; r++) {
+    a[r] = new Array(cols);
+  }
+
+  return a;
+};

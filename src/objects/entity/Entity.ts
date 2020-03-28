@@ -251,17 +251,17 @@ class Entity extends AnimatedObject2d {
     c1x: number,
     c1y: number
   ): ITile | undefined {
-    const a = map.getTileAt(a1x, a1y);
+    const a = map.getTileAt(a1x, a1y, 1);
     if (a && a.type.collision) {
       return a;
     }
 
-    const b = map.getTileAt(b1x, b1y);
+    const b = map.getTileAt(b1x, b1y, 1);
     if (b && b.type.collision) {
       return b;
     }
 
-    const c = map.getTileAt(c1x, c1y);
+    const c = map.getTileAt(c1x, c1y, 1);
     if (c && c.type.collision) {
       return c;
     }

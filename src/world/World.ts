@@ -212,12 +212,16 @@ class World {
 
     if (active && button === 0) {
       const coords = this.camera.screenToCameraCoords(position);
-      const tile = this.tileMap.getTileAt(coords.x, coords.y);
+      const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
 
       if (tile) {
         tile.type = this.data.level.tileMap.tileTypes[
           tile.type.key === "void" ? 1 : 0
         ];
+      } else {
+        const [r, c] = this.tileMap.getTileIndexesFromCoord(coords.x, coords.y);
+
+        this.tileMap.createTile(this.data.level.tileMap.tileTypes[1], r, c, 1);
       }
     } else if (active && button === 1) {
       const coords = this.camera.screenToCameraCoords(position);

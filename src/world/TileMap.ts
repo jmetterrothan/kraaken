@@ -1,3 +1,5 @@
+import { create2DArray } from "./../shared/utility/Utility";
+import { ITileTypes } from "./../shared/models/tilemap.model";
 import { mat3, vec2 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
@@ -5,7 +7,11 @@ import Sprite from "@src/animation/Sprite";
 import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
 
-import { ITile, ITileMapData } from "@shared/models/tilemap.model";
+import {
+  ITile,
+  ITileMapData,
+  ITileTypeData
+} from "@shared/models/tilemap.model";
 import { configSvc } from "@src/shared/services/config.service";
 
 class TileMap {
@@ -27,7 +33,10 @@ class TileMap {
 
   private boundaries: Box2;
 
-  private tiles: ITile[][];
+  private tiles: {
+    layer1: ITile[][];
+    layer2: ITile[][];
+  };
 
   private atlas: Sprite;
 
@@ -46,34 +55,49 @@ class TileMap {
       this.sizeY
     );
 
-    const tilemapRenderParameters = {
-      direction: new Vector2(1, 1),
-      wireframe: false,
-      grayscale: false,
-      flickering: false,
-      alpha: 1
+    this.tiles = {
+      layer1: create2DArray(this.nbRows, this.nbCols),
+      layer2: create2DArray(this.nbRows, this.nbCols)
     };
 
-    // convert 1d array of tiles to a 2d array
-    this.tiles = new Array(this.nbRows);
+    this.buildLayer(1, data.layers.layer1, data.tileTypes);
+    this.buildLayer(2, data.layers.layer2, data.tileTypes);
+  }
+
+  public buildLayer(layerId: number, tiles: number[], tileTypes: ITileTypes) {
     for (let r = 0; r < this.nbRows; r++) {
-      this.tiles[r] = new Array(this.nbCols);
-
       for (let c = 0; c < this.nbCols; c++) {
-        const id = data.tiles[this.getIndex(r, c)];
-        const type = data.tileTypes[id];
+        // convert 1d array of tiles to a 2d array
+        const id = tiles[this.getIndex(r, c)];
 
-        this.tiles[r][c] = {
-          type,
-          model: mat3.fromTranslation(
-            mat3.create(),
-            vec2.fromValues(c * this.tileSize, r * this.tileSize)
-          ),
-          position: new Vector2(c * this.tileSize, r * this.tileSize),
-          parameters: tilemapRenderParameters
-        };
+        if (id !== 0) {
+          this.createTile(tileTypes[id], r, c, layerId);
+        }
       }
     }
+  }
+
+  public createTile(
+    type: ITileTypeData,
+    row: number,
+    col: number,
+    layer: number = 1
+  ) {
+    this.tiles[`layer${layer}`][row][col] = {
+      type,
+      model: mat3.fromTranslation(
+        mat3.create(),
+        vec2.fromValues(col * this.tileSize, row * this.tileSize)
+      ),
+      position: new Vector2(col * this.tileSize, row * this.tileSize),
+      parameters: {
+        direction: new Vector2(1, 1),
+        wireframe: false,
+        grayscale: false,
+        flickering: false,
+        alpha: 1
+      }
+    };
   }
 
   public init() {
@@ -122,23 +146,35 @@ class TileMap {
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
-        if (this.tiles[r][c].type.key !== "void") {
+        if (
+          this.tiles.layer1[r][c] &&
+          this.tiles.layer1[r][c].type.key !== "void"
+        ) {
           this.atlas.render(
             viewProjectionMatrix,
-            this.tiles[r][c].model,
-            this.tiles[r][c].type.row,
-            this.tiles[r][c].type.col,
-            this.tiles[r][c].parameters
+            this.tiles.layer1[r][c].model,
+            this.tiles.layer1[r][c].type.row,
+            this.tiles.layer1[r][c].type.col,
+            this.tiles.layer1[r][c].parameters
           );
         }
       }
     }
   }
 
-  public getTileAt(x: number, y: number): ITile | undefined {
+  public getTileAt(x: number, y: number, layer: number = 1): ITile | undefined {
+    const [r, c] = this.getTileIndexesFromCoord(x, y);
+    return (
+      (this.tiles[`layer${layer}`][r] && this.tiles[`layer${layer}`][r][c]) ||
+      undefined
+    );
+  }
+
+  public getTileIndexesFromCoord(x: number, y: number): [number, number] {
     const r = Math.trunc(y / this.tileSize);
     const c = Math.trunc(x / this.tileSize);
-    return (this.tiles[r] && this.tiles[r][c]) || undefined;
+
+    return [r, c];
   }
 
   public getBoundaries(): Box2 {
