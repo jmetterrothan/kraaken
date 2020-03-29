@@ -214,14 +214,14 @@ class World {
       const coords = this.camera.screenToCameraCoords(position);
       const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
 
-      if (tile) {
-        tile.type = this.data.level.tileMap.tileTypes[
-          tile.type.key === "void" ? 1 : 0
+      if (tile.slot1) {
+        tile.slot1 = this.data.level.tileMap.tileTypes[
+          tile.slot1.key === "void" ? 1 : 0
         ];
+        tile.collision = tile.slot1.key !== "void";
       } else {
-        const [r, c] = this.tileMap.getTileIndexesFromCoord(coords.x, coords.y);
-
-        this.tileMap.createTile(this.data.level.tileMap.tileTypes[1], r, c, 1);
+        tile.slot1 = this.data.level.tileMap.tileTypes[1];
+        tile.collision = true;
       }
     } else if (active && button === 1) {
       const coords = this.camera.screenToCameraCoords(position);

@@ -5,8 +5,8 @@ import Box2Helper from "@src/shared/helper/Box2Helper";
 import Box2 from "@src/shared/math/Box2";
 import TileMap from "@src/world/TileMap";
 import World from "@src/world/World";
+import Tile from "@src/world/Tile";
 
-import { ITile } from "@shared/models/tilemap.model";
 import { IEntityData, IMovement } from "@src/shared/models/entity.model";
 
 class Entity extends AnimatedObject2d {
@@ -250,19 +250,19 @@ class Entity extends AnimatedObject2d {
     b1y: number,
     c1x: number,
     c1y: number
-  ): ITile | undefined {
+  ): Tile | undefined {
     const a = map.getTileAt(a1x, a1y, 1);
-    if (a && a.type.collision) {
+    if (a && a.collision) {
       return a;
     }
 
     const b = map.getTileAt(b1x, b1y, 1);
-    if (b && b.type.collision) {
+    if (b && b.collision) {
       return b;
     }
 
     const c = map.getTileAt(c1x, c1y, 1);
-    if (c && c.type.collision) {
+    if (c && c.collision) {
       return c;
     }
 

@@ -7,6 +7,7 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 
 import { GameStates, IGameOptions } from "@shared/models/game.model";
+
 import { configSvc } from "@shared/services/config.service";
 
 const instanceSym = Symbol("instance");
@@ -348,16 +349,19 @@ class Game {
       this.fullscreenChange,
       false
     );
+
     document.addEventListener(
       "mozfullscreenchange",
       this.fullscreenChange,
       false
     );
+
     document.addEventListener(
       "msfullscreenchange",
       this.fullscreenChange,
       false
     );
+
     document.addEventListener("fullscreenchange", this.fullscreenChange, false);
 
     window.addEventListener("blur", () => {

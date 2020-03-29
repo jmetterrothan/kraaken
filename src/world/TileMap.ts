@@ -1,27 +1,23 @@
+import { IRGBAColorData } from "@src/shared/models/color.model";
 import { create2DArray } from "./../shared/utility/Utility";
 import { ITileTypes } from "./../shared/models/tilemap.model";
-import { mat3, vec2 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
 import Sprite from "@src/animation/Sprite";
-import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
 
-import {
-  ITile,
-  ITileMapData,
-  ITileTypeData
-} from "@shared/models/tilemap.model";
+import { ITileMapData, ITileMapLayers } from "@shared/models/tilemap.model";
 import { configSvc } from "@src/shared/services/config.service";
+import Tile from "./Tile";
+
+import { gl } from "@src/Game";
 
 class TileMap {
   private startCol: number;
   private startRow: number;
   private endCol: number;
   private endRow: number;
-
-  private tileCountX: number;
-  private tileCountY: number;
 
   private readonly nbCols: number;
   private readonly nbRows: number;
@@ -33,10 +29,7 @@ class TileMap {
 
   private boundaries: Box2;
 
-  private tiles: {
-    layer1: ITile[][];
-    layer2: ITile[][];
-  };
+  private tiles: Tile[][];
 
   private atlas: Sprite;
 
@@ -55,49 +48,42 @@ class TileMap {
       this.sizeY
     );
 
-    this.tiles = {
-      layer1: create2DArray(this.nbRows, this.nbCols),
-      layer2: create2DArray(this.nbRows, this.nbCols)
-    };
+    this.tiles = create2DArray(this.nbRows, this.nbCols);
 
-    this.buildLayer(1, data.layers.layer1, data.tileTypes);
-    this.buildLayer(2, data.layers.layer2, data.tileTypes);
+    this.buildTiles(data.layers, data.tileTypes);
+
+    this.setClearColor(data.background);
   }
 
-  public buildLayer(layerId: number, tiles: number[], tileTypes: ITileTypes) {
+  public setClearColor(color: IRGBAColorData) {
+    gl.clearColor(color.r, color.g, color.b, color.a);
+  }
+
+  public buildTiles(layers: ITileMapLayers, tileTypes: ITileTypes) {
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         // convert 1d array of tiles to a 2d array
-        const id = tiles[this.getIndex(r, c)];
+        const i = this.getIndex(r, c);
 
-        if (id !== 0) {
-          this.createTile(tileTypes[id], r, c, layerId);
+        const hasCollision = layers.layer1[i] === 1;
+
+        const tile = new Tile(r, c, this.tileSize, hasCollision, {
+          wireframe: false
+        });
+
+        const type1 = layers.layer2[i];
+        if (type1 !== 0) {
+          tile.slot1 = tileTypes[type1];
         }
+
+        const type2 = layers.layer3[i];
+        if (type2 !== 0) {
+          tile.slot2 = tileTypes[type2];
+        }
+
+        this.tiles[r][c] = tile;
       }
     }
-  }
-
-  public createTile(
-    type: ITileTypeData,
-    row: number,
-    col: number,
-    layer: number = 1
-  ) {
-    this.tiles[`layer${layer}`][row][col] = {
-      type,
-      model: mat3.fromTranslation(
-        mat3.create(),
-        vec2.fromValues(col * this.tileSize, row * this.tileSize)
-      ),
-      position: new Vector2(col * this.tileSize, row * this.tileSize),
-      parameters: {
-        direction: new Vector2(1, 1),
-        wireframe: false,
-        grayscale: false,
-        flickering: false,
-        alpha: 1
-      }
-    };
   }
 
   public init() {
@@ -136,9 +122,6 @@ class TileMap {
     if (this.endRow >= this.nbRows) {
       this.endRow = this.nbRows - 1;
     }
-
-    this.tileCountX = this.endCol - this.startCol;
-    this.tileCountY = this.endRow - this.startRow;
   }
 
   public render(viewProjectionMatrix: mat3, alpha: number) {
@@ -146,28 +129,32 @@ class TileMap {
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
-        if (
-          this.tiles.layer1[r][c] &&
-          this.tiles.layer1[r][c].type.key !== "void"
-        ) {
+        if (this.tiles[r][c] && this.tiles[r][c].slot1) {
           this.atlas.render(
             viewProjectionMatrix,
-            this.tiles.layer1[r][c].model,
-            this.tiles.layer1[r][c].type.row,
-            this.tiles.layer1[r][c].type.col,
-            this.tiles.layer1[r][c].parameters
+            this.tiles[r][c].model,
+            this.tiles[r][c].slot1.row,
+            this.tiles[r][c].slot1.col,
+            this.tiles[r][c].renderOptions
+          );
+        }
+
+        if (this.tiles[r][c] && this.tiles[r][c].slot2) {
+          this.atlas.render(
+            viewProjectionMatrix,
+            this.tiles[r][c].model,
+            this.tiles[r][c].slot2.row,
+            this.tiles[r][c].slot2.col,
+            this.tiles[r][c].renderOptions
           );
         }
       }
     }
   }
 
-  public getTileAt(x: number, y: number, layer: number = 1): ITile | undefined {
+  public getTileAt(x: number, y: number, layer: number = 1): Tile | undefined {
     const [r, c] = this.getTileIndexesFromCoord(x, y);
-    return (
-      (this.tiles[`layer${layer}`][r] && this.tiles[`layer${layer}`][r][c]) ||
-      undefined
-    );
+    return this.tiles[r] ? this.tiles[r][c] : undefined;
   }
 
   public getTileIndexesFromCoord(x: number, y: number): [number, number] {
