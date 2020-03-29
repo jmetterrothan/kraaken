@@ -259,6 +259,9 @@ class Game {
   }
 
   private initEvents() {
+    // disable right click contextual menu on the canvas
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+
     // Keyboard events
     window.addEventListener(
       "keyup",
