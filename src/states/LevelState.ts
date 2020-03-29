@@ -1,23 +1,31 @@
 import { vec2 } from "gl-matrix";
 
+import Level from "@src/world/Level";
 import State from "@src/states/State";
 import World from "@src/world/World";
 
-import data from "@src/data/data";
-
 class LevelState extends State {
-  private world: World;
+  public readonly id: number;
+  private level: Level;
   private ready: boolean;
 
-  constructor() {
+  private world: World;
+
+  constructor(id: number = 1) {
     super();
-    this.world = new World(data);
+
+    this.id = id;
     this.ready = false;
   }
 
   public async init() {
     console.info("Level initialized");
+
+    this.level = new Level(this.id, await Level.loadData(this.id));
+    this.world = new World(this.level);
+
     await this.world.init();
+
     this.ready = true;
   }
 
@@ -42,31 +50,45 @@ class LevelState extends State {
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
-    this.world.handleKeyboardInput(key, active);
+    if (this.ready) {
+      this.world.handleKeyboardInput(key, active);
+    }
   }
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
-    this.world.handleMouseLeftBtnPressed(active, position);
+    if (this.ready) {
+      this.world.handleMouseLeftBtnPressed(active, position);
+    }
   }
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
-    this.world.handleMouseMiddleBtnPressed(active, position);
+    if (this.ready) {
+      this.world.handleMouseMiddleBtnPressed(active, position);
+    }
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2) {
-    this.world.handleMouseRightBtnPressed(active, position);
+    if (this.ready) {
+      this.world.handleMouseRightBtnPressed(active, position);
+    }
   }
 
   public handleMouseMove(position: vec2) {
-    this.world.handleMouseMove(position);
+    if (this.ready) {
+      this.world.handleMouseMove(position);
+    }
   }
 
   public handleFullscreenChange(b: boolean) {
-    this.world.handleFullscreenChange(b);
+    if (this.ready) {
+      this.world.handleFullscreenChange(b);
+    }
   }
 
   public handleResize() {
-    this.world.handleResize();
+    if (this.ready) {
+      this.world.handleResize();
+    }
   }
 }
 

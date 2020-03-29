@@ -2,7 +2,6 @@ import { mat3 } from "gl-matrix";
 
 import Vector2 from "@src/shared/math/Vector2";
 
-import { IRGBAColorData } from "./color.model";
 import { ISpriteRenderParameters } from "./animation.model";
 
 export interface ITileTypes {
@@ -16,7 +15,6 @@ export interface ITileMapLayers {
 }
 
 export interface ITileMapData {
-  background: IRGBAColorData;
   rows: number;
   cols: number;
   tileSize: number;

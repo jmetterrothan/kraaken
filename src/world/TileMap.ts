@@ -1,17 +1,15 @@
-import { IRGBAColorData } from "@src/shared/models/color.model";
-import { create2DArray } from "./../shared/utility/Utility";
-import { ITileTypes } from "./../shared/models/tilemap.model";
 import { mat3 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
 import Sprite from "@src/animation/Sprite";
 import World from "@src/world/World";
-
-import { ITileMapData, ITileMapLayers } from "@shared/models/tilemap.model";
-import { configSvc } from "@src/shared/services/config.service";
 import Tile from "./Tile";
 
-import { gl } from "@src/Game";
+import { create2DArray } from "./../shared/utility/Utility";
+import { ITileTypes } from "./../shared/models/tilemap.model";
+import { ITileMapData, ITileMapLayers } from "@shared/models/tilemap.model";
+
+import { configSvc } from "@src/shared/services/config.service";
 
 class TileMap {
   private startCol: number;
@@ -51,12 +49,6 @@ class TileMap {
     this.tiles = create2DArray(this.nbRows, this.nbCols);
 
     this.buildTiles(data.layers, data.tileTypes);
-
-    this.setClearColor(data.background);
-  }
-
-  public setClearColor(color: IRGBAColorData) {
-    gl.clearColor(color.r, color.g, color.b, color.a);
   }
 
   public buildTiles(layers: ITileMapLayers, tileTypes: ITileTypes) {

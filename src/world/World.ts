@@ -2,25 +2,28 @@ import { mat3, vec2 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
+import Level from "@src/world/Level";
 import Sprite from "@src/animation/Sprite";
 import Camera from "@src/Camera";
 import Entity from "@src/objects/entity/Entity";
 import NPC from "@src/objects/entity/NPC";
 import Player from "@src/objects/entity/Player";
 import DamageEffectConsummable from "@src/objects/loot/DamageEffectConsummable";
-import HealEffectConsummable from "@src/objects/loot/HealEffectConsummable";
 import Object2d from "@src/objects/Object2d";
 import TileMap from "@src/world/TileMap";
 
 import { configSvc } from "@shared/services/config.service";
 
 import { IObjectLevelData } from "@src/shared/models/entity.model";
-import { IWorldData } from "@src/shared/models/world.model";
-import { getRandomInt } from "@src/shared/utility/MathHelpers";
 import { IPlayerData } from "./../shared/models/entity.model";
+import { IRGBAColorData } from "@src/shared/models/color.model";
+
+import { getRandomInt } from "@src/shared/utility/MathHelpers";
+
+import { gl } from "@src/Game";
 
 class World {
-  public readonly data: IWorldData;
+  public readonly level: Level;
 
   protected children: Map<string, Object2d>;
 
@@ -35,8 +38,8 @@ class World {
   // physics
   private gravity: Vector2;
 
-  constructor(data: IWorldData) {
-    this.data = data;
+  constructor(level: Level) {
+    this.level = level;
 
     this.children = new Map<string, Object2d>();
 
@@ -47,9 +50,7 @@ class World {
   }
 
   public async init() {
-    const { sprites, level } = this.data;
-
-    for (const sprite of sprites) {
+    for (const sprite of this.level.sprites) {
       await Sprite.create(
         sprite.src,
         sprite.name,
@@ -59,16 +60,18 @@ class World {
     }
 
     this.gravity = new Vector2(
-      level.physics.gravity.x,
-      level.physics.gravity.y
+      this.level.world.physics.gravity.x,
+      this.level.world.physics.gravity.y
     );
 
-    this.tileMap = new TileMap(level.tileMap);
+    this.tileMap = new TileMap(this.level.world.tileMap);
     this.tileMap.init();
 
-    this.initPlayer(level.player);
-    this.initEntities(level.entities);
-    this.initLoots(level.loots);
+    this.setClearColor(this.level.world.background);
+
+    this.initPlayer(this.level.world.player);
+    this.initEntities(this.level.world.entities);
+    this.initLoots(this.level.world.loots);
 
     console.info("World initialized");
 
@@ -85,6 +88,10 @@ class World {
       }
     }, 1000);
     */
+  }
+
+  public setClearColor(color: IRGBAColorData) {
+    gl.clearColor(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
   }
 
   public add(object: Object2d) {
@@ -215,12 +222,12 @@ class World {
       const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
 
       if (tile.slot1) {
-        tile.slot1 = this.data.level.tileMap.tileTypes[
+        tile.slot1 = this.level.world.tileMap.tileTypes[
           tile.slot1.key === "void" ? 1 : 0
         ];
         tile.collision = tile.slot1.key !== "void";
       } else {
-        tile.slot1 = this.data.level.tileMap.tileTypes[1];
+        tile.slot1 = this.level.world.tileMap.tileTypes[1];
         tile.collision = true;
       }
     }
@@ -230,13 +237,13 @@ class World {
     if (active) {
       console.log("middle click");
 
-      const choices = Object.keys(this.data.loots);
+      const choices = Object.keys(this.level.loots);
       const coords = this.camera.screenToCameraCoords(position);
 
-      const lootData = this.data.loots[
+      const lootData = this.level.loots[
         choices[getRandomInt(0, choices.length)]
       ];
-      const entityData = this.data.entities[lootData.ref];
+      const entityData = this.level.entities[lootData.ref];
 
       const loot = new DamageEffectConsummable(
         coords.x,
@@ -287,7 +294,7 @@ class World {
       data.spawn.x,
       data.spawn.y,
       new Vector2(data.direction.x, data.direction.y),
-      this.data.entities[data.ref] as IPlayerData
+      this.level.entities[data.ref] as IPlayerData
     );
 
     if (data.debug) {
@@ -305,7 +312,7 @@ class World {
         spawn.x,
         spawn.y,
         new Vector2(direction.x, direction.y),
-        this.data.entities[ref]
+        this.level.entities[ref]
       );
 
       if (debug) {
@@ -318,13 +325,13 @@ class World {
   private initLoots(loots: IObjectLevelData[]) {
     for (const lootLevelData of loots) {
       const { ref, spawn, direction, debug } = lootLevelData;
-      const lootData = this.data.loots[ref];
+      const lootData = this.level.loots[ref];
 
       const loot = new DamageEffectConsummable(
         spawn.x,
         spawn.y,
         new Vector2(direction.x, direction.y),
-        this.data.entities[lootData.ref],
+        this.level.entities[lootData.ref],
         lootData.metadata
       );
 

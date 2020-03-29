@@ -12,6 +12,6 @@ export interface IGameOptions {
 
 export enum GameStates {
   MENU,
-  LEVEL,
+  LEVEL1,
   EDITOR
 }

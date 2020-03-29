@@ -1,3 +1,4 @@
+import { IRGBAColorData } from "@src/shared/models/color.model";
 import {
   IEntityData,
   ILootData,
@@ -11,6 +12,7 @@ import { IVector2Data } from "./math.model";
 export interface IWorldData {
   // level data
   level: {
+    background: IRGBAColorData;
     physics: {
       gravity: IVector2Data;
     };

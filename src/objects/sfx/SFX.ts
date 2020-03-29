@@ -3,9 +3,9 @@ import Vector2 from "@src/shared/math/Vector2";
 import Fifo from "@src/shared/utility/Fifo";
 import World from "@src/world/World";
 
-import data from "@src/data/data";
-
 class SFX extends AnimatedObject2d {
+  public static DATA = {};
+
   public static createPoolIfNotExists(name: string) {
     if (!SFX.POOL.has(name)) {
       SFX.POOL.set(name, new Fifo<SFX>());
@@ -33,7 +33,7 @@ class SFX extends AnimatedObject2d {
   private reference: string;
 
   constructor(x: number, y: number, direction: Vector2, reference: string) {
-    super(x, y, direction, data.sfx[reference]);
+    super(x, y, direction, SFX.DATA[reference]);
     this.reference = reference;
   }
 
