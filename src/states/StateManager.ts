@@ -45,7 +45,13 @@ class StateManager {
 
   public handleMousePressed(button: number, active: boolean, position: vec2) {
     if (this.currentState.initialized) {
-      this.currentState.state.handleMousePressed(button, active, position);
+      if (button === 0) {
+        this.currentState.state.handleMouseLeftBtnPressed(active, position);
+      } else if (button === 1) {
+        this.currentState.state.handleMouseMiddleBtnPressed(active, position);
+      } else if (button === 2) {
+        this.currentState.state.handleMouseRightBtnPressed(active, position);
+      }
     }
   }
 

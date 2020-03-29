@@ -19,7 +19,11 @@ class MenuState extends State {
 
   public handleKeyboardInput(key: string, active: boolean) {}
 
-  public handleMousePressed(button: number, active: boolean, position: vec2) {}
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {}
+
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {}
+
+  public handleMouseRightBtnPressed(active: boolean, position: vec2) {}
 
   public handleMouseMove(position: vec2) {}
 

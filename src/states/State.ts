@@ -13,11 +13,11 @@ abstract class State {
 
   public abstract handleKeyboardInput(key: string, active: boolean);
 
-  public abstract handleMousePressed(
-    button: number,
-    active: boolean,
-    position: vec2
-  );
+  public abstract handleMouseLeftBtnPressed(active: boolean, position: vec2);
+
+  public abstract handleMouseMiddleBtnPressed(active: boolean, position: vec2);
+
+  public abstract handleMouseRightBtnPressed(active: boolean, position: vec2);
 
   public abstract handleMouseMove(position: vec2);
 

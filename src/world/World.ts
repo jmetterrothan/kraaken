@@ -207,16 +207,6 @@ class World {
     this.player.handleKeyboardInput(key, active);
   }
 
-  public handleMousePressed(button: number, active: boolean, position: vec2) {
-    if (button === 0) {
-      this.handleMouseLeftBtnPressed(active, position);
-    } else if (button === 1) {
-      this.handleMouseMiddleBtnPressed(active, position);
-    } else if (button === 2) {
-      this.handleMouseRightBtnPressed(active, position);
-    }
-  }
-
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
       console.log("left click");

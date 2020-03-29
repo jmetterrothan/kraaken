@@ -43,8 +43,16 @@ class LevelState extends State {
     this.world.handleKeyboardInput(key, active);
   }
 
-  public handleMousePressed(button: number, active: boolean, position: vec2) {
-    this.world.handleMousePressed(button, active, position);
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseLeftBtnPressed(active, position);
+  }
+
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseMiddleBtnPressed(active, position);
+  }
+
+  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseRightBtnPressed(active, position);
   }
 
   public handleMouseMove(position: vec2) {
