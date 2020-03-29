@@ -5,7 +5,7 @@ abstract class State {
 
   public abstract mounted();
 
-  public abstract dismounted();
+  public abstract unmounted();
 
   public abstract update(delta: number);
 

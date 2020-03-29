@@ -11,7 +11,7 @@ class MenuState extends State {
 
   public mounted() {}
 
-  public dismounted() {}
+  public unmounted() {}
 
   public update(delta: number) {}
 

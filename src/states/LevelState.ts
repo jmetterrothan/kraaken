@@ -25,7 +25,9 @@ class LevelState extends State {
     console.info("Level mounted");
   }
 
-  public dismounted() {}
+  public unmounted() {
+    console.info("Level unmounted");
+  }
 
   public update(delta: number) {
     if (this.ready) {

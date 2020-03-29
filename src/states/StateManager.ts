@@ -83,7 +83,7 @@ class StateManager {
     }
 
     if (this.states.has(this.currentIndex)) {
-      this.currentState.state.dismounted();
+      this.currentState.state.unmounted();
     }
 
     this.currentIndex = index;
