@@ -19,6 +19,7 @@ class Camera extends Object2d {
 
   private target: Object2d;
   private zoom: number;
+  private dampingFactor: number;
 
   constructor() {
     super(0, 0);
@@ -31,6 +32,7 @@ class Camera extends Object2d {
 
     this.visible = false;
     this.zoom = 1;
+    this.dampingFactor = 0.25;
   }
 
   public follow(target: Object2d) {
@@ -116,8 +118,11 @@ class Camera extends Object2d {
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
-      const dist = center.floor().sub(this.getPosition());
-      const v = dist.divideScalar(1).multiplyScalar(delta);
+      const dist = center.sub(this.getPosition());
+      const v = dist
+        .multiplyScalar(this.zoom * this.dampingFactor)
+        .multiplyScalar(delta)
+        .trunc();
 
       this.setPosition(this.getX() + v.x, this.getY() + v.y);
 
@@ -127,8 +132,6 @@ class Camera extends Object2d {
         lerp(this.getY(), Math.floor(center.y), delta)
       );
       */
-
-      this.clamp(world.getBoundaries());
 
       this.clamp(world.getBoundaries());
     }
@@ -145,7 +148,10 @@ class Camera extends Object2d {
 
       mat3.fromTranslation(
         offset,
-        vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2)
+        vec2.fromValues(
+          Math.trunc(configSvc.innerSize.w / 2),
+          Math.trunc(configSvc.innerSize.h / 2)
+        )
       );
       mat3.fromTranslation(
         position,

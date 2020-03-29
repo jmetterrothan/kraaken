@@ -122,7 +122,7 @@ const data: IWorldData = {
       ref: "fox",
       spawn: { x: (49 * 16) / 2, y: 4 * 16 },
       direction: { x: 1, y: 1 },
-      debug: true
+      debug: false
     },
     loots: [
       {
