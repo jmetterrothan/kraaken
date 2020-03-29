@@ -18,7 +18,6 @@ class Camera extends Object2d {
   private viewBox: Box2;
 
   private target: Object2d;
-  private speed: Vector2;
   private zoom: number;
 
   constructor() {
@@ -31,7 +30,6 @@ class Camera extends Object2d {
     this.viewBox = new Box2();
 
     this.visible = false;
-    this.speed = new Vector2(4, 2);
     this.zoom = 1;
   }
 
@@ -118,10 +116,19 @@ class Camera extends Object2d {
     if (this.target) {
       const center: Vector2 = this.target.getPosition();
 
+      const dist = center.floor().sub(this.getPosition());
+      const v = dist.divideScalar(1).multiplyScalar(delta);
+
+      this.setPosition(this.getX() + v.x, this.getY() + v.y);
+
+      /*
       this.setPosition(
-        Math.floor(lerp(this.getX(), center.x, this.speed.x * delta)),
-        Math.floor(lerp(this.getY(), center.y, this.speed.y * delta))
+        lerp(this.getX(), Math.floor(center.x), delta),
+        lerp(this.getY(), Math.floor(center.y), delta)
       );
+      */
+
+      this.clamp(world.getBoundaries());
 
       this.clamp(world.getBoundaries());
     }
