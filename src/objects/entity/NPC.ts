@@ -36,6 +36,7 @@ class NPC extends Entity {
       mat3.create(),
       this.getPosition()
         .add(offset)
+        .trunc()
         .toGlArray()
     );
   }

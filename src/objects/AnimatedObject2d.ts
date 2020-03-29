@@ -78,6 +78,7 @@ class AnimatedObject2d extends Object2d {
       mat3.create(),
       this.getPosition()
         .add(this.animation.getOffset())
+        .trunc()
         .toGlArray()
     );
   }

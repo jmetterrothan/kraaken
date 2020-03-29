@@ -156,6 +156,7 @@ class Camera extends Object2d {
       mat3.fromTranslation(
         position,
         this.getPosition()
+          .trunc()
           .negate()
           .toGlArray()
       );

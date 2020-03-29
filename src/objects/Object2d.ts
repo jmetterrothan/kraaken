@@ -198,7 +198,9 @@ class Object2d {
   protected updateModelMatrix() {
     this.modelMatrix = mat3.fromTranslation(
       mat3.create(),
-      this.getPosition().toGlArray()
+      this.getPosition()
+        .trunc()
+        .toGlArray()
     );
   }
 }

@@ -117,6 +117,7 @@ class Player extends Entity implements IMovement {
       mat3.create(),
       this.getPosition()
         .add(offset)
+        .trunc()
         .toGlArray()
     );
   }
