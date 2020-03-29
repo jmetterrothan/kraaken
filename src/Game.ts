@@ -262,7 +262,9 @@ class Game {
     // Keyboard events
     window.addEventListener(
       "keyup",
-      e => this.stateManager.handleKeyboardInput(e.key, false),
+      e => {
+        this.stateManager.handleKeyboardInput(e.key, false);
+      },
       false
     );
     window.addEventListener(

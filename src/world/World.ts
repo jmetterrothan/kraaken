@@ -208,9 +208,19 @@ class World {
   }
 
   public handleMousePressed(button: number, active: boolean, position: vec2) {
-    const choices = Object.keys(this.data.loots);
+    if (button === 0) {
+      this.handleMouseLeftBtnPressed(active, position);
+    } else if (button === 1) {
+      this.handleMouseMiddleBtnPressed(active, position);
+    } else if (button === 2) {
+      this.handleMouseRightBtnPressed(active, position);
+    }
+  }
 
-    if (active && button === 0) {
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+    console.log("left click");
+
+    if (active) {
       const coords = this.camera.screenToCameraCoords(position);
       const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
 
@@ -223,7 +233,14 @@ class World {
         tile.slot1 = this.data.level.tileMap.tileTypes[1];
         tile.collision = true;
       }
-    } else if (active && button === 1) {
+    }
+  }
+
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+    console.log("middle click");
+
+    if (active) {
+      const choices = Object.keys(this.data.loots);
       const coords = this.camera.screenToCameraCoords(position);
 
       const lootData = this.data.loots[
@@ -242,11 +259,13 @@ class World {
     }
   }
 
+  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+    console.log("right click");
+  }
+
   public handleMouseMove(position: vec2) {
-    /*
-    const coords = this.camera.screenToCameraCoords(position);
-    console.log(coords.distanceTo(this.player.getPosition()));
-    */
+    // const coords = this.camera.screenToCameraCoords(position);
+    // console.log(coords.distanceTo(this.player.getPosition()));
   }
 
   public handleFullscreenChange(b: boolean) {}
