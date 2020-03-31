@@ -21,6 +21,7 @@ class TileMap {
   private readonly nbRows: number;
 
   private readonly tileSize: number;
+  private readonly tileSet: string;
 
   private readonly sizeX: number;
   private readonly sizeY: number;
@@ -35,6 +36,7 @@ class TileMap {
     this.nbCols = data.cols;
     this.nbRows = data.rows;
     this.tileSize = data.tileSize;
+    this.tileSet = data.tileSet;
 
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
@@ -79,7 +81,7 @@ class TileMap {
   }
 
   public init() {
-    this.atlas = Sprite.get("tileset");
+    this.atlas = Sprite.get(this.tileSet);
   }
 
   public getIndex(row: number, col: number): number {

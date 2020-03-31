@@ -18,6 +18,7 @@ export interface ITileMapData {
   rows: number;
   cols: number;
   tileSize: number;
+  tileSet: string;
   tileTypes: ITileTypes;
   layers: ITileMapLayers;
 }
