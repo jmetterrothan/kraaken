@@ -13,6 +13,7 @@ class Player extends Entity implements IMovement {
   protected right: boolean;
   protected up: boolean;
   protected down: boolean;
+  protected usePrimaryWeapon: boolean;
 
   protected acceleration: Vector2;
   protected deceleration: Vector2;
@@ -28,6 +29,7 @@ class Player extends Entity implements IMovement {
     this.right = false;
     this.up = false;
     this.down = false;
+    this.usePrimaryWeapon = false;
 
     this.acceleration = new Vector2(
       data.acceleration.x || 0,
@@ -102,6 +104,10 @@ class Player extends Entity implements IMovement {
       case "ArrowDown":
         this.down = active;
         break;
+
+      case " ":
+        this.usePrimaryWeapon = active;
+        break;
     }
   }
 
@@ -124,15 +130,18 @@ class Player extends Entity implements IMovement {
 
   protected updateCurrentAnimationKey(): string {
     if (this.falling) {
-      return CharacterAnimationKeys.falling;
+      return CharacterAnimationKeys.FALLING;
     }
     if (this.jumping) {
-      return CharacterAnimationKeys.jumping;
+      return CharacterAnimationKeys.JUMPING;
+    }
+    if (this.usePrimaryWeapon) {
+      return CharacterAnimationKeys.USE_PRIMARY_WEAPON;
     }
     if (this.left || this.right) {
-      return CharacterAnimationKeys.walking;
+      return CharacterAnimationKeys.WALKING;
     }
-    return CharacterAnimationKeys.idle;
+    return CharacterAnimationKeys.IDLE;
   }
 }
 

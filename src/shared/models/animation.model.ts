@@ -30,8 +30,9 @@ export interface ISpriteRenderParameters {
 }
 
 export enum CharacterAnimationKeys {
-  idle = "idle",
-  walking = "walking",
-  falling = "falling",
-  jumping = "jumping"
+  IDLE = "idle",
+  WALKING = "walking",
+  FALLING = "falling",
+  JUMPING = "jumping",
+  USE_PRIMARY_WEAPON = "use_primary_weapon"
 }
