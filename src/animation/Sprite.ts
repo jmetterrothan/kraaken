@@ -1,4 +1,4 @@
-import { mat3, vec2, vec3, vec4 } from "gl-matrix";
+import { mat3, vec4 } from "gl-matrix";
 
 import md5 from "md5";
 
@@ -122,7 +122,7 @@ class Sprite {
       a_texture_coord: gl.getAttribLocation(
         this.textureMaterial.program,
         "a_texture_coord"
-      )
+      ),
     };
 
     this.uniforms = {
@@ -132,7 +132,7 @@ class Sprite {
       u_wireframe: { type: "1i", value: false },
       u_grayscale: { type: "1i", value: false },
       u_image: { type: "1i", value: undefined },
-      u_alpha: { type: "1f", value: 1 }
+      u_alpha: { type: "1f", value: 1 },
     };
   }
 
@@ -202,7 +202,7 @@ class Sprite {
       (((col + (direction.x === -1 ? 1 : 0)) * this.tileWidth) / this.width) *
         direction.x,
       (((row + (direction.y === -1 ? 1 : 0)) * this.tileHeight) / this.height) *
-        direction.y
+        direction.y,
     ];
   }
 

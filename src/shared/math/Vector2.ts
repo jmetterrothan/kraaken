@@ -153,6 +153,13 @@ class Vector2 {
     return this;
   }
 
+  public abs(): Vector2 {
+    this.x = Math.abs(this.x);
+    this.y = Math.abs(this.y);
+
+    return this;
+  }
+
   public dot(v: Vector2): number {
     return this.x * v.x + this.y * v.y;
   }
@@ -188,9 +195,7 @@ class Vector2 {
   }
 
   public lerpVectors(v1: Vector2, v2: Vector2, a: number): Vector2 {
-    return this.subVectors(v2, v1)
-      .multiplyScalar(a)
-      .add(v1);
+    return this.subVectors(v2, v1).multiplyScalar(a).add(v1);
   }
 
   public equals(v: Vector2): boolean {

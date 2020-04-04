@@ -16,8 +16,6 @@ let wrapper: HTMLElement;
 let canvas: HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
 
-let currentState: GameStates;
-
 class Game {
   set fullscreen(b: boolean) {
     if (b) {
@@ -219,12 +217,11 @@ class Game {
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
-    // this.stateManager.add(GameStates.LEVEL1, new LevelState(1));
+    this.stateManager.add(GameStates.LEVEL1, new LevelState(1));
     this.stateManager.add(GameStates.LEVEL2, new LevelState(2));
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.LEVEL2);
-    currentState = GameStates.LEVEL2;
+    this.stateManager.switch(GameStates.LEVEL1);
 
     this.resize(this.options.width, this.options.height);
   }

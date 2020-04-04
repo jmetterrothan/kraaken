@@ -73,6 +73,18 @@ class World {
     this.initEntities(this.level.world.entities);
     this.initLoots(this.level.world.loots);
 
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        this.entities.forEach((entity) => {
+          if (entity instanceof NPC) {
+            entity.hasTarget(this.player)
+              ? entity.unfollow()
+              : entity.follow(this.player);
+          }
+        });
+      }
+    });
+
     console.info("World initialized");
 
     /*
@@ -151,7 +163,7 @@ class World {
 
     this.tileMap.render(viewProjectionMatrix, alpha);
 
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       child.render(viewProjectionMatrix, alpha);
     });
 
