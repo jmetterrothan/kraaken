@@ -60,6 +60,22 @@ class Tile {
       ...options
     };
   }
+
+  public getX1() {
+    return this.position.x;
+  }
+
+  public getX2() {
+    return this.position.x + this.size;
+  }
+
+  public getY1() {
+    return this.position.y;
+  }
+
+  public getY2() {
+    return this.position.y + this.size;
+  }
 }
 
 export default Tile;
