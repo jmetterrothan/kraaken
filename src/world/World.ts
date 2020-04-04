@@ -216,8 +216,6 @@ class World {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
-      console.log("left click");
-
       const coords = this.camera.screenToCameraCoords(position);
       const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
 
@@ -235,8 +233,6 @@ class World {
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
     if (active) {
-      console.log("middle click");
-
       const choices = Object.keys(this.level.loots);
       const coords = this.camera.screenToCameraCoords(position);
 
@@ -258,7 +254,7 @@ class World {
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2) {
     if (active) {
-      console.log("right click");
+      // console.log("right click");
     }
   }
 
