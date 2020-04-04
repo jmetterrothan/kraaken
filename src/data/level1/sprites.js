@@ -1,24 +1,32 @@
-import tileset from "./assets/textures/tileset.png";
-import atlas32x32 from "./assets/textures/atlas32x32.png";
-import atlas48x48 from "./assets/textures/atlas48x48.png";
-
 export default [
   {
-    src: tileset,
-    name: "tileset",
+    src: require("./assets/graphics/enemies.png").default,
+    name: "enemies",
     tileWidth: 16,
-    tileHeight: 16
+    tileHeight: 16,
   },
   {
-    src: atlas32x32,
-    name: "atlas",
-    tileWidth: 32,
-    tileHeight: 32
+    src: require("./assets/graphics/items.png").default,
+    name: "items",
+    tileWidth: 16,
+    tileHeight: 16,
   },
   {
-    src: atlas48x48,
-    name: "atlas2",
-    tileWidth: 48,
-    tileHeight: 48
-  }
+    src: require("./assets/graphics/meter.png").default,
+    name: "meter",
+    tileWidth: 16,
+    tileHeight: 16,
+  },
+  {
+    src: require("./assets/graphics/player2.png").default,
+    name: "player",
+    tileWidth: 16,
+    tileHeight: 16,
+  },
+  {
+    src: require("./assets/graphics/tiles.png").default,
+    name: "tiles",
+    tileWidth: 16,
+    tileHeight: 16,
+  },
 ];
