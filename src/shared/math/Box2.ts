@@ -89,30 +89,42 @@ class Box2 {
   public getMinX(): number {
     return this.min.x;
   }
+
   public getMaxX(): number {
     return this.max.x;
   }
+
   public getMinY(): number {
     return this.min.y;
   }
+
   public getMaxY(): number {
     return this.max.y;
   }
+
   public getCenterX(): number {
-    return this.min.x + (this.max.x - this.min.x) / 2;
+    return this.min.x + this.getWidth() / 2;
   }
+
   public getCenterY(): number {
-    return this.min.y + (this.max.y - this.min.y) / 2;
+    return this.min.y + this.getHeight() / 2;
   }
 
   public getCenter(): Vector2 {
-    return this.min
-      .clone()
-      .addVectors(this.min, this.max)
-      .multiplyScalar(0.5);
+    return new Vector2(this.getCenterX(), this.getCenterY());
   }
+
   public createHelper(color: Color = new Color(1, 0, 0)): Box2Helper {
     return new Box2Helper(this, color);
+  }
+
+  public clone(): Box2 {
+    return new Box2(
+      this.getCenterX(),
+      this.getCenterY(),
+      this.getWidth(),
+      this.getHeight()
+    );
   }
 }
 
