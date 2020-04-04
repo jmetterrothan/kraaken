@@ -16,6 +16,8 @@ let wrapper: HTMLElement;
 let canvas: HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
 
+let currentState: GameStates;
+
 class Game {
   set fullscreen(b: boolean) {
     if (b) {
@@ -56,7 +58,7 @@ class Game {
     allowFullscreen: true,
     height: 600,
     width: 800,
-    root: undefined
+    root: undefined,
   };
 
   private options: IGameOptions;
@@ -217,10 +219,12 @@ class Game {
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
-    this.stateManager.add(GameStates.LEVEL1, new LevelState(1));
+    // this.stateManager.add(GameStates.LEVEL1, new LevelState(1));
+    this.stateManager.add(GameStates.LEVEL2, new LevelState(2));
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.LEVEL1);
+    this.stateManager.switch(GameStates.LEVEL2);
+    currentState = GameStates.LEVEL2;
 
     this.resize(this.options.width, this.options.height);
   }
@@ -260,19 +264,19 @@ class Game {
 
   private initEvents() {
     // disable right click contextual menu on the canvas
-    canvas.addEventListener("contextmenu", e => e.preventDefault());
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Keyboard events
     window.addEventListener(
       "keyup",
-      e => {
+      (e) => {
         this.stateManager.handleKeyboardInput(e.key, false);
       },
       false
     );
     window.addEventListener(
       "keydown",
-      e => {
+      (e) => {
         switch (e.key) {
           case "F11":
             e.preventDefault();
