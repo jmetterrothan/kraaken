@@ -62,7 +62,7 @@ class TileMap {
         const hasCollision = layers.layer1[i] === 1;
 
         const tile = new Tile(r, c, this.tileSize, hasCollision, {
-          wireframe: false
+          wireframe: false,
         });
 
         const type1 = layers.layer2[i];

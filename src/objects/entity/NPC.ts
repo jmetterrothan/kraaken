@@ -1,5 +1,6 @@
 import { mat3 } from "gl-matrix";
 
+import TileMap from "@src/world/TileMap";
 import Entity from "@src/objects/entity/Entity";
 import Object2d from "@src/objects/Object2d";
 import Vector2 from "@src/shared/math/Vector2";
@@ -35,12 +36,50 @@ class NPC extends Entity {
     this.target = this.spawn;
   }
 
+  public canSeeObject(map: TileMap, object: Object2d): boolean {
+    if (this.target instanceof Object2d) {
+      const steps = 32;
+
+      const targetPos = object.getPosition();
+      const pos = this.getPosition();
+
+      const d = targetPos.distanceTo(pos);
+
+      if (d > 250) {
+        return false;
+      }
+
+      const dist = targetPos.clone().sub(pos.clone());
+      const v = dist.divideScalar(steps);
+
+      // raycast
+      for (let i = 0, n = steps; i < n; i++) {
+        const tile = map.getTileAt(pos.x, pos.y);
+
+        if (tile && tile.collision) {
+          return false;
+        }
+
+        pos.add(v);
+      }
+    }
+
+    return true;
+  }
+
   public hasTarget(target: Object2d): boolean {
     return this.target === target;
   }
 
   public move(world: World, delta: number): void {
-    if (this.target instanceof Object2d) {
+    if (this.canSeeObject(world.getTileMap(), world.getPlayer())) {
+      this.follow(world.getPlayer());
+    } else {
+      this.unfollow();
+    }
+
+    // this.target instanceof Object2d &&
+    if (this.target) {
       const pos = this.getPosition();
       const targetPos = this.target.getPosition();
 
@@ -53,13 +92,18 @@ class NPC extends Entity {
 
       const dist = pos.sub(targetPos).trunc();
 
-      if (dist.x > this.acceleration.x) {
+      const left = dist.x > this.acceleration.x;
+      const right = dist.x < -this.acceleration.x;
+      const top = dist.y > this.acceleration.y;
+      const bottom = dist.y < -this.acceleration.y;
+
+      if (left) {
         this.velocity.x -= this.acceleration.x;
 
         if (this.velocity.x < -this.speed.x) {
           this.velocity.x = -this.speed.x;
         }
-      } else if (dist.x < -this.acceleration.x) {
+      } else if (right) {
         this.velocity.x += this.acceleration.x;
 
         if (this.velocity.x > this.speed.x) {
@@ -80,13 +124,13 @@ class NPC extends Entity {
         }
       }
 
-      if (dist.y > this.acceleration.y) {
+      if (top) {
         this.velocity.y -= this.acceleration.y;
 
         if (this.velocity.y < -this.speed.y) {
           this.velocity.y = -this.speed.y;
         }
-      } else if (dist.y < -this.acceleration.y) {
+      } else if (bottom) {
         this.velocity.y += this.acceleration.y;
 
         if (this.velocity.y > this.speed.y) {
