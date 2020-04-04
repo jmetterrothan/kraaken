@@ -121,10 +121,7 @@ class Player extends Entity implements IMovement {
 
     this.modelMatrix = mat3.fromTranslation(
       mat3.create(),
-      this.getPosition()
-        .add(offset)
-        .trunc()
-        .toGlArray()
+      this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray()
     );
   }
 

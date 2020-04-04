@@ -38,12 +38,15 @@ class Box2Helper extends Object2d {
     this.ibo = gl.createBuffer();
 
     this.attributes = {
-      a_position: gl.getAttribLocation(this.colorMaterial.program, "a_position")
+      a_position: gl.getAttribLocation(
+        this.colorMaterial.program,
+        "a_position"
+      ),
     };
 
     this.uniforms = {
       u_mvp: { type: "Matrix3fv", value: undefined },
-      u_color: { type: "4fv", value: undefined }
+      u_color: { type: "4fv", value: undefined },
     };
 
     this.init();
@@ -120,6 +123,13 @@ class Box2Helper extends Object2d {
   private setUniform(key: string, value: any) {
     this.uniforms[key].value = value;
     WebGL2H.setUniform(gl, this.uniforms[key]);
+  }
+
+  protected updateModelMatrix() {
+    this.modelMatrix = mat3.fromTranslation(
+      mat3.create(),
+      this.getPosition().toGlArray()
+    );
   }
 }
 

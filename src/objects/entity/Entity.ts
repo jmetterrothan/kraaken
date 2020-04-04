@@ -1,3 +1,5 @@
+import { mat3 } from "gl-matrix";
+
 import Vector2 from "@shared/math/Vector2";
 import AnimatedObject2d from "@src/objects/AnimatedObject2d";
 import Object2d from "@src/objects/Object2d";
@@ -65,7 +67,7 @@ class Entity extends AnimatedObject2d {
     const velocity = this.velocity.clone().multiplyScalar(delta);
     const newPosition = this.getPosition().add(velocity);
 
-    if (this.velocity.x > 0) {
+    if (velocity.x > 0) {
       // right collision
       const tile = this.testForCollision(
         map,
@@ -78,10 +80,10 @@ class Entity extends AnimatedObject2d {
       );
 
       if (tile) {
-        newPosition.x = tile.position.x - w / 2 - 0.01;
+        newPosition.x = tile.position.x - w / 2 - 0.001;
         this.velocity.x = 0;
       }
-    } else if (this.velocity.x < 0) {
+    } else if (velocity.x < 0) {
       // left collision
       const tile = this.testForCollision(
         map,
@@ -99,7 +101,7 @@ class Entity extends AnimatedObject2d {
       }
     }
 
-    if (this.velocity.y > 0) {
+    if (velocity.y > 0) {
       // bottom collision
       const tile = this.testForCollision(
         map,
@@ -111,11 +113,11 @@ class Entity extends AnimatedObject2d {
         y2 + velocity.y
       );
 
-      if (tile !== undefined) {
+      if (tile) {
         newPosition.y = tile.position.y - h / 2 - 0.01;
         this.velocity.y = 0;
       }
-    } else if (this.velocity.y < 0) {
+    } else if (velocity.y < 0) {
       // top collision
       const tile = this.testForCollision(
         map,
@@ -149,10 +151,7 @@ class Entity extends AnimatedObject2d {
 
     // change direction based of new velocity
     if (this.velocity.x !== 0 || this.velocity.y !== 0) {
-      const direction = this.velocity
-        .clone()
-        .setY(0)
-        .normalize();
+      const direction = this.velocity.clone().setY(0).normalize();
 
       if (direction.x !== 0) {
         this.parameters.direction.x = direction.x;
@@ -221,9 +220,7 @@ class Entity extends AnimatedObject2d {
 
   public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
     const t = this.getVelocity().multiplyScalar(delta);
-    return this.getPosition()
-      .lerp(this.getPosition().add(t), alpha)
-      .ceil();
+    return this.getPosition().lerp(this.getPosition().add(t), alpha).ceil();
   }
 
   public showDebug() {
@@ -251,22 +248,31 @@ class Entity extends AnimatedObject2d {
     c1x: number,
     c1y: number
   ): Tile | undefined {
-    const a = map.getTileAt(a1x, a1y, 1);
+    const a = map.getTileAt(a1x, a1y);
     if (a && a.collision) {
       return a;
     }
 
-    const b = map.getTileAt(b1x, b1y, 1);
+    const b = map.getTileAt(b1x, b1y);
     if (b && b.collision) {
       return b;
     }
 
-    const c = map.getTileAt(c1x, c1y, 1);
+    const c = map.getTileAt(c1x, c1y);
     if (c && c.collision) {
       return c;
     }
 
     return undefined;
+  }
+
+  protected updateModelMatrix() {
+    const offset = this.animation.getOffset();
+
+    this.modelMatrix = mat3.fromTranslation(
+      mat3.create(),
+      this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray()
+    );
   }
 }
 
