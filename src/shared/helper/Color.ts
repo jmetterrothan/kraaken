@@ -1,4 +1,4 @@
-import { vec4 } from "gl-matrix";
+import { vec3, vec4 } from "gl-matrix";
 
 import { IRGBAColorData } from "@src/shared/models/color.model";
 
@@ -39,6 +39,10 @@ class Color {
   }
   set a(value: number) {
     this.v[3] = value;
+  }
+
+  public toVec3(): vec3 {
+    return vec3.fromValues(this.r, this.g, this.b);
   }
 
   public toVec4(): vec4 {
