@@ -1,4 +1,4 @@
-import { mat3, vec4 } from "gl-matrix";
+import { mat3, vec4, vec3 } from "gl-matrix";
 
 import md5 from "md5";
 
@@ -60,7 +60,7 @@ class Sprite {
     return Sprite.LOADED_SPRITES.get(alias);
   }
 
-  protected static WIREFRAME_COLOR: vec4 = vec4.fromValues(0, 0, 0, 1);
+  protected static WIREFRAME_COLOR: vec3 = vec3.fromValues(0, 0, 0);
   protected static CURRENT_SPRITE: string;
 
   private static LOADED_SPRITES: Map<string, Sprite> = new Map<
@@ -128,8 +128,8 @@ class Sprite {
     this.uniforms = {
       u_mvp: { type: "Matrix3fv", value: undefined },
       u_frame: { type: "2fv", value: undefined },
-      u_color: { type: "4fv", value: undefined },
-      u_wireframe: { type: "1i", value: false },
+      u_color: { type: "3fv", value: undefined },
+      u_fill: { type: "1i", value: false },
       u_grayscale: { type: "1i", value: false },
       u_image: { type: "1i", value: undefined },
       u_alpha: { type: "1f", value: 1 },
@@ -177,16 +177,18 @@ class Sprite {
     if (this.loaded) {
       this.setUniform("u_alpha", parameters.alpha);
       this.setUniform("u_grayscale", parameters.grayscale);
-      this.setUniform("u_wireframe", parameters.wireframe);
-      this.setUniform("u_color", Sprite.WIREFRAME_COLOR);
+      this.setUniform("u_fill", parameters.fill);
+      this.setUniform("u_color", parameters.color || Sprite.WIREFRAME_COLOR);
       this.setUniform(
         "u_mvp",
         mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix)
       );
-      this.setUniform(
-        "u_frame",
-        this.getFrameCoords(row, col, parameters.direction)
-      );
+      if (!parameters.fill) {
+        this.setUniform(
+          "u_frame",
+          this.getFrameCoords(row, col, parameters.direction)
+        );
+      }
 
       gl.drawElements(
         parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN,

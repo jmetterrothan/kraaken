@@ -46,7 +46,7 @@ class Box2Helper extends Object2d {
 
     this.uniforms = {
       u_mvp: { type: "Matrix3fv", value: undefined },
-      u_color: { type: "4fv", value: undefined },
+      u_color: { type: "3fv", value: undefined },
     };
 
     this.init();
@@ -111,7 +111,7 @@ class Box2Helper extends Object2d {
       "u_mvp",
       mat3.multiply(mat3.create(), viewProjectionMatrix, this.modelMatrix)
     );
-    this.setUniform("u_color", this.color.toVec4());
+    this.setUniform("u_color", this.color.toVec3());
 
     gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
   }

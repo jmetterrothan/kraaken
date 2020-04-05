@@ -1,7 +1,9 @@
-import { mat3, vec2 } from "gl-matrix";
+import { mat3, vec2, vec3 } from "gl-matrix";
+
+import Vector2 from "@src/shared/math/Vector2";
 
 import { ITileTypeData } from "@src/shared/models/tilemap.model";
-import Vector2 from "@src/shared/math/Vector2";
+import { ISpriteRenderParameters } from "@shared/models/animation.model";
 
 interface TileOptions {
   collision?: boolean;
@@ -21,13 +23,7 @@ class Tile {
 
   public collision: boolean;
 
-  public renderOptions: {
-    direction: Vector2;
-    wireframe: boolean;
-    grayscale: boolean;
-    flickering: boolean;
-    alpha: number;
-  };
+  public renderOptions: ISpriteRenderParameters;
 
   public slot1: ITileTypeData;
   public slot2: ITileTypeData;
@@ -52,12 +48,14 @@ class Tile {
     this.position = new Vector2(col * size, row * size);
 
     this.renderOptions = {
+      fill: false,
       wireframe: false,
       grayscale: false,
       flickering: false,
       alpha: 1,
+      color: vec3.fromValues(1, 0, 0),
       direction: new Vector2(1, 1),
-      ...options
+      ...options,
     };
   }
 

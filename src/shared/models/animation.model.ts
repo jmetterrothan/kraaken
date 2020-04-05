@@ -1,3 +1,5 @@
+import { vec3 } from "gl-matrix";
+
 import Vector2 from "@shared/math/Vector2";
 import Animation from "@src/animation/Animation";
 
@@ -26,7 +28,9 @@ export interface ISpriteRenderParameters {
   wireframe: boolean;
   grayscale: boolean;
   direction: Vector2;
+  fill?: boolean;
   alpha: number;
+  color?: vec3;
 }
 
 export enum CharacterAnimationKeys {
@@ -34,5 +38,5 @@ export enum CharacterAnimationKeys {
   WALKING = "walking",
   FALLING = "falling",
   JUMPING = "jumping",
-  USE_PRIMARY_WEAPON = "use_primary_weapon"
+  USE_PRIMARY_WEAPON = "use_primary_weapon",
 }

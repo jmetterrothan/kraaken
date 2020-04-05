@@ -5,7 +5,7 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import {
   IAnimationData,
-  IAnimationFrame
+  IAnimationFrame,
 } from "@shared/models/animation.model";
 import { ISpriteRenderParameters } from "./../shared/models/animation.model";
 

@@ -5,9 +5,9 @@ precision mediump float;
 in vec2 v_texture_coord;
 
 uniform float u_alpha;
-uniform vec4 u_color;
+uniform vec3 u_color;
 uniform sampler2D u_image;
-uniform bool u_wireframe;
+uniform bool u_fill;
 uniform bool u_grayscale;
 
 out vec4 fragColor;
@@ -18,7 +18,7 @@ vec4 toGrayscale(vec4 c) {
 }
 
 vec4 color() {
-    vec4 c = u_wireframe ? u_color : texture(u_image, v_texture_coord);
+    vec4 c = u_fill ? vec4(u_color, 1) : texture(u_image, v_texture_coord);
 
     if (u_grayscale) {
         c = toGrayscale(c);

@@ -150,5 +150,5 @@ export default {
   createProgram,
   setUniforms,
   setUniform,
-  createQuadVertices
+  createQuadVertices,
 };
