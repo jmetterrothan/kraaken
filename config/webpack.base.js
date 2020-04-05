@@ -12,13 +12,13 @@ module.exports = {
     bundle: [
       "@babel/polyfill",
       path.join(PATHS.SRC, "index.tsx"),
-      path.join(PATHS.SASS, "main.scss")
-    ]
+      path.join(PATHS.SASS, "main.scss"),
+    ],
   },
   resolve: {
     modules: ["node_modules", PATHS.SRC],
-    extensions: [".ts", ".js", ".json", ".scss", ".css"],
-    alias: { ...ALIAS }
+    extensions: [".ts", ".tsx", ".js", ".json", ".scss", ".css"],
+    alias: { ...ALIAS },
   },
   module: {
     rules: [
@@ -26,7 +26,7 @@ module.exports = {
         test: /\.tsx?$/,
         enforce: "pre",
         exclude: "/node_modules/",
-        use: [{ loader: "babel-loader" }, { loader: "tslint-loader" }]
+        use: [{ loader: "babel-loader" }, { loader: "tslint-loader" }],
       },
       {
         test: /\.(css|scss|sass)$/,
@@ -42,21 +42,23 @@ module.exports = {
                     ">1%",
                     "last 4 versions",
                     "Firefox ESR",
-                    "not ie < 9"
+                    "not ie < 9",
                   ],
-                  flexbox: "no-2009"
-                })
-              ]
-            }
+                  flexbox: "no-2009",
+                }),
+              ],
+            },
           },
           "sass-loader",
           {
             loader: "sass-resources-loader",
             options: {
-              resources: [path.join(PATHS.SASS, "abstracts", "_variables.scss")]
-            }
-          }
-        ]
+              resources: [
+                path.join(PATHS.SASS, "abstracts", "_variables.scss"),
+              ],
+            },
+          },
+        ],
       },
       {
         test: /\.(png|jpe?g)$/,
@@ -64,14 +66,14 @@ module.exports = {
           {
             loader: "file-loader",
             options: {
-              name: "[name].[ext]"
-            }
-          }
-        ]
+              name: "[name].[ext]",
+            },
+          },
+        ],
       },
       {
         test: /\.glsl$/,
-        loader: "webpack-glsl-loader"
+        loader: "webpack-glsl-loader",
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg|otf)(\?v=\d+\.\d+\.\d+)?$/,
@@ -80,19 +82,19 @@ module.exports = {
             loader: "file-loader",
             options: {
               name: "[name].[ext]",
-              outputPath: "fonts/"
-            }
-          }
-        ]
-      }
-    ]
+              outputPath: "fonts/",
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(PATHS.ASSETS, "template.html"),
       title: "Kraken",
       filename: "index.html",
-      inject: "body"
-    })
-  ]
+      inject: "body",
+    }),
+  ],
 };
