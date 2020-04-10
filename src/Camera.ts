@@ -8,7 +8,6 @@ import Box2 from "@src/shared/math/Box2";
 import World from "@src/world/World";
 
 import { configSvc } from "@shared/services/config.service";
-import { lerp } from "./shared/utility/MathHelpers";
 
 class Camera extends Object2d {
   private projectionMatrix: mat3;
@@ -20,6 +19,8 @@ class Camera extends Object2d {
   private target: Object2d;
   private zoom: number;
   private dampingFactor: number;
+
+  private boundaries: Box2;
 
   constructor() {
     super(0, 0);
@@ -42,6 +43,10 @@ class Camera extends Object2d {
   }
 
   public recenter(point?: Vector2) {
+    if (!this.target) {
+      return;
+    }
+
     let center = point;
     if (!point) {
       center = this.target.getPosition();
@@ -52,40 +57,15 @@ class Camera extends Object2d {
   }
 
   public updateViewBox() {
-    this.projectionMatrixInverse = mat3.invert(
-      mat3.create(),
-      this.projectionMatrix
-    );
+    this.projectionMatrixInverse = mat3.invert(mat3.create(), this.projectionMatrix);
 
-    const tl = vec2.transformMat3(
-      vec2.create(),
-      vec2.fromValues(0, 0),
-      this.projectionMatrixInverse
-    );
-    const tr = vec2.transformMat3(
-      vec2.create(),
-      vec2.fromValues(configSvc.frameSize.w, 0),
-      this.projectionMatrixInverse
-    );
-    const bl = vec2.transformMat3(
-      vec2.create(),
-      vec2.fromValues(0, configSvc.frameSize.h),
-      this.projectionMatrixInverse
-    );
-    const br = vec2.transformMat3(
-      vec2.create(),
-      vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h),
-      this.projectionMatrixInverse
-    );
+    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), this.projectionMatrixInverse);
+    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), this.projectionMatrixInverse);
+    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), this.projectionMatrixInverse);
+    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), this.projectionMatrixInverse);
 
-    const min = vec2.fromValues(
-      Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))),
-      Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1])))
-    );
-    const max = vec2.fromValues(
-      Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))),
-      Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1])))
-    );
+    const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
+    const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
 
     this.viewBox.setMin(min[0], min[1]);
     this.viewBox.setMax(max[0], max[1]);
@@ -93,11 +73,15 @@ class Camera extends Object2d {
     // console.log(`${this.toString()} | viewbox matrix`);
   }
 
-  public clamp(boundaries: Box2) {
-    const x1 = boundaries.getMinX() + configSvc.innerSize.w / 2;
-    const x2 = boundaries.getMaxX() - configSvc.innerSize.w / 2;
-    const y1 = boundaries.getMinY() + configSvc.innerSize.h / 2;
-    const y2 = boundaries.getMaxY() - configSvc.innerSize.h / 2;
+  public clamp() {
+    if (!this.boundaries) {
+      return;
+    }
+
+    const x1 = this.boundaries.getMinX() + configSvc.innerSize.w / 2;
+    const x2 = this.boundaries.getMaxX() - configSvc.innerSize.w / 2;
+    const y1 = this.boundaries.getMinY() + configSvc.innerSize.h / 2;
+    const y2 = this.boundaries.getMaxY() - configSvc.innerSize.h / 2;
 
     if (this.getX() < x1) {
       this.setX(x1);
@@ -125,19 +109,9 @@ class Camera extends Object2d {
         .trunc();
 
       this.setPosition(this.getX() + v.x, this.getY() + v.y);
-
-      /*
-      this.setPosition(
-        lerp(this.getX(), Math.floor(center.x), delta),
-        lerp(this.getY(), Math.floor(center.y), delta)
-      );
-      */
-
-      this.clamp(world.getBoundaries());
     }
 
-    this.shouldUpdateProjectionMatrix =
-      this.shouldUpdateProjectionMatrix || this.hasChangedPosition();
+    this.shouldUpdateProjectionMatrix = this.shouldUpdateProjectionMatrix || this.hasChangedPosition();
 
     if (this.shouldUpdateProjectionMatrix) {
       this.zoom = configSvc.scale;
@@ -146,20 +120,8 @@ class Camera extends Object2d {
       const offset = mat3.create();
       const scale = mat3.create();
 
-      mat3.fromTranslation(
-        offset,
-        vec2.fromValues(
-          Math.trunc(configSvc.innerSize.w / 2),
-          Math.trunc(configSvc.innerSize.h / 2)
-        )
-      );
-      mat3.fromTranslation(
-        position,
-        this.getPosition()
-          .trunc()
-          .negate()
-          .toGlArray()
-      );
+      mat3.fromTranslation(offset, vec2.fromValues(Math.trunc(configSvc.innerSize.w / 2), Math.trunc(configSvc.innerSize.h / 2)));
+      mat3.fromTranslation(position, this.getPosition().trunc().negate().toGlArray());
       mat3.fromScaling(scale, [this.zoom, this.zoom]);
 
       mat3.multiply(this.projectionMatrix, mat3.create(), scale);
@@ -168,20 +130,16 @@ class Camera extends Object2d {
 
       this.updateViewBox();
     }
+
+    this.clamp();
   }
 
   public isFrustumCulled(object: Entity | Box2Helper | Object2d): boolean {
-    if (
-      object instanceof Box2Helper &&
-      this.viewBox.intersectBox((object as Box2Helper).getBox2())
-    ) {
+    if (object instanceof Box2Helper && this.viewBox.intersectBox((object as Box2Helper).getBox2())) {
       return false;
     }
 
-    if (
-      object instanceof Entity &&
-      this.viewBox.intersectBox((object as Entity).getBbox())
-    ) {
+    if (object instanceof Entity && this.viewBox.intersectBox((object as Entity).getBbox())) {
       return false;
     }
 
@@ -189,16 +147,20 @@ class Camera extends Object2d {
   }
 
   public screenToCameraCoords(coords: vec2): Vector2 {
-    const v = vec2.transformMat3(
-      vec2.create(),
-      coords,
-      this.projectionMatrixInverse
-    );
+    const v = vec2.transformMat3(vec2.create(), coords, this.projectionMatrixInverse);
     return new Vector2(v[0], v[1]);
   }
 
   public getProjectionMatrix(): mat3 {
     return this.projectionMatrix;
+  }
+
+  public setBoundaries(box: Box2) {
+    this.boundaries = box;
+  }
+
+  public getBoundaries(): Box2 {
+    return this.boundaries;
   }
 }
 
