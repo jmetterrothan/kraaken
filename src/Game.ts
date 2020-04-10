@@ -115,11 +115,7 @@ class Game {
     const hdpiW: number = Math.trunc(w * ratio);
     const hdpiH: number = Math.trunc(h * ratio);
 
-    if (
-      hdpiW !== canvas.width ||
-      hdpiH !== canvas.height ||
-      configSvc.scale !== scale
-    ) {
+    if (hdpiW !== canvas.width || hdpiH !== canvas.height || configSvc.scale !== scale) {
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       canvas.width = hdpiW;
@@ -221,7 +217,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL2, new LevelState(2));
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.LEVEL1);
+    this.stateManager.switch(GameStates.LEVEL2);
 
     this.resize(this.options.width, this.options.height);
   }
@@ -233,6 +229,7 @@ class Game {
 
     canvas = document.createElement("canvas");
     canvas.classList.add("kraken-canvas");
+    canvas.classList.add("pixelated");
 
     wrapper.appendChild(canvas);
     this.root.appendChild(wrapper);
@@ -256,12 +253,12 @@ class Game {
     gl.depthFunc(gl.LEQUAL);
 
     gl.clearDepth(1.0);
-    gl.clearColor(0.25, 0.55, 0.75, 1.0);
+    gl.clearColor(65 / 255, 140 / 255, 191 / 255, 1.0);
   }
 
   private initEvents() {
     // disable right click contextual menu on the canvas
-    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    this.root.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Keyboard events
     window.addEventListener(
@@ -291,10 +288,7 @@ class Game {
 
     const getCoord = (c: HTMLCanvasElement, x: number, y: number): vec2 => {
       const rect = c.getBoundingClientRect();
-      return vec2.fromValues(
-        (x - rect.left) * window.devicePixelRatio,
-        (y - rect.top) * window.devicePixelRatio
-      );
+      return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
     };
 
     const getMouseOffsetX = (e: MouseEvent) => {
@@ -306,41 +300,32 @@ class Game {
     };
 
     // Click events
-    canvas.addEventListener(
+    this.root.addEventListener(
       "mouseup",
       (e: MouseEvent) => {
-        this.stateManager.handleMousePressed(
-          e.button,
-          false,
-          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
-        );
+        console.log(e);
+        this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
       },
       false
     );
 
-    canvas.addEventListener(
+    this.root.addEventListener(
       "mousedown",
       (e: MouseEvent) => {
-        this.stateManager.handleMousePressed(
-          e.button,
-          true,
-          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
-        );
+        this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
       },
       false
     );
 
-    canvas.addEventListener(
+    this.root.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
-        this.stateManager.handleMouseMove(
-          getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e))
-        );
+        this.stateManager.handleMouseMove(getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
       },
       false
     );
 
-    canvas.addEventListener("mousewheel", (e: WheelEvent) => {
+    this.root.addEventListener("mousewheel", (e: WheelEvent) => {
       this.targetScale += e.deltaY > 0 ? -1 : 1;
       if (this.targetScale <= 0) {
         this.targetScale = 1;
@@ -350,23 +335,11 @@ class Game {
     });
 
     // Fullscreen events
-    document.addEventListener(
-      "webkitfullscreenchange",
-      this.fullscreenChange,
-      false
-    );
+    document.addEventListener("webkitfullscreenchange", this.fullscreenChange, false);
 
-    document.addEventListener(
-      "mozfullscreenchange",
-      this.fullscreenChange,
-      false
-    );
+    document.addEventListener("mozfullscreenchange", this.fullscreenChange, false);
 
-    document.addEventListener(
-      "msfullscreenchange",
-      this.fullscreenChange,
-      false
-    );
+    document.addEventListener("msfullscreenchange", this.fullscreenChange, false);
 
     document.addEventListener("fullscreenchange", this.fullscreenChange, false);
 

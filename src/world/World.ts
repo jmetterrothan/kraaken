@@ -35,6 +35,9 @@ class World {
 
   private entities: Entity[];
 
+  private selectedTileTypeId: string;
+  private selectedLayerId: 0 | 1 | 2;
+
   // physics
   private gravity: Vector2;
 
@@ -47,22 +50,17 @@ class World {
     this.camera = new Camera();
 
     this.entities = [];
+
+    this.selectedTileTypeId = "0";
+    this.selectedLayerId = 1;
   }
 
   public async init() {
     for (const sprite of this.level.sprites) {
-      await Sprite.create(
-        sprite.src,
-        sprite.name,
-        sprite.tileWidth,
-        sprite.tileHeight
-      );
+      await Sprite.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    this.gravity = new Vector2(
-      this.level.world.physics.gravity.x,
-      this.level.world.physics.gravity.y
-    );
+    this.gravity = new Vector2(this.level.world.physics.gravity.x, this.level.world.physics.gravity.y);
 
     this.tileMap = new TileMap(this.level.world.tileMap);
     this.tileMap.init();
@@ -77,12 +75,18 @@ class World {
       if (e.key === "Enter") {
         this.entities.forEach((entity) => {
           if (entity instanceof NPC) {
-            entity.hasTarget(this.player)
-              ? entity.unfollow()
-              : entity.follow(this.player);
+            entity.hasTarget(this.player) ? entity.unfollow() : entity.follow(this.player);
           }
         });
       }
+    });
+
+    window.addEventListener("change_tiletype", (e: CustomEvent) => {
+      this.selectedTileTypeId = e.detail.id;
+    });
+
+    window.addEventListener("change_layer", (e: CustomEvent) => {
+      this.selectedLayerId = e.detail.id;
     });
 
     console.info("World initialized");
@@ -108,9 +112,7 @@ class World {
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
-    this.entities = Array.from(this.children.values()).filter(
-      (child: any) => child instanceof Entity
-    ) as Entity[];
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
   public remove(objects: Object2d | Object2d[]) {
@@ -128,17 +130,11 @@ class World {
     object.objectWillBeRemoved();
     this.children.delete(object.getUUID());
 
-    this.entities = Array.from(this.children.values()).filter(
-      (child: any) => child instanceof Entity
-    ) as Entity[];
+    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
   public update(delta: number) {
-    mat3.projection(
-      this.viewMatrix,
-      configSvc.frameSize.w,
-      configSvc.frameSize.h
-    );
+    mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
     this.children.forEach((child: Object2d) => {
       if (this.canBeCleanedUp(child)) {
@@ -155,11 +151,7 @@ class World {
   }
 
   public render(alpha: number) {
-    const viewProjectionMatrix = mat3.multiply(
-      mat3.create(),
-      this.viewMatrix,
-      this.camera.getProjectionMatrix()
-    );
+    const viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, this.camera.getProjectionMatrix());
 
     this.tileMap.render(viewProjectionMatrix, alpha);
 
@@ -184,23 +176,15 @@ class World {
       return a.reduce((acc, child) => acc + this.countObjects(child, test), 0);
     }
 
-    return (
-      test(target) + this.countObjects((target as Object2d).getChildren(), test)
-    );
+    return test(target) + this.countObjects((target as Object2d).getChildren(), test);
   }
 
   public countAllObjects(): number {
-    return this.countObjects(
-      Array.from(this.children.values()),
-      (object: Object2d) => object instanceof Object2d
-    );
+    return this.countObjects(Array.from(this.children.values()), (object: Object2d) => object instanceof Object2d);
   }
 
   public countVisibleObjects(): number {
-    return this.countObjects(
-      Array.from(this.children.values()),
-      (object: Object2d) => !object.isCulled() && object.isVisible()
-    );
+    return this.countObjects(Array.from(this.children.values()), (object: Object2d) => !object.isCulled() && object.isVisible());
   }
 
   public canBeCleanedUp(target: Object2d | Object2d[]): boolean {
@@ -229,16 +213,18 @@ class World {
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
       const coords = this.camera.screenToCameraCoords(position);
-      const tile = this.tileMap.getTileAt(coords.x, coords.y, 1);
+      const tile = this.tileMap.getTileAt(coords.x, coords.y);
 
-      if (tile.slot1) {
-        tile.slot1 = this.level.world.tileMap.tileTypes[
-          tile.slot1.key === "void" ? 1 : 0
-        ];
-        tile.collision = tile.slot1.key !== "void";
+      if (tile) {
+        tile.activeSlot = this.selectedLayerId as 1 | 2;
+
+        if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
+          tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
+        } else {
+          tile.slot = this.level.world.tileMap.tileTypes.void;
+        }
       } else {
-        tile.slot1 = this.level.world.tileMap.tileTypes[1];
-        tile.collision = true;
+        console.warn("no tile found");
       }
     }
   }
@@ -248,18 +234,10 @@ class World {
       const choices = Object.keys(this.level.loots);
       const coords = this.camera.screenToCameraCoords(position);
 
-      const lootData = this.level.loots[
-        choices[getRandomInt(0, choices.length)]
-      ];
+      const lootData = this.level.loots[choices[getRandomInt(0, choices.length)]];
       const entityData = this.level.entities[lootData.ref];
 
-      const loot = new DamageEffectConsummable(
-        coords.x,
-        coords.y,
-        new Vector2(1, 1),
-        entityData,
-        lootData.metadata
-      );
+      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
       this.add(loot);
     }
   }
@@ -298,12 +276,7 @@ class World {
   }
 
   private initPlayer(data: IObjectLevelData) {
-    this.player = new Player(
-      data.spawn.x,
-      data.spawn.y,
-      new Vector2(data.direction.x, data.direction.y),
-      this.level.entities[data.ref] as IPlayerData
-    );
+    this.player = new Player(data.spawn.x, data.spawn.y, new Vector2(data.direction.x, data.direction.y), this.level.entities[data.ref] as IPlayerData);
 
     if (data.debug) {
       this.player.showDebug();
@@ -316,12 +289,7 @@ class World {
   private initEntities(entities: IObjectLevelData[]) {
     for (const entityLevelData of entities) {
       const { ref, spawn, direction, debug } = entityLevelData;
-      const npc = new NPC(
-        spawn.x,
-        spawn.y,
-        new Vector2(direction.x, direction.y),
-        this.level.entities[ref]
-      );
+      const npc = new NPC(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.level.entities[ref]);
 
       if (debug) {
         npc.showDebug();
@@ -335,13 +303,7 @@ class World {
       const { ref, spawn, direction, debug } = lootLevelData;
       const lootData = this.level.loots[ref];
 
-      const loot = new DamageEffectConsummable(
-        spawn.x,
-        spawn.y,
-        new Vector2(direction.x, direction.y),
-        this.level.entities[lootData.ref],
-        lootData.metadata
-      );
+      const loot = new DamageEffectConsummable(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.level.entities[lootData.ref], lootData.metadata);
 
       if (debug) {
         loot.showDebug();

@@ -1,8 +1,12 @@
+import ReactDOM from "react-dom";
+import React from "react";
 import { vec2 } from "gl-matrix";
 
 import Level from "@src/world/Level";
 import State from "@src/states/State";
 import World from "@src/world/World";
+
+import LevelStateUi from "@src/shared/ui/LevelStateUi";
 
 class LevelState extends State {
   public readonly id: number;
@@ -27,6 +31,19 @@ class LevelState extends State {
     await this.world.init();
 
     this.ready = true;
+
+    const $ui = document.createElement("div");
+    $ui.classList.add("kraken-ui");
+
+    document
+      .getElementById("game")
+      .querySelector(".kraken-wrapper")
+      .appendChild($ui);
+
+    ReactDOM.render(
+      React.createElement(LevelStateUi, { level: this.level.world }),
+      $ui
+    );
   }
 
   public mounted() {

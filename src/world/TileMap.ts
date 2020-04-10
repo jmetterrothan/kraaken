@@ -41,12 +41,7 @@ class TileMap {
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
 
-    this.boundaries = new Box2(
-      this.sizeX / 2,
-      this.sizeY / 2,
-      this.sizeX,
-      this.sizeY
-    );
+    this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.tiles = create2DArray(this.nbRows, this.nbCols);
 
@@ -91,18 +86,10 @@ class TileMap {
   public update(world: World, delta: number) {
     const center = world.getCamera().getPosition();
 
-    this.startCol = Math.floor(
-      (center.x - configSvc.innerSize.w / 2) / this.tileSize
-    );
-    this.startRow = Math.floor(
-      (center.y - configSvc.innerSize.h / 2) / this.tileSize
-    );
-    this.endCol = Math.ceil(
-      (center.x + configSvc.innerSize.w / 2) / this.tileSize
-    );
-    this.endRow = Math.ceil(
-      (center.y + configSvc.innerSize.h / 2) / this.tileSize
-    );
+    this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
+    this.startRow = Math.floor((center.y - configSvc.innerSize.h / 2) / this.tileSize);
+    this.endCol = Math.ceil((center.x + configSvc.innerSize.w / 2) / this.tileSize);
+    this.endRow = Math.ceil((center.y + configSvc.innerSize.h / 2) / this.tileSize);
 
     if (this.startCol < 0) {
       this.startCol = 0;
@@ -124,29 +111,17 @@ class TileMap {
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
         if (this.tiles[r][c] && this.tiles[r][c].slot1) {
-          this.atlas.render(
-            viewProjectionMatrix,
-            this.tiles[r][c].model,
-            this.tiles[r][c].slot1.row,
-            this.tiles[r][c].slot1.col,
-            this.tiles[r][c].renderOptions
-          );
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].renderOptions);
         }
 
         if (this.tiles[r][c] && this.tiles[r][c].slot2) {
-          this.atlas.render(
-            viewProjectionMatrix,
-            this.tiles[r][c].model,
-            this.tiles[r][c].slot2.row,
-            this.tiles[r][c].slot2.col,
-            this.tiles[r][c].renderOptions
-          );
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].renderOptions);
         }
       }
     }
   }
 
-  public getTileAt(x: number, y: number, layer: number = 1): Tile | undefined {
+  public getTileAt(x: number, y: number): Tile | undefined {
     const [r, c] = this.getTileIndexesFromCoord(x, y);
     return this.tiles[r] ? this.tiles[r][c] : undefined;
   }
