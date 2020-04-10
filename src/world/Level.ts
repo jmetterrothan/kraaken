@@ -38,9 +38,7 @@ class Level {
     const { default: level } = await import(`@src/data/level${i}/level.json`);
     const { default: sprites } = await import(`@src/data/level${i}/sprites.js`);
     const { default: sfx } = await import(`@src/data/level${i}/sfx.json`);
-    const { default: entities } = await import(
-      `@src/data/level${i}/entities.json`
-    );
+    const { default: entities } = await import(`@src/data/level${i}/entities.json`);
     const { default: loots } = await import(`@src/data/level${i}/loots.json`);
 
     return {
@@ -48,7 +46,7 @@ class Level {
       sprites,
       sfx,
       entities,
-      loots
+      loots,
     };
   }
 }

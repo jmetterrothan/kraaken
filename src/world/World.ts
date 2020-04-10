@@ -1,3 +1,4 @@
+import { ISpawnpoint } from "@src/shared/models/world.model";
 import { mat3, vec2 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
@@ -14,8 +15,7 @@ import TileMap from "@src/world/TileMap";
 
 import { configSvc } from "@shared/services/config.service";
 
-import { IObjectLevelData } from "@src/shared/models/entity.model";
-import { IPlayerData } from "./../shared/models/entity.model";
+import { IPlayer } from "./../shared/models/entity.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
 
 import { getRandomInt } from "@src/shared/utility/MathHelpers";
@@ -278,35 +278,51 @@ class World {
     return this.gravity;
   }
 
-  private initPlayer(data: IObjectLevelData) {
-    this.player = new Player(data.spawn.x, data.spawn.y, new Vector2(data.direction.x, data.direction.y), this.level.entities[data.ref] as IPlayerData);
+  private initPlayer(data: ISpawnpoint) {
+    this.player = new Player(
+      data.spawn.x, //
+      data.spawn.y,
+      new Vector2(data.direction.x, data.direction.y),
+      this.level.entities[data.ref] as IPlayer
+    );
 
-    if (data.debug) {
+    if (data.metadata.debug) {
       this.player.showDebug();
     }
     this.add(this.player);
   }
 
-  private initEntities(entities: IObjectLevelData[]) {
+  private initEntities(entities: ISpawnpoint[]) {
     for (const entityLevelData of entities) {
-      const { ref, spawn, direction, debug } = entityLevelData;
-      const npc = new NPC(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.level.entities[ref]);
+      const { ref, spawn, direction, metadata } = entityLevelData;
+      const npc = new NPC(
+        spawn.x, //
+        spawn.y,
+        new Vector2(direction.x, direction.y),
+        this.level.entities[ref]
+      );
 
-      if (debug) {
+      if (metadata.debug) {
         npc.showDebug();
       }
       this.add(npc);
     }
   }
 
-  private initLoots(loots: IObjectLevelData[]) {
+  private initLoots(loots: ISpawnpoint[]) {
     for (const lootLevelData of loots) {
-      const { ref, spawn, direction, debug } = lootLevelData;
+      const { ref, spawn, direction, metadata } = lootLevelData;
       const lootData = this.level.loots[ref];
 
-      const loot = new DamageEffectConsummable(spawn.x, spawn.y, new Vector2(direction.x, direction.y), this.level.entities[lootData.ref], lootData.metadata);
+      const loot = new DamageEffectConsummable(
+        spawn.x, //
+        spawn.y,
+        new Vector2(direction.x, direction.y),
+        this.level.entities[lootData.ref],
+        lootData.metadata
+      );
 
-      if (debug) {
+      if (metadata.debug) {
         loot.showDebug();
       }
       this.add(loot);

@@ -1,15 +1,15 @@
 import World from "@src/world/World";
 
-import { IAnimationDataList } from "@src/shared/models/animation.model";
+import { IAnimationList } from "@src/shared/models/animation.model";
 import { IVector2Data } from "@src/shared/models/math.model";
 
 export interface IMetadata {
   [key: string]: any;
 }
 
-export interface IEntityData {
+export interface IEntity {
   metadata: IEntityMetadata;
-  animationList: IAnimationDataList;
+  animationList: IAnimationList;
   defaultAnimationKey: string;
 }
 
@@ -20,7 +20,7 @@ export interface IEntityMetadata {
   };
 }
 
-export interface IPlayerData extends IEntityData {
+export interface IPlayer extends IEntity {
   speed: IVector2Data;
   acceleration: IVector2Data;
   deceleration: IVector2Data;
@@ -28,16 +28,9 @@ export interface IPlayerData extends IEntityData {
   jump_speed: number;
 }
 
-export interface ILootData {
+export interface ILoot {
   metadata: IMetadata;
   ref: string;
-}
-
-export interface IObjectLevelData {
-  debug: boolean;
-  ref: string;
-  spawn: IVector2Data;
-  direction: IVector2Data;
 }
 
 export interface IMovement {

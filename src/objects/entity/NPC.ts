@@ -6,7 +6,7 @@ import Object2d from "@src/objects/Object2d";
 import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
 
-import { IEntityData } from "@shared/models/entity.model";
+import { IEntity } from "@shared/models/entity.model";
 
 class NPC extends Entity {
   protected acceleration: Vector2;
@@ -16,7 +16,7 @@ class NPC extends Entity {
   private target: Object2d;
   private spawn: Object2d;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
+  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
     super(x, y, direction, data);
     // this.parameters.grayscale = true;
     // this.parameters.alpha = 0.15;
@@ -194,10 +194,7 @@ class NPC extends Entity {
       offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2;
     }*/
 
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition().add(offset).trunc().toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(offset).trunc().toGlArray());
   }
 }
 

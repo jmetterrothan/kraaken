@@ -6,7 +6,7 @@ import Color from "@src/shared/helper/Color";
 import World from "@src/world/World";
 
 import { CharacterAnimationKeys } from "@shared/models/animation.model";
-import { IMovement, IPlayerData } from "@shared/models/entity.model";
+import { IMovement, IPlayer } from "@shared/models/entity.model";
 
 class Player extends Entity implements IMovement {
   protected left: boolean;
@@ -22,7 +22,7 @@ class Player extends Entity implements IMovement {
   protected maxJumpHeight: number;
   protected jumpSpeed: number;
 
-  constructor(x: number, y: number, direction: Vector2, data: IPlayerData) {
+  constructor(x: number, y: number, direction: Vector2, data: IPlayer) {
     super(x, y, direction, data);
 
     this.left = false;
@@ -31,14 +31,8 @@ class Player extends Entity implements IMovement {
     this.down = false;
     this.usePrimaryWeapon = false;
 
-    this.acceleration = new Vector2(
-      data.acceleration.x || 0,
-      data.acceleration.y || 0
-    );
-    this.deceleration = new Vector2(
-      data.deceleration.x || 0,
-      data.deceleration.y || 0
-    );
+    this.acceleration = new Vector2(data.acceleration.x || 0, data.acceleration.y || 0);
+    this.deceleration = new Vector2(data.deceleration.x || 0, data.deceleration.y || 0);
     this.speed = new Vector2(data.speed.x || 0, data.speed.y || 0);
 
     this.maxJumpHeight = data.max_jump_height;
@@ -119,10 +113,7 @@ class Player extends Entity implements IMovement {
       offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2;
     }
 
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray());
   }
 
   protected updateCurrentAnimationKey(): string {

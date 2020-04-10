@@ -9,7 +9,7 @@ import TileMap from "@src/world/TileMap";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
 
-import { IEntityData, IMovement } from "@src/shared/models/entity.model";
+import { IEntity, IMovement } from "@src/shared/models/entity.model";
 
 class Entity extends AnimatedObject2d {
   protected bbox: Box2;
@@ -21,7 +21,7 @@ class Entity extends AnimatedObject2d {
 
   protected velocity: Vector2;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntityData) {
+  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
     super(x, y, direction, data);
 
     this.bbox = new Box2(x, y, data.metadata.bbox.w, data.metadata.bbox.h);
@@ -38,17 +38,11 @@ class Entity extends AnimatedObject2d {
   }
 
   public collideWith(object: Entity | Object2d): boolean {
-    if (
-      object instanceof Entity &&
-      this.bbox.intersectBox((object as Entity).getBbox())
-    ) {
+    if (object instanceof Entity && this.bbox.intersectBox((object as Entity).getBbox())) {
       return true;
     }
 
-    if (
-      object instanceof Object2d &&
-      this.bbox.containsPoint(object.getPosition())
-    ) {
+    if (object instanceof Object2d && this.bbox.containsPoint(object.getPosition())) {
       return true;
     }
 
@@ -69,15 +63,7 @@ class Entity extends AnimatedObject2d {
 
     if (velocity.x > 0) {
       // right collision
-      const tile = this.testForCollision(
-        map,
-        x2 + velocity.x,
-        y1,
-        x2 + velocity.x,
-        y1 + h / 2,
-        x2 + velocity.x,
-        y2
-      );
+      const tile = this.testForCollision(map, x2 + velocity.x, y1, x2 + velocity.x, y1 + h / 2, x2 + velocity.x, y2);
 
       if (tile) {
         newPosition.x = tile.position.x - w / 2 - 0.001;
@@ -85,15 +71,7 @@ class Entity extends AnimatedObject2d {
       }
     } else if (velocity.x < 0) {
       // left collision
-      const tile = this.testForCollision(
-        map,
-        x1 + velocity.x,
-        y1,
-        x1 + velocity.x,
-        y1 + h / 2,
-        x1 + velocity.x,
-        y2
-      );
+      const tile = this.testForCollision(map, x1 + velocity.x, y1, x1 + velocity.x, y1 + h / 2, x1 + velocity.x, y2);
 
       if (tile) {
         newPosition.x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
@@ -103,15 +81,7 @@ class Entity extends AnimatedObject2d {
 
     if (velocity.y > 0) {
       // bottom collision
-      const tile = this.testForCollision(
-        map,
-        x1,
-        y2 + velocity.y,
-        x1 + w / 2,
-        y2 + velocity.y,
-        x2,
-        y2 + velocity.y
-      );
+      const tile = this.testForCollision(map, x1, y2 + velocity.y, x1 + w / 2, y2 + velocity.y, x2, y2 + velocity.y);
 
       if (tile) {
         newPosition.y = tile.position.y - h / 2 - 0.01;
@@ -119,15 +89,7 @@ class Entity extends AnimatedObject2d {
       }
     } else if (velocity.y < 0) {
       // top collision
-      const tile = this.testForCollision(
-        map,
-        x1,
-        y1 + velocity.y,
-        x1 + w / 2,
-        y1 + velocity.y,
-        x2,
-        y1 + velocity.y
-      );
+      const tile = this.testForCollision(map, x1, y1 + velocity.y, x1 + w / 2, y1 + velocity.y, x2, y1 + velocity.y);
 
       if (tile) {
         newPosition.y = tile.position.y + map.getTileSize() + h / 2 + 0.01;
@@ -239,15 +201,7 @@ class Entity extends AnimatedObject2d {
     }
   }
 
-  private testForCollision(
-    map: TileMap,
-    a1x: number,
-    a1y: number,
-    b1x: number,
-    b1y: number,
-    c1x: number,
-    c1y: number
-  ): Tile | undefined {
+  private testForCollision(map: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): Tile | undefined {
     const a = map.getTileAt(a1x, a1y);
     if (a && a.collision) {
       return a;
@@ -269,10 +223,7 @@ class Entity extends AnimatedObject2d {
   protected updateModelMatrix() {
     const offset = this.animation.getOffset();
 
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().addScalar(0.01).add(offset).trunc().toGlArray());
   }
 }
 

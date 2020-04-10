@@ -1,14 +1,16 @@
 {
   "health_potion": {
+    "ref": "cherry",
     "metadata": {
-      "sfx": "star"
-    },
-    "ref": "cherry"
+      "sfx": "star",
+      "debug": false
+    }
   },
   "gemstone": {
+    "ref": "gemstone",
     "metadata": {
-      "sfx": "star"
-    },
-    "ref": "gemstone"
+      "sfx": "star",
+      "debug": false
+    }
   }
 }

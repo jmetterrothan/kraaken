@@ -18,5 +18,6 @@
     "typeRoots": ["./src/typings/", "./node_modules/@types/"],
     "lib": ["dom", "es2017", "es6", "es7"]
   },
-  "exclude": ["node_modules", "dist", "./config/**", "./demo/**", "./src/data/**", "./src/assets/**"]
+  "include": ["./src"],
+  "exclude": ["node_modules", "dist"]
 }
