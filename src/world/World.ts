@@ -71,6 +71,7 @@ class World {
     this.initEntities(this.level.world.entities);
     this.initLoots(this.level.world.loots);
 
+    // this.camera.follow(this.player);
     this.camera.setBoundaries(this.getBoundaries());
 
     window.addEventListener("keydown", (e) => {
@@ -284,8 +285,6 @@ class World {
       this.player.showDebug();
     }
     this.add(this.player);
-
-    this.camera.follow(this.player);
   }
 
   private initEntities(entities: IObjectLevelData[]) {
