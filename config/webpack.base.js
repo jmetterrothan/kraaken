@@ -9,11 +9,7 @@ const ALIAS = require("./alias");
 // @ts-ignore
 module.exports = {
   entry: {
-    bundle: [
-      "@babel/polyfill",
-      path.join(PATHS.SRC, "index.tsx"),
-      path.join(PATHS.SASS, "main.scss"),
-    ],
+    bundle: ["@babel/polyfill", path.join(PATHS.SRC, "index.tsx"), path.join(PATHS.SASS, "main.scss")],
   },
   resolve: {
     modules: ["node_modules", PATHS.SRC],
@@ -38,12 +34,6 @@ module.exports = {
             options: {
               plugins: () => [
                 autoprefixer({
-                  browsers: [
-                    ">1%",
-                    "last 4 versions",
-                    "Firefox ESR",
-                    "not ie < 9",
-                  ],
                   flexbox: "no-2009",
                 }),
               ],
@@ -53,9 +43,7 @@ module.exports = {
           {
             loader: "sass-resources-loader",
             options: {
-              resources: [
-                path.join(PATHS.SASS, "abstracts", "_variables.scss"),
-              ],
+              resources: [path.join(PATHS.SASS, "abstracts", "_variables.scss")],
             },
           },
         ],

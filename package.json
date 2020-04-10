@@ -24,6 +24,7 @@
     "@types/md5": "*",
     "@types/react": "^16.9.26",
     "@types/webgl2": "0.0.5",
+    "classnames": "^2.2.6",
     "gl-matrix": "^3.2.1",
     "md5": "*",
     "react": "^16.13.1",
