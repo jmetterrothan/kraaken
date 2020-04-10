@@ -3,15 +3,12 @@ import { mat3 } from "gl-matrix";
 import Sprite from "@src/animation/Sprite";
 import Vector2 from "@src/shared/math/Vector2";
 
-import {
-  IAnimationData,
-  IAnimationFrame,
-} from "@shared/models/animation.model";
-import { ISpriteRenderParameters } from "./../shared/models/animation.model";
+import { IAnimation, IKeyFrame } from "@shared/models/animation.model";
+import { ISpriteRenderParameters } from "@shared/models/animation.model";
 
 class Animation {
   private name: string;
-  private keyframes: IAnimationFrame[];
+  private keyframes: IKeyFrame[];
   private loop: boolean;
 
   private sprite: Sprite;
@@ -24,7 +21,7 @@ class Animation {
   private played: number;
   private frame: number;
 
-  constructor(name: string, data: IAnimationData) {
+  constructor(name: string, data: IAnimation) {
     this.name = name;
     this.loop = data.loop;
     this.keyframes = data.keyframes;
@@ -91,17 +88,11 @@ class Animation {
   }
 
   public getDuration() {
-    return this.keyframes.reduce(
-      (value, current) => value + current.duration,
-      0
-    );
+    return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
   public getOffset() {
-    return new Vector2(
-      -this.sprite.getTileWidth() / 2,
-      -this.sprite.getTileHeight() / 2
-    );
+    return new Vector2(-this.sprite.getTileWidth() / 2, -this.sprite.getTileHeight() / 2);
   }
 
   public getWidth() {
@@ -112,25 +103,14 @@ class Animation {
     return this.sprite.getTileHeight();
   }
 
-  public render(
-    viewProjectionMatrix: mat3,
-    modelMatrix: mat3,
-    parameters: ISpriteRenderParameters
-  ) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, parameters: ISpriteRenderParameters) {
     // flickering effect
-    const flicker =
-      parameters.flickering && Math.floor(window.performance.now() / 150) % 2;
+    const flicker = parameters.flickering && Math.floor(window.performance.now() / 150) % 2;
     const renderable = this.loop || !this.playedOnce();
 
     if (this.active && !flicker && renderable) {
       this.sprite.use();
-      this.sprite.render(
-        viewProjectionMatrix,
-        modelMatrix,
-        this.keyframes[this.frame].row,
-        this.keyframes[this.frame].col,
-        parameters
-      );
+      this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, parameters);
     }
   }
 

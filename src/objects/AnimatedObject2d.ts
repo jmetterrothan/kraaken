@@ -3,20 +3,18 @@ import { mat3 } from "gl-matrix";
 import Animation from "@src/animation/Animation";
 import Object2d from "@src/objects/Object2d";
 import Vector2 from "@src/shared/math/Vector2";
-import World from "@src/world/World";
 
 import { ISpriteRenderParameters } from "@shared/models/animation.model";
-import { IAnimationList } from "@src/shared/models/animation.model";
 import { IEntityData } from "@src/shared/models/entity.model";
 
 class AnimatedObject2d extends Object2d {
-  get animation(): Animation {
+  public get animation(): Animation {
     return this.animationList[this.currentAnimationKey];
   }
 
   protected parameters: ISpriteRenderParameters;
 
-  private animationList: IAnimationList;
+  private animationList: Record<string, Animation>;
   private currentAnimationKey: string;
   private previousAnimationKey: string;
   private defaultAnimationKey: string;
@@ -29,7 +27,7 @@ class AnimatedObject2d extends Object2d {
       wireframe: false,
       grayscale: false,
       flickering: false,
-      alpha: 1
+      alpha: 1,
     };
 
     // convert animation parameters in Animation objects
@@ -46,7 +44,7 @@ class AnimatedObject2d extends Object2d {
     this.updateModelMatrix();
   }
 
-  public updateAnimation(world: World, delta: number) {
+  public updateAnimation() {
     this.previousAnimationKey = this.currentAnimationKey;
     this.currentAnimationKey = this.updateCurrentAnimationKey();
 
@@ -61,11 +59,7 @@ class AnimatedObject2d extends Object2d {
     super.render(viewProjectionMatrix, alpha);
 
     if (this.isVisible() && !this.isCulled()) {
-      this.animation.render(
-        viewProjectionMatrix,
-        this.modelMatrix,
-        this.parameters
-      );
+      this.animation.render(viewProjectionMatrix, this.modelMatrix, this.parameters);
     }
   }
 
@@ -74,13 +68,7 @@ class AnimatedObject2d extends Object2d {
   }
 
   protected updateModelMatrix() {
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition()
-        .add(this.animation.getOffset())
-        .trunc()
-        .toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(this.animation.getOffset()).trunc().toGlArray());
   }
 }
 
