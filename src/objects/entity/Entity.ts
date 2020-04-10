@@ -124,7 +124,7 @@ class Entity extends AnimatedObject2d {
     this.bbox.setPositionFromCenter(this.getX(), this.getY());
 
     // update animation and model matrix
-    this.updateAnimation(world, delta);
+    this.updateAnimation();
 
     if (this.isDirty()) {
       this.remove(this.bboxhelper);

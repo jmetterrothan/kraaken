@@ -1,7 +1,7 @@
 import World from "@src/world/World";
 
 import { IAnimationList } from "@src/shared/models/animation.model";
-import { IVector2Data } from "@src/shared/models/math.model";
+import { IVector2 } from "@src/shared/models/math.model";
 
 export interface IMetadata {
   [key: string]: any;
@@ -21,9 +21,9 @@ export interface IEntityMetadata {
 }
 
 export interface IPlayer extends IEntity {
-  speed: IVector2Data;
-  acceleration: IVector2Data;
-  deceleration: IVector2Data;
+  speed: IVector2;
+  acceleration: IVector2;
+  deceleration: IVector2;
   max_jump_height: number;
   jump_speed: number;
 }
