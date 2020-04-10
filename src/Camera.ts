@@ -74,7 +74,7 @@ class Camera extends Object2d {
   }
 
   public clamp() {
-    if (!this.boundaries) {
+    if (!(this.boundaries instanceof Box2)) {
       return;
     }
 
@@ -111,6 +111,8 @@ class Camera extends Object2d {
       this.setPosition(this.getX() + v.x, this.getY() + v.y);
     }
 
+    this.clamp();
+
     this.shouldUpdateProjectionMatrix = this.shouldUpdateProjectionMatrix || this.hasChangedPosition();
 
     if (this.shouldUpdateProjectionMatrix) {
@@ -130,8 +132,6 @@ class Camera extends Object2d {
 
       this.updateViewBox();
     }
-
-    this.clamp();
   }
 
   public isFrustumCulled(object: Entity | Box2Helper | Object2d): boolean {

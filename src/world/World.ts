@@ -71,8 +71,8 @@ class World {
     this.initEntities(this.level.world.entities);
     this.initLoots(this.level.world.loots);
 
+    this.camera.setBoundaries(this.tileMap.getBoundaries());
     this.camera.follow(this.player);
-    this.camera.setBoundaries(this.getBoundaries());
 
     window.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
