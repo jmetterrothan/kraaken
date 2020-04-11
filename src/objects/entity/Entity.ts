@@ -9,7 +9,7 @@ import TileMap from "@src/world/TileMap";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
 
-import { IEntity, IMovement } from "@src/shared/models/entity.model";
+import { IObject, IMovement } from "@src/shared/models/entity.model";
 
 class Entity extends AnimatedObject2d {
   protected bbox: Box2;
@@ -21,7 +21,7 @@ class Entity extends AnimatedObject2d {
 
   protected velocity: Vector2;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
+  constructor(x: number, y: number, direction: Vector2, data: IObject) {
     super(x, y, direction, data);
 
     this.bbox = new Box2(x, y, data.metadata.bbox.w, data.metadata.bbox.h);
@@ -61,24 +61,6 @@ class Entity extends AnimatedObject2d {
     const velocity = this.velocity.clone().multiplyScalar(delta);
     const newPosition = this.getPosition().add(velocity);
 
-    if (velocity.x > 0) {
-      // right collision
-      const tile = this.testForCollision(map, x2 + velocity.x, y1, x2 + velocity.x, y1 + h / 2, x2 + velocity.x, y2);
-
-      if (tile) {
-        newPosition.x = tile.position.x - w / 2 - 0.001;
-        this.velocity.x = 0;
-      }
-    } else if (velocity.x < 0) {
-      // left collision
-      const tile = this.testForCollision(map, x1 + velocity.x, y1, x1 + velocity.x, y1 + h / 2, x1 + velocity.x, y2);
-
-      if (tile) {
-        newPosition.x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
-        this.velocity.x = 0;
-      }
-    }
-
     if (velocity.y > 0) {
       // bottom collision
       const tile = this.testForCollision(map, x1, y2 + velocity.y, x1 + w / 2, y2 + velocity.y, x2, y2 + velocity.y);
@@ -94,6 +76,24 @@ class Entity extends AnimatedObject2d {
       if (tile) {
         newPosition.y = tile.position.y + map.getTileSize() + h / 2 + 0.01;
         this.velocity.y = 0;
+      }
+    }
+
+    if (velocity.x > 0) {
+      // right collision
+      const tile = this.testForCollision(map, x2 + velocity.x, y1, x2 + velocity.x, y1 + h / 2, x2 + velocity.x, y2);
+
+      if (tile) {
+        newPosition.x = tile.position.x - w / 2 - 0.001;
+        this.velocity.x = 0;
+      }
+    } else if (velocity.x < 0) {
+      // left collision
+      const tile = this.testForCollision(map, x1 + velocity.x, y1, x1 + velocity.x, y1 + h / 2, x1 + velocity.x, y2);
+
+      if (tile) {
+        newPosition.x = tile.position.x + map.getTileSize() + w / 2 + 0.01;
+        this.velocity.x = 0;
       }
     }
 

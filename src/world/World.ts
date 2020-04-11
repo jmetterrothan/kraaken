@@ -238,9 +238,8 @@ class World {
       const coords = this.camera.screenToCameraCoords(position);
 
       const lootData = this.level.loots[choices[getRandomInt(0, choices.length)]];
-      const entityData = this.level.entities[lootData.ref];
 
-      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), entityData, lootData.metadata);
+      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), lootData);
       this.add(loot);
     }
   }
@@ -318,8 +317,7 @@ class World {
         spawn.x, //
         spawn.y,
         new Vector2(direction.x, direction.y),
-        this.level.entities[lootData.ref],
-        lootData.metadata
+        lootData
       );
 
       if (metadata.debug) {

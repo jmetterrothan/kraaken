@@ -31,12 +31,12 @@ class Player extends Entity implements IMovement {
     this.down = false;
     this.usePrimaryWeapon = false;
 
-    this.acceleration = new Vector2(data.acceleration.x || 0, data.acceleration.y || 0);
-    this.deceleration = new Vector2(data.deceleration.x || 0, data.deceleration.y || 0);
-    this.speed = new Vector2(data.speed.x || 0, data.speed.y || 0);
+    this.acceleration = new Vector2(data.metadata.acceleration.x || 0, data.metadata.acceleration.y || 0);
+    this.deceleration = new Vector2(data.metadata.deceleration.x || 0, data.metadata.deceleration.y || 0);
+    this.speed = new Vector2(data.metadata.speed.x || 0, data.metadata.speed.y || 0);
 
-    this.maxJumpHeight = data.max_jump_height;
-    this.jumpSpeed = data.jump_speed;
+    this.maxJumpHeight = data.metadata.max_jump_height;
+    this.jumpSpeed = data.metadata.jump_speed;
 
     this.color = new Color(0, 1, 0.75);
   }

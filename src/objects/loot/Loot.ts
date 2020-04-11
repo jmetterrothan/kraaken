@@ -3,15 +3,15 @@ import Entity from "@src/objects/entity/Entity";
 import World from "@src/world/World";
 
 import { IConsummable } from "@shared/models/loot.model";
-import { IEntity, IMetadata } from "@src/shared/models/entity.model";
+import { ILoot, IObject } from "@src/shared/models/entity.model";
 
 abstract class Loot extends Entity implements IConsummable {
   protected sfx: string;
   protected consummated: boolean;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntity, metadata: IMetadata) {
-    super(x, y, direction, data);
-    this.sfx = metadata.sfx || undefined;
+  constructor(x: number, y: number, direction: Vector2, data: ILoot) {
+    super(x, y, direction, data as IObject);
+    this.sfx = data.metadata.sfx || undefined;
   }
 
   public update(world: World, delta: number) {

@@ -303,7 +303,6 @@ class Game {
     this.root.addEventListener(
       "mouseup",
       (e: MouseEvent) => {
-        console.log(e);
         this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
       },
       false

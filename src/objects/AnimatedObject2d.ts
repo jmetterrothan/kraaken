@@ -5,7 +5,7 @@ import Object2d from "@src/objects/Object2d";
 import Vector2 from "@src/shared/math/Vector2";
 
 import { ISpriteRenderParameters } from "@shared/models/animation.model";
-import { IEntity } from "@src/shared/models/entity.model";
+import { IObject } from "@src/shared/models/entity.model";
 
 class AnimatedObject2d extends Object2d {
   public get animation(): Animation {
@@ -19,7 +19,7 @@ class AnimatedObject2d extends Object2d {
   private previousAnimationKey: string;
   private defaultAnimationKey: string;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
+  constructor(x: number, y: number, direction: Vector2, data: IObject) {
     super(x, y);
 
     this.parameters = {
