@@ -8,6 +8,7 @@ export interface IGameOptions {
   height?: number;
   allowFullscreen?: boolean;
   root?: HTMLElement;
+  debug?: boolean;
 }
 
 export enum GameStates {

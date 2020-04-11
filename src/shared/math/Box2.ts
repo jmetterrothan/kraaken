@@ -7,35 +7,24 @@ class Box2 {
   private max: Vector2;
 
   constructor(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
-    this.min = new Vector2(x - w / 2, y - h / 2);
-    this.max = new Vector2(x + w / 2, y + h / 2);
+    this.min = new Vector2(x, y);
+    this.max = new Vector2(x + w, y + h);
+  }
+
+  public static createFromCenterPoint(x: number, y: number, w: number, h: number): Box2 {
+    return new Box2(x - w / 2, y - h / 2, w, h);
   }
 
   public containsBox(box: Box2): boolean {
-    return (
-      this.min.x <= box.min.x &&
-      box.max.x <= this.max.x &&
-      this.min.y <= box.min.y &&
-      box.max.y <= this.max.y
-    );
+    return this.min.x <= box.min.x && box.max.x <= this.max.x && this.min.y <= box.min.y && box.max.y <= this.max.y;
   }
 
   public containsPoint(point: Vector2): boolean {
-    return point.x < this.min.x ||
-      point.x > this.max.x ||
-      point.y < this.min.y ||
-      point.y > this.max.y
-      ? false
-      : true;
+    return point.x < this.min.x || point.x > this.max.x || point.y < this.min.y || point.y > this.max.y ? false : true;
   }
 
   public intersectBox(box: Box2): boolean {
-    return box.max.x < this.min.x ||
-      box.min.x > this.max.x ||
-      box.max.y < this.min.y ||
-      box.min.y > this.max.y
-      ? false
-      : true;
+    return box.max.x < this.min.x || box.min.x > this.max.x || box.max.y < this.min.y || box.min.y > this.max.y ? false : true;
   }
 
   public setPosition(x: number, y: number) {
@@ -119,12 +108,7 @@ class Box2 {
   }
 
   public clone(): Box2 {
-    return new Box2(
-      this.getCenterX(),
-      this.getCenterY(),
-      this.getWidth(),
-      this.getHeight()
-    );
+    return new Box2(this.getMinX(), this.getMinY(), this.getWidth(), this.getHeight());
   }
 }
 

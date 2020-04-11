@@ -73,15 +73,15 @@ class Camera extends Object2d {
     // console.log(`${this.toString()} | viewbox matrix`);
   }
 
-  public clamp() {
-    if (!(this.boundaries instanceof Box2)) {
+  public clampTo(boundaries: Box2) {
+    if (!boundaries) {
       return;
     }
 
-    const x1 = this.boundaries.getMinX() + configSvc.innerSize.w / 2;
-    const x2 = this.boundaries.getMaxX() - configSvc.innerSize.w / 2;
-    const y1 = this.boundaries.getMinY() + configSvc.innerSize.h / 2;
-    const y2 = this.boundaries.getMaxY() - configSvc.innerSize.h / 2;
+    const x1 = boundaries.getMinX() + configSvc.innerSize.w / 2;
+    const x2 = boundaries.getMaxX() - configSvc.innerSize.w / 2;
+    const y1 = boundaries.getMinY() + configSvc.innerSize.h / 2;
+    const y2 = boundaries.getMaxY() - configSvc.innerSize.h / 2;
 
     if (this.getX() < x1) {
       this.setX(x1);
@@ -95,6 +95,10 @@ class Camera extends Object2d {
     if (this.getY() > y2) {
       this.setY(y2);
     }
+  }
+
+  public clamp() {
+    this.clampTo(this.boundaries);
   }
 
   public update(world: World, delta: number) {

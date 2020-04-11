@@ -41,7 +41,7 @@ class TileMap {
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
 
-    this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
+    this.boundaries = Box2.createFromCenterPoint(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.tiles = create2DArray(this.nbRows, this.nbCols);
 

@@ -11,47 +11,39 @@ export interface IMetadata {
   [key: string]: any;
 }
 
-export interface IObject {
+export interface IObject<M = IMetadata> {
   id: string;
-  type: "entity" | "loot" | "sfx";
-  metadata: IMetadata;
+  type: "player" | "entity" | "loot" | "sfx";
+  metadata: M;
   animationList: IAnimationList;
   defaultAnimationKey: string;
 }
 
-export interface IEntity extends IObject {
-  type: "entity";
-  metadata: {
-    bbox: {
-      w: number;
-      h: number;
-    };
+export interface IEntityMetadata {
+  gravity?: boolean;
+  collide?: boolean;
+  bbox: {
+    w: number;
+    h: number;
   };
 }
 
-export interface IPlayer extends IObject {
-  type: "entity";
-  metadata: {
-    bbox: {
-      w: number;
-      h: number;
-    };
+export type IEntity = IObject<IEntityMetadata>;
+
+export type IPlayer = IObject<
+  IEntityMetadata & {
     speed: IVector2;
     acceleration: IVector2;
     deceleration: IVector2;
     max_jump_height: number;
     jump_speed: number;
-  };
-}
+  }
+>;
 
-export interface ILoot extends IObject {
-  type: "loot";
-  metadata: {
+export type ILoot = IObject<
+  IEntityMetadata & {
     sfx: string;
-  };
-}
+  }
+>;
 
-export interface ISfx extends IObject {
-  type: "sfx";
-  metadata: {};
-}
+export type ISfx = IObject<{}>;

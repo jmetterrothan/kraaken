@@ -3,14 +3,14 @@ import Entity from "@src/objects/entity/Entity";
 import World from "@src/world/World";
 
 import { IConsummable } from "@shared/models/loot.model";
-import { ILoot, IObject } from "@src/shared/models/entity.model";
+import { ILoot, IEntity } from "@src/shared/models/entity.model";
 
 abstract class Loot extends Entity implements IConsummable {
   protected sfx: string;
   protected consummated: boolean;
 
   constructor(x: number, y: number, direction: Vector2, data: ILoot) {
-    super(x, y, direction, data as IObject);
+    super(x, y, direction, data as IEntity);
     this.sfx = data.metadata.sfx || undefined;
   }
 

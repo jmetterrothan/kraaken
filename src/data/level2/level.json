@@ -146,7 +146,7 @@
   "spawnpoints": {
     "player": {
       "ref": "fox",
-      "spawn": { "x": 424, "y": 64 },
+      "spawn": { "x": 424, "y": 92 },
       "direction": { "x": 1, "y": 1 },
       "metadata": { "debug": false }
     },

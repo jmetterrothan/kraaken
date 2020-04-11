@@ -32,10 +32,7 @@ class Object2d {
     this.culled = false;
     this.color = new Color(1, 0, 0);
 
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition().toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().toGlArray());
     this.shouldUpdateModelMatrix = true;
 
     this.children = new Map<string, Object2d>();
@@ -49,7 +46,7 @@ class Object2d {
       // console.log(`${this.toString()} | model matrix`);
     }
 
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       if (world.canBeCleanedUp(child)) {
         this.remove(child);
         return;
@@ -61,14 +58,18 @@ class Object2d {
   }
 
   public render(viewProjectionMatrix: mat3, alpha: number) {
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       if (!child.isCulled()) {
         child.render(viewProjectionMatrix, alpha);
       }
     });
   }
 
-  public clamp(boundaries: Box2) {
+  public clampTo(boundaries: Box2) {
+    if (!boundaries) {
+      return;
+    }
+
     const x1 = boundaries.getMinX();
     const x2 = boundaries.getMaxX();
     const y1 = boundaries.getMinY();
@@ -115,10 +116,7 @@ class Object2d {
   public objectWillBeRemoved(): void {}
 
   public setPosition(x: number, y: number, forceUpdate: boolean = false) {
-    this.shouldUpdateModelMatrix =
-      this.shouldUpdateModelMatrix ||
-      this.position.x !== x ||
-      this.position.y !== y;
+    this.shouldUpdateModelMatrix = this.shouldUpdateModelMatrix || this.position.x !== x || this.position.y !== y;
 
     this.previousPosition.copy(this.position);
     this.position.x = x;
@@ -196,12 +194,7 @@ class Object2d {
   }
 
   protected updateModelMatrix() {
-    this.modelMatrix = mat3.fromTranslation(
-      mat3.create(),
-      this.getPosition()
-        .trunc()
-        .toGlArray()
-    );
+    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().trunc().toGlArray());
   }
 }
 
