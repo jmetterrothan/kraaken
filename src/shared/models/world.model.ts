@@ -19,7 +19,7 @@ export interface IWorldData {
     };
   };
   // global data
-  sprites: ISpriteData[];
+  resources: ISpriteData[];
   objects: IObject[];
 }
 

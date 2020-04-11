@@ -16,7 +16,7 @@ class Level {
   }
 
   public get sprites() {
-    return this.data.sprites;
+    return this.data.resources;
   }
 
   public get loots(): Record<string, ILoot> {
@@ -53,12 +53,12 @@ class Level {
   public static async loadData(i: number): Promise<IWorldData> {
     const { default: level } = await import(`@src/data/level${i}/level.json`);
     const { default: objects } = await import(`@src/data/level${i}/objects.json`);
-    const { default: sprites } = await import(`@src/data/level${i}/sprites.json`);
+    const { default: resources } = await import(`@src/data/level${i}/resources.json`);
 
     return {
       level,
       objects,
-      sprites,
+      resources,
     };
   }
 }
