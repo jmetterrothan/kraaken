@@ -1,4 +1,3 @@
-import { ISpawnpoint } from "@src/shared/models/world.model";
 import { mat3, vec2 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
@@ -16,6 +15,7 @@ import TileMap from "@src/world/TileMap";
 import { configSvc } from "@shared/services/config.service";
 
 import { IPlayer } from "./../shared/models/entity.model";
+import { ISpawnpoint } from "@src/shared/models/world.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
 
 import { getRandomInt } from "@src/shared/utility/MathHelpers";
