@@ -52,13 +52,13 @@ class Level {
 
   public static async loadData(i: number): Promise<IWorldData> {
     const { default: level } = await import(`@src/data/level${i}/level.json`);
-    const { default: sprites } = await import(`@src/data/level${i}/sprites.js`);
     const { default: objects } = await import(`@src/data/level${i}/objects.json`);
+    const { default: sprites } = await import(`@src/data/level${i}/sprites.json`);
 
     return {
       level,
-      sprites,
       objects,
+      sprites,
     };
   }
 }
