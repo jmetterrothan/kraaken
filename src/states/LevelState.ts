@@ -37,7 +37,7 @@ class LevelState extends State {
     const $ui = document.createElement("div");
     $ui.classList.add("kraken-ui");
 
-    document.getElementById("game").querySelector(".kraken-wrapper").appendChild($ui);
+    document.getElementById("game").querySelector(".kraken").appendChild($ui);
 
     ReactDOM.render(
       React.createElement(LevelStateUi, { level: this.level.world }),

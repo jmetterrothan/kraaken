@@ -7,6 +7,7 @@ const game = Game.create({
   width: 1440,
   height: 800,
   root: document.getElementById("game"),
+  debug: false,
 });
 
 game.run();

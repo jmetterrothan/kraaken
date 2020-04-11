@@ -57,6 +57,7 @@ class Game {
     height: 600,
     width: 800,
     root: undefined,
+    debug: true,
   };
 
   private options: IGameOptions;
@@ -93,8 +94,10 @@ class Game {
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
 
-    this.stats = new Stats();
-    this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
+    if (this.options.debug) {
+      this.stats = new Stats();
+      this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
+    }
 
     this.ups = 0;
     this.ticks = 0;
@@ -162,7 +165,9 @@ class Game {
   }
 
   public run() {
-    this.stats.begin();
+    if (this.options.debug) {
+      this.stats.begin();
+    }
 
     if (!this.paused) {
       const time = window.performance.now();
@@ -171,7 +176,9 @@ class Game {
       if (time > this.nextTime) {
         this.nextTime += 1000;
 
-        this.upsPanel.update(this.ups);
+        if (this.options.debug) {
+          this.upsPanel.update(this.ups);
+        }
         this.ups = 0;
       }
 
@@ -195,7 +202,9 @@ class Game {
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);
-    this.stats.end();
+    if (this.options.debug) {
+      this.stats.end();
+    }
 
     window.requestAnimationFrame(this.run.bind(this));
   }
@@ -206,10 +215,13 @@ class Game {
     this.initEvents();
 
     // Stats
-    this.stats.showPanel(3);
-    this.stats.dom.style.display = configSvc.debug ? "block" : "none";
+    if (this.options.debug) {
+      this.stats.showPanel(3);
+      this.stats.dom.style.display = configSvc.debug ? "block" : "none";
+      this.stats.dom.style.position = "absolute";
 
-    this.root.appendChild(this.stats.dom);
+      wrapper.appendChild(this.stats.dom);
+    }
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
@@ -225,7 +237,7 @@ class Game {
   private initCanvas() {
     // Main elements
     wrapper = document.createElement("div");
-    wrapper.classList.add("kraken-wrapper");
+    wrapper.classList.add("kraken");
 
     canvas = document.createElement("canvas");
     canvas.classList.add("kraken-canvas");
@@ -258,7 +270,7 @@ class Game {
 
   private initEvents() {
     // disable right click contextual menu on the canvas
-    this.root.addEventListener("contextmenu", (e) => e.preventDefault());
+    wrapper.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Keyboard events
     window.addEventListener(
@@ -300,37 +312,51 @@ class Game {
     };
 
     // Click events
-    this.root.addEventListener(
+    wrapper.addEventListener(
       "mouseup",
       (e: MouseEvent) => {
-        this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
+        if (canvas.contains(e.target as Node)) {
+          const x = getMouseOffsetX(e);
+          const y = getMouseOffsetY(e);
+          this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, x, y));
+        }
       },
       false
     );
 
-    this.root.addEventListener(
+    wrapper.addEventListener(
       "mousedown",
       (e: MouseEvent) => {
-        this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
+        if (canvas.contains(e.target as Node)) {
+          const x = getMouseOffsetX(e);
+          const y = getMouseOffsetY(e);
+          this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, x, y));
+        }
       },
       false
     );
 
-    this.root.addEventListener(
+    wrapper.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
-        this.stateManager.handleMouseMove(getCoord(canvas, getMouseOffsetX(e), getMouseOffsetY(e)));
+        if (canvas.contains(e.target as Node)) {
+          const x = getMouseOffsetX(e);
+          const y = getMouseOffsetY(e);
+          this.stateManager.handleMouseMove(getCoord(canvas, x, y));
+        }
       },
       false
     );
 
-    this.root.addEventListener("mousewheel", (e: WheelEvent) => {
-      this.targetScale += e.deltaY > 0 ? -1 : 1;
-      if (this.targetScale <= 0) {
-        this.targetScale = 1;
-      }
+    wrapper.addEventListener("mousewheel", (e: WheelEvent) => {
+      if (canvas.contains(e.target as Node)) {
+        this.targetScale += e.deltaY > 0 ? -1 : 1;
+        if (this.targetScale <= 0) {
+          this.targetScale = 1;
+        }
 
-      this.refreshScreenSize();
+        this.refreshScreenSize();
+      }
     });
 
     // Fullscreen events
