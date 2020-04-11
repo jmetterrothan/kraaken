@@ -25,7 +25,8 @@ class LevelState extends State {
   public async init() {
     console.info("Level initialized");
 
-    this.level = new Level(this.id, await Level.loadData(this.id));
+    const data = await Level.loadData(this.id);
+    this.level = new Level(this.id, data);
     this.world = new World(this.level);
 
     await this.world.init();

@@ -12,13 +12,15 @@ export interface IMetadata {
 }
 
 export interface IObject {
-  ref: string;
+  id: string;
+  type: "entity" | "loot" | "sfx";
   metadata: IMetadata;
   animationList: IAnimationList;
   defaultAnimationKey: string;
 }
 
 export interface IEntity extends IObject {
+  type: "entity";
   metadata: {
     bbox: {
       w: number;
@@ -28,6 +30,7 @@ export interface IEntity extends IObject {
 }
 
 export interface IPlayer extends IObject {
+  type: "entity";
   metadata: {
     bbox: {
       w: number;
@@ -42,7 +45,13 @@ export interface IPlayer extends IObject {
 }
 
 export interface ILoot extends IObject {
+  type: "loot";
   metadata: {
     sfx: string;
   };
+}
+
+export interface ISfx extends IObject {
+  type: "sfx";
+  metadata: {};
 }

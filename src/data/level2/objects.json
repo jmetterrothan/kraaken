@@ -1,0 +1,179 @@
+[
+  {
+    "id": "health_potion",
+    "type": "loot",
+    "metadata": {
+      "sfx": "star",
+      "bbox": { "w": 14, "h": 14 },
+      "debug": false
+    },
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 0, "duration": 75 },
+          { "row": 1, "col": 1, "duration": 75 },
+          { "row": 1, "col": 2, "duration": 75 },
+          { "row": 1, "col": 3, "duration": 75 },
+          { "row": 1, "col": 4, "duration": 75 },
+          { "row": 1, "col": 5, "duration": 75 },
+          { "row": 1, "col": 6, "duration": 75 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "gemstone",
+    "type": "loot",
+    "metadata": {
+      "sfx": "star",
+      "bbox": { "w": 14, "h": 12 },
+      "debug": false
+    },
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 0, "col": 0, "duration": 125 },
+          { "row": 0, "col": 1, "duration": 125 },
+          { "row": 0, "col": 2, "duration": 125 },
+          { "row": 0, "col": 3, "duration": 125 },
+          { "row": 0, "col": 4, "duration": 125 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "star",
+    "type": "sfx",
+    "metadata": {},
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "atlas",
+        "loop": false,
+        "keyframes": [
+          { "row": 2, "col": 3, "duration": 50 },
+          { "row": 2, "col": 2, "duration": 50 },
+          { "row": 2, "col": 1, "duration": 50 },
+          { "row": 2, "col": 0, "duration": 25 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "explosion",
+    "type": "sfx",
+    "metadata": {},
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "atlas2",
+        "loop": false,
+        "keyframes": [
+          { "row": 0, "col": 5, "duration": 25 },
+          { "row": 0, "col": 4, "duration": 50 },
+          { "row": 0, "col": 3, "duration": 50 },
+          { "row": 0, "col": 2, "duration": 50 },
+          { "row": 0, "col": 1, "duration": 50 },
+          { "row": 0, "col": 0, "duration": 10 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "frog",
+    "type": "entity",
+    "metadata": {
+      "bbox": { "w": 26, "h": 19 }
+    },
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "atlas2",
+        "loop": true,
+        "keyframes": [
+          { "row": 2, "col": 2, "duration": 100 },
+          { "row": 2, "col": 3, "duration": 150 },
+          { "row": 2, "col": 4, "duration": 550 },
+          { "row": 2, "col": 5, "duration": 100 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "fox",
+    "type": "entity",
+    "metadata": {
+      "deceleration": { "x": 16, "y": 0 },
+      "acceleration": { "x": 32, "y": 0 },
+      "speed": { "x": 110, "y": 0 },
+      "max_jump_height": -6000,
+      "jump_speed": -400,
+      "bbox": { "w": 14, "h": 18 }
+    },
+    "defaultAnimationKey": "idle",
+    "animationList": {
+      "idle": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 0, "col": 12, "duration": 150 },
+          { "row": 1, "col": 11, "duration": 150 },
+          { "row": 2, "col": 13, "duration": 150 }
+        ]
+      },
+      "climbing": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 0, "col": 10, "duration": 150 },
+          { "row": 1, "col": 10, "duration": 150 },
+          { "row": 0, "col": 10, "duration": 150 },
+          { "row": 1, "col": 12, "duration": 150 }
+        ]
+      },
+      "death": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 13, "duration": 150 },
+          { "row": 2, "col": 11, "duration": 150 }
+        ]
+      },
+      "ducking": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 14, "duration": 125 },
+          { "row": 2, "col": 10, "duration": 125 }
+        ]
+      },
+      "jumping": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [{ "row": 0, "col": 14, "duration": 0 }]
+      },
+      "falling": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [{ "row": 0, "col": 13, "duration": 0 }]
+      },
+      "walking": {
+        "sprite": "atlas",
+        "loop": true,
+        "keyframes": [
+          { "row": 3, "col": 10, "duration": 85 },
+          { "row": 3, "col": 11, "duration": 85 },
+          { "row": 3, "col": 12, "duration": 85 },
+          { "row": 3, "col": 13, "duration": 85 },
+          { "row": 3, "col": 14, "duration": 85 }
+        ]
+      }
+    }
+  }
+]

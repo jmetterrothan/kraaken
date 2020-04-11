@@ -51,7 +51,7 @@ class World {
 
     this.entities = [];
 
-    this.selectedTileTypeId = "0";
+    this.selectedTileTypeId = "1";
     this.selectedLayerId = 1;
   }
 
@@ -67,9 +67,9 @@ class World {
 
     this.setClearColor(this.level.world.background);
 
-    this.initPlayer(this.level.world.player);
-    this.initEntities(this.level.world.entities);
-    this.initLoots(this.level.world.loots);
+    this.initPlayer(this.level.world.spawnpoints.player);
+    this.initEntities(this.level.world.spawnpoints.entities);
+    this.initLoots(this.level.world.spawnpoints.loots);
 
     this.camera.setBoundaries(this.tileMap.getBoundaries());
     this.camera.follow(this.player);
