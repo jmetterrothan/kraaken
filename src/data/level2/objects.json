@@ -113,11 +113,11 @@
     "id": "fox",
     "type": "entity",
     "metadata": {
-      "deceleration": { "x": 16, "y": 0 },
-      "acceleration": { "x": 32, "y": 0 },
-      "speed": { "x": 110, "y": 0 },
-      "max_jump_height": -6000,
-      "jump_speed": -400,
+      "deceleration": { "x": 12, "y": 0 },
+      "acceleration": { "x": 24, "y": 0 },
+      "speed": { "x": 96, "y": 0 },
+      "max_jump_height": -5000,
+      "jump_speed": -320,
       "bbox": { "w": 14, "h": 18 }
     },
     "defaultAnimationKey": "idle",

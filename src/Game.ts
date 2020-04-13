@@ -38,9 +38,9 @@ class Game {
     return document.fullscreenElement !== null;
   }
 
-  public static readonly TARGET_UPS: number = 30;
+  public static readonly TARGET_UPS: number = 25;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly DEFAULT_SCALE: number = 5;
+  public static readonly DEFAULT_SCALE: number = 4;
 
   public static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
