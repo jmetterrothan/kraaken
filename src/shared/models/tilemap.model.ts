@@ -27,6 +27,7 @@ export interface ITileTypeData {
   key: string;
   row: number;
   col: number;
+  group: string;
 }
 
 export interface ITile {
@@ -35,6 +36,7 @@ export interface ITile {
     collision: boolean;
     row: number;
     col: number;
+    group: string;
   };
   model: mat3;
   position: Vector2;
