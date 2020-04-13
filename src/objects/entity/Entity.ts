@@ -48,7 +48,12 @@ class Entity extends AnimatedObject2d {
 
   public move(world: World, delta: number): void {
     if (this.gravity) {
-      this.velocity.add(world.getGravity());
+      const g = world.getGravity();
+      this.velocity.add(g.clone().multiplyScalar(delta));
+
+      if (this.velocity.y > g.y) {
+        this.velocity.y = g.y;
+      }
     }
   }
 

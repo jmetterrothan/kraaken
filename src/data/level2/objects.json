@@ -32,8 +32,8 @@
     "metadata": {
       "sfx": "star",
       "bbox": { "w": 14, "h": 12 },
-      "collide": false,
-      "gravity": false,
+      "collide": true,
+      "gravity": true,
       "debug": false
     },
     "defaultAnimationKey": "default",
