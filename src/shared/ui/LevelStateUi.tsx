@@ -1,11 +1,10 @@
 import React from "react";
-import cx from "classnames";
 
 import { ITileTypeData } from "../models/tilemap.model";
 
-import tilesetSrc from "@src/data/level2/assets/graphics/tileset.png";
-
-import "./LevelStateUi.scss";
+import Toolbar from "./components/Toolbar";
+import ToolbarButton from "./components/ToolbarButton";
+import ToolbarSelect from "./components/ToolbarSelect";
 
 const tileTypeChange = (id: string) => {
   return new CustomEvent("change_tiletype", {
@@ -23,72 +22,13 @@ const layerChange = (id: number) => {
   });
 };
 
-interface ITilesetProps {
-  selected: string;
-  onSelect: (id: string) => void;
-  src: string;
-  tileSize: number;
-  tileTypes: Record<string, ITileTypeData>;
-  scale?: number;
+enum EditorMode {
+  FILL = 0,
+  ERASE = 1,
 }
 
-const Tileset: React.FunctionComponent<ITilesetProps> = ({ selected, onSelect, src, tileSize, tileTypes }) => {
-  const [tiles, setTiles] = React.useState<string[]>([]);
-
-  React.useEffect(() => {
-    const temp: string[] = [];
-
-    const file = new Image();
-
-    const $canvas = document.createElement("canvas");
-    const ctx = $canvas.getContext("2d");
-
-    $canvas.classList.add("pixelated");
-
-    file.onload = () => {
-      $canvas.width = file.width;
-      $canvas.height = file.height;
-
-      ctx.drawImage(file, 0, 0);
-
-      const $subCanvas = document.createElement("canvas");
-      const subCtx = $subCanvas.getContext("2d");
-
-      $subCanvas.width = tileSize;
-      $subCanvas.height = tileSize;
-
-      Object.values(tileTypes).map(({ col, row }, i) => {
-        const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
-        subCtx.putImageData(imagedata, 0, 0);
-
-        temp[i] = $subCanvas.toDataURL();
-      });
-
-      setTiles(temp);
-    };
-
-    file.src = src;
-  }, []);
-
-  return (
-    <div className="tileset">
-      {Object.entries(tileTypes).map(([id, { col, row, key: name }], i) => (
-        <img
-          onClick={() => {
-            onSelect(id);
-          }}
-          className={cx("tileset__item", "pixelated", id === selected && "active")}
-          key={name}
-          src={tiles[i]}
-          width={48}
-          height={48}
-        />
-      ))}
-    </div>
-  );
-};
-
 export default ({ level }) => {
+  const [mode, setMode] = React.useState<EditorMode>(0);
   const [layerId, setLayerId] = React.useState<number>(1);
   const [tileTypeId, setTileTypeId] = React.useState<string>("1");
 
@@ -104,7 +44,37 @@ export default ({ level }) => {
 
   return (
     <div className="ui">
+      <Toolbar>
+        <ToolbarButton
+          icon="fill" //
+          name="Fill"
+          active={mode === EditorMode.FILL}
+          onClick={() => setMode(EditorMode.FILL)}
+        />
+        <ToolbarButton
+          icon="eraser" //
+          name="Erase"
+          active={mode === EditorMode.ERASE}
+          onClick={() => setMode(EditorMode.ERASE)}
+        />
+        <ToolbarSelect<number>
+          icon="layer-group" //
+          active={false}
+          selected={layerId}
+          onItemClick={(option) => {
+            console.log(option);
+            setLayerId(option.value);
+          }}
+          options={[
+            // { name: "Layer 0", value: 0 },
+            { name: "Layer 1", value: 1 },
+            { name: "Layer 2", value: 2 },
+          ]}
+        />
+      </Toolbar>
+      {/*
       <Tileset selected={tileTypeId} onSelect={setTileTypeId} src={tilesetSrc} tileSize={16} tileTypes={tileTypes} />
+
       <div className="tiles">
         <select
           value={layerId}
@@ -129,6 +99,7 @@ export default ({ level }) => {
           ))}
         </select>
       </div>
+      */}
     </div>
   );
 };

@@ -1,0 +1,47 @@
+.toolbar-button {
+  padding: 4px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 64px;
+  height: 60px;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
+  color: #40506b;
+  cursor: pointer;
+  font-family: $defaultFont;
+
+  &__icon {
+    font-size: 1.25rem;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 0.95rem;
+
+    .caret {
+      color: #40506b;
+      font-size: 1rem;
+      margin-left: 10px;
+    }
+  }
+
+  &__icon + &__name {
+    margin-top: 3px;
+  }
+
+  &:hover {
+    background: #d0d6e0;
+  }
+
+  &.active {
+    background: #4e71ad;
+    color: #f1f1f1;
+  }
+}

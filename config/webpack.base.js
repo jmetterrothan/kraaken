@@ -9,7 +9,7 @@ const ALIAS = require("./alias");
 // @ts-ignore
 module.exports = {
   entry: {
-    bundle: ["@babel/polyfill", path.join(PATHS.SRC, "index.tsx"), path.join(PATHS.SASS, "main.scss")],
+    bundle: ["@babel/polyfill", path.join(PATHS.SRC, "index.tsx")],
   },
   resolve: {
     modules: ["node_modules", PATHS.SRC],

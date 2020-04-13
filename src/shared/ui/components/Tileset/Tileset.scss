@@ -1,0 +1,46 @@
+.tileset {
+  width: fit-content;
+  height: 400px;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  background: #f1f1f1;
+}
+
+.tileset-group {
+  width: calc(64px * 4);
+
+  &__title {
+    margin-bottom: 8px;
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+
+    img {
+      box-sizing: border-box;
+      display: block;
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      flex-grow: 0;
+      border: 4px solid transparent;
+      transform-origin: center;
+
+      &:hover {
+        border-color: rgb(0, 140, 255);
+        z-index: 99;
+      }
+
+      &.active,
+      &.active:hover {
+        border-color: rgb(255, 208, 0);
+      }
+    }
+  }
+
+  & + & {
+    margin-top: 16px;
+  }
+}
