@@ -35,7 +35,7 @@ export type IPlayer = IObject<
     speed: IVector2;
     acceleration: IVector2;
     deceleration: IVector2;
-    max_jump_height: number;
+    initial_jump_boost: number;
     jump_speed: number;
   }
 >;

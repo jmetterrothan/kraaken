@@ -21,7 +21,7 @@ class Player extends Entity implements IMovement {
   protected deceleration: Vector2;
   protected speed: Vector2;
 
-  protected maxJumpHeight: number;
+  protected initialJumpBoost: number;
   protected jumpSpeed: number;
 
   constructor(x: number, y: number, direction: Vector2, data: IPlayer) {
@@ -37,7 +37,7 @@ class Player extends Entity implements IMovement {
     this.deceleration = new Vector2(data.metadata.deceleration.x || 0, data.metadata.deceleration.y || 0);
     this.speed = new Vector2(data.metadata.speed.x || 0, data.metadata.speed.y || 0);
 
-    this.maxJumpHeight = data.metadata.max_jump_height;
+    this.initialJumpBoost = data.metadata.initial_jump_boost;
     this.jumpSpeed = data.metadata.jump_speed;
 
     this.color = new Color(0, 1, 0.75);
@@ -45,9 +45,9 @@ class Player extends Entity implements IMovement {
 
   public move(world: World, delta: number): void {
     if (this.up && !this.falling) {
-      if (!this.jumping && this.velocity.y === 0) {
+      if (!this.jumping && this.canJump) {
         this.jumping = true;
-        this.velocity.y = this.maxJumpHeight * delta; // initial boost
+        this.velocity.y = this.initialJumpBoost; // initial boost
       } else {
         this.velocity.y += this.jumpSpeed * delta; // maintain momentum
       }

@@ -19,6 +19,8 @@ class Entity extends AnimatedObject2d {
   protected falling: boolean;
   protected jumping: boolean;
 
+  protected canJump: boolean;
+
   protected readonly collide: boolean;
   protected readonly gravity: boolean;
 
@@ -38,6 +40,8 @@ class Entity extends AnimatedObject2d {
     this.climbing = false;
     this.falling = false;
     this.jumping = false;
+
+    this.canJump = false;
 
     this.velocity = new Vector2(0, 0);
   }
@@ -113,6 +117,16 @@ class Entity extends AnimatedObject2d {
     this.setPositionFromVector2(newPosition);
   }
 
+  public isOnSolidTile(map: TileMap): boolean {
+    const x1 = this.bbox.getMinX();
+    const x2 = this.bbox.getMaxX();
+    const y = this.bbox.getMaxY() + 0.01;
+
+    const tile = this.testForCollision(map, x1, y, x1 + this.bbox.getWidth() / 2, y, x2, y);
+
+    return tile !== undefined;
+  }
+
   public update(world: World, delta: number) {
     // update velocity values
     if ("move" in this) {
@@ -121,8 +135,8 @@ class Entity extends AnimatedObject2d {
 
     this.handleCollisions(world.getTileMap(), delta);
     this.clampTo(world.getBoundaries());
-
     this.falling = this.velocity.y > 0;
+    this.canJump = this.isOnSolidTile(world.getTileMap());
 
     this.calculateDirectionVector();
 
