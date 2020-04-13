@@ -219,6 +219,10 @@ class Game {
       this.stats.showPanel(3);
       this.stats.dom.style.display = configSvc.debug ? "block" : "none";
       this.stats.dom.style.position = "absolute";
+      this.stats.dom.style.top = "unset";
+      this.stats.dom.style.bottom = 0;
+      this.stats.dom.style.left = "unset";
+      this.stats.dom.style.right = 0;
 
       wrapper.appendChild(this.stats.dom);
     }
