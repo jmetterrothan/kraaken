@@ -105,6 +105,7 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
                       <img
                         onClick={() => {
                           onSelect(id);
+                          setOpen(false);
                         }}
                         className="pixelated"
                         src={tiles[id]}

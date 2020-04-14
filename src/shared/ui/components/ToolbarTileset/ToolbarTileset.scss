@@ -3,6 +3,10 @@
   min-width: 64px;
   height: 60px;
 
+  &:hover {
+    background: #d0d6e0;
+  }
+
   &__inner {
     position: absolute;
     width: fit-content;
@@ -19,6 +23,7 @@
 .toolbar-tileset-group {
   padding: 12px 16px;
   width: calc(64px * 4 + 16px * 2);
+  border-top: 1px solid #b0bdd3;
 
   &__title {
     font-weight: 600;
@@ -29,7 +34,7 @@
   &__list {
     display: flex;
     flex-wrap: wrap;
-    background: rgba(#40506b, 0.1);
+    // background: rgba(#40506b, 0.1);
 
     li {
       width: 64px;
@@ -49,6 +54,7 @@
         flex-shrink: 0;
         flex-grow: 0;
         transform-origin: center;
+        background: rgba(#40506b, 0.075);
       }
 
       &.active,
@@ -56,9 +62,5 @@
         border-color: rgb(255, 208, 0);
       }
     }
-  }
-
-  & + & {
-    margin-top: 16px;
   }
 }
