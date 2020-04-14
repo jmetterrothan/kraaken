@@ -5,7 +5,7 @@ import ToolbarButton, { IToolbarButtonprops } from "../ToolbarButton";
 
 import "./ToolbarSelect.scss";
 
-interface IToolbarOption<T> {
+export interface IToolbarOption<T> {
   name?: string;
   value: T;
 }
@@ -43,7 +43,7 @@ function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: ITo
 
   return (
     <div ref={ref} className={cx("toolbar-select", open && "open")}>
-      <ToolbarButton {...props} name={selection ? selection.name : "Select Layer"} showCaret={true} onClick={handleBtnClick} />
+      <ToolbarButton {...props} active={false} name={selection ? selection.name : "Select Layer"} showCaret={true} onClick={handleBtnClick} />
       {open && (
         <ul className="toolbar-select__inner">
           {options.map((option, i) => {

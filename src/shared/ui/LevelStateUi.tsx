@@ -1,10 +1,13 @@
 import React from "react";
 
+import tilesetSrc from "@src/data/level2/assets/graphics/tileset.png";
+
 import { ITileTypeData } from "../models/tilemap.model";
 
 import Toolbar from "./components/Toolbar";
 import ToolbarButton from "./components/ToolbarButton";
-import ToolbarSelect from "./components/ToolbarSelect";
+import ToolbarTileset from "./components/ToolbarTileset";
+import ToolbarSelect, { IToolbarOption } from "./components/ToolbarSelect";
 
 const tileTypeChange = (id: string) => {
   return new CustomEvent("change_tiletype", {
@@ -34,6 +37,14 @@ export default ({ level }) => {
 
   const tileTypes: Record<string, ITileTypeData> = level.tileMap.tileTypes;
 
+  const setFillMode = () => setMode(EditorMode.FILL);
+
+  const setEraseMode = () => setMode(EditorMode.ERASE);
+
+  const handleLayerSelection = (option: IToolbarOption<number>) => {
+    setLayerId(option.value);
+  };
+
   React.useEffect(() => {
     window.dispatchEvent(tileTypeChange(tileTypeId));
   }, [tileTypeId]);
@@ -49,31 +60,34 @@ export default ({ level }) => {
           icon="fill" //
           name="Fill"
           active={mode === EditorMode.FILL}
-          onClick={() => setMode(EditorMode.FILL)}
+          onClick={setFillMode}
         />
         <ToolbarButton
           icon="eraser" //
           name="Erase"
           active={mode === EditorMode.ERASE}
-          onClick={() => setMode(EditorMode.ERASE)}
+          onClick={setEraseMode}
         />
         <ToolbarSelect<number>
           icon="layer-group" //
           active={false}
           selected={layerId}
-          onItemClick={(option) => {
-            console.log(option);
-            setLayerId(option.value);
-          }}
+          onItemClick={handleLayerSelection}
           options={[
             // { name: "Layer 0", value: 0 },
             { name: "Layer 1", value: 1 },
             { name: "Layer 2", value: 2 },
           ]}
         />
+        <ToolbarTileset
+          selected={tileTypeId} //
+          onSelect={setTileTypeId}
+          src={tilesetSrc}
+          tileSize={16}
+          tileTypes={tileTypes}
+        />
       </Toolbar>
       {/*
-      <Tileset selected={tileTypeId} onSelect={setTileTypeId} src={tilesetSrc} tileSize={16} tileTypes={tileTypes} />
 
       <div className="tiles">
         <select
