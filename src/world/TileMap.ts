@@ -5,7 +5,6 @@ import Sprite from "@src/animation/Sprite";
 import World from "@src/world/World";
 import Tile from "./Tile";
 
-import { ILayerId } from "@src/shared/models/tilemap.model";
 import { ITileTypes } from "@src/shared/models/tilemap.model";
 import { ITileMapData, ITileMapLayers } from "@shared/models/tilemap.model";
 
@@ -13,7 +12,7 @@ import { create2DArray } from "@src/shared/utility/Utility";
 
 import { configSvc } from "@src/shared/services/config.service";
 
-import { CHANGE_LAYER_EVENT } from "@src/shared/ui/events";
+import { PlaceEvent, PLACE_EVENT } from "@src/shared/ui/events";
 
 class TileMap {
   private startCol: number;
@@ -36,8 +35,6 @@ class TileMap {
 
   private atlas: Sprite;
 
-  private selectedLayerId: ILayerId;
-
   constructor(data: ITileMapData) {
     this.nbCols = data.cols;
     this.nbRows = data.rows;
@@ -53,8 +50,26 @@ class TileMap {
 
     this.buildTiles(data.layers, data.tileTypes);
 
-    window.addEventListener(CHANGE_LAYER_EVENT, (e: CustomEvent<{ id: ILayerId }>) => {
-      this.selectedLayerId = e.detail.id;
+    window.addEventListener(PLACE_EVENT, (e: PlaceEvent) => {
+      const { x, y, layer, tileType, onSuccess, onFailure } = e.detail || {};
+
+      try {
+        const tile = this.getTileAt(x, y);
+        if (!tile) {
+          throw new Error("No tile found");
+        }
+
+        tile.activeSlot = layer;
+        tile.slot = data.tileTypes[tileType];
+
+        if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+      } catch (e) {
+        if (typeof onFailure === "function") {
+          onFailure();
+        }
+      }
     });
   }
 
@@ -120,6 +135,7 @@ class TileMap {
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
+        /*
         if (this.selectedLayerId === 0) {
           if (this.tiles[r][c] && this.tiles[r][c].collision) {
             this.tiles[r][c].renderOptions.fill = true;
@@ -127,14 +143,15 @@ class TileMap {
             this.tiles[r][c].renderOptions.fill = false;
           }
         } else {
-          if (this.tiles[r][c] && this.tiles[r][c].slot1) {
-            this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].renderOptions);
-          }
-
-          if (this.tiles[r][c] && this.tiles[r][c].slot2) {
-            this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].renderOptions);
-          }
+          */
+        if (this.tiles[r][c] && this.tiles[r][c].slot1) {
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].renderOptions);
         }
+
+        if (this.tiles[r][c] && this.tiles[r][c].slot2) {
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].renderOptions);
+        }
+        /* }*/
       }
     }
   }

@@ -22,7 +22,7 @@ import { IRGBAColorData } from "@src/shared/models/color.model";
 
 import { getRandomInt } from "@src/shared/utility/MathHelpers";
 
-import { CHANGE_MODE_EVENT, CHANGE_LAYER_EVENT, CHANGE_TILETYPE_EVENT } from "@src/shared/ui/events";
+import { CHANGE_MODE_EVENT, CHANGE_LAYER_EVENT, CHANGE_TILETYPE_EVENT, place } from "@src/shared/ui/events";
 
 import { gl } from "@src/Game";
 
@@ -226,8 +226,16 @@ class World {
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
       const coords = this.camera.screenToCameraCoords(position);
-      const tile = this.tileMap.getTileAt(coords.x, coords.y);
+      window.dispatchEvent(
+        place(
+          coords.x, //
+          coords.y,
+          this.selectedLayerId,
+          this.selectedMode === EditorMode.FILL ? this.selectedTileTypeId : "void"
+        )
+      );
 
+      /*
       if (tile) {
         if (this.selectedLayerId === 0) {
           if (this.selectedMode === EditorMode.FILL) {
@@ -239,13 +247,13 @@ class World {
           tile.activeSlot = this.selectedLayerId;
 
           if (this.selectedMode === EditorMode.FILL) {
-            /*
+
             if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
               tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
             } else {
               tile.slot = this.level.world.tileMap.tileTypes.void;
             }
-            */
+
             tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
           } else {
             tile.slot = this.level.world.tileMap.tileTypes.void;
@@ -254,6 +262,7 @@ class World {
       } else {
         console.warn("no tile found");
       }
+      */
     }
   }
 
