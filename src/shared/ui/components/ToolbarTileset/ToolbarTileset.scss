@@ -11,7 +11,7 @@
     position: absolute;
     width: fit-content;
     overflow-y: scroll;
-    max-height: 400px;
+    height: 550px;
     top: 100%;
     left: 0;
     background: #e1e3e6;
@@ -36,6 +36,18 @@
     flex-wrap: wrap;
     // background: rgba(#40506b, 0.1);
 
+    &.g2x2 {
+      display: grid;
+      grid-template-columns: 72px 72px;
+      grid-template-rows: 72px 72px;
+    }
+
+    &.g3x3 {
+      display: grid;
+      grid-template-columns: 72px 72px 72px;
+      grid-template-rows: 72px 72px 72px;
+    }
+
     li {
       width: 64px;
       height: 64px;
@@ -43,7 +55,7 @@
 
       &:hover {
         border-color: rgb(0, 140, 255);
-        z-index: 99;
+        z-index: 100;
       }
 
       img {
@@ -60,6 +72,7 @@
       &.active,
       &.active:hover {
         border-color: rgb(255, 208, 0);
+        z-index: 99;
       }
     }
   }

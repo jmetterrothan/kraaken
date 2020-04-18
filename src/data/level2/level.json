@@ -13,6 +13,14 @@
     "cols": 100,
     "rows": 32,
     "tileSize": 16,
+    "tileGroups": {
+      "default": { "display": null, "name": "Default" },
+      "decoration": { "display": null, "name": "Decoration" },
+      "crate": { "display": "2x2", "name": "Crate" },
+      "rock": { "display": null, "name": "Rock" },
+      "rock_quad": { "display": "2x2", "name": "Rock quad" },
+      "rock_platform": { "display": "3x3", "name": "Rock platform" }
+    },
     "tileTypes": {
       "0": { "key": "void", "row": 0, "col": 0, "group": "default" },
       "1": { "key": "test", "row": 7, "col": 17, "group": "default" },

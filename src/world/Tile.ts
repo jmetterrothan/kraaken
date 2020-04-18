@@ -15,7 +15,7 @@ interface TileOptions {
 }
 
 class Tile {
-  public activeSlot: 1 | 2;
+  public activeSlot: 0 | 1 | 2;
   public readonly row: number;
   public readonly col: number;
   public readonly size: number;
@@ -46,7 +46,7 @@ class Tile {
       grayscale: false,
       flickering: false,
       alpha: 1,
-      color: vec3.fromValues(1, 0, 0),
+      color: vec3.fromValues(0.5, 0.25, 0.75),
       direction: new Vector2(1, 1),
       ...options,
     };
@@ -54,10 +54,6 @@ class Tile {
 
   private setSlot(layerId: number, type: ITileTypeData) {
     this[`_slot${layerId}`] = type;
-
-    if (layerId === 1) {
-      this.collision = !this.isSlotEmpty(1);
-    }
   }
 
   private getSlot(layerId: number): ITileTypeData | undefined {

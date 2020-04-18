@@ -8,6 +8,14 @@ export interface ITileTypes {
   [key: string]: ITileTypeData;
 }
 
+export interface ITileGroups {
+  [key: string]: {
+    display?: "2x2" | "3x3" | "4x4";
+  };
+}
+
+export type ILayerId = 0 | 1 | 2;
+
 export interface ITileMapLayers {
   layer1: (0 | 1)[];
   layer2: number[];
@@ -19,6 +27,7 @@ export interface ITileMapData {
   cols: number;
   tileSize: number;
   tileSet: string;
+  tileGroups: ITileGroups;
   tileTypes: ITileTypes;
   layers: ITileMapLayers;
 }
@@ -28,6 +37,12 @@ export interface ITileTypeData {
   row: number;
   col: number;
   group: string;
+}
+
+export interface ITileTypeGroup {
+  id: string;
+  name: string;
+  display: "2x2" | "3x3" | "4x4" | null;
 }
 
 export interface ITile {

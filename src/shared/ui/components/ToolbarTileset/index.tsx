@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-import { ITileTypeData } from "@src/shared/models/tilemap.model";
+import { ITileTypeData, ITileTypes, ITileGroups, ITileTypeGroup } from "@src/shared/models/tilemap.model";
 
 import ToolbarButton from "../ToolbarButton";
 
@@ -12,11 +12,12 @@ interface IToolbarTilesetProps {
   onSelect: (id: string) => void;
   src: string;
   tileSize: number;
-  tileTypes: Record<string, ITileTypeData>;
+  tileTypes: ITileTypes;
+  tileGroups: ITileGroups;
   scale?: number;
 }
 
-const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selected, onSelect, src, tileSize, tileTypes }) => {
+const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
   const [tiles, setTiles] = React.useState<string[]>([]);
 
   const ref = React.useRef<HTMLDivElement>(null);
@@ -41,16 +42,25 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
     setOpen(!open);
   };
 
-  const groups: string[] = React.useMemo(() => {
+  const groups: ITileTypeGroup[] = React.useMemo(() => {
     return Object.values(tileTypes)
       .reduce((acc, val) => {
-        if (acc.indexOf(val.group) === -1) {
-          acc.push(val.group);
+        if (acc.findIndex((item) => item.id === val.group) === -1) {
+          const tileGroup = tileGroups[val.group] || {};
+          acc.push({ id: val.group, ...tileGroup });
         }
         return acc;
       }, [])
-      .sort();
-  }, [tileTypes]);
+      .sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (b.name < a.name) {
+          return 1;
+        }
+        return 0;
+      });
+  }, [tileTypes, tileGroups]);
 
   const data = React.useMemo<(ITileTypeData & { id: string })[]>(() => Object.entries(tileTypes).map(([id, temp]) => ({ id, ...temp })), [tileTypes]);
 
@@ -95,11 +105,11 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
       {open && (
         <div className="toolbar-tileset__inner">
           {groups.map((group) => {
-            const list = data.filter((item) => item.group === group);
+            const list = data.filter((item) => item.group === group.id);
             return (
-              <div key={group} className="toolbar-tileset-group">
-                <h4 className="toolbar-tileset-group__title">{group}</h4>
-                <ul className="toolbar-tileset-group__list">
+              <div key={group.id} className="toolbar-tileset-group">
+                <h4 className="toolbar-tileset-group__title">{group.name || `[${group.id}]`}</h4>
+                <ul className={cx("toolbar-tileset-group__list", group && group.display && `g${group.display}`)}>
                   {list.map(({ id }) => (
                     <li key={id} className={cx(id === selected && "active")}>
                       <img

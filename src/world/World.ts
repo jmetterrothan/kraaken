@@ -14,11 +14,15 @@ import TileMap from "@src/world/TileMap";
 
 import { configSvc } from "@shared/services/config.service";
 
-import { IPlayer } from "./../shared/models/entity.model";
+import { EditorMode } from "@src/shared/models/editor.model";
+import { ILayerId } from "@shared/models/tilemap.model";
+import { IPlayer } from "@shared/models/entity.model";
 import { ISpawnpoint } from "@src/shared/models/world.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
 
 import { getRandomInt } from "@src/shared/utility/MathHelpers";
+
+import { CHANGE_MODE_EVENT, CHANGE_LAYER_EVENT, CHANGE_TILETYPE_EVENT } from "@src/shared/ui/events";
 
 import { gl } from "@src/Game";
 
@@ -36,7 +40,8 @@ class World {
   private entities: Entity[];
 
   private selectedTileTypeId: string;
-  private selectedLayerId: 0 | 1 | 2;
+  private selectedLayerId: ILayerId;
+  private selectedMode: EditorMode;
 
   // physics
   private gravity: Vector2;
@@ -51,8 +56,9 @@ class World {
 
     this.entities = [];
 
-    this.selectedTileTypeId = "1";
-    this.selectedLayerId = 1;
+    this.selectedTileTypeId = undefined;
+    this.selectedLayerId = undefined;
+    this.selectedMode = undefined;
   }
 
   public async init() {
@@ -84,12 +90,16 @@ class World {
       }
     });
 
-    window.addEventListener("change_tiletype", (e: CustomEvent) => {
+    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: CustomEvent<{ id: string }>) => {
       this.selectedTileTypeId = e.detail.id;
     });
 
-    window.addEventListener("change_layer", (e: CustomEvent) => {
+    window.addEventListener(CHANGE_LAYER_EVENT, (e: CustomEvent<{ id: ILayerId }>) => {
       this.selectedLayerId = e.detail.id;
+    });
+
+    window.addEventListener(CHANGE_MODE_EVENT, (e: CustomEvent<{ mode: EditorMode }>) => {
+      this.selectedMode = e.detail.mode;
     });
 
     console.info("World initialized");
@@ -219,12 +229,24 @@ class World {
       const tile = this.tileMap.getTileAt(coords.x, coords.y);
 
       if (tile) {
-        tile.activeSlot = this.selectedLayerId as 1 | 2;
-
-        if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
-          tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
+        if (this.selectedLayerId === 0) {
+          if (this.selectedMode === EditorMode.FILL) {
+            tile.collision = true;
+          } else {
+            tile.collision = false;
+          }
         } else {
-          tile.slot = this.level.world.tileMap.tileTypes.void;
+          tile.activeSlot = this.selectedLayerId;
+
+          if (this.selectedMode === EditorMode.FILL) {
+            if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
+              tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
+            } else {
+              tile.slot = this.level.world.tileMap.tileTypes.void;
+            }
+          } else {
+            tile.slot = this.level.world.tileMap.tileTypes.void;
+          }
         }
       } else {
         console.warn("no tile found");
