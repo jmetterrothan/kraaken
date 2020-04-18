@@ -44,21 +44,19 @@ function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: ITo
   return (
     <div ref={ref} className={cx("toolbar-select", open && "open")}>
       <ToolbarButton {...props} active={false} name={selection ? selection.name : "Select Layer"} showCaret={true} onClick={handleBtnClick} />
-      {open && (
-        <ul className="toolbar-select__inner">
-          {options.map((option, i) => {
-            const handleItemClick = () => {
-              onItemClick(option);
-              setOpen(false);
-            };
-            return (
-              <li key={i} className={cx(selected === option.value && "selected")} onClick={handleItemClick}>
-                {option.name || option.value}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <ul className="toolbar-select__inner">
+        {options.map((option, i) => {
+          const handleItemClick = () => {
+            onItemClick(option);
+            setOpen(false);
+          };
+          return (
+            <li key={i} className={cx(selected === option.value && "selected")} onClick={handleItemClick}>
+              {option.name || option.value}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

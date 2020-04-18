@@ -102,32 +102,31 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
   return (
     <div ref={ref} className={cx("toolbar-tileset", open && "open")}>
       <ToolbarButton icon="alien-monster" active={false} name="Select Texture" showCaret={true} onClick={handleBtnClick} />
-      {open && (
-        <div className="toolbar-tileset__inner">
-          {groups.map((group) => {
-            const list = data.filter((item) => item.group === group.id);
-            return (
-              <div key={group.id} className="toolbar-tileset-group">
-                <h4 className="toolbar-tileset-group__title">{group.name || `[${group.id}]`}</h4>
-                <ul className={cx("toolbar-tileset-group__list", group && group.display && `g${group.display}`)}>
-                  {list.map(({ id }) => (
-                    <li key={id} className={cx(id === selected && "active")}>
-                      <img
-                        onClick={() => {
-                          onSelect(id);
-                          setOpen(false);
-                        }}
-                        className="pixelated"
-                        src={tiles[id]}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-      )}
+
+      <div className="toolbar-tileset__inner">
+        {groups.map((group) => {
+          const list = data.filter((item) => item.group === group.id);
+          return (
+            <div key={group.id} className="toolbar-tileset-group">
+              <h4 className="toolbar-tileset-group__title">{group.name || `[${group.id}]`}</h4>
+              <ul className={cx("toolbar-tileset-group__list", group && group.display && `g${group.display}`)}>
+                {list.map(({ id }) => (
+                  <li key={id} className={cx(id === selected && "active")}>
+                    <img
+                      onClick={() => {
+                        onSelect(id);
+                        setOpen(false);
+                      }}
+                      className="pixelated"
+                      src={tiles[id]}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
