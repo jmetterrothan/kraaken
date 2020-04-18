@@ -239,11 +239,14 @@ class World {
           tile.activeSlot = this.selectedLayerId;
 
           if (this.selectedMode === EditorMode.FILL) {
+            /*
             if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
               tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
             } else {
               tile.slot = this.level.world.tileMap.tileTypes.void;
             }
+            */
+            tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
           } else {
             tile.slot = this.level.world.tileMap.tileTypes.void;
           }
