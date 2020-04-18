@@ -23,8 +23,8 @@ vec4 color() {
     if (u_grayscale) {
         c = toGrayscale(c);
     }
-
-    return c * vec4(1, 1, 1, u_alpha);
+  
+    return vec4(c.rgb, u_alpha * c.a);
 }
 
 void main() {
