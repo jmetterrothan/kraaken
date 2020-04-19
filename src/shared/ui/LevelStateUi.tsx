@@ -53,6 +53,7 @@ export default ({ level }) => {
         <ToolbarButton
           icon="eraser" //
           name="Erase"
+          theme="red"
           active={mode === EditorMode.ERASE}
           onClick={setEraseMode}
         />
