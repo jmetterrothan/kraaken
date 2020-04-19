@@ -7,7 +7,7 @@ import Vector2 from "@src/shared/math/Vector2";
 class DamageEffectConsummable extends Loot {
   public consummatedBy(entity: Entity): void {
     if (this.sfx) {
-      this.add(SFX.create(this.getX(), this.getY(), new Vector2(1, 1), this.sfx));
+      this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), this.sfx));
     }
 
     this.consummated = true;

@@ -9,8 +9,8 @@ abstract class Loot extends Entity implements IConsummable {
   protected sfx: string;
   protected consummated: boolean;
 
-  constructor(x: number, y: number, direction: Vector2, data: ILoot) {
-    super(x, y, direction, data as IEntity);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: ILoot) {
+    super(uuid, x, y, direction, data as IEntity);
     this.sfx = data.metadata.sfx || undefined;
   }
 

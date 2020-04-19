@@ -26,8 +26,8 @@ class Entity extends AnimatedObject2d {
 
   protected velocity: Vector2;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
-    super(x, y, direction, data);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEntity) {
+    super(uuid, x, y, direction, data);
 
     this.collide = "collide" in data.metadata ? data.metadata.collide : true;
     this.gravity = "gravity" in data.metadata ? data.metadata.gravity : true;

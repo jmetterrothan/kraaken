@@ -2,9 +2,10 @@ import { mat3 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
-import { uuid } from "@shared/utility/Utility";
 import Color from "@src/shared/helper/Color";
 import World from "@src/world/World";
+
+import * as utility from "@src/shared/utility/Utility";
 
 class Object2d {
   protected visible: boolean;
@@ -22,11 +23,15 @@ class Object2d {
 
   private children: Map<string, Object2d>;
 
-  constructor(x: number, y: number) {
+  public static create(x: number, y: number): Object2d {
+    return new Object2d(utility.uuid(), x, y);
+  }
+
+  constructor(uuid: string, x: number, y: number) {
     this.position = new Vector2(x, y);
     this.previousPosition = new Vector2(x, y);
 
-    this.uuid = uuid();
+    this.uuid = uuid;
     this.visible = true;
     this.dirty = false;
     this.culled = false;

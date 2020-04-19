@@ -19,8 +19,8 @@ class AnimatedObject2d extends Object2d {
   private previousAnimationKey: string;
   private defaultAnimationKey: string;
 
-  constructor(x: number, y: number, direction: Vector2, data: IObject) {
-    super(x, y);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IObject) {
+    super(uuid, x, y);
 
     this.parameters = {
       direction,

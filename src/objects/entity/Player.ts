@@ -22,8 +22,8 @@ class Player extends Entity implements IMovement {
   protected initialJumpBoost: number;
   protected jumpSpeed: number;
 
-  constructor(x: number, y: number, direction: Vector2, data: IPlayer) {
-    super(x, y, direction, data);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IPlayer) {
+    super(uuid, x, y, direction, data);
 
     this.left = false;
     this.right = false;

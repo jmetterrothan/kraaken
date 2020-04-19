@@ -24,8 +24,9 @@ export interface IWorldData {
 }
 
 export interface ISpawnpoint {
+  uuid: string;
   ref: string;
-  spawn: IVector2;
+  position: IVector2;
   direction: IVector2;
   metadata: {
     debug?: boolean;

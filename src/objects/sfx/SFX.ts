@@ -3,6 +3,8 @@ import Vector2 from "@src/shared/math/Vector2";
 import Fifo from "@src/shared/utility/Fifo";
 import World from "@src/world/World";
 
+import * as utility from "@src/shared/utility/Utility";
+
 class SFX extends AnimatedObject2d {
   public static DATA = {};
 
@@ -12,17 +14,12 @@ class SFX extends AnimatedObject2d {
     }
   }
 
-  public static create(
-    x: number,
-    y: number,
-    direction: Vector2,
-    name: string
-  ): SFX {
+  public static createPooled(x: number, y: number, direction: Vector2, name: string): SFX {
     SFX.createPoolIfNotExists(name);
 
     const sfx = SFX.POOL.get(name).pop();
     if (!sfx) {
-      return new SFX(x, y, direction, name);
+      return new SFX(utility.uuid(), x, y, direction, name);
     }
 
     sfx.objectWillBeAdded(x, y);
@@ -32,14 +29,14 @@ class SFX extends AnimatedObject2d {
   private static POOL: Map<string, Fifo<SFX>> = new Map<string, Fifo<SFX>>();
   private reference: string;
 
-  constructor(x: number, y: number, direction: Vector2, reference: string) {
-    super(x, y, direction, SFX.DATA[reference]);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, reference: string) {
+    super(uuid, x, y, direction, SFX.DATA[reference]);
     this.reference = reference;
   }
 
   public update(world: World, delta: number) {
     super.update(world, delta);
-    this.updateAnimation(world, delta);
+    this.updateAnimation();
 
     if (!this.isDirty() && this.animation.playedOnce()) {
       this.setDirty(true);

@@ -16,8 +16,8 @@ class NPC extends Entity {
   private target: Object2d;
   private spawn: Object2d;
 
-  constructor(x: number, y: number, direction: Vector2, data: IEntity) {
-    super(x, y, direction, data);
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEntity) {
+    super(uuid, x, y, direction, data);
     // this.parameters.grayscale = true;
     // this.parameters.alpha = 0.15;
 
@@ -25,7 +25,7 @@ class NPC extends Entity {
     this.deceleration = new Vector2(4, 4);
     this.speed = new Vector2(40, 40);
 
-    this.spawn = new Object2d(x, y);
+    this.spawn = Object2d.create(x, y);
   }
 
   public follow(object: Object2d): void {
