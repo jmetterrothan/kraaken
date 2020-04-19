@@ -125,7 +125,7 @@
   },
   "player": {
     "ref": "player",
-    "spawn": { "x": 392, "y": 380 },
+    "position": { "x": 392, "y": 380 },
     "direction": { "x": 1, "y": 1 },
     "debug": false
   },
@@ -135,7 +135,7 @@
   "entities": [
     {
       "ref": "blob",
-      "spawn": { "x": 320, "y": 320 },
+      "position": { "x": 320, "y": 320 },
       "direction": { "x": 1, "y": 1 },
       "debug": false
     }

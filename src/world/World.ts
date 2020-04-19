@@ -16,13 +16,24 @@ import { configSvc } from "@shared/services/config.service";
 
 import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@shared/models/tilemap.model";
-import { IPlayer } from "@shared/models/entity.model";
 import { ISpawnpoint } from "@src/shared/models/world.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
 
 import { getRandomInt } from "@src/shared/utility/MathHelpers";
 
-import { CHANGE_MODE_EVENT, CHANGE_LAYER_EVENT, CHANGE_TILETYPE_EVENT, place } from "@src/shared/ui/events";
+import * as utility from "@src/shared/utility/Utility";
+
+import {
+  placeEvent, //
+  SPAWN_EVENT,
+  CHANGE_MODE_EVENT,
+  CHANGE_TILETYPE_EVENT,
+  CHANGE_LAYER_EVENT,
+  TileTypeChangeEvent,
+  LayerChangeEvent,
+  ModeChangeEvent,
+  SpawnEvent,
+} from "@src/shared/ui/events";
 
 import { gl } from "@src/Game";
 
@@ -55,10 +66,6 @@ class World {
     this.camera = new Camera();
 
     this.entities = [];
-
-    this.selectedTileTypeId = undefined;
-    this.selectedLayerId = undefined;
-    this.selectedMode = undefined;
   }
 
   public async init() {
@@ -68,17 +75,22 @@ class World {
 
     this.gravity = new Vector2(this.level.world.physics.gravity.x, this.level.world.physics.gravity.y);
 
-    this.tileMap = new TileMap(this.level.world.tileMap);
+    this.tileMap = new TileMap({
+      ...this.level.world.tileMap,
+      tileTypes: this.level.world.tileMap.tileTypes.reduce((acc, val) => {
+        acc[`${val.row}:${val.col}`] = val;
+        return acc;
+      }, {}),
+    });
     this.tileMap.init();
+
+    this.camera.setBoundaries(this.tileMap.getBoundaries());
 
     this.setClearColor(this.level.world.background);
 
     this.initPlayer(this.level.world.spawnpoints.player);
     this.initEntities(this.level.world.spawnpoints.entities);
     this.initLoots(this.level.world.spawnpoints.loots);
-
-    this.camera.setBoundaries(this.tileMap.getBoundaries());
-    this.camera.follow(this.player);
 
     window.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -90,16 +102,32 @@ class World {
       }
     });
 
-    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: CustomEvent<{ id: string }>) => {
+    window.addEventListener(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
+      this.selectedMode = e.detail.mode;
+    });
+
+    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
       this.selectedTileTypeId = e.detail.id;
     });
 
-    window.addEventListener(CHANGE_LAYER_EVENT, (e: CustomEvent<{ id: ILayerId }>) => {
+    window.addEventListener(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
       this.selectedLayerId = e.detail.id;
     });
 
-    window.addEventListener(CHANGE_MODE_EVENT, (e: CustomEvent<{ mode: EditorMode }>) => {
-      this.selectedMode = e.detail.mode;
+    window.addEventListener(SPAWN_EVENT, (e: SpawnEvent) => {
+      const { type, spawnpoint, onSuccess, onFailure } = e.detail || {};
+
+      try {
+        this.spawn(type, spawnpoint);
+
+        if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+      } catch (e) {
+        if (typeof onFailure === "function") {
+          onFailure();
+        }
+      }
     });
 
     console.info("World initialized");
@@ -117,6 +145,23 @@ class World {
       }
     }, 1000);
     */
+  }
+
+  private initPlayer(data: ISpawnpoint) {
+    this.player = this.spawn<Player>("player", data);
+    this.camera.follow(this.player);
+  }
+
+  private initEntities(entities: ISpawnpoint[]) {
+    for (const data of entities) {
+      this.spawn("npc", data);
+    }
+  }
+
+  private initLoots(loots: ISpawnpoint[]) {
+    for (const data of loots) {
+      this.spawn("loot", data);
+    }
   }
 
   public setClearColor(color: IRGBAColorData) {
@@ -220,49 +265,22 @@ class World {
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
-    this.player.handleKeyboardInput(key, active);
+    if (this.player) {
+      this.player.handleKeyboardInput(key, active);
+    }
   }
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
       const coords = this.camera.screenToCameraCoords(position);
       window.dispatchEvent(
-        place(
-          coords.x, //
-          coords.y,
-          this.selectedLayerId,
-          this.selectedMode === EditorMode.FILL ? this.selectedTileTypeId : "void"
+        placeEvent(
+          this.selectedLayerId, //
+          this.selectedMode === EditorMode.FILL ? this.selectedTileTypeId : "void",
+          coords.x,
+          coords.y
         )
       );
-
-      /*
-      if (tile) {
-        if (this.selectedLayerId === 0) {
-          if (this.selectedMode === EditorMode.FILL) {
-            tile.collision = true;
-          } else {
-            tile.collision = false;
-          }
-        } else {
-          tile.activeSlot = this.selectedLayerId;
-
-          if (this.selectedMode === EditorMode.FILL) {
-
-            if (tile.empty || tile.slot.key !== this.level.world.tileMap.tileTypes[this.selectedTileTypeId].key) {
-              tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
-            } else {
-              tile.slot = this.level.world.tileMap.tileTypes.void;
-            }
-
-            tile.slot = this.level.world.tileMap.tileTypes[this.selectedTileTypeId];
-          } else {
-            tile.slot = this.level.world.tileMap.tileTypes.void;
-          }
-        }
-      } else {
-        console.warn("no tile found");
-      }
-      */
     }
   }
 
@@ -273,7 +291,7 @@ class World {
 
       const lootData = this.level.loots[choices[getRandomInt(0, choices.length)]];
 
-      const loot = new DamageEffectConsummable(coords.x, coords.y, new Vector2(1, 1), lootData);
+      const loot = new DamageEffectConsummable(utility.uuid(), coords.x, coords.y, new Vector2(1, 1), lootData);
       this.add(loot);
     }
   }
@@ -295,6 +313,45 @@ class World {
     this.camera.recenter();
   }
 
+  public spawn<T extends Object2d = Object2d>(type: string, spawnpoint: ISpawnpoint): T {
+    const { uuid, ref, position, direction, metadata } = spawnpoint;
+
+    let C;
+    let data;
+
+    switch (type) {
+      case "player":
+        C = Player;
+        data = this.level.entities[ref];
+        break;
+      case "loot":
+        C = DamageEffectConsummable;
+        data = this.level.loots[ref];
+        break;
+      case "npc":
+        C = NPC;
+        data = this.level.entities[ref];
+      default:
+        throw new Error(`Tried to spawn an unknown object "${type}"`);
+    }
+
+    const object = new C(
+      uuid,
+      position.x, //
+      position.y,
+      new Vector2(direction.x, direction.y),
+      data
+    );
+
+    if ("showDebug" in object && metadata.debug) {
+      object.showDebug();
+    }
+
+    this.add(object);
+
+    return object;
+  }
+
   public getPlayer(): Player {
     return this.player;
   }
@@ -309,56 +366,6 @@ class World {
   }
   public getGravity(): Vector2 {
     return this.gravity;
-  }
-
-  private initPlayer(data: ISpawnpoint) {
-    this.player = new Player(
-      data.spawn.x, //
-      data.spawn.y,
-      new Vector2(data.direction.x, data.direction.y),
-      this.level.entities[data.ref] as IPlayer
-    );
-
-    if (data.metadata.debug) {
-      this.player.showDebug();
-    }
-    this.add(this.player);
-  }
-
-  private initEntities(entities: ISpawnpoint[]) {
-    for (const entityLevelData of entities) {
-      const { ref, spawn, direction, metadata } = entityLevelData;
-      const npc = new NPC(
-        spawn.x, //
-        spawn.y,
-        new Vector2(direction.x, direction.y),
-        this.level.entities[ref]
-      );
-
-      if (metadata.debug) {
-        npc.showDebug();
-      }
-      this.add(npc);
-    }
-  }
-
-  private initLoots(loots: ISpawnpoint[]) {
-    for (const lootLevelData of loots) {
-      const { ref, spawn, direction, metadata } = lootLevelData;
-      const lootData = this.level.loots[ref];
-
-      const loot = new DamageEffectConsummable(
-        spawn.x, //
-        spawn.y,
-        new Vector2(direction.x, direction.y),
-        lootData
-      );
-
-      if (metadata.debug) {
-        loot.showDebug();
-      }
-      this.add(loot);
-    }
   }
 }
 

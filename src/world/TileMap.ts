@@ -5,8 +5,7 @@ import Sprite from "@src/animation/Sprite";
 import World from "@src/world/World";
 import Tile from "./Tile";
 
-import { ITileTypes } from "@src/shared/models/tilemap.model";
-import { ITileMapData, ITileMapLayers } from "@shared/models/tilemap.model";
+import { ITileMap, ITileTypes, ITileMapLayers } from "@shared/models/tilemap.model";
 
 import { create2DArray } from "@src/shared/utility/Utility";
 
@@ -35,7 +34,7 @@ class TileMap {
 
   private atlas: Sprite;
 
-  constructor(data: ITileMapData) {
+  constructor(data: ITileMap) {
     this.nbCols = data.cols;
     this.nbRows = data.rows;
     this.tileSize = data.tileSize;
@@ -85,14 +84,17 @@ class TileMap {
           wireframe: false,
         });
 
+        // TODO: read data
+        const rockSingle = Object.values(tileTypes).find((tileType) => tileType.key === "rock_single");
+
         const type1 = layers.layer2[i];
         if (type1 !== 0) {
-          tile.slot1 = tileTypes[type1];
+          tile.slot1 = rockSingle;
         }
 
         const type2 = layers.layer3[i];
         if (type2 !== 0) {
-          tile.slot2 = tileTypes[type2];
+          tile.slot2 = rockSingle;
         }
 
         this.tiles[r][c] = tile;

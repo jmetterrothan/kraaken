@@ -4,9 +4,7 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import { ISpriteRenderParameters } from "./animation.model";
 
-export interface ITileTypes {
-  [key: string]: ITileTypeData;
-}
+export type ITileTypes = Record<string, ITileTypeData>;
 
 export interface ITileGroups {
   [key: string]: {
@@ -22,13 +20,23 @@ export interface ITileMapLayers {
   layer3: number[];
 }
 
-export interface ITileMapData {
+export interface ITileMap {
   rows: number;
   cols: number;
   tileSize: number;
   tileSet: string;
   tileGroups: ITileGroups;
   tileTypes: ITileTypes;
+  layers: ITileMapLayers;
+}
+
+export interface ITileMapData {
+  rows: number;
+  cols: number;
+  tileSize: number;
+  tileSet: string;
+  tileGroups: ITileGroups;
+  tileTypes: ITileTypeData[];
   layers: ITileMapLayers;
 }
 

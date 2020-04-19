@@ -41,7 +41,18 @@
   }
 
   &.active {
-    background: #4e71ad;
     color: #f1f1f1;
+  }
+
+  &--blue {
+    &.active {
+      background: #4e71ad;
+    }
+  }
+
+  &--red {
+    &.active {
+      background: #d14c57;
+    }
   }
 }

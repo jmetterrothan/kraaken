@@ -16,9 +16,17 @@ import { modeChange, tileTypeChange, layerChange } from "./events";
 export default ({ level }) => {
   const [mode, setMode] = React.useState<EditorMode>(EditorMode.FILL);
   const [layerId, setLayerId] = React.useState<number>(1);
-  const [tileTypeId, setTileTypeId] = React.useState<string>("1");
+  const [tileTypeId, setTileTypeId] = React.useState<string>("20:1");
 
-  const tileTypes: ITileTypes = level.tileMap.tileTypes;
+  const tileTypes: ITileTypes = React.useMemo(
+    () =>
+      level.tileMap.tileTypes.reduce((acc, val) => {
+        acc[`${val.row}:${val.col}`] = val;
+        return acc;
+      }, {}),
+    [level.tileMap.tileTypes]
+  );
+
   const tileGroups: ITileGroups = level.tileMap.tileGroups;
 
   const setFillMode = () => setMode(EditorMode.FILL);

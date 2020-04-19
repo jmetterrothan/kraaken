@@ -62,7 +62,7 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
       });
   }, [tileTypes, tileGroups]);
 
-  const data = React.useMemo<(ITileTypeData & { id: string })[]>(() => Object.entries(tileTypes).map(([id, temp]) => ({ id, ...temp })), [tileTypes]);
+  const data = React.useMemo<(ITileTypeData & { id: string })[]>(() => Object.entries(tileTypes).map(([id, tileType]) => ({ id, ...tileType })), [tileTypes]);
 
   React.useEffect(() => {
     const temp: string[] = [];
@@ -90,7 +90,7 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
         const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
         subCtx.putImageData(imagedata, 0, 0);
 
-        temp[i] = $subCanvas.toDataURL();
+        temp[`${row}:${col}`] = $subCanvas.toDataURL();
       });
 
       setTiles(temp);
