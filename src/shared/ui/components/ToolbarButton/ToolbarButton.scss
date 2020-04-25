@@ -36,23 +36,32 @@
     margin-top: 3px;
   }
 
-  &:hover {
+  &:hover:not(.disabled) {
     background: #d0d6e0;
   }
 
-  &.active {
-    color: #f1f1f1;
+  &.disabled {
+    background: transparent;
+    color: #8796af;
+    cursor: initial;
   }
 
   &--blue {
-    &.active {
+    &.active,
+    &:hover.active {
       background: #4e71ad;
     }
   }
 
   &--red {
-    &.active {
+    &.active,
+    &:hover.active {
       background: #d14c57;
     }
+  }
+
+  &.active,
+  &:hover.active {
+    color: #f1f1f1;
   }
 }

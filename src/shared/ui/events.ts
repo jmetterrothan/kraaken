@@ -4,6 +4,7 @@ import { ILayerId } from "@src/shared/models/tilemap.model";
 
 export const PLACE_EVENT = "place_event";
 export const SPAWN_EVENT = "spawn_event";
+export const FILL_EVENT = "fill_event";
 
 export const CHANGE_MODE_EVENT = "ui_change_mode";
 export const CHANGE_TILETYPE_EVENT = "ui_change_tiletype";
@@ -39,9 +40,13 @@ export const layerChange = (id: ILayerId) => {
   });
 };
 
-interface IPlaceEventDetails {
+interface IVector2 {
   x: number;
   y: number;
+}
+
+interface IPlaceEventDetails {
+  coords: IVector2[];
   layer: ILayerId;
   tileType: string;
   onSuccess?: () => void;
@@ -50,11 +55,11 @@ interface IPlaceEventDetails {
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: ILayerId, tileType: string, x: number, y: number): PlaceEvent => {
+export const placeEvent = (layer: ILayerId, tileType: string, position: IVector2[] | IVector2): PlaceEvent => {
+  console.info("place event");
   return new CustomEvent<IPlaceEventDetails>(PLACE_EVENT, {
     detail: {
-      x,
-      y,
+      coords: Array.isArray(position) ? position : [position],
       layer,
       tileType,
     },
@@ -70,7 +75,8 @@ interface ISpawnEventDetails {
 
 export type SpawnEvent = CustomEvent<ISpawnEventDetails>;
 
-export const spawnEvent = (uuid: string, type: string, ref: string, position: { x: number; y: number }, direction: { x: number; y: number } = { x: 1, y: 1 }, metadata: Record<string, unknown> = {}): SpawnEvent => {
+export const spawnEvent = (uuid: string, type: string, ref: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, metadata: Record<string, unknown> = {}): SpawnEvent => {
+  console.info("spawn event");
   return new CustomEvent<ISpawnEventDetails>(SPAWN_EVENT, {
     detail: {
       type,

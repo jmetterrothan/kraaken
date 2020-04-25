@@ -54,7 +54,7 @@ class NPC extends Entity {
 
       // raycast
       for (let i = 0, n = steps; i < n; i++) {
-        const tile = map.getTileAt(pos.x, pos.y);
+        const tile = map.getTileAtCoords(pos.x, pos.y);
 
         if (tile && tile.collision) {
           return false;

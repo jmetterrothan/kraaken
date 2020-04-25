@@ -5,7 +5,7 @@ import Sprite from "@src/animation/Sprite";
 import World from "@src/world/World";
 import Tile from "./Tile";
 
-import { ITileMap, ITileTypes, ITileMapLayers } from "@shared/models/tilemap.model";
+import { ITileMap, ITileTypes, ITileMapLayers, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 import { create2DArray } from "@src/shared/utility/Utility";
 
@@ -31,6 +31,7 @@ class TileMap {
   private boundaries: Box2;
 
   private tiles: Tile[][];
+  private types: ITileTypes;
 
   private atlas: Sprite;
 
@@ -46,20 +47,22 @@ class TileMap {
     this.boundaries = Box2.createFromCenterPoint(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.tiles = create2DArray(this.nbRows, this.nbCols);
+    this.types = data.tileTypes;
 
-    this.buildTiles(data.layers, data.tileTypes);
+    this.buildTiles(data.layers);
 
     window.addEventListener(PLACE_EVENT, (e: PlaceEvent) => {
-      const { x, y, layer, tileType, onSuccess, onFailure } = e.detail || {};
+      const { coords = [], layer, tileType, onSuccess, onFailure } = e.detail || {};
 
       try {
-        const tile = this.getTileAt(x, y);
-        if (!tile) {
-          throw new Error("No tile found");
-        }
+        coords.forEach((coord) => {
+          const tile = this.getTileAtCoords(coord.x, coord.y);
 
-        tile.activeSlot = layer;
-        tile.slot = data.tileTypes[tileType];
+          if (tile) {
+            tile.activeSlot = layer;
+            tile.slot = data.tileTypes[tileType];
+          }
+        });
 
         if (typeof onSuccess === "function") {
           onSuccess();
@@ -72,7 +75,11 @@ class TileMap {
     });
   }
 
-  public buildTiles(layers: ITileMapLayers, tileTypes: ITileTypes) {
+  public findTypeByKey(key: string): ITileTypeData | undefined {
+    return Object.values(this.types).find((tileType) => tileType.key === key);
+  }
+
+  public buildTiles(layers: ITileMapLayers) {
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         // convert 1d array of tiles to a 2d array
@@ -85,16 +92,20 @@ class TileMap {
         });
 
         // TODO: read data
-        const rockSingle = Object.values(tileTypes).find((tileType) => tileType.key === "rock_single");
+        const rockSingleType = this.findTypeByKey("rock_single");
 
         const type1 = layers.layer2[i];
         if (type1 !== 0) {
-          tile.slot1 = rockSingle;
+          tile.slot1 = rockSingleType;
+        } else {
+          tile.slot1 = undefined;
         }
 
         const type2 = layers.layer3[i];
         if (type2 !== 0) {
-          tile.slot2 = rockSingle;
+          tile.slot2 = rockSingleType;
+        } else {
+          tile.slot2 = undefined;
         }
 
         this.tiles[r][c] = tile;
@@ -158,9 +169,43 @@ class TileMap {
     }
   }
 
-  public getTileAt(x: number, y: number): Tile | undefined {
+  public floodFill(originRow: number, originCol: number, predicate: (tile?: Tile) => boolean) {
+    const stack = [];
+
+    const fn = (row: number, col: number) => {
+      const index = col * this.nbRows + row;
+
+      if (col < 0 || row < 0 || col >= this.nbCols || row >= this.nbRows) {
+        return;
+      }
+      if (stack[index]) {
+        return;
+      }
+
+      if (!predicate(this.getTileAt(row, col))) {
+        return;
+      }
+
+      stack[index] = { row, col };
+
+      fn(row - 1, col);
+      fn(row, col - 1);
+      fn(row + 1, col);
+      fn(row, col + 1);
+    };
+
+    fn(originRow, originCol);
+
+    return stack;
+  }
+
+  public getTileAtCoords(x: number, y: number): Tile | undefined {
     const [r, c] = this.getTileIndexesFromCoord(x, y);
-    return this.tiles[r] ? this.tiles[r][c] : undefined;
+    return this.getTileAt(r, c);
+  }
+
+  public getTileAt(row: number, col: number): Tile | undefined {
+    return this.tiles[row] ? this.tiles[row][col] : undefined;
   }
 
   public getTileIndexesFromCoord(x: number, y: number): [number, number] {
@@ -173,8 +218,17 @@ class TileMap {
   public getBoundaries(): Box2 {
     return this.boundaries;
   }
+
   public getTileSize(): number {
     return this.tileSize;
+  }
+
+  public getNbCols(): number {
+    return this.nbCols;
+  }
+
+  public getNbRows(): number {
+    return this.nbRows;
   }
 }
 

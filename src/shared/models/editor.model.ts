@@ -1,4 +1,6 @@
 export enum EditorMode {
-  FILL = 0,
-  ERASE = 1,
+  PLACE = 0,
+  FILL = 1,
+  ERASE = 2,
+  PICK = 3,
 }

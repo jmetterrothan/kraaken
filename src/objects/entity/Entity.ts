@@ -263,17 +263,17 @@ class Entity extends AnimatedObject2d {
   }
 
   private testForCollision(map: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): Tile | undefined {
-    const a = map.getTileAt(a1x, a1y);
+    const a = map.getTileAtCoords(a1x, a1y);
     if (a && a.collision) {
       return a;
     }
 
-    const b = map.getTileAt(b1x, b1y);
+    const b = map.getTileAtCoords(b1x, b1y);
     if (b && b.collision) {
       return b;
     }
 
-    const c = map.getTileAt(c1x, c1y);
+    const c = map.getTileAtCoords(c1x, c1y);
     if (c && c.collision) {
       return c;
     }

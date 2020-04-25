@@ -14,7 +14,6 @@
     "rows": 32,
     "tileSize": 16,
     "tileTypes": {
-      "0": { "key": "void", "row": 1, "col": 1 },
       "1": { "key": "test", "row": 0, "col": 6 },
       "2": { "key": "test1", "row": 0, "col": 7 }
     },

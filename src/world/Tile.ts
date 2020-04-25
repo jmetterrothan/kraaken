@@ -56,12 +56,12 @@ class Tile {
     this[`_slot${layerId}`] = type;
   }
 
-  private getSlot(layerId: number): ITileTypeData | undefined {
+  public getSlot(layerId: number): ITileTypeData | undefined {
     return this[`_slot${layerId}`];
   }
 
-  private isSlotEmpty(layerId: number): boolean {
-    return !this[`_slot${layerId}`] || this[`_slot${layerId}`].key === "void";
+  public isSlotEmpty(layerId: number): boolean {
+    return !this[`_slot${layerId}`];
   }
 
   public get x1(): number {
@@ -102,6 +102,10 @@ class Tile {
 
   public set slot(type: ITileTypeData) {
     this.setSlot(this.activeSlot, type);
+  }
+
+  public get typeId(): string | undefined {
+    return this.slot ? `${this.slot.row}:${this.slot.col}` : undefined;
   }
 
   public get empty(): boolean {
