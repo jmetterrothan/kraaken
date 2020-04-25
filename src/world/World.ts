@@ -1,10 +1,8 @@
-import { tileTypeChange } from "./../shared/ui/events";
 import { mat3, vec2 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
 import Level from "@src/world/Level";
-import Tile from "@src/world/Tile";
 import Sprite from "@src/animation/Sprite";
 import Camera from "@src/Camera";
 import Entity from "@src/objects/entity/Entity";
@@ -16,25 +14,8 @@ import TileMap from "@src/world/TileMap";
 
 import { configSvc } from "@shared/services/config.service";
 
-import { EditorMode } from "@src/shared/models/editor.model";
-import { ILayerId } from "@shared/models/tilemap.model";
 import { ISpawnpoint } from "@src/shared/models/world.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
-
-import * as utility from "@src/shared/utility/Utility";
-
-import {
-  placeEvent, //
-  SPAWN_EVENT,
-  CHANGE_MODE_EVENT,
-  CHANGE_TILETYPE_EVENT,
-  CHANGE_LAYER_EVENT,
-  TileTypeChangeEvent,
-  LayerChangeEvent,
-  ModeChangeEvent,
-  spawnEvent,
-  SpawnEvent,
-} from "@src/shared/ui/events";
 
 import { gl } from "@src/Game";
 
@@ -51,10 +32,6 @@ class World {
 
   private entities: Entity[];
 
-  private selectedTileTypeId: string | undefined;
-  private selectedLayerId: ILayerId;
-  private selectedMode: EditorMode;
-
   // physics
   private gravity: Vector2;
 
@@ -67,10 +44,6 @@ class World {
     this.camera = new Camera();
 
     this.entities = [];
-
-    this.selectedTileTypeId = "20:1";
-    this.selectedLayerId = 1;
-    this.selectedMode = EditorMode.FILL;
   }
 
   public async init() {
@@ -104,34 +77,6 @@ class World {
             entity.hasTarget(this.player) ? entity.unfollow() : entity.follow(this.player);
           }
         });
-      }
-    });
-
-    window.addEventListener(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
-      this.selectedMode = e.detail.mode;
-    });
-
-    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
-      this.selectedTileTypeId = e.detail.id;
-    });
-
-    window.addEventListener(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
-      this.selectedLayerId = e.detail.id;
-    });
-
-    window.addEventListener(SPAWN_EVENT, (e: SpawnEvent) => {
-      const { type, spawnpoint, onSuccess, onFailure } = e.detail || {};
-
-      try {
-        this.spawn(type, spawnpoint);
-
-        if (typeof onSuccess === "function") {
-          onSuccess();
-        }
-      } catch (e) {
-        if (typeof onFailure === "function") {
-          onFailure();
-        }
       }
     });
 
@@ -277,58 +222,13 @@ class World {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (active) {
-      const coords = this.camera.screenToCameraCoords(position);
-
-      if (this.selectedMode === EditorMode.PICK) {
-        const tile = this.tileMap.getTileAtCoords(coords.x, coords.y);
-        if (tile && tile.typeId) {
-          window.dispatchEvent(tileTypeChange(tile.typeId));
-        }
-      } else if (this.selectedMode === EditorMode.PLACE) {
-        window.dispatchEvent(
-          placeEvent(
-            this.selectedLayerId, //
-            this.selectedTileTypeId,
-            { x: coords.x, y: coords.y }
-          )
-        );
-      } else if (this.selectedMode === EditorMode.ERASE) {
-        window.dispatchEvent(
-          placeEvent(
-            this.selectedLayerId, //
-            undefined,
-            { x: coords.x, y: coords.y }
-          )
-        );
-      } else if (this.selectedMode === EditorMode.FILL) {
-        const targetTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
-
-        if (targetTile) {
-          const targetId = targetTile.typeId;
-
-          window.dispatchEvent(
-            placeEvent(
-              this.selectedLayerId, //
-              this.selectedTileTypeId,
-              this.tileMap
-                .floodFill(targetTile.row, targetTile.col, (tile: Tile) => {
-                  tile.activeSlot = this.selectedLayerId;
-
-                  return tile && tile.typeId === targetId;
-                })
-                .map(({ row, col }) => ({ x: col * this.tileMap.getTileSize(), y: row * this.tileMap.getTileSize() }))
-            )
-          );
-        }
-      }
+      // console.log("left click");
     }
   }
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
     if (active) {
-      const coords = this.camera.screenToCameraCoords(position);
-
-      window.dispatchEvent(spawnEvent(utility.uuid(), "loot", "health_potion", coords));
+      // console.log("middle click");
     }
   }
 

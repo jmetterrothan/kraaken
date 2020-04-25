@@ -61,6 +61,10 @@ class TileMap {
           if (tile) {
             tile.activeSlot = layer;
             tile.slot = data.tileTypes[tileType];
+
+            if (layer === 1) {
+              tile.collision = tileType !== undefined;
+            }
           }
         });
 

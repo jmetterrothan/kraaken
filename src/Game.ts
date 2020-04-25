@@ -229,11 +229,10 @@ class Game {
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
-    this.stateManager.add(GameStates.LEVEL1, new LevelState(1));
-    this.stateManager.add(GameStates.LEVEL2, new LevelState(2));
-    this.stateManager.add(GameStates.EDITOR, new EditorState());
+    this.stateManager.add(GameStates.LEVEL, new LevelState(2));
+    this.stateManager.add(GameStates.EDITOR, new EditorState(2));
 
-    this.stateManager.switch(GameStates.LEVEL2);
+    this.stateManager.switch(GameStates.EDITOR);
 
     this.resize(this.options.width, this.options.height);
   }

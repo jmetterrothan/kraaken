@@ -2,22 +2,22 @@ import React from "react";
 
 import tilesetSrc from "@src/data/level2/assets/graphics/tileset.png";
 
-import { ITileTypes, ITileGroups, ILayerId } from "../models/tilemap.model";
+import { ITileTypes, ITileGroups, ILayerId } from "@src/shared/models/tilemap.model";
 
-import Toolbar from "./components/Toolbar";
-import ToolbarButton from "./components/ToolbarButton";
-import ToolbarTileset from "./components/ToolbarTileset";
-import ToolbarSeparator from "./components/ToolbarSeparator";
-import ToolbarSelect, { IToolbarOption } from "./components/ToolbarSelect";
+import Toolbar from "@src/shared/ui/components/Toolbar";
+import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
+import ToolbarTileset from "@src/shared/ui/components/ToolbarTileset";
+import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
+import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/ToolbarSelect";
 
 import { EditorMode } from "@src/shared/models/editor.model";
 
-import { modeChange, tileTypeChange, layerChange, CHANGE_MODE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent } from "./events";
+import { modeChange, tileTypeChange, layerChange, CHANGE_MODE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent } from "../../shared/ui/events";
 
-export default ({ level }) => {
-  const [mode, setMode] = React.useState<EditorMode>(EditorMode.FILL);
-  const [layerId, setLayerId] = React.useState<number>(1);
-  const [tileTypeId, setTileTypeId] = React.useState<string>("20:1");
+export default ({ level, options }) => {
+  const [mode, setMode] = React.useState<EditorMode>(options.mode);
+  const [layerId, setLayerId] = React.useState<number>(options.layerId);
+  const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);
 
   const tileTypes: ITileTypes = React.useMemo(
     () =>
