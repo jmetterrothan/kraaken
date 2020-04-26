@@ -1,7 +1,5 @@
 import React from "react";
 
-import tilesetSrc from "@src/data/level2/assets/graphics/tileset.png";
-
 import { ITileTypes, ITileGroups, ILayerId } from "@src/shared/models/tilemap.model";
 
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -16,9 +14,12 @@ import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@s
 
 import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "@src/shared/events";
 
+export default ({ sprites, level, options }) => {
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);
+
+  const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileMap.tileSet), []);
 
   const tileTypes: ITileTypes = React.useMemo(
     () =>
@@ -126,10 +127,11 @@ import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, Til
         <ToolbarTileset
           selected={tileTypeId} //
           onSelect={handleTileTypeSelection}
-          src={tilesetSrc}
-          tileSize={16}
+          src={tileSet.src}
+          tileSize={tileSet.tileWidth}
           tileTypes={tileTypes}
           tileGroups={tileGroups}
+          disabled={mode === EditorMode.ERASE}
         />
       </Toolbar>
     </div>

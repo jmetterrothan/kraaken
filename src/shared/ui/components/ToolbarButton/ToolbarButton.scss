@@ -24,9 +24,12 @@
     font-size: 0.85rem;
     font-weight: 600;
     line-height: 0.95rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     .caret {
-      color: #40506b;
+      color: inherit;
       font-size: 0.85rem;
       margin-left: 6px;
     }

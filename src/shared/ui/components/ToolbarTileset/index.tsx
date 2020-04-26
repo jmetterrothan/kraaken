@@ -8,6 +8,7 @@ import ToolbarButton from "../ToolbarButton";
 import "./ToolbarTileset.scss";
 
 interface IToolbarTilesetProps {
+  disabled?: boolean;
   selected: string;
   onSelect: (id: string) => void;
   src: string;
@@ -17,7 +18,7 @@ interface IToolbarTilesetProps {
   scale?: number;
 }
 
-const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
+const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
   const [tiles, setTiles] = React.useState<string[]>([]);
 
   const ref = React.useRef<HTMLDivElement>(null);
@@ -96,12 +97,20 @@ const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ selecte
       setTiles(temp);
     };
 
+    file.crossOrigin = "anonymous";
     file.src = src;
   }, []);
 
   return (
     <div ref={ref} className={cx("toolbar-tileset", open && "open")}>
-      <ToolbarButton icon="alien-monster" active={false} name="Select Texture" showCaret={true} onClick={handleBtnClick} />
+      <ToolbarButton
+        icon="alien-monster" //
+        disabled={disabled}
+        active={false}
+        name="Select Texture"
+        showCaret={true}
+        onClick={handleBtnClick}
+      />
 
       <div className="toolbar-tileset__inner">
         {groups.map((group) => {
