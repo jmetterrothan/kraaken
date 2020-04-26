@@ -1,17 +1,19 @@
-{
-  "player": {
-    "deceleration": { "x": 16, "y": 0 },
-    "acceleration": { "x": 32, "y": 0 },
-    "speed": { "x": 96, "y": 0 },
-    "max_jump_height": -6000,
-    "jump_speed": -400,
+[
+  {
+    "id": "hero",
+    "type": "entity",
     "metadata": {
+      "deceleration": { "x": 16, "y": 0 },
+      "acceleration": { "x": 24, "y": 0 },
+      "speed": { "x": 96, "y": 0 },
+      "initial_jump_boost": -200,
+      "jump_speed": -300,
       "bbox": { "w": 8, "h": 13 }
     },
     "defaultAnimationKey": "idle",
     "animationList": {
       "idle": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
         "keyframes": [
           { "row": 1, "col": 1, "duration": 250 },
@@ -19,24 +21,22 @@
         ]
       },
       "death": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
-        "keyframes": [
-          { "row": 1, "col": 3, "duration": 0 }
-        ]
+        "keyframes": [{ "row": 1, "col": 3, "duration": 0 }]
       },
       "jumping": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
         "keyframes": [{ "row": 1, "col": 0, "duration": 0 }]
       },
       "falling": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
         "keyframes": [{ "row": 1, "col": 2, "duration": 0 }]
       },
       "walking": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
         "keyframes": [
           { "row": 0, "col": 0, "duration": 85 },
@@ -45,13 +45,15 @@
         ]
       },
       "use_primary_weapon": {
-        "sprite": "player",
+        "sprite": "hero",
         "loop": true,
         "keyframes": [{ "row": 0, "col": 3, "duration": 250 }]
       }
     }
   },
-  "blob": {
+  {
+    "id": "blob",
+    "type": "entity",
     "metadata": {
       "bbox": { "w": 9, "h": 11 }
     },
@@ -68,4 +70,4 @@
       }
     }
   }
-}
+]
