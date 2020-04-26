@@ -120,6 +120,7 @@ class World {
 
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
+    // update entities list
     this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
@@ -132,12 +133,14 @@ class World {
     }
 
     const object = objects as Object2d;
-
+    // delete children tree
     this.remove(object.getChildren());
-
+    // perform tasks before removing it
     object.objectWillBeRemoved();
+    // delete object from root
     this.children.delete(object.getUUID());
 
+    // update entities list
     this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
   }
 
@@ -247,6 +250,21 @@ class World {
 
   public handleResize() {
     this.camera.recenter();
+  }
+
+  // TODO: find object by uuid recursively
+  public findObjectByUuid(uuid: string): Object2d {
+    return this.children.get(uuid);
+  }
+
+  public despawn(uuid: string): boolean {
+    const object = this.findObjectByUuid(uuid);
+
+    if (object instanceof Object2d) {
+      this.remove(object);
+      return true;
+    }
+    return false;
   }
 
   public spawn<T extends Object2d = Object2d>(type: string, spawnpoint: ISpawnpoint): T {

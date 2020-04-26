@@ -12,7 +12,7 @@ import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/Toolbar
 
 import { EditorMode } from "@src/shared/models/editor.model";
 
-import { modeChange, tileTypeChange, layerChange, CHANGE_MODE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent } from "../../shared/ui/events";
+import { dispatch, modeChange, tileTypeChange, layerChange, CHANGE_MODE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "../../shared/ui/events";
 
 export default ({ level, options }) => {
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
@@ -30,20 +30,28 @@ export default ({ level, options }) => {
 
   const tileGroups: ITileGroups = level.tileMap.tileGroups;
 
-  const setPlaceMode = React.useCallback(() => window.dispatchEvent(modeChange(EditorMode.PLACE)), []);
+  const setPlaceMode = React.useCallback(() => dispatch(modeChange(EditorMode.PLACE)), []);
 
-  const setFillMode = React.useCallback(() => window.dispatchEvent(modeChange(EditorMode.FILL)), []);
+  const setFillMode = React.useCallback(() => dispatch(modeChange(EditorMode.FILL)), []);
 
-  const setEraseMode = React.useCallback(() => window.dispatchEvent(modeChange(EditorMode.ERASE)), []);
+  const setEraseMode = React.useCallback(() => dispatch(modeChange(EditorMode.ERASE)), []);
 
-  const setPickMode = React.useCallback(() => window.dispatchEvent(modeChange(EditorMode.PICK)), []);
+  const setPickMode = React.useCallback(() => dispatch(modeChange(EditorMode.PICK)), []);
+
+  const handleUndoClick = React.useCallback(() => {
+    dispatch(undo());
+  }, []);
+
+  const handleRedoClick = React.useCallback(() => {
+    dispatch(redo());
+  }, []);
 
   const handleLayerSelection = React.useCallback((option: IToolbarOption<number>) => {
-    window.dispatchEvent(layerChange(option.value as ILayerId));
+    dispatch(layerChange(option.value as ILayerId));
   }, []);
 
   const handleTileTypeSelection = React.useCallback((id: string) => {
-    window.dispatchEvent(tileTypeChange(id));
+    dispatch(tileTypeChange(id));
   }, []);
 
   React.useEffect(() => {
@@ -93,15 +101,15 @@ export default ({ level, options }) => {
           icon="undo" //
           name="Undo"
           active={false}
-          disabled={true}
-          onClick={undefined}
+          disabled={false}
+          onClick={handleUndoClick}
         />
         <ToolbarButton
           icon="redo" //
           name="Redo"
           active={false}
-          disabled={true}
-          onClick={undefined}
+          disabled={false}
+          onClick={handleRedoClick}
         />
         <ToolbarSeparator />
         <ToolbarSelect<number>

@@ -20,11 +20,11 @@ abstract class Stack<T> {
   /**
    * @return {boolean}
    */
-  public isEmpty(): boolean {
+  public get isEmpty(): boolean {
     return this.size === 0;
   }
 
-  public length(): number {
+  public get length(): number {
     return this.size;
   }
 }

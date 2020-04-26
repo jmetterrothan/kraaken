@@ -11,8 +11,6 @@ import { create2DArray } from "@src/shared/utility/Utility";
 
 import { configSvc } from "@src/shared/services/config.service";
 
-import { PlaceEvent, PLACE_EVENT } from "@src/shared/ui/events";
-
 class TileMap {
   private startCol: number;
   private startRow: number;
@@ -31,7 +29,7 @@ class TileMap {
   private boundaries: Box2;
 
   private tiles: Tile[][];
-  private types: ITileTypes;
+  private tileTypes: ITileTypes;
 
   private atlas: Sprite;
 
@@ -47,40 +45,13 @@ class TileMap {
     this.boundaries = Box2.createFromCenterPoint(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.tiles = create2DArray(this.nbRows, this.nbCols);
-    this.types = data.tileTypes;
+    this.tileTypes = data.tileTypes;
 
     this.buildTiles(data.layers);
-
-    window.addEventListener(PLACE_EVENT, (e: PlaceEvent) => {
-      const { coords = [], layer, tileType, onSuccess, onFailure } = e.detail || {};
-
-      try {
-        coords.forEach((coord) => {
-          const tile = this.getTileAtCoords(coord.x, coord.y);
-
-          if (tile) {
-            tile.activeSlot = layer;
-            tile.slot = data.tileTypes[tileType];
-
-            if (layer === 1) {
-              tile.collision = tileType !== undefined;
-            }
-          }
-        });
-
-        if (typeof onSuccess === "function") {
-          onSuccess();
-        }
-      } catch (e) {
-        if (typeof onFailure === "function") {
-          onFailure();
-        }
-      }
-    });
   }
 
   public findTypeByKey(key: string): ITileTypeData | undefined {
-    return Object.values(this.types).find((tileType) => tileType.key === key);
+    return Object.values(this.tileTypes).find((tileType) => tileType.key === key);
   }
 
   public buildTiles(layers: ITileMapLayers) {
@@ -217,6 +188,10 @@ class TileMap {
     const c = Math.trunc(x / this.tileSize);
 
     return [r, c];
+  }
+
+  public getTileType(id: string): ITileTypeData {
+    return this.tileTypes[id];
   }
 
   public getBoundaries(): Box2 {

@@ -13,6 +13,7 @@ import { ILayerId } from "@shared/models/tilemap.model";
 import EditorUi from "@src/states/EditorState/EditorUi";
 
 import {
+  dispatch,
   placeEvent, //
   SPAWN_EVENT,
   CHANGE_MODE_EVENT,
@@ -24,8 +25,16 @@ import {
   spawnEvent,
   SpawnEvent,
   tileTypeChange,
+  PlaceEvent,
+  PLACE_EVENT,
+  UNDO_EVENT,
+  REDO_EVENT,
+  DESPAWN_EVENT,
+  despawnEvent,
+  DespawnEvent,
 } from "@src/shared/ui/events";
 
+import Fifo from "@src/shared/utility/Fifo";
 import * as utility from "@src/shared/utility/Utility";
 
 class EditorState extends State {
@@ -34,6 +43,9 @@ class EditorState extends State {
   private ready: boolean;
 
   private world: World;
+
+  private undoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }>;
+  private redoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }>;
 
   private selectedTileTypeId: string | undefined;
   private selectedLayerId: ILayerId;
@@ -47,7 +59,7 @@ class EditorState extends State {
 
     this.selectedTileTypeId = "20:1";
     this.selectedLayerId = 1;
-    this.selectedMode = EditorMode.FILL;
+    this.selectedMode = EditorMode.PLACE;
   }
 
   public async init() {
@@ -57,11 +69,30 @@ class EditorState extends State {
     this.level = new Level(this.id, data);
     this.world = new World(this.level);
 
+    this.undoStack = new Fifo();
+    this.redoStack = new Fifo();
+
     await this.world.init();
 
     this.ready = true;
 
     this.initEditorUi();
+
+    window.addEventListener(UNDO_EVENT, () => {
+      if (!this.undoStack.isEmpty) {
+        const action = this.undoStack.pop();
+        this.redoStack.push(action);
+        dispatch(action.undo);
+      }
+    });
+
+    window.addEventListener(REDO_EVENT, () => {
+      if (!this.redoStack.isEmpty) {
+        const action = this.redoStack.pop();
+        this.undoStack.push(action);
+        dispatch(action.redo);
+      }
+    });
 
     window.addEventListener(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
       this.selectedMode = e.detail.mode;
@@ -75,11 +106,83 @@ class EditorState extends State {
       this.selectedLayerId = e.detail.id;
     });
 
+    window.addEventListener(PLACE_EVENT, (e: PlaceEvent) => {
+      const { coords = [], layer, tileType, onSuccess, onFailure, pushToStack } = e.detail || {};
+
+      let oldTileType: string;
+
+      try {
+        const tileMap = this.world.getTileMap();
+
+        coords.forEach((coord) => {
+          const tile = tileMap.getTileAtCoords(coord.x, coord.y);
+          if (tile) {
+            tile.activeSlot = layer;
+            oldTileType = tile.typeId;
+            tile.slot = tileMap.getTileType(tileType);
+
+            if (layer === 1) {
+              tile.collision = tileType !== undefined;
+            }
+          }
+        });
+
+        // register event
+        if (oldTileType !== tileType) {
+          if (pushToStack) {
+            this.undoStack.push({
+              undo: placeEvent(layer, oldTileType, coords, false), //
+              redo: placeEvent(layer, tileType, coords, false),
+            });
+          }
+        }
+
+        if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+      } catch (e) {
+        if (typeof onFailure === "function") {
+          onFailure();
+        }
+      }
+    });
+
     window.addEventListener(SPAWN_EVENT, (e: SpawnEvent) => {
-      const { type, spawnpoint, onSuccess, onFailure } = e.detail || {};
+      const { type, spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       try {
         this.world.spawn(type, spawnpoint);
+
+        if (pushToStack) {
+          this.undoStack.push({
+            undo: despawnEvent(spawnpoint.uuid),
+            redo: spawnEvent(
+              spawnpoint.uuid, //
+              type,
+              spawnpoint.ref,
+              spawnpoint.position,
+              spawnpoint.direction,
+              spawnpoint.metadata,
+              false
+            ),
+          });
+        }
+
+        if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+      } catch (e) {
+        if (typeof onFailure === "function") {
+          onFailure();
+        }
+      }
+    });
+
+    window.addEventListener(DESPAWN_EVENT, (e: DespawnEvent) => {
+      const { uuid, onSuccess, onFailure } = e.detail || {};
+
+      try {
+        this.world.despawn(uuid);
 
         if (typeof onSuccess === "function") {
           onSuccess();
@@ -139,21 +242,21 @@ class EditorState extends State {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
     if (this.ready) {
-      const camera = this.world.getCamera();
-      const tileMap = this.world.getTileMap();
-
       this.world.handleMouseLeftBtnPressed(active, position);
 
       if (active) {
+        const camera = this.world.getCamera();
+        const tileMap = this.world.getTileMap();
+
         const coords = camera.screenToCameraCoords(position);
 
         if (this.selectedMode === EditorMode.PICK) {
           const tile = tileMap.getTileAtCoords(coords.x, coords.y);
           if (tile && tile.typeId) {
-            window.dispatchEvent(tileTypeChange(tile.typeId));
+            dispatch(tileTypeChange(tile.typeId));
           }
         } else if (this.selectedMode === EditorMode.PLACE) {
-          window.dispatchEvent(
+          dispatch(
             placeEvent(
               this.selectedLayerId, //
               this.selectedTileTypeId,
@@ -161,7 +264,7 @@ class EditorState extends State {
             )
           );
         } else if (this.selectedMode === EditorMode.ERASE) {
-          window.dispatchEvent(
+          dispatch(
             placeEvent(
               this.selectedLayerId, //
               undefined,
@@ -174,7 +277,7 @@ class EditorState extends State {
           if (targetTile) {
             const targetId = targetTile.typeId;
 
-            window.dispatchEvent(
+            dispatch(
               placeEvent(
                 this.selectedLayerId, //
                 this.selectedTileTypeId,
@@ -196,17 +299,19 @@ class EditorState extends State {
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
     if (this.ready) {
       this.world.handleMouseMiddleBtnPressed(active, position);
+
+      if (active) {
+        const camera = this.world.getCamera();
+        const coords = camera.screenToCameraCoords(position);
+
+        dispatch(spawnEvent(utility.uuid(), "loot", "health_potion", coords));
+      }
     }
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2) {
     if (this.ready) {
       this.world.handleMouseRightBtnPressed(active, position);
-
-      const camera = this.world.getCamera();
-      const coords = camera.screenToCameraCoords(position);
-
-      window.dispatchEvent(spawnEvent(utility.uuid(), "loot", "health_potion", coords));
     }
   }
 
