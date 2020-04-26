@@ -7,18 +7,16 @@ import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
 
+import EditorUi from "@src/states/EditorState/EditorUi";
+
 import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@shared/models/tilemap.model";
 
-import EditorUi from "@src/states/EditorState/EditorUi";
+import { DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
 import {
   dispatch,
   placeEvent, //
-  SPAWN_EVENT,
-  CHANGE_MODE_EVENT,
-  CHANGE_TILETYPE_EVENT,
-  CHANGE_LAYER_EVENT,
   TileTypeChangeEvent,
   LayerChangeEvent,
   ModeChangeEvent,
@@ -26,13 +24,9 @@ import {
   SpawnEvent,
   tileTypeChange,
   PlaceEvent,
-  PLACE_EVENT,
-  UNDO_EVENT,
-  REDO_EVENT,
-  DESPAWN_EVENT,
   despawnEvent,
   DespawnEvent,
-} from "@src/shared/ui/events";
+} from "@src/shared/events";
 
 import Fifo from "@src/shared/utility/Fifo";
 import * as utility from "@src/shared/utility/Utility";
@@ -204,6 +198,7 @@ class EditorState extends State {
     ReactDOM.render(
       React.createElement(EditorUi, {
         level: this.level.world, //
+        sprites: this.level.sprites,
         options: {
           mode: this.selectedMode,
           layerId: this.selectedLayerId,

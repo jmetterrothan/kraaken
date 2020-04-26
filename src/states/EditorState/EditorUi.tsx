@@ -12,9 +12,10 @@ import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/Toolbar
 
 import { EditorMode } from "@src/shared/models/editor.model";
 
-import { dispatch, modeChange, tileTypeChange, layerChange, CHANGE_MODE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "../../shared/ui/events";
+import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
-export default ({ level, options }) => {
+import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "@src/shared/events";
+
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);

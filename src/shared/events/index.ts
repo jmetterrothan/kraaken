@@ -1,17 +1,10 @@
+import { DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
+
+import { IEventDetails } from "@src/shared/models/event.model";
+import { IVector2 } from "@src/shared/models/math.model";
 import { ISpawnpoint } from "@src/shared/models/world.model";
 import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@src/shared/models/tilemap.model";
-
-export const PLACE_EVENT = "place_event";
-export const FILL_EVENT = "fill_event";
-export const SPAWN_EVENT = "spawn_event";
-export const DESPAWN_EVENT = "despawn_event";
-
-export const UNDO_EVENT = "ui_undo";
-export const REDO_EVENT = "ui_redo";
-export const CHANGE_MODE_EVENT = "ui_change_mode";
-export const CHANGE_TILETYPE_EVENT = "ui_change_tiletype";
-export const CHANGE_LAYER_EVENT = "ui_change_layer";
 
 export type ModeChangeEvent = CustomEvent<{ mode: EditorMode }>;
 
@@ -47,15 +40,6 @@ export const layerChange = (id: ILayerId) => {
     },
   });
 };
-
-interface IVector2 {
-  x: number;
-  y: number;
-}
-
-interface IEventDetails {
-  pushToStack?: boolean;
-}
 
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
