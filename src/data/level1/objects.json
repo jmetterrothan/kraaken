@@ -3,11 +3,11 @@
     "id": "hero",
     "type": "entity",
     "metadata": {
-      "deceleration": { "x": 16, "y": 0 },
-      "acceleration": { "x": 24, "y": 0 },
+      "deceleration": { "x": 18, "y": 0 },
+      "acceleration": { "x": 18, "y": 0 },
       "speed": { "x": 96, "y": 0 },
-      "initial_jump_boost": -200,
-      "jump_speed": -300,
+      "initial_jump_boost": -180,
+      "jump_speed": -272,
       "bbox": { "w": 8, "h": 13 }
     },
     "defaultAnimationKey": "idle",
@@ -52,20 +52,147 @@
     }
   },
   {
-    "id": "blob",
-    "type": "entity",
+    "id": "health_potion",
+    "type": "loot",
     "metadata": {
-      "bbox": { "w": 9, "h": 11 }
+      "sfx": "boost",
+      "bbox": { "w": 9, "h": 13 },
+      "collide": true,
+      "gravity": true,
+      "debug": false
     },
     "defaultAnimationKey": "default",
     "animationList": {
       "default": {
+        "sprite": "items",
+        "loop": true,
+        "keyframes": [{ "row": 3, "col": 1, "duration": 150 }]
+      }
+    }
+  },
+  {
+    "id": "coin",
+    "type": "loot",
+    "metadata": {
+      "bbox": { "w": 5, "h": 7 },
+      "collide": false,
+      "gravity": false,
+      "debug": false
+    },
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "items",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 0, "duration": 150 },
+          { "row": 1, "col": 1, "duration": 150 },
+          { "row": 1, "col": 2, "duration": 150 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "boost",
+    "type": "sfx",
+    "metadata": {},
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "items",
+        "loop": true,
+        "keyframes": [
+          { "row": 0, "col": 0, "duration": 75 },
+          { "row": 0, "col": 1, "duration": 75 },
+          { "row": 0, "col": 2, "duration": 75 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "energy_bolt",
+    "type": "sfx",
+    "metadata": {},
+    "defaultAnimationKey": "default",
+    "animationList": {
+      "default": {
+        "sprite": "items",
+        "loop": true,
+        "keyframes": [
+          { "row": 2, "col": 0, "duration": 75 },
+          { "row": 2, "col": 1, "duration": 75 },
+          { "row": 2, "col": 2, "duration": 75 }
+        ]
+      },
+      "hit": {
+        "sprite": "items",
+        "loop": false,
+        "keyframes": [{ "row": 2, "col": 3, "duration": 150 }]
+      }
+    }
+  },
+  {
+    "id": "bat",
+    "type": "entity",
+    "metadata": {
+      "bbox": { "w": 9, "h": 11 }
+    },
+    "defaultAnimationKey": "idle",
+    "animationList": {
+      "idle": {
         "sprite": "enemies",
         "loop": true,
         "keyframes": [
           { "row": 2, "col": 0, "duration": 150 },
           { "row": 2, "col": 1, "duration": 150 },
           { "row": 2, "col": 2, "duration": 150 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "blob",
+    "type": "entity",
+    "metadata": {
+      "bbox": { "w": 9, "h": 13 }
+    },
+    "defaultAnimationKey": "idle",
+    "animationList": {
+      "idle": {
+        "sprite": "enemies",
+        "loop": true,
+        "keyframes": [
+          { "row": 0, "col": 0, "duration": 150 },
+          { "row": 0, "col": 1, "duration": 150 },
+          { "row": 0, "col": 2, "duration": 150 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "dino",
+    "type": "entity",
+    "metadata": {
+      "bbox": { "w": 10, "h": 15 }
+    },
+    "defaultAnimationKey": "idle",
+    "animationList": {
+      "idle": {
+        "sprite": "enemies",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 0, "duration": 250 },
+          { "row": 1, "col": 3, "duration": 250 }
+        ]
+      },
+      "walking": {
+        "sprite": "enemies",
+        "loop": true,
+        "keyframes": [
+          { "row": 1, "col": 0, "duration": 150 },
+          { "row": 1, "col": 1, "duration": 150 },
+          { "row": 1, "col": 2, "duration": 150 },
+          { "row": 1, "col": 3, "duration": 150 }
         ]
       }
     }
