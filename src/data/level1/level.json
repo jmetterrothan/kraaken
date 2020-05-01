@@ -9,6 +9,7 @@
     "gravity": { "x": 0, "y": 600 }
   },
   "tileMap": {
+    "defaultTileType": "2:5",
     "tileSet": "tiles",
     "cols": 100,
     "rows": 32,

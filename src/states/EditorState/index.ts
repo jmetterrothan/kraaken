@@ -50,10 +50,6 @@ class EditorState extends State {
 
     this.id = id;
     this.ready = false;
-
-    this.selectedTileTypeId = "20:1";
-    this.selectedLayerId = 1;
-    this.selectedMode = EditorMode.PLACE;
   }
 
   public async init() {
@@ -61,6 +57,11 @@ class EditorState extends State {
 
     const data = await Level.loadData(this.id);
     this.level = new Level(this.id, data);
+
+    this.selectedLayerId = 1;
+    this.selectedMode = EditorMode.PLACE;
+    this.selectedTileTypeId = data.level.tileMap.defaultTileType;
+
     this.world = new World(this.level);
 
     this.undoStack = new Fifo();
