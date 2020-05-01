@@ -33,3 +33,8 @@ export enum CharacterAnimationKeys {
   JUMPING = "jumping",
   USE_PRIMARY_WEAPON = "use_primary_weapon",
 }
+
+export enum ProjectileAnimationKeys {
+  DEFAULT = "default",
+  HIT = "hit",
+}

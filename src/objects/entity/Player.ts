@@ -4,6 +4,7 @@ import Vector2 from "@shared/math/Vector2";
 import Entity from "@src/objects/entity/Entity";
 import Color from "@src/shared/helper/Color";
 import World from "@src/world/World";
+import ProjectileWeapon from "@src/objects/weapons/ProjectileWeapon";
 
 import { CharacterAnimationKeys } from "@shared/models/animation.model";
 import { IMovement, IPlayer } from "@shared/models/entity.model";
@@ -22,6 +23,8 @@ class Player extends Entity implements IMovement {
   protected initialJumpBoost: number;
   protected jumpSpeed: number;
 
+  protected weapon: ProjectileWeapon;
+
   constructor(uuid: string, x: number, y: number, direction: Vector2, data: IPlayer) {
     super(uuid, x, y, direction, data);
 
@@ -39,6 +42,8 @@ class Player extends Entity implements IMovement {
     this.jumpSpeed = data.metadata.jump_speed;
 
     this.color = new Color(0, 1, 0.75);
+
+    this.weapon = new ProjectileWeapon(240, this);
   }
 
   public move(world: World, delta: number): void {
@@ -79,6 +84,18 @@ class Player extends Entity implements IMovement {
     }
 
     super.move(world, delta);
+  }
+
+  public update(world: World, delta: number) {
+    super.update(world, delta);
+
+    if (this.usePrimaryWeapon && this.canUsePrimaryWeapon) {
+      this.weapon.update(world);
+    }
+  }
+
+  public get canUsePrimaryWeapon(): boolean {
+    return !this.falling && !this.jumping && Math.abs(this.velocity.x) < this.speed.x;
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
@@ -123,7 +140,7 @@ class Player extends Entity implements IMovement {
     if (this.jumping) {
       return CharacterAnimationKeys.JUMPING;
     }
-    if (this.usePrimaryWeapon) {
+    if (this.usePrimaryWeapon && this.canUsePrimaryWeapon) {
       return CharacterAnimationKeys.USE_PRIMARY_WEAPON;
     }
     if (this.left || this.right) {

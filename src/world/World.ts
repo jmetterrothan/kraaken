@@ -279,13 +279,18 @@ class World {
         C = Player;
         data = this.level.entities[ref];
         break;
+      case "projectile":
+        C = Projectile;
+        data = this.level.loots[ref];
+        break;
       case "loot":
         C = EffectPotion;
         data = this.level.loots[ref];
         break;
       case "npc":
-        C = NPC;
+        C = Entity;
         data = this.level.entities[ref];
+        break;
       default:
         throw new Error(`Tried to spawn an unknown object "${type}"`);
     }

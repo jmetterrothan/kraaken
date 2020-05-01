@@ -13,7 +13,7 @@ export interface IMetadata {
 
 export interface IObject<M = IMetadata> {
   id: string;
-  type: "player" | "entity" | "loot" | "sfx";
+  type: "player" | "projectile" | "entity" | "loot" | "sfx";
   metadata: M;
   animationList: IAnimationList;
   defaultAnimationKey: string;
