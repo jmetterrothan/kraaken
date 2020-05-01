@@ -1,5 +1,6 @@
 import { mat3 } from "gl-matrix";
 
+import SFX from "@src/objects/sfx/SFX";
 import Vector2 from "@shared/math/Vector2";
 import AnimatedObject2d from "@src/objects/AnimatedObject2d";
 import Object2d from "@src/objects/Object2d";
@@ -15,11 +16,15 @@ class Entity extends AnimatedObject2d {
   protected bbox: Box2;
   protected bboxhelper: Box2Helper;
 
+  protected maxHealth: number;
+  protected health: number;
+
   protected climbing: boolean;
   protected falling: boolean;
   protected jumping: boolean;
 
   protected canJump: boolean;
+  protected dead: boolean;
 
   protected readonly collide: boolean;
   protected readonly gravity: boolean;
@@ -42,8 +47,12 @@ class Entity extends AnimatedObject2d {
     this.jumping = false;
 
     this.canJump = false;
+    this.dead = false;
 
     this.velocity = new Vector2(0, 0);
+
+    this.maxHealth = data.metadata.max_health;
+    this.health = this.maxHealth;
   }
 
   public move(world: World, delta: number): void {
@@ -132,6 +141,14 @@ class Entity extends AnimatedObject2d {
     return tile !== undefined;
   }
 
+  protected die() {
+    this.dead = true;
+
+    this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), "explosion"));
+    this.setVisible(false);
+    this.setDirty(true);
+  }
+
   public update(world: World, delta: number) {
     // update velocity values
     if ("move" in this) {
@@ -205,6 +222,25 @@ class Entity extends AnimatedObject2d {
     this.setPosition(x, y);
   }
 
+  public getHealth(): number {
+    return this.health;
+  }
+
+  public getMaxHealth(): number {
+    return this.maxHealth;
+  }
+
+  public setHealth(health: number) {
+    this.health = health;
+
+    if (this.health < 0) {
+      this.health = 0;
+    }
+    if (this.health === 0) {
+      this.die();
+    }
+  }
+
   public getBbox(): Box2 {
     return this.bbox;
   }
@@ -264,7 +300,7 @@ class Entity extends AnimatedObject2d {
     return !this.gravity;
   }
 
-  private testForCollision(map: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): Tile | undefined {
+  protected testForCollision(map: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): Tile | undefined {
     const a = map.getTileAtCoords(a1x, a1y);
     if (a && a.collision) {
       return a;

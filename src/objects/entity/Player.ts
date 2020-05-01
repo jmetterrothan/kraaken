@@ -95,7 +95,7 @@ class Player extends Entity implements IMovement {
   }
 
   public get canUsePrimaryWeapon(): boolean {
-    return !this.falling && !this.jumping && Math.abs(this.velocity.x) < this.speed.x;
+    return !this.falling && !this.up && Math.abs(this.velocity.x) < this.speed.x;
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
@@ -134,6 +134,11 @@ class Player extends Entity implements IMovement {
   }
 
   protected updateCurrentAnimationKey(): string {
+    /*
+    if (this.dead) {
+      return CharacterAnimationKeys.DEAD;
+    }
+    */
     if (this.falling) {
       return CharacterAnimationKeys.FALLING;
     }

@@ -20,6 +20,7 @@ export interface IObject<M = IMetadata> {
 }
 
 export interface IEntityMetadata {
+  max_health: number;
   gravity?: boolean;
   collide?: boolean;
   bbox: {

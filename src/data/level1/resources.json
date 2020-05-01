@@ -28,5 +28,11 @@
     "name": "tiles",
     "tileWidth": 16,
     "tileHeight": 16
+  },
+  {
+    "src": "http://files.metter-rothan.fr/kraken/level2/graphics/atlas48x48.png",
+    "name": "atlas2",
+    "tileWidth": 48,
+    "tileHeight": 48
   }
 ]

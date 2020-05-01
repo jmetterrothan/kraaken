@@ -6,9 +6,10 @@
       "deceleration": { "x": 18, "y": 0 },
       "acceleration": { "x": 18, "y": 0 },
       "speed": { "x": 96, "y": 0 },
-      "initial_jump_boost": -180,
-      "jump_speed": -272,
-      "bbox": { "w": 8, "h": 13 }
+      "initial_jump_boost": -200,
+      "jump_speed": -320,
+      "bbox": { "w": 8, "h": 13 },
+      "max_health": 20
     },
     "defaultAnimationKey": "idle",
     "animationList": {
@@ -110,24 +111,22 @@
     }
   },
   {
-    "id": "energy_bolt",
+    "id": "explosion",
     "type": "sfx",
     "metadata": {},
     "defaultAnimationKey": "default",
     "animationList": {
       "default": {
-        "sprite": "items",
-        "loop": true,
-        "keyframes": [
-          { "row": 2, "col": 0, "duration": 75 },
-          { "row": 2, "col": 1, "duration": 75 },
-          { "row": 2, "col": 2, "duration": 75 }
-        ]
-      },
-      "hit": {
-        "sprite": "items",
+        "sprite": "atlas2",
         "loop": false,
-        "keyframes": [{ "row": 2, "col": 3, "duration": 150 }]
+        "keyframes": [
+          { "row": 0, "col": 5, "duration": 25 },
+          { "row": 0, "col": 4, "duration": 50 },
+          { "row": 0, "col": 3, "duration": 50 },
+          { "row": 0, "col": 2, "duration": 50 },
+          { "row": 0, "col": 1, "duration": 50 },
+          { "row": 0, "col": 0, "duration": 10 }
+        ]
       }
     }
   },
@@ -135,7 +134,8 @@
     "id": "bat",
     "type": "entity",
     "metadata": {
-      "bbox": { "w": 9, "h": 11 }
+      "bbox": { "w": 9, "h": 11 },
+      "max_health": 10
     },
     "defaultAnimationKey": "idle",
     "animationList": {
@@ -154,7 +154,8 @@
     "id": "blob",
     "type": "entity",
     "metadata": {
-      "bbox": { "w": 9, "h": 13 }
+      "bbox": { "w": 9, "h": 13 },
+      "max_health": 10
     },
     "defaultAnimationKey": "idle",
     "animationList": {
@@ -173,7 +174,8 @@
     "id": "dino",
     "type": "entity",
     "metadata": {
-      "bbox": { "w": 10, "h": 15 }
+      "bbox": { "w": 10, "h": 15 },
+      "max_health": 10
     },
     "defaultAnimationKey": "idle",
     "animationList": {

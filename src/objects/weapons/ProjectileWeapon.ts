@@ -41,9 +41,10 @@ class ProjectileWeapon {
       type: "projectile",
       metadata: {
         bbox: { w: 6, h: 6 },
-        collide: false,
+        collide: true,
         gravity: false,
         speed: { x: 3500, y: 0 },
+        damage: 4,
       },
       defaultAnimationKey: "default",
       animationList: {
