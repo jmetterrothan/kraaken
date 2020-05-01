@@ -216,12 +216,12 @@ class Vector2 {
     return this;
   }
 
-  public getX(x): number {
-    return x;
+  public getX(): number {
+    return this.x;
   }
 
-  public getY(y): number {
-    return y;
+  public getY(): number {
+    return this.y;
   }
 
   public toGlArray(): vec2 {
