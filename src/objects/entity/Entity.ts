@@ -230,13 +230,15 @@ class Entity extends AnimatedObject2d {
   }
 
   public getDirection(): Vector2 {
-    return this.parameters.direction;
+    return this.parameters.direction.clone();
   }
 
+  /*
   public getInterpolatedPosition(alpha: number, delta: number): Vector2 {
     const t = this.getVelocity().multiplyScalar(delta);
     return this.getPosition().lerp(this.getPosition().add(t), alpha).ceil();
   }
+  */
 
   public showDebug() {
     // create helper if it does not exist
