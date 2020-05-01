@@ -4,8 +4,14 @@ import Loot from "@src/objects/loot/Loot";
 import SFX from "@src/objects/sfx/SFX";
 import Vector2 from "@src/shared/math/Vector2";
 
-class HealEffectConsummable extends Loot {
-  public consummatedBy(entity: Entity): void {
+import { IEffectPotion } from "@src/shared/models/entity.model";
+
+class EffectPotion extends Loot {
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEffectPotion) {
+    super(uuid, x, y, direction, data);
+  }
+
+  public consummatedBy(player: Player): void {
     if (this.sfx) {
       this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), this.sfx));
     }
@@ -17,8 +23,8 @@ class HealEffectConsummable extends Loot {
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {
-    return entity instanceof Player;
+    return this !== entity && entity instanceof Player;
   }
 }
 
-export default HealEffectConsummable;
+export default EffectPotion;

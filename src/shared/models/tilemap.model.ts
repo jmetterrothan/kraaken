@@ -21,6 +21,7 @@ export interface ITileMapLayers {
 }
 
 export interface ITileMap {
+  defaultTileType: string;
   rows: number;
   cols: number;
   tileSize: number;
@@ -31,6 +32,7 @@ export interface ITileMap {
 }
 
 export interface ITileMapData {
+  defaultTileType: string;
   rows: number;
   cols: number;
   tileSize: number;

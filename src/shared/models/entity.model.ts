@@ -40,9 +40,15 @@ export type IPlayer = IObject<
   }
 >;
 
-export type ILoot = IObject<
-  IEntityMetadata & {
-    sfx: string;
+export type ILootMetadata = IEntityMetadata & {
+  sfx: string;
+};
+
+export type ILoot = IObject<ILootMetadata>;
+
+export type IEffectPotion = IObject<
+  ILootMetadata & {
+    effect: {};
   }
 >;
 

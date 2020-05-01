@@ -1,5 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 
+import Projectile from "@src/objects/entity/Projectile";
 import Box2 from "@shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
 import Level from "@src/world/Level";
@@ -8,7 +9,7 @@ import Camera from "@src/Camera";
 import Entity from "@src/objects/entity/Entity";
 import NPC from "@src/objects/entity/NPC";
 import Player from "@src/objects/entity/Player";
-import DamageEffectConsummable from "@src/objects/loot/DamageEffectConsummable";
+import EffectPotion from "@src/objects/loot/EffectPotion";
 import Object2d from "@src/objects/Object2d";
 import TileMap from "@src/world/TileMap";
 
@@ -279,7 +280,7 @@ class World {
         data = this.level.entities[ref];
         break;
       case "loot":
-        C = DamageEffectConsummable;
+        C = EffectPotion;
         data = this.level.loots[ref];
         break;
       case "npc":
