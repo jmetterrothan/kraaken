@@ -8,14 +8,10 @@ import * as utility from "@src/shared/utility/Utility";
 class SFX extends AnimatedObject2d {
   public static DATA = {};
 
-  public static createPoolIfNotExists(name: string) {
+  public static createPooled(x: number, y: number, direction: Vector2, name: string): SFX {
     if (!SFX.POOL.has(name)) {
       SFX.POOL.set(name, new Fifo<SFX>());
     }
-  }
-
-  public static createPooled(x: number, y: number, direction: Vector2, name: string): SFX {
-    SFX.createPoolIfNotExists(name);
 
     const sfx = SFX.POOL.get(name).pop();
     if (!sfx) {
@@ -51,9 +47,9 @@ class SFX extends AnimatedObject2d {
   }
 
   public objectWillBeRemoved(): void {
-    SFX.createPoolIfNotExists(this.reference);
-
-    SFX.POOL.get(this.reference).push(this);
+    if (SFX.POOL.has(name)) {
+      SFX.POOL.get(this.reference).push(this);
+    }
   }
 }
 
