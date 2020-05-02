@@ -58,7 +58,7 @@ class Character extends Entity implements IMovementBehaviour {
   public jump() {}
 
   public move(world: World, delta: number): void {
-    if (this.up && !this.falling) {
+    if (this.up && !this.falling && !this.dead) {
       if (!this.jumping && this.canJump) {
         this.jumping = true;
         this.velocity.y = this.initialJumpBoost; // initial boost
@@ -71,12 +71,12 @@ class Character extends Entity implements IMovementBehaviour {
       this.jumping = false;
     }
 
-    if (this.left) {
+    if (this.left && !this.dead) {
       this.velocity.x -= this.acceleration.x;
       if (this.velocity.x < -this.speed.x) {
         this.velocity.x = -this.speed.x;
       }
-    } else if (this.right) {
+    } else if (this.right && !this.dead) {
       this.velocity.x += this.acceleration.x;
       if (this.velocity.x > this.speed.x) {
         this.velocity.x = this.speed.x;
@@ -120,7 +120,7 @@ class Character extends Entity implements IMovementBehaviour {
   }
 
   public get canUsePrimaryWeapon(): boolean {
-    return !this.falling && !this.up && Math.abs(this.velocity.x) < this.speed.x;
+    return !this.dead && !this.falling && !this.up && Math.abs(this.velocity.x) < this.speed.x;
   }
 
   protected updateModelMatrix() {
@@ -139,11 +139,9 @@ class Character extends Entity implements IMovementBehaviour {
   }
 
   protected updateCurrentAnimationKey(): string {
-    /*
     if (this.dead) {
       return CharacterAnimationKeys.DEAD;
     }
-    */
     if (this.falling) {
       return CharacterAnimationKeys.FALLING;
     }

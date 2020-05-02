@@ -27,6 +27,7 @@ export interface ISpriteRenderParameters {
 }
 
 export enum CharacterAnimationKeys {
+  DEAD = "dead",
   IDLE = "idle",
   WALKING = "walking",
   FALLING = "falling",

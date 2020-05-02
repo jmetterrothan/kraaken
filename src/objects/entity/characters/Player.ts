@@ -24,6 +24,14 @@ class Player extends Character {
     this.jumpSoundFX.play();
   }
 
+  protected die() {
+    if (this.dead) {
+      return;
+    }
+
+    this.dead = true;
+  }
+
   public handleKeyboardInput(key: string, active: boolean) {
     switch (key) {
       case "ArrowLeft":

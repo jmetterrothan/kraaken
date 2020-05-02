@@ -1,3 +1,5 @@
+import { Howl, Howler } from "howler";
+
 import Character from "@src/objects/entity/Character";
 import Tile from "@src/world/Tile";
 import TileMap from "@src/world/TileMap";
@@ -5,15 +7,19 @@ import Vector2 from "@shared/math/Vector2";
 import Entity from "@src/objects/entity/Entity";
 import World from "@src/world/World";
 
-import { IProjectile, IMovementBehaviour } from "@shared/models/entity.model";
+import { IProjectile } from "@shared/models/entity.model";
 import { ProjectileAnimationKeys } from "@src/shared/models/animation.model";
 
 import { uuid } from "@src/shared/utility/Utility";
 
-class Projectile extends Entity implements IMovementBehaviour {
+import hitEnergyBoltSoundFX from "@src/data/level1/assets/sounds/hit.wav";
+
+class Projectile extends Entity {
   protected damage: number;
   protected speed: Vector2;
   protected hasCollidedWithSomething: boolean;
+
+  protected hitSoundFX: Howl;
 
   constructor(x: number, y: number, direction: Vector2, data: IProjectile) {
     super(uuid(), x, y, direction, data);
@@ -26,6 +32,12 @@ class Projectile extends Entity implements IMovementBehaviour {
     setTimeout(() => {
       this.setDirty(true);
     }, 1000);
+
+    this.hitSoundFX = new Howl({
+      src: hitEnergyBoltSoundFX,
+      autoplay: false,
+      volume: 0.1,
+    });
   }
 
   public move(world: World, delta: number): void {
@@ -42,6 +54,8 @@ class Projectile extends Entity implements IMovementBehaviour {
 
   public collidedWithMap(tile: Tile) {
     this.hasCollidedWithSomething = true;
+
+    this.hitSoundFX.play();
   }
 
   public handleCollisions(map: TileMap, delta: number) {
@@ -113,6 +127,8 @@ class Projectile extends Entity implements IMovementBehaviour {
     this.hasCollidedWithSomething = true;
 
     character.setHealth(character.getHealth() - this.damage);
+
+    this.hitSoundFX.play();
   }
 
   protected updateCurrentAnimationKey(): string {

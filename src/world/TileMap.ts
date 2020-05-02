@@ -67,7 +67,7 @@ class TileMap {
         });
 
         // TODO: read data
-        const rockSingleType = this.findTypeByKey("platform_1");
+        const rockSingleType = this.findTypeByKey("rock");
 
         const type1 = layers.layer2[i];
         if (type1 !== 0) {

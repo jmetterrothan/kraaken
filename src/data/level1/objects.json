@@ -21,7 +21,7 @@
           { "row": 2, "col": 1, "duration": 250 }
         ]
       },
-      "death": {
+      "dead": {
         "sprite": "hero",
         "loop": true,
         "keyframes": [{ "row": 1, "col": 3, "duration": 0 }]
