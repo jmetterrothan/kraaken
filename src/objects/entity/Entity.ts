@@ -142,6 +142,10 @@ class Entity extends AnimatedObject2d {
   }
 
   protected die() {
+    if (this.dead) {
+      return;
+    }
+
     this.dead = true;
 
     this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), "explosion"));
@@ -220,6 +224,10 @@ class Entity extends AnimatedObject2d {
     }
 
     this.setPosition(x, y);
+  }
+
+  public isDead(): boolean {
+    return this.dead;
   }
 
   public getHealth(): number {

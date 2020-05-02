@@ -21,7 +21,7 @@ abstract class Loot extends Entity implements IConsummable {
       const entities = world.getActiveEntities();
 
       for (const entity of entities) {
-        if (!(entity instanceof Entity) || !this.canBeConsummatedBy(entity)) {
+        if (!(entity instanceof Entity) || entity.isDirty() || entity.isDead() || !this.canBeConsummatedBy(entity)) {
           continue;
         }
 

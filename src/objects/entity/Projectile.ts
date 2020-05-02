@@ -93,7 +93,7 @@ class Projectile extends Entity implements IMovement {
       const entities = world.getActiveEntities();
 
       for (const entity of entities) {
-        if (!(entity instanceof Entity) || !this.canCollideWith(entity)) {
+        if (!(entity instanceof Entity) || entity.isDirty() || entity.isDead() || !this.canCollideWith(entity)) {
           continue;
         }
 
