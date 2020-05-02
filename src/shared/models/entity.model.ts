@@ -3,7 +3,8 @@ import World from "@src/world/World";
 import { IAnimationList } from "@src/shared/models/animation.model";
 import { IVector2 } from "@src/shared/models/math.model";
 
-export interface IMovement {
+export interface IMovementBehaviour {
+  jump(): void;
   move(world: World, delta: number): void;
 }
 
@@ -13,14 +14,14 @@ export interface IMetadata {
 
 export interface IObject<M = IMetadata> {
   id: string;
-  type: "player" | "projectile" | "entity" | "loot" | "sfx";
+  type: "player" | "projectile" | "entity" | "consummable" | "sfx";
   metadata: M;
   animationList: IAnimationList;
   defaultAnimationKey: string;
 }
 
+// Entity
 export interface IEntityMetadata {
-  max_health: number;
   gravity?: boolean;
   collide?: boolean;
   bbox: {
@@ -31,26 +32,27 @@ export interface IEntityMetadata {
 
 export type IEntity = IObject<IEntityMetadata>;
 
-export type IPlayer = IObject<
+// Projectile (derived from entity)
+export type IProjectile = IObject<
   IEntityMetadata & {
+    damage: number;
     speed: IVector2;
-    acceleration: IVector2;
-    deceleration: IVector2;
-    initial_jump_boost: number;
-    jump_speed: number;
   }
 >;
 
-export type ILootMetadata = IEntityMetadata & {
-  sfx: string;
+// Character (derived from entity)
+export type ICharacterMetadata = IEntityMetadata & {
+  max_health: number;
+  speed: IVector2;
+  acceleration: IVector2;
+  deceleration: IVector2;
+  initial_jump_boost: number;
+  jump_speed: number;
 };
 
-export type ILoot = IObject<ILootMetadata>;
+export type ICharacter = IObject<ICharacterMetadata>;
 
-export type IEffectPotion = IObject<
-  ILootMetadata & {
-    effect: {};
-  }
->;
+export type IPlayer = ICharacter;
 
+// SFX
 export type ISfx = IObject<{}>;

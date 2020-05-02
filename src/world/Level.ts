@@ -1,6 +1,7 @@
 import SFX from "@src/objects/sfx/SFX";
 
-import { IEntity, ISfx, ILoot } from "@src/shared/models/entity.model";
+import { IEntity, ISfx } from "@src/shared/models/entity.model";
+import { IConsummable } from "@src/shared/models/consummable.model";
 import { IWorldData } from "@src/shared/models/world.model";
 
 class Level {
@@ -19,9 +20,9 @@ class Level {
     return this.data.resources;
   }
 
-  public get loots(): Record<string, ILoot> {
+  public get consummables(): Record<string, IConsummable> {
     return this.data.objects
-      .filter((object) => object.type === "loot")
+      .filter((object) => object.type === "consummable")
       .reduce((acc, val) => {
         acc[val.id] = val;
         return acc;

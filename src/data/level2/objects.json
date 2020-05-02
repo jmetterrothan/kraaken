@@ -1,7 +1,7 @@
 [
   {
     "id": "health_potion",
-    "type": "loot",
+    "type": "consummable",
     "metadata": {
       "sfx": "star",
       "bbox": { "w": 14, "h": 14 },
@@ -28,7 +28,7 @@
   },
   {
     "id": "gemstone",
-    "type": "loot",
+    "type": "consummable",
     "metadata": {
       "sfx": "star",
       "bbox": { "w": 14, "h": 12 },

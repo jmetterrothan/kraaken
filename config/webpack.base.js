@@ -49,7 +49,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|jpe?g)$/,
+        test: /\.(png|jpe?g|wav)$/,
         use: [
           {
             loader: "file-loader",

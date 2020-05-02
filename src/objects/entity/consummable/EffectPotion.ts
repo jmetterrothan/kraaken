@@ -1,20 +1,32 @@
 import Entity from "@src/objects/entity/Entity";
-import Player from "@src/objects/entity/Player";
-import Loot from "@src/objects/loot/Loot";
+import Player from "@src/objects/entity/characters/Player";
+import Consummable from "@src/objects/entity/consummable/Consummable";
 import SFX from "@src/objects/sfx/SFX";
 import Vector2 from "@src/shared/math/Vector2";
 
-import { IEffectPotion } from "@src/shared/models/entity.model";
+import { IEffectPotion } from "@src/shared/models/consummable.model";
 
-class EffectPotion extends Loot {
+import pickUpSoundFX from "@src/data/level1/assets/sounds/pickup.wav";
+
+class EffectPotion extends Consummable {
+  protected pickUpSoundFX: Howl;
+
   constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEffectPotion) {
     super(uuid, x, y, direction, data);
+
+    this.pickUpSoundFX = new Howl({
+      src: pickUpSoundFX,
+      autoplay: false,
+      volume: 0.1,
+    });
   }
 
   public consummatedBy(player: Player): void {
     if (this.sfx) {
       this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), this.sfx));
     }
+
+    this.pickUpSoundFX.play();
 
     this.consummated = true;
 
@@ -23,7 +35,7 @@ class EffectPotion extends Loot {
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {
-    return this !== entity && entity instanceof Player;
+    return entity instanceof Player;
   }
 }
 

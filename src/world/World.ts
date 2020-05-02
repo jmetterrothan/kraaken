@@ -6,10 +6,10 @@ import Vector2 from "@shared/math/Vector2";
 import Level from "@src/world/Level";
 import Sprite from "@src/animation/Sprite";
 import Camera from "@src/Camera";
-import Entity from "@src/objects/entity/Entity";
-import NPC from "@src/objects/entity/NPC";
-import Player from "@src/objects/entity/Player";
-import EffectPotion from "@src/objects/loot/EffectPotion";
+import Character from "@src/objects/entity/Character";
+import NPC from "@src/objects/entity/characters/NPC";
+import Player from "@src/objects/entity/characters/Player";
+import EffectPotion from "@src/objects/entity/consummable/EffectPotion";
 import Object2d from "@src/objects/Object2d";
 import TileMap from "@src/world/TileMap";
 
@@ -31,7 +31,7 @@ class World {
   private tileMap: TileMap;
   private player: Player;
 
-  private entities: Entity[];
+  private characters: Character[];
 
   // physics
   private gravity: Vector2;
@@ -44,7 +44,7 @@ class World {
     this.viewMatrix = mat3.create();
     this.camera = new Camera();
 
-    this.entities = [];
+    this.characters = [];
   }
 
   public async init() {
@@ -69,11 +69,11 @@ class World {
 
     this.initPlayer(this.level.world.spawnpoints.player);
     this.initEntities(this.level.world.spawnpoints.entities);
-    this.initLoots(this.level.world.spawnpoints.loots);
+    this.initConsummables(this.level.world.spawnpoints.consummables);
 
     window.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        this.entities.forEach((entity) => {
+        this.characters.forEach((entity) => {
           if (entity instanceof NPC) {
             entity.hasTarget(this.player) ? entity.unfollow() : entity.follow(this.player);
           }
@@ -109,9 +109,9 @@ class World {
     }
   }
 
-  private initLoots(loots: ISpawnpoint[]) {
-    for (const data of loots) {
-      this.spawn("loot", data);
+  private initConsummables(consummables: ISpawnpoint[]) {
+    for (const data of consummables) {
+      this.spawn("consummable", data);
     }
   }
 
@@ -122,7 +122,7 @@ class World {
   public add(object: Object2d) {
     this.children.set(object.getUUID(), object);
     // update entities list
-    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
+    this.characters = Array.from(this.children.values()).filter((child) => child instanceof Character) as Character[];
   }
 
   public remove(objects: Object2d | Object2d[]) {
@@ -142,7 +142,7 @@ class World {
     this.children.delete(object.getUUID());
 
     // update entities list
-    this.entities = Array.from(this.children.values()).filter((child: any) => child instanceof Entity) as Entity[];
+    this.characters = Array.from(this.children.values()).filter((child: any) => child instanceof Character) as Character[];
   }
 
   public update(delta: number) {
@@ -174,8 +174,8 @@ class World {
     // console.log(`entities : ${i}/${this.children.size}`);
   }
 
-  public getActiveEntities(): Entity[] {
-    return this.entities;
+  public getActiveCharacters(): Character[] {
+    return this.characters;
   }
 
   public countObjects(target: Object2d | Object2d[], test: any): number {
@@ -281,14 +281,14 @@ class World {
         break;
       case "projectile":
         C = Projectile;
-        data = this.level.loots[ref];
+        data = this.level.consummables[ref];
         break;
-      case "loot":
+      case "consummable":
         C = EffectPotion;
-        data = this.level.loots[ref];
+        data = this.level.consummables[ref];
         break;
       case "npc":
-        C = Entity;
+        C = NPC;
         data = this.level.entities[ref];
         break;
       default:

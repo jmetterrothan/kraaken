@@ -175,7 +175,15 @@
       "direction": { "x": 1, "y": 1 },
       "metadata": { "debug": false }
     },
-    "loots": [],
+    "consummables": [
+      {
+        "uuid": "5",
+        "ref": "health_potion",
+        "position": { "x": 300, "y": 400 },
+        "direction": { "x": 1, "y": 1 },
+        "metadata": { "debug": false }
+      }
+    ],
     "entities": [
       {
         "uuid": "2",

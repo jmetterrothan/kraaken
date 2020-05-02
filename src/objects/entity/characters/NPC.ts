@@ -1,29 +1,18 @@
-import { mat3 } from "gl-matrix";
-
 import TileMap from "@src/world/TileMap";
-import Entity from "@src/objects/entity/Entity";
+import Character from "@src/objects/entity/Character";
 import Object2d from "@src/objects/Object2d";
 import Vector2 from "@src/shared/math/Vector2";
-import World from "@src/world/World";
 
-import { IEntity } from "@shared/models/entity.model";
+import { ICharacter } from "@shared/models/entity.model";
 
-class NPC extends Entity {
-  protected acceleration: Vector2;
-  protected deceleration: Vector2;
-  protected speed: Vector2;
-
+class NPC extends Character {
   private target: Object2d;
   private spawn: Object2d;
 
-  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEntity) {
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: ICharacter) {
     super(uuid, x, y, direction, data);
     // this.parameters.grayscale = true;
     // this.parameters.alpha = 0.15;
-
-    this.acceleration = new Vector2(4, 4);
-    this.deceleration = new Vector2(4, 4);
-    this.speed = new Vector2(40, 40);
 
     this.spawn = Object2d.create(x, y);
   }
@@ -71,6 +60,7 @@ class NPC extends Entity {
     return this.target === target;
   }
 
+  /*
   public move(world: World, delta: number): void {
     if (this.canSeeObject(world.getTileMap(), world.getPlayer())) {
       this.follow(world.getPlayer());
@@ -184,18 +174,7 @@ class NPC extends Entity {
       }
     }
   }
-
-  protected updateModelMatrix() {
-    const offset = this.animation.getOffset();
-
-    // correction accounting for bbox beeing at the bottom of the tile
-    /*
-    if (this.bbox) {
-      offset.y -= (this.animation.getHeight() - this.bbox.getHeight()) / 2;
-    }*/
-
-    this.modelMatrix = mat3.fromTranslation(mat3.create(), this.getPosition().add(offset).trunc().toGlArray());
-  }
+  */
 }
 
 export default NPC;

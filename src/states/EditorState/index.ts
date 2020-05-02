@@ -300,7 +300,7 @@ class EditorState extends State {
         const camera = this.world.getCamera();
         const coords = camera.screenToCameraCoords(position);
 
-        dispatch(spawnEvent(utility.uuid(), "loot", "health_potion", coords));
+        dispatch(spawnEvent(utility.uuid(), "consummable", "health_potion", coords));
       }
     }
   }

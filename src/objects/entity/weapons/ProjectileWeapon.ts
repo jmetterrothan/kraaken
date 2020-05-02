@@ -1,6 +1,10 @@
+import { Howl, Howler } from "howler";
+
 import World from "@src/world/World";
 import Entity from "@src/objects/entity/Entity";
 import Projectile from "@src/objects/entity/Projectile";
+
+import fireEnergyBoltSoundFX from "@src/data/level1/assets/sounds/laser.wav";
 
 class ProjectileWeapon {
   protected rate: number;
@@ -8,12 +12,20 @@ class ProjectileWeapon {
 
   protected nextTimeToFire: number;
 
+  protected fireSoundFX: Howl;
+
   constructor(rate: number, firePoint: Entity) {
     // in rounds per minute
     this.rate = rate;
     this.firePoint = firePoint;
 
     this.nextTimeToFire = 0;
+
+    this.fireSoundFX = new Howl({
+      src: fireEnergyBoltSoundFX,
+      autoplay: false,
+      volume: 0.1,
+    });
   }
 
   public update(world: World) {
@@ -23,7 +35,7 @@ class ProjectileWeapon {
       this.fire(world);
     } else if (now > this.nextTimeToFire && this.rate > 0) {
       // calculate delay in ms based on fire rate
-      const delay = (60 * 1000) / this.rate;
+      const delay = 60000 / this.rate;
       this.nextTimeToFire = now + delay;
       this.fire(world);
     }
@@ -40,11 +52,11 @@ class ProjectileWeapon {
       id: "energy_bolt",
       type: "projectile",
       metadata: {
-        bbox: { w: 6, h: 6 },
-        collide: true,
-        gravity: false,
+        bbox: { w: 0, h: 0 },
         speed: { x: 3500, y: 0 },
         damage: 4,
+        collide: true,
+        gravity: false,
       },
       defaultAnimationKey: "default",
       animationList: {
@@ -64,6 +76,8 @@ class ProjectileWeapon {
         },
       },
     });
+
+    this.fireSoundFX.play();
 
     world.add(projectile);
   }

@@ -52,13 +52,15 @@ class AnimatedObject2d extends Object2d {
       this.shouldUpdateModelMatrix = true;
     }
 
-    this.animation.update();
+    if (this.animation) {
+      this.animation.update();
+    }
   }
 
   public render(viewProjectionMatrix: mat3, alpha: number) {
     super.render(viewProjectionMatrix, alpha);
 
-    if (this.isVisible() && !this.isCulled()) {
+    if (this.isVisible() && !this.isCulled() && this.animation) {
       this.animation.render(viewProjectionMatrix, this.modelMatrix, this.parameters);
     }
   }

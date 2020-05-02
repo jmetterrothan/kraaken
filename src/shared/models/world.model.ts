@@ -14,7 +14,7 @@ export interface IWorldData {
     tileMap: ITileMapData;
     spawnpoints: {
       player: ISpawnpoint;
-      loots: ISpawnpoint[];
+      consummables: ISpawnpoint[];
       entities: ISpawnpoint[];
     };
   };

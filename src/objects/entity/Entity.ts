@@ -1,6 +1,5 @@
 import { mat3 } from "gl-matrix";
 
-import SFX from "@src/objects/sfx/SFX";
 import Vector2 from "@shared/math/Vector2";
 import AnimatedObject2d from "@src/objects/AnimatedObject2d";
 import Object2d from "@src/objects/Object2d";
@@ -10,26 +9,22 @@ import TileMap from "@src/world/TileMap";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
 
-import { IEntity, IMovement } from "@src/shared/models/entity.model";
+import { IEntity, IMovementBehaviour } from "@src/shared/models/entity.model";
 
 class Entity extends AnimatedObject2d {
   protected bbox: Box2;
   protected bboxhelper: Box2Helper;
-
-  protected maxHealth: number;
-  protected health: number;
 
   protected climbing: boolean;
   protected falling: boolean;
   protected jumping: boolean;
 
   protected canJump: boolean;
-  protected dead: boolean;
+
+  protected velocity: Vector2;
 
   protected readonly collide: boolean;
   protected readonly gravity: boolean;
-
-  protected velocity: Vector2;
 
   constructor(uuid: string, x: number, y: number, direction: Vector2, data: IEntity) {
     super(uuid, x, y, direction, data);
@@ -47,12 +42,8 @@ class Entity extends AnimatedObject2d {
     this.jumping = false;
 
     this.canJump = false;
-    this.dead = false;
 
     this.velocity = new Vector2(0, 0);
-
-    this.maxHealth = data.metadata.max_health;
-    this.health = this.maxHealth;
   }
 
   public move(world: World, delta: number): void {
@@ -141,22 +132,10 @@ class Entity extends AnimatedObject2d {
     return tile !== undefined;
   }
 
-  protected die() {
-    if (this.dead) {
-      return;
-    }
-
-    this.dead = true;
-
-    this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), "explosion"));
-    this.setVisible(false);
-    this.setDirty(true);
-  }
-
   public update(world: World, delta: number) {
     // update velocity values
     if ("move" in this) {
-      (this as IMovement).move(world, delta);
+      (this as IMovementBehaviour).move(world, delta);
     }
 
     this.handleCollisions(world.getTileMap(), delta);
@@ -224,29 +203,6 @@ class Entity extends AnimatedObject2d {
     }
 
     this.setPosition(x, y);
-  }
-
-  public isDead(): boolean {
-    return this.dead;
-  }
-
-  public getHealth(): number {
-    return this.health;
-  }
-
-  public getMaxHealth(): number {
-    return this.maxHealth;
-  }
-
-  public setHealth(health: number) {
-    this.health = health;
-
-    if (this.health < 0) {
-      this.health = 0;
-    }
-    if (this.health === 0) {
-      this.die();
-    }
   }
 
   public getBbox(): Box2 {

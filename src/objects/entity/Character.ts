@@ -1,15 +1,16 @@
 import { mat3 } from "gl-matrix";
 
+import SFX from "@src/objects/sfx/SFX";
 import Vector2 from "@shared/math/Vector2";
 import Entity from "@src/objects/entity/Entity";
 import Color from "@src/shared/helper/Color";
 import World from "@src/world/World";
-import ProjectileWeapon from "@src/objects/weapons/ProjectileWeapon";
+import ProjectileWeapon from "@src/objects/entity/weapons/ProjectileWeapon";
 
 import { CharacterAnimationKeys } from "@shared/models/animation.model";
-import { IMovement, IPlayer } from "@shared/models/entity.model";
+import { IMovementBehaviour, ICharacter } from "@shared/models/entity.model";
 
-class Player extends Entity implements IMovement {
+class Character extends Entity implements IMovementBehaviour {
   protected left: boolean;
   protected right: boolean;
   protected up: boolean;
@@ -25,7 +26,11 @@ class Player extends Entity implements IMovement {
 
   protected weapon: ProjectileWeapon;
 
-  constructor(uuid: string, x: number, y: number, direction: Vector2, data: IPlayer) {
+  protected maxHealth: number;
+  protected health: number;
+  protected dead: boolean;
+
+  constructor(uuid: string, x: number, y: number, direction: Vector2, data: ICharacter) {
     super(uuid, x, y, direction, data);
 
     this.left = false;
@@ -43,14 +48,22 @@ class Player extends Entity implements IMovement {
 
     this.color = new Color(0, 1, 0.75);
 
-    this.weapon = new ProjectileWeapon(240, this);
+    this.weapon = new ProjectileWeapon(320, this);
+
+    this.maxHealth = data.metadata.max_health;
+    this.health = this.maxHealth;
+    this.dead = false;
   }
+
+  public jump() {}
 
   public move(world: World, delta: number): void {
     if (this.up && !this.falling) {
       if (!this.jumping && this.canJump) {
         this.jumping = true;
         this.velocity.y = this.initialJumpBoost; // initial boost
+
+        this.jump();
       } else {
         this.velocity.y += this.jumpSpeed * delta; // maintain momentum
       }
@@ -86,6 +99,18 @@ class Player extends Entity implements IMovement {
     super.move(world, delta);
   }
 
+  protected die() {
+    if (this.dead) {
+      return;
+    }
+
+    this.dead = true;
+
+    this.add(SFX.createPooled(this.getX(), this.getY(), new Vector2(1, 1), "explosion"));
+    this.setVisible(false);
+    this.setDirty(true);
+  }
+
   public update(world: World, delta: number) {
     super.update(world, delta);
 
@@ -98,31 +123,11 @@ class Player extends Entity implements IMovement {
     return !this.falling && !this.up && Math.abs(this.velocity.x) < this.speed.x;
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
-    switch (key) {
-      case "ArrowLeft":
-        this.left = active;
-        break;
-
-      case "ArrowRight":
-        this.right = active;
-        break;
-
-      case "ArrowUp":
-        this.up = active;
-        break;
-
-      case "ArrowDown":
-        this.down = active;
-        break;
-
-      case " ":
-        this.usePrimaryWeapon = active;
-        break;
-    }
-  }
-
   protected updateModelMatrix() {
+    if (!this.animation) {
+      return;
+    }
+
     const offset = this.animation.getOffset();
 
     // correction accounting for bbox beeing at the bottom of the tile
@@ -153,6 +158,29 @@ class Player extends Entity implements IMovement {
     }
     return CharacterAnimationKeys.IDLE;
   }
+
+  public isDead(): boolean {
+    return this.dead;
+  }
+
+  public getHealth(): number {
+    return this.health;
+  }
+
+  public getMaxHealth(): number {
+    return this.maxHealth;
+  }
+
+  public setHealth(health: number) {
+    this.health = health;
+
+    if (this.health < 0) {
+      this.health = 0;
+    }
+    if (this.health === 0) {
+      this.die();
+    }
+  }
 }
 
-export default Player;
+export default Character;

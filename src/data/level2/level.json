@@ -184,7 +184,7 @@
       "direction": { "x": 1, "y": 1 },
       "metadata": { "debug": false }
     },
-    "loots": [
+    "consummables": [
       {
         "uuid": "2",
         "ref": "health_potion",
