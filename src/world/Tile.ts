@@ -1,6 +1,7 @@
 import { mat3, vec2, vec3 } from "gl-matrix";
 
 import Vector2 from "@src/shared/math/Vector2";
+import Color from "@src/shared/helper/Color";
 
 import { ITileTypeData } from "@src/shared/models/tilemap.model";
 import { ISpriteRenderParameters } from "@shared/models/animation.model";
@@ -11,7 +12,6 @@ interface TileOptions {
   grayscale?: boolean;
   flickering?: boolean;
   alpha?: number;
-  direction?: Vector2;
 }
 
 class Tile {
@@ -20,8 +20,9 @@ class Tile {
   public readonly col: number;
   public readonly size: number;
   public readonly position: Vector2;
-  public readonly model: mat3;
+  public readonly transform: mat3;
 
+  public direction?: Vector2;
   public renderOptions: ISpriteRenderParameters;
 
   private _collision: boolean;
@@ -34,20 +35,19 @@ class Tile {
     this.size = size;
     this.collision = collision;
 
-    this.model = mat3.fromTranslation(mat3.create(), vec2.fromValues(col * size, row * size));
+    this.transform = mat3.fromTranslation(mat3.create(), vec2.fromValues(col * size, row * size));
 
     this.position = new Vector2(col * size, row * size);
+    this.direction = new Vector2(1, 1);
 
     this.activeSlot = 1;
 
     this.renderOptions = {
-      fill: false,
       wireframe: false,
       grayscale: false,
       flickering: false,
       alpha: 1,
-      color: vec3.fromValues(0.5, 0.25, 0.75),
-      direction: new Vector2(1, 1),
+      color: new Color(0.5, 0.25, 0.75),
       ...options,
     };
   }

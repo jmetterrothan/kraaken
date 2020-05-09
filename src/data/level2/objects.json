@@ -110,7 +110,7 @@
     }
   },
   {
-    "id": "fox",
+    "id": "hero",
     "type": "entity",
     "metadata": {
       "deceleration": { "x": 16, "y": 0 },

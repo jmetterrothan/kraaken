@@ -1,14 +1,13 @@
 import { vec2 } from "gl-matrix";
 
-import Level from "@src/world/Level";
 import State from "@src/states/State";
 import World from "@src/world/World";
+import { loadData } from "@src/world/World";
 
 class LevelState extends State {
   public readonly id: number;
-  private level: Level;
-  private ready: boolean;
 
+  private ready: boolean;
   private world: World;
 
   constructor(id: number = 1) {
@@ -21,9 +20,8 @@ class LevelState extends State {
   public async init() {
     console.info("Level initialized");
 
-    const data = await Level.loadData(this.id);
-    this.level = new Level(this.id, data);
-    this.world = new World(this.level);
+    const data = await loadData(this.id);
+    this.world = new World(data);
 
     await this.world.init();
 

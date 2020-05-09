@@ -38,9 +38,9 @@ class Game {
     return document.fullscreenElement !== null;
   }
 
-  public static readonly TARGET_UPS: number = 30;
+  public static readonly TARGET_UPS: number = 50;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly DEFAULT_SCALE: number = 4;
+  public static readonly DEFAULT_SCALE: number = 5;
 
   public static create(options?: IGameOptions): Game {
     if (!(Game[instanceSym] instanceof Game)) {
@@ -229,8 +229,8 @@ class Game {
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
-    this.stateManager.add(GameStates.LEVEL, new LevelState(1));
-    this.stateManager.add(GameStates.EDITOR, new EditorState(1));
+    this.stateManager.add(GameStates.LEVEL, new LevelState(0));
+    this.stateManager.add(GameStates.EDITOR, new EditorState(0));
 
     this.stateManager.switch(GameStates.EDITOR);
 

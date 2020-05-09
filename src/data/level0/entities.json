@@ -1,0 +1,90 @@
+[
+  {
+    "type": "energy_bolt",
+    "components": [
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
+      { "name": "sprite", "metadata": { "alias": "items" } },
+      { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [
+                { "row": 2, "col": 0, "duration": 75 },
+                { "row": 2, "col": 1, "duration": 75 },
+                { "row": 2, "col": 2, "duration": 75 }
+              ]
+            },
+            "hit": {
+              "sprite": "items",
+              "loop": false,
+              "keyframes": [{ "row": 2, "col": 3, "duration": 150 }]
+            }
+          },
+          "defaultKey": "idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "hero",
+    "components": [
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true } },
+      { "name": "player_input" },
+      { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 96, "acceleration": 18, "deceleration": 18 } },
+      { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
+      { "name": "health", "metadata": { "maxHealth": 20 } },
+      { "name": "sprite", "metadata": { "alias": "hero" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "idle": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [
+                { "row": 1, "col": 1, "duration": 250 },
+                { "row": 2, "col": 1, "duration": 250 }
+              ]
+            },
+            "dead": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [{ "row": 1, "col": 3, "duration": 0 }]
+            },
+            "jumping": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [{ "row": 1, "col": 0, "duration": 0 }]
+            },
+            "falling": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [{ "row": 1, "col": 2, "duration": 0 }]
+            },
+            "walking": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [
+                { "row": 0, "col": 0, "duration": 85 },
+                { "row": 0, "col": 1, "duration": 85 },
+                { "row": 0, "col": 2, "duration": 85 }
+              ]
+            },
+            "use_primary_weapon": {
+              "sprite": "hero",
+              "loop": true,
+              "keyframes": [{ "row": 0, "col": 3, "duration": 250 }]
+            }
+          },
+          "defaultKey": "idle"
+        }
+      }
+    ]
+  }
+]

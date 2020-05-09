@@ -1,0 +1,10 @@
+export const HEALTH_COMPONENT = "health";
+export const POSITION_COMPONENT = "position";
+export const SPRITE_COMPONENT = "sprite";
+export const ANIMATOR_COMPONENT = "animator";
+export const BOUNDING_BOX_COMPONENT = "bounding_box";
+export const CAMERA_COMPONENT = "camera";
+export const RIGID_BODY_COMPONENT = "rigid_body";
+export const PLAYER_MOVEMENT_COMPONENT = "player_movement";
+export const PLAYER_INPUT_COMPONENT = "player_input";
+export const FILL_COMPONENT = "fill";

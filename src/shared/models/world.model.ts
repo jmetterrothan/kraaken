@@ -1,34 +1,34 @@
 import { IRGBAColorData } from "@src/shared/models/color.model";
-import { IObject } from "@src/shared/models/entity.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ITileMapData } from "@src/shared/models/tilemap.model";
-import { IVector2 } from "./math.model";
 
-export interface IWorldData {
+export interface IComponentBlueprint {
+  name: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface IEntityBlueprint {
+  type: string;
+  components: IComponentBlueprint[];
+}
+
+export interface IWorldBlueprint {
   // level data
   level: {
     background: IRGBAColorData;
-    physics: {
-      gravity: IVector2;
-    };
+    gravity: number;
     tileMap: ITileMapData;
-    spawnpoints: {
-      player: ISpawnpoint;
-      consummables: ISpawnpoint[];
-      entities: ISpawnpoint[];
-    };
+    spawnpoints: ISpawnpoint[];
   };
   // global data
   resources: ISpriteData[];
-  objects: IObject[];
+  entities: IEntityBlueprint[];
 }
 
 export interface ISpawnpoint {
-  uuid: string;
-  ref: string;
-  position: IVector2;
-  direction: IVector2;
-  metadata: {
-    debug?: boolean;
-  };
+  uuid?: string;
+  position: { x: number; y: number };
+  direction: { x: number; y: number };
+  type: string;
+  debug?: boolean;
 }

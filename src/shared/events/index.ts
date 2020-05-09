@@ -63,7 +63,6 @@ export const placeEvent = (layer: ILayerId, tileType: string, position: IVector2
 };
 
 interface ISpawnEventDetails extends IEventDetails {
-  type: string;
   spawnpoint: ISpawnpoint;
   onSuccess?: () => void;
   onFailure?: () => void;
@@ -71,16 +70,15 @@ interface ISpawnEventDetails extends IEventDetails {
 
 export type SpawnEvent = CustomEvent<ISpawnEventDetails>;
 
-export const spawnEvent = (uuid: string, type: string, ref: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, metadata: Record<string, unknown> = {}, pushToStack: boolean = true): SpawnEvent => {
+export const spawnEvent = (uuid: string, type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, debug = false, pushToStack: boolean = true): SpawnEvent => {
   return new CustomEvent<ISpawnEventDetails>(SPAWN_EVENT, {
     detail: {
-      type,
       spawnpoint: {
-        ref,
+        type,
         uuid,
         position,
         direction,
-        metadata,
+        debug,
       },
       pushToStack,
     },

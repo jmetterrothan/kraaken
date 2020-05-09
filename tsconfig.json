@@ -13,7 +13,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@shared/*": ["src/shared/*"],
-      "@assets/*": ["src/assets/*"],
+      "@assets/*": ["src/assets/*"]
     },
     "typeRoots": ["./src/typings/", "./node_modules/@types/"],
     "lib": ["dom", "es2017", "es6", "es7"]

@@ -1,6 +1,4 @@
-import { vec3 } from "gl-matrix";
-
-import Vector2 from "@shared/math/Vector2";
+import Color from "@src/shared/helper/Color";
 
 export interface IKeyFrame {
   row: number;
@@ -17,13 +15,11 @@ export interface IAnimation {
 export type IAnimationList = Record<string, IAnimation>;
 
 export interface ISpriteRenderParameters {
-  flickering: boolean;
-  wireframe: boolean;
-  grayscale: boolean;
-  direction: Vector2;
-  fill?: boolean;
+  flickering?: boolean;
+  wireframe?: boolean;
+  grayscale?: boolean;
   alpha: number;
-  color?: vec3;
+  color?: Color;
 }
 
 export enum CharacterAnimationKeys {

@@ -2,10 +2,10 @@ import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
 
-import Level from "@src/world/Level";
 import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
+import { loadData } from "@src/world/World";
 
 import EditorUi from "@src/states/EditorState/EditorUi";
 
@@ -33,7 +33,6 @@ import * as utility from "@src/shared/utility/Utility";
 
 class EditorState extends State {
   public readonly id: number;
-  private level: Level;
   private ready: boolean;
 
   private world: World;
@@ -55,14 +54,13 @@ class EditorState extends State {
   public async init() {
     console.info("Editor initialized");
 
-    const data = await Level.loadData(this.id);
-    this.level = new Level(this.id, data);
+    const data = await loadData(this.id);
 
     this.selectedLayerId = 1;
     this.selectedMode = EditorMode.PLACE;
     this.selectedTileTypeId = data.level.tileMap.defaultTileType;
 
-    this.world = new World(this.level);
+    this.world = new World(data);
 
     this.undoStack = new Fifo();
     this.redoStack = new Fifo();
@@ -107,7 +105,7 @@ class EditorState extends State {
       let oldTileType: string;
 
       try {
-        const tileMap = this.world.getTileMap();
+        const tileMap = this.world.tileMap;
 
         coords.forEach((coord) => {
           const tile = tileMap.getTileAtCoords(coord.x, coord.y);
@@ -143,21 +141,20 @@ class EditorState extends State {
     });
 
     window.addEventListener(SPAWN_EVENT, (e: SpawnEvent) => {
-      const { type, spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
+      const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       try {
-        this.world.spawn(type, spawnpoint);
+        this.world.spawn(spawnpoint);
 
         if (pushToStack) {
           this.undoStack.push({
             undo: despawnEvent(spawnpoint.uuid),
             redo: spawnEvent(
               spawnpoint.uuid, //
-              type,
-              spawnpoint.ref,
+              spawnpoint.type,
               spawnpoint.position,
               spawnpoint.direction,
-              spawnpoint.metadata,
+              spawnpoint.debug,
               false
             ),
           });
@@ -198,8 +195,8 @@ class EditorState extends State {
 
     ReactDOM.render(
       React.createElement(EditorUi, {
-        level: this.level.world, //
-        sprites: this.level.sprites,
+        level: this.world.blueprint.level, //
+        sprites: this.world.blueprint.resources,
         options: {
           mode: this.selectedMode,
           layerId: this.selectedLayerId,
@@ -241,10 +238,8 @@ class EditorState extends State {
       this.world.handleMouseLeftBtnPressed(active, position);
 
       if (active) {
-        const camera = this.world.getCamera();
-        const tileMap = this.world.getTileMap();
-
-        const coords = camera.screenToCameraCoords(position);
+        const tileMap = this.world.tileMap;
+        const coords = this.world.screenToCameraCoords(position);
 
         if (this.selectedMode === EditorMode.PICK) {
           const tile = tileMap.getTileAtCoords(coords.x, coords.y);
@@ -297,10 +292,8 @@ class EditorState extends State {
       this.world.handleMouseMiddleBtnPressed(active, position);
 
       if (active) {
-        const camera = this.world.getCamera();
-        const coords = camera.screenToCameraCoords(position);
-
-        dispatch(spawnEvent(utility.uuid(), "consummable", "health_potion", coords));
+        const coords = this.world.screenToCameraCoords(position);
+        dispatch(spawnEvent(utility.uuid(), "energy_bolt", coords));
       }
     }
   }

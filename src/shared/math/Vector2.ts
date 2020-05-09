@@ -206,22 +206,11 @@ class Vector2 {
     return v.x !== this.x || v.y !== this.y;
   }
 
-  public setX(x: number) {
+  public fromValues(x: number, y: number) {
     this.x = x;
-    return this;
-  }
-
-  public setY(y: number) {
     this.y = y;
+
     return this;
-  }
-
-  public getX(): number {
-    return this.x;
-  }
-
-  public getY(): number {
-    return this.y;
   }
 
   public toGlArray(): vec2 {
@@ -250,6 +239,18 @@ class Vector2 {
 
   public clone(): Vector2 {
     return new Vector2(this.x, this.y);
+  }
+
+  public toFixed(precision: number) {
+    const n = 10 ** precision;
+    this.x = Math.floor(this.x * n) / n;
+    this.y = Math.floor(this.y * n) / n;
+
+    return this;
+  }
+
+  public toString(): string {
+    return `x:${this.x}, y:${this.y}`;
   }
 }
 

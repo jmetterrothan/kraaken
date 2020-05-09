@@ -1,51 +1,54 @@
-import { mat3 } from "gl-matrix";
+import { IKeyFrame } from "@shared/models/animation.model";
 
-import Sprite from "@src/animation/Sprite";
-import Vector2 from "@src/shared/math/Vector2";
-
-import { IAnimation, IKeyFrame } from "@shared/models/animation.model";
-import { ISpriteRenderParameters } from "@shared/models/animation.model";
+interface IAnimationMetadata {
+  name: string;
+  loop: boolean;
+  keyframes: IKeyFrame[];
+}
 
 class Animation {
-  private name: string;
-  private keyframes: IKeyFrame[];
-  private loop: boolean;
+  public readonly name: string;
+  public readonly keyframes: IKeyFrame[];
+  public readonly loop: boolean;
 
-  private sprite: Sprite;
+  public paused: boolean;
 
-  private active: boolean;
-  private paused: boolean;
+  public time: number;
+  public freezeTime: number;
+  public played: number;
+  public index: number;
 
-  private time: number;
-  private freezeTime: number;
-  private played: number;
-  private frame: number;
-
-  constructor(name: string, data: IAnimation) {
+  public constructor({ name, loop, keyframes }: IAnimationMetadata) {
     this.name = name;
-    this.loop = data.loop;
-    this.keyframes = data.keyframes;
+    this.loop = loop;
+    this.keyframes = keyframes;
 
-    this.sprite = Sprite.get(data.sprite);
-
-    this.active = true;
     this.paused = false;
 
     this.time = -1; // current time
     this.freezeTime = -1;
     this.played = 0; // times played
-    this.frame = 0; // current frame
+    this.index = 0; // current frame
+  }
+
+  public pause(): void {
+    this.paused = true;
+    this.freezeTime = window.performance.now();
+  }
+
+  public resume(): void {
+    this.paused = false;
+
+    if (this.freezeTime !== -1) {
+      this.time += this.freezeTime - this.time;
+    }
   }
 
   public update() {
-    if (!this.active) {
-      return;
-    }
-
     const now = window.performance.now();
 
     if (this.time === -1) {
-      this.frame = 0;
+      this.index = 0;
       this.played = 0;
       this.freezeTime = -1;
 
@@ -54,68 +57,36 @@ class Animation {
 
     if (this.loop || this.played === 0) {
       if (!this.paused && now >= this.time) {
-        this.frame++;
+        this.index++;
 
-        if (this.frame >= this.keyframes.length) {
-          this.frame = 0;
+        if (this.index >= this.keyframes.length) {
+          this.index = 0;
           this.played++;
         }
 
-        this.time = now + this.keyframes[this.frame].duration;
+        this.time = now + this.keyframes[this.index].duration;
       }
     }
   }
 
-  public pause() {
-    this.paused = true;
-    this.freezeTime = window.performance.now();
-  }
-
-  public resume() {
-    this.paused = false;
-
-    if (this.freezeTime !== -1) {
-      this.time += this.freezeTime - this.time;
-    }
-  }
-
-  public reset() {
+  public reset(): void {
     this.time = -1;
   }
 
-  public playedOnce() {
+  public toString(): string {
+    return `Animation - ${this.name} [${this.index}]`;
+  }
+
+  public get playedOnce(): boolean {
     return this.played > 0;
   }
 
-  public getDuration() {
+  public get duration(): number {
     return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
-  public getOffset() {
-    return new Vector2(-this.sprite.getTileWidth() / 2, -this.sprite.getTileHeight() / 2);
-  }
-
-  public getWidth() {
-    return this.sprite.getTileWidth();
-  }
-
-  public getHeight() {
-    return this.sprite.getTileHeight();
-  }
-
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, parameters: ISpriteRenderParameters) {
-    // flickering effect
-    const flicker = parameters.flickering && Math.floor(window.performance.now() / 150) % 2;
-    const renderable = this.loop || !this.playedOnce();
-
-    if (this.active && !flicker && renderable) {
-      this.sprite.use();
-      this.sprite.render(viewProjectionMatrix, modelMatrix, this.keyframes[this.frame].row, this.keyframes[this.frame].col, parameters);
-    }
-  }
-
-  public toString() {
-    return this.name;
+  public get frame(): IKeyFrame {
+    return this.keyframes[this.index];
   }
 }
 

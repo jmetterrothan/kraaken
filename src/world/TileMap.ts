@@ -1,7 +1,10 @@
+import { Position } from "@src/objects/ECS/components";
+import { POSITION_COMPONENT } from "./../objects/ECS/types";
 import { mat3 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";
-import Sprite from "@src/animation/Sprite";
+import SpriteAtlas from "@src/animation/SpriteAtlas";
+import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 import Tile from "./Tile";
 
@@ -31,7 +34,7 @@ class TileMap {
   private tiles: Tile[][];
   private tileTypes: ITileTypes;
 
-  private atlas: Sprite;
+  private atlas: SpriteAtlas;
 
   constructor(data: ITileMap) {
     this.nbCols = data.cols;
@@ -42,7 +45,7 @@ class TileMap {
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
 
-    this.boundaries = Box2.createFromCenterPoint(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
+    this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.tiles = create2DArray(this.nbRows, this.nbCols);
     this.tileTypes = data.tileTypes;
@@ -89,7 +92,7 @@ class TileMap {
   }
 
   public init() {
-    this.atlas = Sprite.get(this.tileSet);
+    this.atlas = SpriteManager.get(this.tileSet);
   }
 
   public getIndex(row: number, col: number): number {
@@ -97,7 +100,7 @@ class TileMap {
   }
 
   public update(world: World, delta: number) {
-    const center = world.getCamera().getPosition();
+    const center = world.camera.getComponent<Position>(POSITION_COMPONENT);
 
     this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
     this.startRow = Math.floor((center.y - configSvc.innerSize.h / 2) / this.tileSize);
@@ -127,17 +130,17 @@ class TileMap {
         if (this.selectedLayerId === 0) {
           if (this.tiles[r][c] && this.tiles[r][c].collision) {
             this.tiles[r][c].renderOptions.fill = true;
-            this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].row, this.tiles[r][c].col, this.tiles[r][c].renderOptions);
+            this.atlas.render(viewProjectionMatrix, this.tiles[r][c].transform, this.tiles[r][c].row, this.tiles[r][c].col, this.tiles[r][c].renderOptions);
             this.tiles[r][c].renderOptions.fill = false;
           }
         } else {
           */
         if (this.tiles[r][c] && this.tiles[r][c].slot1) {
-          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].renderOptions);
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
         }
 
         if (this.tiles[r][c] && this.tiles[r][c].slot2) {
-          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].model, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].renderOptions);
+          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
         }
         /* }*/
       }
