@@ -1,5 +1,5 @@
-import { BOUNDING_BOX_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
+import { BOUNDING_BOX_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
 
 import Box2 from "@src/shared/math/Box2";
 

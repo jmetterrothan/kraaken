@@ -1,8 +1,8 @@
 import { vec2, mat3 } from "gl-matrix";
 
-import { Position, Sprite, BoundingBox, RigidBody } from "@src/objects/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/objects/ECS/types";
-import { System } from "@src/objects/ECS";
+import { Position, Sprite, BoundingBox, RigidBody } from "@src/ECS/components";
+import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { System } from "@src/ECS";
 
 import World from "@src/world/World";
 

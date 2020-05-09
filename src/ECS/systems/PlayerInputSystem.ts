@@ -1,6 +1,6 @@
-import { PLAYER_INPUT_COMPONENT } from "@src/objects/ECS/types";
-import { System } from "@src/objects/ECS";
-import { PlayerInput } from "@src/objects/ECS/components";
+import { PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { System } from "@src/ECS";
+import { PlayerInput } from "@src/ECS/components";
 
 export class PlayerInputSystem extends System {
   public constructor() {

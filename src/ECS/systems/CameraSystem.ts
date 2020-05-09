@@ -1,8 +1,8 @@
 import { mat3, vec2 } from "gl-matrix";
 
-import { CAMERA_COMPONENT, POSITION_COMPONENT, MOVEMENT_COMPONENT } from "@src/objects/ECS/types";
-import { System, Entity } from "@src/objects/ECS";
-import { Position, Camera, CameraMode, Movement } from "@src/objects/ECS/components";
+import { CAMERA_COMPONENT, POSITION_COMPONENT, MOVEMENT_COMPONENT } from "@src/ECS/types";
+import { System, Entity } from "@src/ECS";
+import { Position, Camera, CameraMode, Movement } from "@src/ECS/components";
 
 import { configSvc } from "@shared/services/config.service";
 

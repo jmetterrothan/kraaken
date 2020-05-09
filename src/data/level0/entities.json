@@ -1,11 +1,33 @@
 [
   {
+    "type": "health",
+    "components": [
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
+      { "name": "bounding_box", "metadata": { "width": 9, "height": 12 } },
+      { "name": "sprite", "metadata": { "alias": "items" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [{ "row": 3, "col": 1, "duration": -1 }]
+            }
+          },
+          "defaultKey": "idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
-      { "name": "sprite", "metadata": { "alias": "items" } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
+      { "name": "sprite", "metadata": { "alias": "items" } },
       {
         "name": "animator",
         "metadata": {

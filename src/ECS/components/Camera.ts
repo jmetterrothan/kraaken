@@ -1,9 +1,9 @@
 import { configSvc } from "@shared/services/config.service";
 import { mat3 } from "gl-matrix";
 
-import { CAMERA_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
-import { Entity } from "@src/objects/ECS";
+import { CAMERA_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
+import { Entity } from "@src/ECS";
 
 import Box2 from "@src/shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";

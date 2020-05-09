@@ -1,6 +1,6 @@
-import { HEALTH_COMPONENT } from "./../types";
+import { HEALTH_COMPONENT } from "../types";
 
-import { Component } from "../";
+import { Component } from "..";
 
 interface IHealthMetadata {
   maxHealth?: number;

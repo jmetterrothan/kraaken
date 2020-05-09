@@ -1,7 +1,7 @@
 import { mat3 } from "gl-matrix";
 
-import { POSITION_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
+import { POSITION_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
 
 import Vector2 from "@shared/math/Vector2";
 

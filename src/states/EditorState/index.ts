@@ -33,8 +33,8 @@ import * as utility from "@src/shared/utility/Utility";
 
 class EditorState extends State {
   public readonly id: number;
-  private ready: boolean;
 
+  private ready: boolean;
   private world: World;
 
   private undoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }>;

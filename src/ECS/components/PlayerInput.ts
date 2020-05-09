@@ -1,5 +1,5 @@
-import { PLAYER_INPUT_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
+import { PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
 
 export class PlayerInput implements Component {
   public readonly type: string = PLAYER_INPUT_COMPONENT;

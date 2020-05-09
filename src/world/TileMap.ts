@@ -1,5 +1,5 @@
-import { Position } from "@src/objects/ECS/components";
-import { POSITION_COMPONENT } from "./../objects/ECS/types";
+import { Position } from "@src/ECS/components";
+import { POSITION_COMPONENT } from "../ECS/types";
 import { mat3 } from "gl-matrix";
 
 import Box2 from "@shared/math/Box2";

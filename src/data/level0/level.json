@@ -137,7 +137,7 @@
       "direction": { "x": 1, "y": 1 }
     },
     {
-      "type": "energy_bolt",
+      "type": "health",
       "uuid": "2",
       "position": { "x": 400, "y": 320 },
       "direction": { "x": 1, "y": 1 }

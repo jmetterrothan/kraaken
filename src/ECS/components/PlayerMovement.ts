@@ -1,5 +1,5 @@
-import { PLAYER_MOVEMENT_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
+import { PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
 
 interface IPlayerMovementMetadata {
   initialJumpBoost?: number;

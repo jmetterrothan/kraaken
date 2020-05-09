@@ -1,5 +1,5 @@
-import { SPRITE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, ANIMATOR_COMPONENT, HEALTH_COMPONENT } from "@src/objects/ECS/types";
-import { PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health } from "@src/objects/ECS/components";
+import { SPRITE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, ANIMATOR_COMPONENT, HEALTH_COMPONENT } from "@src/ECS/types";
+import { PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health } from "@src/ECS/components";
 
 class ComponentFactory {
   public static create(name: string, metadata: any) {

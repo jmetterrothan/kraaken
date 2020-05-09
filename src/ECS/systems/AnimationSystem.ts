@@ -1,6 +1,6 @@
-import { ANIMATOR_COMPONENT, SPRITE_COMPONENT, PLAYER_MOVEMENT_COMPONENT } from "@src/objects/ECS/types";
-import { System, Entity } from "@src/objects/ECS";
-import { Animator, Sprite, PlayerMovement } from "@src/objects/ECS/components";
+import { ANIMATOR_COMPONENT, SPRITE_COMPONENT, PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
+import { System, Entity } from "@src/ECS";
+import { Animator, Sprite, PlayerMovement } from "@src/ECS/components";
 
 import { CharacterAnimationKeys } from "@shared/models/animation.model";
 

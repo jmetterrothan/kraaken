@@ -1,6 +1,6 @@
 import { Observable, Subject } from "rxjs";
 
-import { Entity, Component } from "@src/objects/ECS";
+import { Entity, Component } from "@src/ECS";
 
 export class Bundle {
   public static generateId(components: ReadonlyArray<string>): string {

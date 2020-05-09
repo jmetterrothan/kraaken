@@ -1,5 +1,5 @@
-import { ANIMATOR_COMPONENT } from "@src/objects/ECS/types";
-import { Component } from "@src/objects/ECS/Component";
+import { ANIMATOR_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS/Component";
 
 import Animation from "@src/animation/Animation";
 

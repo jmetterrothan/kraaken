@@ -1,6 +1,6 @@
-import { RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/objects/ECS/types";
-import { System } from "@src/objects/ECS";
-import { PlayerMovement, PlayerInput, RigidBody } from "@src/objects/ECS/components";
+import { RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { System } from "@src/ECS";
+import { PlayerMovement, PlayerInput, RigidBody } from "@src/ECS/components";
 
 export class PlayerMovementSystem extends System {
   public constructor() {

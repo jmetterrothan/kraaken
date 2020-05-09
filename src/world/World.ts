@@ -3,11 +3,11 @@ import { mat3, vec2 } from "gl-matrix";
 
 import SpriteManager from "@src/animation/SpriteManager";
 
-import ComponentFactory from "@src/objects/ECS/ComponentFactory";
-import { PlayerMovementSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem } from "@src/objects/ECS/systems";
-import { Position, BoundingBox, Camera, IPositionMetadata, IRigidBodyMetadata } from "@src/objects/ECS/components";
-import { RIGID_BODY_COMPONENT, CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, POSITION_COMPONENT } from "@src/objects/ECS/types";
-import { Bundle, Entity, System } from "@src/objects/ECS";
+import ComponentFactory from "@src/ECS/ComponentFactory";
+import { PlayerMovementSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem } from "@src/ECS/systems";
+import { Position, BoundingBox, Camera, IPositionMetadata, IRigidBodyMetadata } from "@src/ECS/components";
+import { RIGID_BODY_COMPONENT, CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
+import { Bundle, Entity, System } from "@src/ECS";
 
 import TileMap from "@src/world/TileMap";
 
