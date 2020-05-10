@@ -1,25 +1,30 @@
-import { SPRITE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, ANIMATOR_COMPONENT, HEALTH_COMPONENT } from "@src/ECS/types";
-import { PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health } from "@src/ECS/components";
+import { HealthPotion, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
 
 class ComponentFactory {
   public static create(name: string, metadata: any) {
     switch (name) {
-      case POSITION_COMPONENT:
+      case "position":
         return new Position(metadata);
-      case BOUNDING_BOX_COMPONENT:
+      case "bounding_box":
         return new BoundingBox(metadata);
-      case PLAYER_MOVEMENT_COMPONENT:
+      case "player_movement":
         return new PlayerMovement(metadata);
-      case PLAYER_INPUT_COMPONENT:
-        return new PlayerInput();
-      case ANIMATOR_COMPONENT:
+      case "player_input":
+        return new PlayerInput(metadata);
+      case "player_animator":
+        return new PlayerAnimator(metadata);
+      case "animator":
         return new Animator(metadata);
-      case SPRITE_COMPONENT:
+      case "sprite":
         return new Sprite(metadata);
-      case HEALTH_COMPONENT:
+      case "health":
         return new Health(metadata);
-      case RIGID_BODY_COMPONENT:
+      case "rigid_body":
         return new RigidBody(metadata);
+      case "health_potion":
+        return new HealthPotion(metadata);
+      case "collectible":
+        return new Collectible(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

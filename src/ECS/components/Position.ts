@@ -1,7 +1,8 @@
 import { mat3 } from "gl-matrix";
 
+import Component from "@src/ECS/Component";
+
 import { POSITION_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -11,7 +12,7 @@ export interface IPositionMetadata {
 }
 
 export class Position extends Vector2 implements Component {
-  public readonly type: string = POSITION_COMPONENT;
+  public readonly type: symbol = POSITION_COMPONENT;
 
   public transform: mat3 = mat3.create();
   public previousValue: Vector2 = new Vector2();

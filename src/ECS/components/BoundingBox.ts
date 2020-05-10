@@ -1,5 +1,6 @@
+import Component from "@src/ECS/Component";
+
 import { BOUNDING_BOX_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 import Box2 from "@src/shared/math/Box2";
 
@@ -9,7 +10,7 @@ interface IBoundingBoxMetadata {
 }
 
 export class BoundingBox extends Box2 implements Component {
-  public readonly type: string = BOUNDING_BOX_COMPONENT;
+  public readonly type: symbol = BOUNDING_BOX_COMPONENT;
 
   public constructor({ width, height }: IBoundingBoxMetadata) {
     super(0, 0, width ?? 1, height ?? 1);

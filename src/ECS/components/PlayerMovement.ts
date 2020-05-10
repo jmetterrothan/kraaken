@@ -1,5 +1,6 @@
+import Component from "@src/ECS/Component";
+
 import { PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 interface IPlayerMovementMetadata {
   initialJumpBoost?: number;
@@ -10,7 +11,7 @@ interface IPlayerMovementMetadata {
 }
 
 export class PlayerMovement implements Component {
-  public readonly type: string = PLAYER_MOVEMENT_COMPONENT;
+  public readonly type: symbol = PLAYER_MOVEMENT_COMPONENT;
 
   public climbing: boolean = false;
   public falling: boolean = false;

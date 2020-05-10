@@ -1,13 +1,18 @@
 import { Observable } from "rxjs";
 import { mat3, vec2 } from "gl-matrix";
 
-import SpriteManager from "@src/animation/SpriteManager";
+import { gl } from "@src/Game";
 
+import Entity from "@src/ECS/Entity";
+import System from "@src/ECS/System";
+import Bundle from "@src/ECS/Bundle";
 import ComponentFactory from "@src/ECS/ComponentFactory";
-import { PlayerMovementSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem } from "@src/ECS/systems";
-import { Position, BoundingBox, Camera, IPositionMetadata, IRigidBodyMetadata } from "@src/ECS/components";
-import { RIGID_BODY_COMPONENT, CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
-import { Bundle, Entity, System } from "@src/ECS";
+
+import { PlayerMovementSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem, ConsummableSystem } from "@src/ECS/systems";
+import { Position, Health, BoundingBox, Camera, IPositionMetadata, IRigidBodyMetadata } from "@src/ECS/components";
+import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
+
+import SpriteManager from "@src/animation/SpriteManager";
 
 import TileMap from "@src/world/TileMap";
 
@@ -17,8 +22,6 @@ import { IRGBAColorData } from "@src/shared/models/color.model";
 import { IWorldBlueprint, ISpawnpoint } from "@src/shared/models/world.model";
 
 import { configSvc } from "@shared/services/config.service";
-
-import { gl } from "@src/Game";
 
 export const loadData = async (i: number): Promise<IWorldBlueprint> => {
   const { default: level } = await import(`@src/data/level${i}/level.json`);
@@ -66,6 +69,7 @@ class World {
     this.addSystem(new PhysicsSystem());
     this.addSystem(new CameraSystem());
     this.addSystem(new AnimationSystem());
+    this.addSystem(new ConsummableSystem());
 
     this.renderer = new RenderingSystem();
     this.renderer.addedToWorld(this);
@@ -91,11 +95,18 @@ class World {
     this.addCamera(camera, true);
     this.followEntity(camera, this.player);
 
+    const hc = this.player.getComponent<Health>(HEALTH_COMPONENT);
+    hc.health -= 10;
     console.info("World initialized");
   }
 
   public despawn(uuid: string): void {
     // TODO: remove entity
+
+    const entity = this._entities.find((temp) => temp.uuid === uuid);
+    if (entity) {
+      this.removeEntity(entity);
+    }
   }
 
   public spawn({ type, uuid, position, direction }: ISpawnpoint): string {
@@ -108,13 +119,13 @@ class World {
     this.blueprint.entities
       .find((item) => item.type === type)
       .components.forEach(({ name, metadata = {} }) => {
-        if (name === POSITION_COMPONENT) {
-          (metadata as IPositionMetadata).x = position.x ?? 0;
-          (metadata as IPositionMetadata).y = position.y ?? 0;
+        if (name === "position") {
+          (metadata as IPositionMetadata).x = position?.x ?? 0;
+          (metadata as IPositionMetadata).y = position?.y ?? 0;
         }
-        if (name === RIGID_BODY_COMPONENT) {
-          (metadata as IRigidBodyMetadata).direction.x = direction.x ?? 1;
-          (metadata as IRigidBodyMetadata).direction.y = direction.y ?? 1;
+        if (name === "rigid_body") {
+          (metadata as IRigidBodyMetadata).direction.x = direction?.x ?? 1;
+          (metadata as IRigidBodyMetadata).direction.y = direction?.y ?? 1;
         }
 
         entity.addComponent(ComponentFactory.create(name, metadata));
@@ -148,7 +159,7 @@ class World {
     return this;
   }
 
-  public createBundleIfNotExists(componentTypes: ReadonlyArray<string>) {
+  public createBundleIfNotExists(componentTypes: ReadonlyArray<symbol>) {
     const bundleId = Bundle.generateId(componentTypes);
 
     if (!this._bundles.has(bundleId)) {
@@ -165,7 +176,7 @@ class World {
     return bundleId;
   }
 
-  public getEntities(componentTypes: ReadonlyArray<string>): ReadonlyArray<Entity> {
+  public getEntities(componentTypes: ReadonlyArray<symbol>): ReadonlyArray<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
     const bundle = this._bundles.get(bundleId);
 
@@ -211,7 +222,7 @@ class World {
     return this;
   }
 
-  public entityAdded$(componentTypes: ReadonlyArray<string>): Observable<Entity> {
+  public entityAdded$(componentTypes: ReadonlyArray<symbol>): Observable<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
 
     const bundle = this._bundles.get(bundleId);
@@ -222,7 +233,7 @@ class World {
     throw Error(`Unable to perform add event on components: ${componentTypes.join(", ")}`);
   }
 
-  public entityRemoved$(componentTypes: ReadonlyArray<string>): Observable<Entity> {
+  public entityRemoved$(componentTypes: ReadonlyArray<symbol>): Observable<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
 
     const bundle = this._bundles.get(bundleId);

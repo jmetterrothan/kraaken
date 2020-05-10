@@ -1,12 +1,14 @@
-import { configSvc } from "@shared/services/config.service";
 import { mat3 } from "gl-matrix";
 
+import Entity from "@src/ECS/Entity";
+import Component from "@src/ECS/Component";
+
 import { CAMERA_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
-import { Entity } from "@src/ECS";
 
 import Box2 from "@src/shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
+
+import { configSvc } from "@shared/services/config.service";
 
 interface ICameraMetadata {
   mode?: CameraMode;
@@ -19,7 +21,7 @@ export enum CameraMode {
 }
 
 export class Camera implements Component {
-  public readonly type: string = CAMERA_COMPONENT;
+  public readonly type: symbol = CAMERA_COMPONENT;
 
   public projectionMatrix: mat3 = mat3.create();
   public projectionMatrixInverse: mat3 = mat3.create();

@@ -1,3 +1,3 @@
-export interface Component {
-  readonly type: string;
+export default interface Component {
+  readonly type: symbol;
 }

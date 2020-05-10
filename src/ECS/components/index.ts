@@ -8,3 +8,7 @@ export * from "./BoundingBox";
 export * from "./Camera";
 export * from "./RigidBody";
 export * from "./Fill";
+export * from "./Consummable";
+export * from "./HealthPotion";
+export * from "./Collectible";
+export * from "./PlayerAnimator";

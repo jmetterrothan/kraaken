@@ -133,13 +133,43 @@
     { 
       "type": "hero",
       "uuid": "1",
-      "position": { "x": 420, "y": 300 },
+      "position": { "x": 380, "y": 300 },
       "direction": { "x": 1, "y": 1 }
     },
     {
-      "type": "health",
+      "type": "health_boost",
       "uuid": "2",
-      "position": { "x": 400, "y": 320 },
+      "position": { "x": 408, "y": 320 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "coin",
+      "uuid": "3",
+      "position": { "x": 424, "y": 328 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "coin",
+      "uuid": "4",
+      "position": { "x": 440, "y": 328 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "coin",
+      "uuid": "5",
+      "position": { "x": 456, "y": 328 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "coin",
+      "uuid": "6",
+      "position": { "x": 472, "y": 328 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "coin",
+      "uuid": "7",
+      "position": { "x": 488, "y": 328 },
       "direction": { "x": 1, "y": 1 }
     }
   ] 

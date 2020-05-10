@@ -1,28 +1,10 @@
-import { ANIMATOR_COMPONENT, SPRITE_COMPONENT, PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
-import { System, Entity } from "@src/ECS";
-import { Animator, Sprite, PlayerMovement } from "@src/ECS/components";
-
-import { CharacterAnimationKeys } from "@shared/models/animation.model";
+import { ANIMATOR_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
+import System from "@src/ECS/System";
+import { Animator, Sprite } from "@src/ECS/components";
 
 export class AnimationSystem extends System {
   public constructor() {
     super([ANIMATOR_COMPONENT, SPRITE_COMPONENT]);
-  }
-
-  public updateKey(entity: Entity): string {
-    const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-    if (movement) {
-      if (movement.falling) {
-        return CharacterAnimationKeys.FALLING;
-      }
-      if (movement.jumping) {
-        return CharacterAnimationKeys.JUMPING;
-      }
-      if (movement.walking) {
-        return CharacterAnimationKeys.WALKING;
-      }
-    }
-    return CharacterAnimationKeys.IDLE;
   }
 
   execute(delta: number): void {
@@ -38,7 +20,7 @@ export class AnimationSystem extends System {
       const animation = animator.animation;
 
       animator.previousKey = animator.currentKey;
-      animator.currentKey = this.updateKey(entity);
+      animator.currentKey = animator.update(entity);
 
       animation.update();
 

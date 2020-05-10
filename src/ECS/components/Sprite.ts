@@ -1,5 +1,6 @@
+import Component from "@src/ECS/Component";
+
 import { SPRITE_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SpriteAtlas from "@src/animation/SpriteAtlas";
@@ -15,7 +16,7 @@ interface ISpriteMetadata {
 }
 
 export class Sprite implements Component {
-  public readonly type: string = SPRITE_COMPONENT;
+  public readonly type: symbol = SPRITE_COMPONENT;
 
   public row: number;
   public col: number;

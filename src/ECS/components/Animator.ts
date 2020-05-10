@@ -1,5 +1,7 @@
+import Entity from "@src/ECS/Entity";
+import Component from "@src/ECS/Component";
+
 import { ANIMATOR_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 import Animation from "@src/animation/Animation";
 
@@ -11,7 +13,7 @@ export interface IAnimatorMetadata {
 }
 
 export class Animator implements Component {
-  public readonly type: string = ANIMATOR_COMPONENT;
+  public readonly type: symbol = ANIMATOR_COMPONENT;
 
   public readonly list: Map<string, Animation> = new Map();
 
@@ -25,6 +27,10 @@ export class Animator implements Component {
     for (const name of Object.keys(list ?? {})) {
       this.list.set(name, new Animation({ name, ...list[name] }));
     }
+  }
+
+  public update(entity: Entity): string {
+    return "idle";
   }
 
   public hasAnimation(name: string): boolean {

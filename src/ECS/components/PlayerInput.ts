@@ -1,8 +1,9 @@
+import Component from "@src/ECS/Component";
+
 import { PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 export class PlayerInput implements Component {
-  public readonly type: string = PLAYER_INPUT_COMPONENT;
+  public readonly type: symbol = PLAYER_INPUT_COMPONENT;
 
   public left: boolean = false;
   public right: boolean = false;

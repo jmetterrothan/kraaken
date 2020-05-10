@@ -1,5 +1,6 @@
+import Component from "@src/ECS/Component";
+
 import { FILL_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
 
 import Color from "@src/shared/helper/Color";
 import ColoredBox from "@src/shared/helper/ColoredBox";
@@ -12,7 +13,7 @@ interface IFillMetadata {
 }
 
 export class Fill implements Component {
-  public readonly type: string = FILL_COMPONENT;
+  public readonly type: symbol = FILL_COMPONENT;
 
   public color: Color;
   public helper: ColoredBox;

@@ -1,13 +1,13 @@
 import { Observable, Subject } from "rxjs";
 
-import { Component } from "./Component";
+import Component from "./Component";
 
 import * as utility from "@src/shared/utility/Utility";
 
-export class Entity {
+class Entity {
   public readonly uuid: string;
 
-  private _components: Map<string, Component> = new Map();
+  private _components: Map<symbol, Component> = new Map();
   private readonly _componentAddedSubject$ = new Subject<Component>();
   private readonly _componentRemovedSubject$ = new Subject<Component>();
 
@@ -22,7 +22,7 @@ export class Entity {
     return this;
   }
 
-  public removeComponent(type: string): Entity {
+  public removeComponent(type: symbol): Entity {
     const component = this._components.get(type);
 
     if (typeof component !== "undefined") {
@@ -33,7 +33,7 @@ export class Entity {
     return this;
   }
 
-  public getComponent<T extends Component = Component>(type: string): T | undefined {
+  public getComponent<T extends Component = Component>(type: symbol): T | undefined {
     const component = this._components.get(type);
     if (typeof component !== "undefined") {
       return component as T;
@@ -41,7 +41,7 @@ export class Entity {
     return undefined;
   }
 
-  public hasComponent(type: string): boolean {
+  public hasComponent(type: symbol): boolean {
     return this._components.has(type);
   }
 
@@ -62,3 +62,5 @@ export class Entity {
     return str;
   }
 }
+
+export default Entity;

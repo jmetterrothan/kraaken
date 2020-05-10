@@ -1,9 +1,10 @@
-import { RIGID_BODY_COMPONENT } from "@src/ECS/types";
-import { Component } from "@src/ECS/Component";
+import Component from "@src/ECS/Component";
 
-import { IVector2 } from "@src/shared/models/event.model";
+import { RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import Vector2 from "@shared/math/Vector2";
+
+import { IVector2 } from "@src/shared/models/event.model";
 
 export interface IRigidBodyMetadata {
   direction?: IVector2;
@@ -12,7 +13,7 @@ export interface IRigidBodyMetadata {
 }
 
 export class RigidBody implements Component {
-  public readonly type: string = RIGID_BODY_COMPONENT;
+  public readonly type: symbol = RIGID_BODY_COMPONENT;
 
   public readonly collide: boolean;
   public readonly gravity: boolean;

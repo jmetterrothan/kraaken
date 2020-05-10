@@ -1,11 +1,11 @@
 import World from "@src/world/World";
 
-export abstract class System {
-  public readonly componentTypes: ReadonlyArray<string>;
+abstract class System {
+  public readonly componentTypes: ReadonlyArray<symbol>;
 
   private _world: World | undefined;
 
-  public constructor(componentTypes: ReadonlyArray<string>) {
+  public constructor(componentTypes: ReadonlyArray<symbol>) {
     this.componentTypes = componentTypes;
   }
 
@@ -26,3 +26,5 @@ export abstract class System {
     return this._world;
   }
 }
+
+export default System;

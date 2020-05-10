@@ -1,12 +1,14 @@
 import { mat3 } from "gl-matrix";
 
-import { Position, Sprite, RigidBody } from "@src/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
-import { System } from "@src/ECS";
+import System from "@src/ECS/System";
 
-import Vector2 from "@shared/math/Vector2";
+import { Position, Sprite, RigidBody } from "@src/ECS/components";
+
+import { POSITION_COMPONENT, SPRITE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
+
+import Vector2 from "@shared/math/Vector2";
 
 export class RenderingSystem extends System {
   public constructor() {
@@ -43,7 +45,7 @@ export class RenderingSystem extends System {
       if (position.shouldUpdateTransform) {
         const spriteOffset = new Vector2(-sprite.atlas.tileWidth / 2, -sprite.atlas.tileHeight / 2 - 1);
 
-        position.transform = mat3.fromTranslation(mat3.create(), position.clone().add(spriteOffset).trunc().toGlArray());
+        position.transform = mat3.fromTranslation(mat3.create(), position.clone().trunc().add(spriteOffset).toGlArray());
         position.shouldUpdateTransform = false;
       }
 

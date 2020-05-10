@@ -1,19 +1,20 @@
 import { Observable, Subject } from "rxjs";
 
-import { Entity, Component } from "@src/ECS";
+import Entity from "@src/ECS/Entity";
+import Component from "@src/ECS/Component";
 
-export class Bundle {
-  public static generateId(components: ReadonlyArray<string>): string {
+class Bundle {
+  public static generateId(components: ReadonlyArray<symbol>): string {
     return components.map((type) => type.toString()).join("-");
   }
 
-  private readonly _componentTypes: ReadonlyArray<string>;
+  private readonly _componentTypes: ReadonlyArray<symbol>;
 
   private readonly _entities: Entity[] = [];
   private readonly _entityAddedSubject$ = new Subject<Entity>();
   private readonly _entityRemovedSubject$ = new Subject<Entity>();
 
-  public constructor(componentTypes: ReadonlyArray<string>) {
+  public constructor(componentTypes: ReadonlyArray<symbol>) {
     this._componentTypes = [...componentTypes];
   }
 
@@ -72,3 +73,5 @@ export class Bundle {
     return this._entities;
   }
 }
+
+export default Bundle;

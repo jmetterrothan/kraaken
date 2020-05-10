@@ -1,6 +1,8 @@
+import Entity from "@src/ECS/Entity";
+import System from "@src/ECS/System";
+
 import { Position, BoundingBox, RigidBody, PlayerMovement } from "@src/ECS/components";
 import { POSITION_COMPONENT, PLAYER_MOVEMENT_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
-import { System, Entity } from "@src/ECS";
 
 import Tile from "@src/world/Tile";
 import TileMap from "@src/world/TileMap";

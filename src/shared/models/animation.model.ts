@@ -22,7 +22,7 @@ export interface ISpriteRenderParameters {
   color?: Color;
 }
 
-export enum CharacterAnimationKeys {
+export enum PlayerAnimationKeys {
   DEAD = "dead",
   IDLE = "idle",
   WALKING = "walking",
