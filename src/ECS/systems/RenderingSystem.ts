@@ -1,8 +1,10 @@
-import { vec2, mat3 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
-import { Position, Sprite, BoundingBox, RigidBody } from "@src/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { Position, Sprite, RigidBody } from "@src/ECS/components";
+import { POSITION_COMPONENT, SPRITE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 import { System } from "@src/ECS";
+
+import Vector2 from "@shared/math/Vector2";
 
 import World from "@src/world/World";
 
@@ -15,11 +17,11 @@ export class RenderingSystem extends System {
     super.addedToWorld(world);
 
     world.entityAdded$([SPRITE_COMPONENT]).subscribe((entity) => {
-      console.log(entity);
+      // console.log(entity);
     });
 
     world.entityRemoved$([SPRITE_COMPONENT]).subscribe((entity) => {
-      console.log(entity);
+      // console.log(entity);
     });
   }
 
@@ -39,20 +41,15 @@ export class RenderingSystem extends System {
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
 
       if (position.shouldUpdateTransform) {
-        position.transform = mat3.fromTranslation(mat3.create(), position.clone().trunc().toGlArray());
+        const spriteOffset = new Vector2(-sprite.atlas.tileWidth / 2, -sprite.atlas.tileHeight / 2 - 1);
+
+        position.transform = mat3.fromTranslation(mat3.create(), position.clone().add(spriteOffset).trunc().toGlArray());
         position.shouldUpdateTransform = false;
-      }
-
-      let modelMatrix = position.transform;
-
-      if (entity.hasComponent(BOUNDING_BOX_COMPONENT)) {
-        const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-        modelMatrix = mat3.translate(mat3.create(), position.transform, vec2.fromValues(-sprite.atlas.tileWidth / 2, -sprite.atlas.tileHeight / 2 - 1));
       }
 
       sprite.atlas.use();
 
-      sprite.atlas.render(this.world.viewProjectionMatrix, modelMatrix, sprite.row, sprite.col, rigidBody?.direction, sprite.parameters);
+      sprite.atlas.render(this.world.viewProjectionMatrix, position.transform, sprite.row, sprite.col, rigidBody?.direction, sprite.parameters);
     });
   }
 }

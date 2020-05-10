@@ -1,8 +1,8 @@
 import { mat3, vec2 } from "gl-matrix";
 
-import { CAMERA_COMPONENT, POSITION_COMPONENT, MOVEMENT_COMPONENT } from "@src/ECS/types";
+import { CAMERA_COMPONENT, POSITION_COMPONENT, PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
 import { System, Entity } from "@src/ECS";
-import { Position, Camera, CameraMode, Movement } from "@src/ECS/components";
+import { Position, Camera, CameraMode, PlayerMovement } from "@src/ECS/components";
 
 import { configSvc } from "@shared/services/config.service";
 
@@ -70,12 +70,12 @@ export class CameraSystem extends System {
         const center = targetPos.clone().trunc();
 
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
-          // const movement = camera.target.getComponent<Movement>(MOVEMENT_COMPONENT);
+          // const movement = camera.target.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
           // if (!movement || movement.isGrounded) {
-          position.lerp(targetPos, camera.smoothing).trunc();
+          position.lerp(center, camera.smoothing).trunc();
           // }
         } else {
-          position.copy(center);
+          position.copy(center).trunc();
         }
       }
     }

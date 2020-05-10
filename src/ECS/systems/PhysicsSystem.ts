@@ -77,11 +77,10 @@ export class PhysicsSystem extends System {
   public collideWithMap(entity: Entity, delta: number) {
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
     const v = rigidBody.velocity.clone().multiply(rigidBody.direction).multiplyScalar(delta);
     const newPosition = position.clone().add(v);
-
-    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
     if (bbox) {
       bbox.setPositionFromVector2(position);

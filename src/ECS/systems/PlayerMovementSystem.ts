@@ -21,8 +21,7 @@ export class PlayerMovementSystem extends System {
       // register direction change
       if (input.left) {
         rigidBody.direction.x = -1;
-      }
-      if (input.right) {
+      } else if (input.right) {
         rigidBody.direction.x = 1;
       }
 
@@ -39,7 +38,7 @@ export class PlayerMovementSystem extends System {
       }
 
       // handle moving
-      if (input.left || input.right) {
+      if (input.right || input.left) {
         rigidBody.velocity.x += movement.acceleration;
         if (rigidBody.velocity.x > movement.speed) {
           rigidBody.velocity.x = movement.speed;
