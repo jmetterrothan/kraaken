@@ -1,11 +1,11 @@
 import Entity from "@src/ECS/Entity";
 
-import { Consummable } from "@src/ECS/components";
+import { Consummable, IConsummableMetadata } from "@src/ECS/components";
 import { PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT } from "@src/ECS/types";
 
-export interface ICollectibleMetadata {
-  id: string;
-  amount: number;
+export interface ICollectibleMetadata extends IConsummableMetadata {
+  id?: string;
+  amount?: number;
 }
 
 export class Collectible extends Consummable {
@@ -16,8 +16,8 @@ export class Collectible extends Consummable {
   public readonly id: string;
   public readonly amount: number;
 
-  public constructor(metadata: ICollectibleMetadata) {
-    super();
+  public constructor(metadata: ICollectibleMetadata = {}) {
+    super(metadata);
 
     this.id = metadata.id;
     this.amount = metadata.amount ?? 1;
@@ -33,6 +33,7 @@ export class Collectible extends Consummable {
     }
 
     Collectible.DATA[entity.uuid][this.id] += this.amount;
+    console.log(Collectible.DATA[entity.uuid]);
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {

@@ -40,11 +40,13 @@ export class ConsummableSystem extends System {
           consummable.consummatedBy(target);
           consummable.consummated = true;
 
-          const uuid = this.world.spawn({ type: "energy_bolt", position: { x: position.x, y: position.y } });
+          if (consummable.vfx) {
+            const uuid = this.world.spawn({ type: consummable.vfx, position: { x: position.x, y: position.y } });
 
-          setTimeout(() => {
-            this.world.despawn(uuid);
-          }, 500);
+            setTimeout(() => {
+              this.world.despawn(uuid);
+            }, 300);
+          }
 
           this.world.removeEntity(entity);
         }

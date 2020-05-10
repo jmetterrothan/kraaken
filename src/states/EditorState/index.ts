@@ -293,7 +293,7 @@ class EditorState extends State {
 
       if (active) {
         const coords = this.world.screenToCameraCoords(position);
-        dispatch(spawnEvent(utility.uuid(), "health_boost", coords));
+        dispatch(spawnEvent(utility.uuid(), "health_potion", coords));
       }
     }
   }

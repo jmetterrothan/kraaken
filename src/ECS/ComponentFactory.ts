@@ -1,4 +1,4 @@
-import { HealthPotion, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
+import { HealthModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
 
 class ComponentFactory {
   public static create(name: string, metadata: any) {
@@ -10,7 +10,7 @@ class ComponentFactory {
       case "player_movement":
         return new PlayerMovement(metadata);
       case "player_input":
-        return new PlayerInput(metadata);
+        return new PlayerInput();
       case "player_animator":
         return new PlayerAnimator(metadata);
       case "animator":
@@ -21,8 +21,8 @@ class ComponentFactory {
         return new Health(metadata);
       case "rigid_body":
         return new RigidBody(metadata);
-      case "health_potion":
-        return new HealthPotion(metadata);
+      case "health_modifier":
+        return new HealthModifier(metadata);
       case "collectible":
         return new Collectible(metadata);
       default:
