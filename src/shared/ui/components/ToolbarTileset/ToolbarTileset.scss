@@ -87,6 +87,18 @@ $fullWidth: $width + $spacing * 2;
       grid-template-rows: $fullWidth $fullWidth;
     }
 
+    &.g4x1 {
+      display: grid;
+      grid-template-columns: $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
+    }
+
+    &.g4x2 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
+    }
+
     li {
       width: $width;
       height: $width;

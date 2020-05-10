@@ -24,13 +24,13 @@
     ]
   },
   {
-    "type": "health_boost",
+    "type": "health_potion",
     "components": [
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 12 } },
       { "name": "sprite", "metadata": { "alias": "items" } },
-      { "name": "health_potion" },
+      { "name": "health_modifier", "metadata": { "amount": 1, "vfx": "boost_effect" } },
       {
         "name": "animator",
         "metadata": {
@@ -53,7 +53,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
       { "name": "sprite", "metadata": { "alias": "items" } },
-      { "name": "collectible", "metadata": { "id": "coin", "amount": 1 } },
+      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "vfx": "boost_effect" } },
       {
         "name": "animator",
         "metadata": {
@@ -112,7 +112,7 @@
       { "name": "player_input" },
       { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14 } },
       { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
-      { "name": "health", "metadata": { "maxHealth": 20 } },
+      { "name": "health", "metadata": { "maxHealth": 6 } },
       { "name": "sprite", "metadata": { "alias": "hero" } },
       {
         "name": "player_animator",
