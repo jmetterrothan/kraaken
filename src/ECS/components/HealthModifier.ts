@@ -24,8 +24,6 @@ export class HealthModifier extends Consummable {
     if (healthComp.isAlive) {
       healthComp.health += this.amount;
     }
-
-    console.log(healthComp.toString());
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {

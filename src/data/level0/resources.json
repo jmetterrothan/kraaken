@@ -34,5 +34,11 @@
     "name": "atlas2",
     "tileWidth": 48,
     "tileHeight": 48
+  },
+  {
+    "src": "http://files.metter-rothan.fr/kraken/level0/graphics/star_effects.png",
+    "name": "star_effects",
+    "tileWidth": 24,
+    "tileHeight": 24
   }
 ]

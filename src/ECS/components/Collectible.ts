@@ -33,7 +33,6 @@ export class Collectible extends Consummable {
     }
 
     Collectible.DATA[entity.uuid][this.id] += this.amount;
-    console.log(Collectible.DATA[entity.uuid]);
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {

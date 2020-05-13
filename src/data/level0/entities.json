@@ -1,5 +1,59 @@
 [
   {
+    "type": "star_effect_1",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "star_effects" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [
+                { "row": 0, "col": 0, "duration": 50 },
+                { "row": 0, "col": 1, "duration": 50 },
+                { "row": 0, "col": 2, "duration": 75 },
+                { "row": 0, "col": 3, "duration": 150 },
+                { "row": 0, "col": 4, "duration": 50 },
+                { "row": 0, "col": 5, "duration": 150 }
+              ]
+            }
+          },
+          "defaultKey": "idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "star_effect_2",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "star_effects" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [
+                { "row": 1, "col": 0, "duration": 75 },
+                { "row": 1, "col": 1, "duration": 75 },
+                { "row": 1, "col": 2, "duration": 75 },
+                { "row": 1, "col": 3, "duration": 75 },
+                { "row": 1, "col": 4, "duration": 75 },
+                { "row": 1, "col": 5, "duration": 75 }
+              ]
+            }
+          },
+          "defaultKey": "idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "boost_effect",
     "components": [
       { "name": "position" },
@@ -53,7 +107,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
       { "name": "sprite", "metadata": { "alias": "items" } },
-      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "vfx": "boost_effect" } },
+      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "vfx": "star_effect_2", "radius": 17 } },
       {
         "name": "animator",
         "metadata": {

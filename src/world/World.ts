@@ -109,7 +109,7 @@ class World {
     }
   }
 
-  public spawn({ type, uuid, position, direction }: ISpawnpoint): string {
+  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
     const entity = new Entity(uuid);
 
     if (uuid === "1") {
@@ -133,7 +133,7 @@ class World {
 
     this.addEntity(entity);
 
-    return entity.uuid;
+    return entity;
   }
 
   public addSystem(system: System): World {

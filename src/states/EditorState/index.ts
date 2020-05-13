@@ -293,7 +293,11 @@ class EditorState extends State {
 
       if (active) {
         const coords = this.world.screenToCameraCoords(position);
-        dispatch(spawnEvent(utility.uuid(), "health_potion", coords));
+        const tile = this.world.tileMap.getTileAtCoords(coords.x, coords.y);
+
+        const x = tile.x1 + tile.size / 2;
+        const y = tile.y1 + tile.size / 2;
+        dispatch(spawnEvent(utility.uuid(), "coin", { x, y }));
       }
     }
   }
