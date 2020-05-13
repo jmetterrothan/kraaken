@@ -18,6 +18,11 @@ abstract class Stack<T> {
   public abstract pop(): T;
 
   /**
+   * @return {T}
+   */
+  public abstract first(): Readonly<T> | undefined;
+
+  /**
    * @return {boolean}
    */
   public get isEmpty(): boolean {

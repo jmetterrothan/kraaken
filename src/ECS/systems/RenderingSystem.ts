@@ -15,18 +15,6 @@ export class RenderingSystem extends System {
     super([POSITION_COMPONENT, SPRITE_COMPONENT]);
   }
 
-  addedToWorld(world: World): void {
-    super.addedToWorld(world);
-
-    world.entityAdded$([SPRITE_COMPONENT]).subscribe((entity) => {
-      // console.log(entity);
-    });
-
-    world.entityRemoved$([SPRITE_COMPONENT]).subscribe((entity) => {
-      // console.log(entity);
-    });
-  }
-
   execute(alpha: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {

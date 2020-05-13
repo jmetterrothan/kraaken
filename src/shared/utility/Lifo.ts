@@ -13,6 +13,13 @@ class Lifo<T> extends Stack<T> {
     }
     return temp;
   }
+
+  public first(): Readonly<T> | undefined {
+    if (this.size >= 1) {
+      return this.list[0];
+    }
+    return undefined;
+  }
 }
 
 export default Lifo;

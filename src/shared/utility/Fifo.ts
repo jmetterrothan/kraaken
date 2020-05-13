@@ -13,6 +13,13 @@ class Fifo<T> extends Stack<T> {
     }
     return temp;
   }
+
+  public first(): Readonly<T> | undefined {
+    if (this.size >= 1) {
+      return this.list[this.size - 1];
+    }
+    return undefined;
+  }
 }
 
 export default Fifo;

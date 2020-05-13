@@ -24,15 +24,15 @@ export interface ISpriteRenderParameters {
 }
 
 export enum PlayerAnimationKeys {
-  DEAD = "dead",
-  IDLE = "idle",
-  WALKING = "walking",
-  FALLING = "falling",
-  JUMPING = "jumping",
-  USE_PRIMARY_WEAPON = "use_primary_weapon",
+  DEAD = "hero:dead",
+  IDLE = "hero:idle",
+  WALKING = "hero:walking",
+  FALLING = "hero:falling",
+  JUMPING = "hero:jumping",
+  USE_PRIMARY_WEAPON = "hero:use_primary_weapon",
 }
 
 export enum ProjectileAnimationKeys {
-  DEFAULT = "default",
-  HIT = "hit",
+  DEFAULT = "energy_bolt:idle",
+  HIT = "energy_bolt:hit",
 }

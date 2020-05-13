@@ -1,12 +1,57 @@
+import Pool from "@src/shared/utility/Pool";
+
 import { IKeyFrame } from "@shared/models/animation.model";
 
 interface IAnimationMetadata {
+  sprite: string;
   name: string;
   loop: boolean;
   keyframes: IKeyFrame[];
 }
 
 class Animation {
+  public static pools: Map<string, Pool<Animation>> = new Map();
+  public static instances: Map<string, Animation> = new Map();
+
+  public static create(metadata: IAnimationMetadata): Animation {
+    const usePool = !metadata.name.startsWith("coin");
+
+    if (usePool) {
+      if (!Animation.pools.has(metadata.name)) {
+        Animation.pools.set(metadata.name, new Pool<Animation>());
+      }
+
+      const pool = Animation.pools.get(metadata.name);
+
+      const animation = pool.borrow();
+      if (animation) {
+        return animation;
+      }
+
+      return new Animation(metadata);
+    } else {
+      if (!Animation.instances.has(metadata.name)) {
+        Animation.instances.set(metadata.name, new Animation(metadata));
+      }
+
+      return Animation.instances.get(metadata.name);
+    }
+  }
+
+  public static destroy(animation: Animation): void {
+    const usePool = !animation.name.startsWith("coin");
+
+    if (usePool) {
+      if (Animation.pools.has(animation.name)) {
+        animation.reset();
+
+        const pool = Animation.pools.get(animation.name);
+        pool.release(animation);
+      }
+    }
+  }
+
+  public readonly sprite: string;
   public readonly name: string;
   public readonly keyframes: IKeyFrame[];
   public readonly loop: boolean;
@@ -18,7 +63,8 @@ class Animation {
   public played: number;
   public index: number;
 
-  public constructor({ name, loop, keyframes }: IAnimationMetadata) {
+  public constructor({ sprite, name, loop, keyframes }: IAnimationMetadata) {
+    this.sprite = sprite;
     this.name = name;
     this.loop = loop;
     this.keyframes = keyframes;

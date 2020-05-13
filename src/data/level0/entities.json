@@ -8,7 +8,7 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "star_effect_1:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [
@@ -21,7 +21,7 @@
               ]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "star_effect_1:idle"
         }
       }
     ]
@@ -35,7 +35,7 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "star_effect_2:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [
@@ -48,7 +48,7 @@
               ]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "star_effect_2:idle"
         }
       }
     ]
@@ -62,7 +62,7 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "boost_effect:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [
@@ -72,7 +72,7 @@
               ]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "boost_effect:idle"
         }
       }
     ]
@@ -89,13 +89,13 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "health_potion:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [{ "row": 3, "col": 1, "duration": -1 }]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "health_potion:idle"
         }
       }
     ]
@@ -112,7 +112,7 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "coin:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [
@@ -122,7 +122,7 @@
               ]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "coin:idle"
         }
       }
     ]
@@ -138,7 +138,7 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "idle": {
+            "energy_bolt:idle": {
               "sprite": "items",
               "loop": true,
               "keyframes": [
@@ -153,7 +153,7 @@
               "keyframes": [{ "row": 2, "col": 3, "duration": 150 }]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "energy_bolt:idle"
         }
       }
     ]
@@ -172,7 +172,7 @@
         "name": "player_animator",
         "metadata": {
           "list": {
-            "idle": {
+            "hero:idle": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [
@@ -180,22 +180,22 @@
                 { "row": 2, "col": 1, "duration": 250 }
               ]
             },
-            "dead": {
+            "hero:dead": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 3, "duration": 0 }]
             },
-            "jumping": {
+            "hero:jumping": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 0, "duration": 0 }]
             },
-            "falling": {
+            "hero:falling": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 2, "duration": 0 }]
             },
-            "walking": {
+            "hero:walking": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [
@@ -204,13 +204,13 @@
                 { "row": 0, "col": 2, "duration": 85 }
               ]
             },
-            "use_primary_weapon": {
+            "hero:use_primary_weapon": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 0, "col": 3, "duration": 250 }]
             }
           },
-          "defaultKey": "idle"
+          "defaultKey": "hero:idle"
         }
       }
     ]
