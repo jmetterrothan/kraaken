@@ -112,7 +112,7 @@ class World {
   public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
     const entity = new Entity(uuid);
 
-    if (uuid === "1") {
+    if (uuid === "player") {
       this.player = entity;
     }
 

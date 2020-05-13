@@ -144,7 +144,7 @@
   "spawnpoints": [
     { 
       "type": "hero",
-      "uuid": "1",
+      "uuid": "player",
       "position": { "x": 380, "y": 300 },
       "direction": { "x": 1, "y": 1 }
     },
