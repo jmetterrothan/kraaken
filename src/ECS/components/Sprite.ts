@@ -39,6 +39,7 @@ export class Sprite implements Component {
       flickering: false,
       grayscale: false,
       wireframe: false,
+      flashing: false,
       alpha: 1,
       color: new Color(0, 0, 0, 1),
     };

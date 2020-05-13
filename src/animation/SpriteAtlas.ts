@@ -45,6 +45,7 @@ class SpriteTexture {
     u_frame: { type: "2fv", value: undefined },
     u_color: { type: "4fv", value: undefined },
     u_grayscale: { type: "1i", value: false },
+    u_flashing: { type: "1i", value: false },
     u_wireframe: { type: "1i", value: false },
     u_image: { type: "1i", value: undefined },
     u_alpha: { type: "1f", value: 1 },
@@ -92,6 +93,7 @@ class SpriteTexture {
 
       this.setUniform("u_alpha", parameters.alpha);
       this.setUniform("u_grayscale", parameters.grayscale);
+      this.setUniform("u_flashing", parameters.flashing);
       this.setUniform("u_wireframe", parameters.wireframe);
       this.setUniform("u_color", parameters.color.toVec4());
       this.setUniform("u_frame", this.coords);

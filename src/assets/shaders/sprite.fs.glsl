@@ -8,6 +8,7 @@ uniform float u_alpha;
 uniform vec4 u_color;
 uniform sampler2D u_image;
 uniform bool u_grayscale;
+uniform bool u_flashing;
 uniform bool u_wireframe;
 
 out vec4 fragColor;
@@ -17,11 +18,18 @@ vec4 toGrayscale(vec4 c) {
     return vec4(f, f, f, c.w);
 }
 
+vec4 toWhite(vec4 c) {
+    return vec4(1, 1, 1, c.w);
+}
+
 vec4 color() {
     vec4 c = u_wireframe ? u_color : texture(u_image, v_texture_coord);
 
     if (u_grayscale) {
         c = toGrayscale(c);
+    }
+    if (u_flashing) {
+      c = toWhite(c);
     }
   
     return vec4(c.rgb, u_alpha * c.a);

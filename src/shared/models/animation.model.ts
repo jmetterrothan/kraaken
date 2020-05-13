@@ -16,8 +16,9 @@ export type IAnimationList = Record<string, IAnimation>;
 
 export interface ISpriteRenderParameters {
   flickering?: boolean;
-  wireframe?: boolean;
+  flashing?: boolean;
   grayscale?: boolean;
+  wireframe?: boolean;
   alpha: number;
   color?: Color;
 }
