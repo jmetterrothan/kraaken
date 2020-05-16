@@ -1,12 +1,12 @@
 import System from "@src/ECS/System";
 
-import { PlayerMovement, PlayerInput, RigidBody } from "@src/ECS/components";
+import { PlayerMovement, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
-import { RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { RIGID_BODY_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_MOVEMENT_COMPONENT, POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
 
 export class PlayerMovementSystem extends System {
   public constructor() {
-    super([RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT]);
+    super([POSITION_COMPONENT, RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT]);
   }
 
   execute(delta: number): void {
@@ -16,6 +16,8 @@ export class PlayerMovementSystem extends System {
     }
 
     entities.forEach((entity) => {
+      const position = entity.getComponent<Position>(POSITION_COMPONENT);
+      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
       const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
@@ -32,6 +34,9 @@ export class PlayerMovementSystem extends System {
         if (!movement.jumping && movement.isGrounded) {
           movement.jumping = true;
           rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
+
+          this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
+          movement.lastEffectTime = window.performance.now() + 350;
         } else {
           rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
         }

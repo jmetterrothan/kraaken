@@ -40,5 +40,11 @@
     "name": "star_effects",
     "tileWidth": 24,
     "tileHeight": 24
+  },
+  {
+    "src": "http://files.metter-rothan.fr/kraken/level0/graphics/dust_effects.png",
+    "name": "dust_effects",
+    "tileWidth": 32,
+    "tileHeight": 32
   }
 ]

@@ -135,13 +135,25 @@ export class PhysicsSystem extends System {
 
     position.fromValues(newPosition.x, newPosition.y);
 
+    const now = window.performance.now();
     const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
 
     if (movement) {
+      if (movement.falling && rigidBody.velocity.y === 0 && v.y > 0) {
+        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        movement.lastEffectTime = now + 500;
+      }
+
       const isOnSolidTile = this.isOnSolidTile(entity);
       movement.falling = rigidBody.velocity.y > 0;
       movement.walking = Math.abs(rigidBody.velocity.x) > 0;
       movement.isGrounded = isOnSolidTile;
+      movement.idle = rigidBody.velocity.x === 0;
+
+      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+        movement.lastEffectTime = now + 250;
+        this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x + bbox.width / 2, y: position.y + bbox.height / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
+      }
     }
   }
 

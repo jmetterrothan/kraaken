@@ -18,6 +18,13 @@ class Vector2 {
     return this;
   }
 
+  public addValues(x: number, y: number): Vector2 {
+    this.x += x;
+    this.y += y;
+
+    return this;
+  }
+
   public addScalar(s: number): Vector2 {
     this.x += s;
     this.y += s;

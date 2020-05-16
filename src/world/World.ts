@@ -18,6 +18,7 @@ import TileMap from "@src/world/TileMap";
 
 import Vector2 from "@src/shared/math/Vector2";
 
+import { IVector2 } from "./../shared/models/event.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { IWorldBlueprint, ISpawnpoint } from "@src/shared/models/world.model";
 
@@ -100,6 +101,17 @@ class World {
     console.info("World initialized");
   }
 
+  public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }) {
+    const effect = this.spawn({ type, position, direction });
+
+    const animator = effect.getComponent<Animator>(ANIMATOR_COMPONENT);
+    animator.animation.reset();
+
+    setTimeout(() => {
+      this.removeEntity(effect);
+    }, animator.animation.duration);
+  }
+
   public despawn(uuid: string): void {
     // TODO: remove entity
 
@@ -109,7 +121,7 @@ class World {
     }
   }
 
-  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
+  public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(uuid);
 
     if (uuid === "player") {
@@ -119,17 +131,27 @@ class World {
     this.blueprint.entities
       .find((item) => item.type === type)
       .components.forEach(({ name, metadata = {} }) => {
-        if (name === "position") {
-          (metadata as IPositionMetadata).x = position?.x ?? 0;
-          (metadata as IPositionMetadata).y = position?.y ?? 0;
-        }
-        if (name === "rigid_body") {
-          (metadata as IRigidBodyMetadata).direction.x = direction?.x ?? 1;
-          (metadata as IRigidBodyMetadata).direction.y = direction?.y ?? 1;
-        }
-
         entity.addComponent(ComponentFactory.create(name, metadata));
       });
+
+    return entity;
+        }
+
+  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
+    const entity = this.createEntity(type, uuid);
+
+    if (entity.hasComponent(POSITION_COMPONENT)) {
+      const positionComp = entity.getComponent<Position>(POSITION_COMPONENT);
+      positionComp.x = position?.x ?? 0;
+      positionComp.y = position?.y ?? 0;
+        }
+
+    if (entity.hasComponent(RIGID_BODY_COMPONENT)) {
+      const rigidBodyComp = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+      rigidBodyComp.direction.x = direction?.x ?? 1;
+      rigidBodyComp.direction.y = direction?.y ?? 1;
+      console.log(rigidBodyComp.direction);
+    }
 
     this.addEntity(entity);
 

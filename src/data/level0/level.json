@@ -183,18 +183,6 @@
       "uuid": "7",
       "position": { "x": 488, "y": 304 },
       "direction": { "x": 1, "y": 1 }
-    },
-    {
-      "type": "star_effect_1",
-      "uuid": "8",
-      "position": { "x": 380, "y": 304 },
-      "direction": { "x": 1, "y": 1 }
-    },
-    {
-      "type": "star_effect_2",
-      "uuid": "9",
-      "position": { "x": 350, "y": 304 },
-      "direction": { "x": 1, "y": 1 }
     }
   ] 
 }

@@ -1,8 +1,8 @@
 import System from "@src/ECS/System";
 import Entity from "@src/ECS/Entity";
 
-import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
-import { BoundingBox, Position, Consummable, RigidBody, Animator } from "@src/ECS/components";
+import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { BoundingBox, Position, Consummable, RigidBody } from "@src/ECS/components";
 
 export class ConsummableSystem extends System {
   public constructor() {
@@ -27,14 +27,7 @@ export class ConsummableSystem extends System {
         consummable.consummated = true;
 
         if (consummable.vfx) {
-          const effect = this.world.spawn({ type: consummable.vfx, position: { x: position.x, y: position.y } });
-          const animator = effect.getComponent<Animator>(ANIMATOR_COMPONENT);
-
-          animator.animation.reset();
-
-          setTimeout(() => {
-            this.world.despawn(effect.uuid);
-          }, animator.animation.duration);
+          this.world.playEffectOnceAt(consummable.vfx, { x: position.x, y: position.y });
         }
 
         this.world.removeEntity(entity);

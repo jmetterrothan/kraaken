@@ -1,9 +1,97 @@
 [
   {
+    "type": "dust_land_effect",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "dust_land_effect:idle": {
+              "sprite": "dust_effects",
+              "loop": true,
+              "keyframes": [
+                { "row": 0, "col": 0, "duration": 75 },
+                { "row": 0, "col": 1, "duration": 75 },
+                { "row": 0, "col": 2, "duration": 75 },
+                { "row": 0, "col": 3, "duration": 75 },
+                { "row": 0, "col": 4, "duration": 75 },
+                { "row": 0, "col": 5, "duration": 75 },
+                { "row": 0, "col": 6, "duration": 75 },
+                { "row": 0, "col": 7, "duration": 75 }
+              ]
+            }
+          },
+          "defaultKey": "dust_land_effect:idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "dust_jump_effect",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "dust_jump_effect:idle": {
+              "sprite": "dust_effects",
+              "loop": true,
+              "keyframes": [
+                { "row": 1, "col": 0, "duration": 75 },
+                { "row": 1, "col": 1, "duration": 75 },
+                { "row": 1, "col": 2, "duration": 75 },
+                { "row": 1, "col": 3, "duration": 75 },
+                { "row": 1, "col": 4, "duration": 75 },
+                { "row": 1, "col": 5, "duration": 75 },
+                { "row": 1, "col": 6, "duration": 75 },
+                { "row": 1, "col": 7, "duration": 75 }
+              ]
+            }
+          },
+          "defaultKey": "dust_jump_effect:idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "dust_accelerate_effect",
+    "components": [
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "dust_accelerate_effect:idle": {
+              "sprite": "dust_effects",
+              "loop": true,
+              "keyframes": [
+                { "row": 2, "col": 0, "duration": 75 },
+                { "row": 2, "col": 1, "duration": 75 },
+                { "row": 2, "col": 2, "duration": 75 },
+                { "row": 2, "col": 3, "duration": 75 },
+                { "row": 2, "col": 4, "duration": 75 },
+                { "row": 2, "col": 5, "duration": 75 },
+                { "row": 2, "col": 6, "duration": 75 },
+                { "row": 2, "col": 7, "duration": 75 }
+              ]
+            }
+          },
+          "defaultKey": "dust_accelerate_effect:idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "star_effect_1",
     "components": [
       { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "star_effects" } },
+      { "name": "sprite", "metadata": { "alias": "star_effects", "align": "center" } },
       {
         "name": "animator",
         "metadata": {
@@ -30,7 +118,7 @@
     "type": "star_effect_2",
     "components": [
       { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "star_effects" } },
+      { "name": "sprite", "metadata": { "alias": "star_effects", "align": "center" } },
       {
         "name": "animator",
         "metadata": {
@@ -57,7 +145,7 @@
     "type": "boost_effect",
     "components": [
       { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "items" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
       {
         "name": "animator",
         "metadata": {
@@ -82,8 +170,8 @@
     "components": [
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
-      { "name": "bounding_box", "metadata": { "width": 9, "height": 12 } },
-      { "name": "sprite", "metadata": { "alias": "items" } },
+      { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
       { "name": "health_modifier", "metadata": { "amount": 1, "vfx": "boost_effect" } },
       {
         "name": "animator",
@@ -106,7 +194,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
-      { "name": "sprite", "metadata": { "alias": "items" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
       { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "vfx": "star_effect_2", "radius": 17 } },
       {
         "name": "animator",
@@ -131,9 +219,9 @@
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
+      { "name": "rigid_body", "metadata": { "velocity": { "x": 100, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
-      { "name": "sprite", "metadata": { "alias": "items" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
       {
         "name": "animator",
         "metadata": {
@@ -164,10 +252,11 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "player_input" },
+      { "name": "player_combat" },
       { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14 } },
       { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
       { "name": "health", "metadata": { "maxHealth": 6 } },
-      { "name": "sprite", "metadata": { "alias": "hero" } },
+      { "name": "sprite", "metadata": { "alias": "hero", "align": "bottom" } },
       {
         "name": "player_animator",
         "metadata": {

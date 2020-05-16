@@ -13,6 +13,7 @@ interface ISpriteMetadata {
   row?: number;
   col?: number;
   alias?: string;
+  align?: "bottom" | "center";
 }
 
 export class Sprite implements Component {
@@ -23,11 +24,14 @@ export class Sprite implements Component {
 
   public atlas: SpriteAtlas;
 
+  public align: "bottom" | "center";
+
   public parameters: ISpriteRenderParameters;
 
-  public constructor({ row, col, alias }: ISpriteMetadata) {
-    this.row = row ?? 0;
-    this.col = col ?? 0;
+  public constructor({ row = 0, col = 0, alias, align = "center" }: ISpriteMetadata) {
+    this.row = row;
+    this.col = col;
+    this.align = align;
 
     if (!alias) {
       throw new Error(`You must provide an alias to the Sprite component`);

@@ -2,9 +2,9 @@ import { mat3, vec2 } from "gl-matrix";
 
 import System from "@src/ECS/System";
 
-import { Position, Sprite, RigidBody } from "@src/ECS/components";
+import { Position, Sprite, RigidBody, BoundingBox } from "@src/ECS/components";
 
-import { POSITION_COMPONENT, SPRITE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 
@@ -29,11 +29,13 @@ export class RenderingSystem extends System {
       const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
       if (position.shouldUpdateTransform) {
-        const spriteOffset = new Vector2(-sprite.atlas.tileWidth / 2, -sprite.atlas.tileHeight / 2 - 1);
+        const offsetX = -sprite.atlas.tileWidth / 2;
+        const offsetY = sprite.align === "bottom" ? -Math.floor(sprite.atlas.tileHeight / 2 + (sprite.atlas.tileHeight / 2 - (bbox?.height ?? 0) / 2)) : -sprite.atlas.tileWidth / 2 - 1;
 
-        position.transform = mat3.fromTranslation(mat3.create(), position.clone().trunc().add(spriteOffset).toGlArray());
+        position.transform = mat3.fromTranslation(mat3.create(), position.clone().trunc().addValues(offsetX, offsetY).toGlArray());
         position.shouldUpdateTransform = false;
       }
 
