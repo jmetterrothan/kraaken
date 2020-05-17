@@ -183,6 +183,53 @@
       "uuid": "7",
       "position": { "x": 488, "y": 304 },
       "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "bat",
+      "uuid": "8",
+      "position": { "x": 400, "y": 370 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "bat",
+      "uuid": "9",
+      "position": { "x": 500, "y": 280 },
+      "direction": { "x": -1, "y": 1 }
+    },
+    {
+      "type": "bat",
+      "uuid": "10",
+      "position": { "x": 250, "y": 420 },
+      "direction": { "x": -1, "y": 1 }
+    },
+    {
+      "type": "dino",
+      "uuid": "11",
+      "position": { "x": 300, "y": 420 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "dino",
+      "uuid": "12",
+      "position": { "x": 500, "y": 300 },
+      "direction": { "x": -1, "y": 1 }
+    },
+    {
+      "type": "dino",
+      "uuid": "13",
+      "position": { "x": 100, "y": 420 },
+      "direction": { "x": 1, "y": 1 }
+    },
+    {
+      "type": "ammo_box",
+      "uuid": "14",
+      "position": { "x": 200, "y": 420 },
+      "direction": { "x": 1, "y": 1 }
+    },{
+      "type": "ammo_box",
+      "uuid": "15",
+      "position": { "x": 600, "y": 420 },
+      "direction": { "x": 1, "y": 1 }
     }
   ] 
 }
