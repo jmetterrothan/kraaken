@@ -1,7 +1,9 @@
 import Entity from "@src/ECS/Entity";
 
-import { Consummable, Health, IConsummableMetadata } from "@src/ECS/components";
-import { PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, CONSUMMABLE_COMPONENT } from "@src/ECS/types";
+import { Consummable, Health, IConsummableMetadata, Position } from "@src/ECS/components";
+import { PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, CONSUMMABLE_COMPONENT } from "@src/ECS/types";
+
+import World from "@src/world/World";
 
 interface IHealthModifierMetadata extends IConsummableMetadata {
   amount?: number;
@@ -18,11 +20,15 @@ export class HealthModifier extends Consummable {
     this.amount = metadata.amount ?? 1;
   }
 
-  public consummatedBy(entity: Entity): void {
+  public consummatedBy(world: World, entity: Entity): void {
+    const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const healthComp = entity.getComponent<Health>(HEALTH_COMPONENT);
 
-    if (healthComp.isAlive) {
-      healthComp.health += this.amount;
+    healthComp.health += this.amount;
+
+    if (healthComp.isDead && !entity.hasComponent(PLAYER_INPUT_COMPONENT)) {
+      world.removeEntity(entity);
+      world.playEffectOnceAt("explosion", position);
     }
   }
 
@@ -42,6 +48,6 @@ export class HealthModifier extends Consummable {
   }
 
   public getComponentTypes(): symbol[] {
-    return [PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT];
+    return [HEALTH_COMPONENT, BOUNDING_BOX_COMPONENT];
   }
 }

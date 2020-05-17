@@ -248,6 +248,24 @@ class Vector2 {
     return new Vector2(this.x, this.y);
   }
 
+  public setX(x: number): Vector2 {
+    this.x = x;
+
+    return this;
+  }
+
+  public setY(y: number): Vector2 {
+    this.y = y;
+
+    return this;
+  }
+
+  reflect(n: Vector2): Vector2 {
+    // vector - 2 * Vector2.Dot(vector, normal) * normal;
+    const dotProduct = this.dot(n);
+    return this.clone().sub(n.clone().multiplyScalar(dotProduct * 2));
+  }
+
   public toFixed(precision: number) {
     const n = 10 ** precision;
     this.x = Math.floor(this.x * n) / n;

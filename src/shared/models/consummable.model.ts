@@ -1,10 +1,4 @@
-import Entity from "@src/objects/entity/Entity";
-
 import { IObject, IEntityMetadata } from "@src/shared/models/entity.model";
-
-export interface IConsummableBehaviour {
-  consummatedBy(entity: Entity): void;
-}
 
 // Consummable
 export type IConsummableMetadata = IEntityMetadata & {

@@ -5,13 +5,15 @@ import Component from "./Component";
 import * as utility from "@src/shared/utility/Utility";
 
 class Entity {
+  public readonly type: string;
   public readonly uuid: string;
 
   private _components: Map<symbol, Component> = new Map();
   private readonly _componentAddedSubject$ = new Subject<Component>();
   private readonly _componentRemovedSubject$ = new Subject<Component>();
 
-  public constructor(uuid: string = utility.uuid()) {
+  public constructor(type: string, uuid: string = utility.uuid()) {
+    this.type = type;
     this.uuid = uuid;
   }
 
@@ -55,7 +57,8 @@ class Entity {
 
   public toString(): string {
     let str = "";
-    str += `Entity - ${this.uuid}\n`;
+    str += `Entity - ${this.type}\n`;
+    str += `UUID: ${this.uuid}\n`;
     this._components.forEach((component) => {
       str += component.toString() + "\n";
     });

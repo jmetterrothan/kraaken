@@ -10,3 +10,4 @@ export const PLAYER_INPUT_COMPONENT = Symbol("player_input");
 export const FILL_COMPONENT = Symbol("fill");
 export const CONSUMMABLE_COMPONENT = Symbol("consummable");
 export const HEALTH_POTION = Symbol("health_potion");
+export const PLAYER_COMBAT_COMPONENT = Symbol("player_combat");

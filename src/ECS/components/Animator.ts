@@ -21,7 +21,7 @@ export class Animator implements Component {
   public currentKey: string;
   public previousKey: string = undefined;
 
-  private constructor({ list, defaultKey }: IAnimatorMetadata) {
+  protected constructor({ list, defaultKey }: IAnimatorMetadata) {
     this.defaultKey = defaultKey;
     this.currentKey = this.defaultKey;
 

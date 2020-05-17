@@ -3,6 +3,8 @@ import Component from "@src/ECS/Component";
 
 import { CONSUMMABLE_COMPONENT } from "@src/ECS/types";
 
+import World from "@src/world/World";
+
 export interface IConsummableMetadata {
   radius?: number;
   vfx?: string;
@@ -23,10 +25,9 @@ export abstract class Consummable implements Component {
   public constructor(metadata: IConsummableMetadata = {}) {
     this.radius = metadata.radius ?? 0;
     this.vfx = metadata.vfx;
-    this.sfx = metadata.sfx;
   }
 
-  public abstract consummatedBy(entity: Entity): void;
+  public abstract consummatedBy(world: World, entity: Entity): void;
 
   public abstract canBeConsummatedBy(entity: Entity): boolean;
 

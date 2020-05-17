@@ -7,6 +7,8 @@ import { POSITION_COMPONENT, PLAYER_MOVEMENT_COMPONENT, BOUNDING_BOX_COMPONENT, 
 import Tile from "@src/world/Tile";
 import TileMap from "@src/world/TileMap";
 
+import Vector2 from "@shared/math/Vector2";
+
 export class PhysicsSystem extends System {
   public constructor() {
     super([POSITION_COMPONENT, RIGID_BODY_COMPONENT]);
@@ -34,7 +36,10 @@ export class PhysicsSystem extends System {
       }
 
       this.collideWithMap(entity, delta);
-      this.clampToMap(entity);
+
+      if (rigidBody.clamToMap) {
+        this.clampToMap(entity);
+      }
     });
   }
 
@@ -102,7 +107,14 @@ export class PhysicsSystem extends System {
         const tile = this.testForCollision(this.world.tileMap, x1, y2 + v.y, x1 + w / 2, y2 + v.y, x2, y2 + v.y);
         if (tile) {
           newPosition.y = tile.position.y - h / 2 - 0.01;
-          rigidBody.velocity.y = 0;
+
+          if (entity.type === "energy_bolt") {
+            const r = rigidBody.velocity.reflect(new Vector2(0, -1));
+            position.rotation = Math.atan2(r.y, r.x);
+            rigidBody.velocity.fromValues(r.x, r.y);
+          } else {
+            rigidBody.velocity.y = 0;
+          }
         }
       } else if (v.y < 0) {
         // top collision
@@ -110,7 +122,14 @@ export class PhysicsSystem extends System {
 
         if (tile) {
           newPosition.y = tile.position.y + this.world.tileMap.getTileSize() + h / 2 + 0.01;
-          rigidBody.velocity.y = 0;
+
+          if (entity.type === "energy_bolt") {
+            const r = rigidBody.velocity.reflect(new Vector2(0, 1));
+            position.rotation = Math.atan2(r.y, r.x);
+            rigidBody.velocity.fromValues(r.x, r.y);
+          } else {
+            rigidBody.velocity.y = 0;
+          }
         }
       }
 
@@ -120,7 +139,14 @@ export class PhysicsSystem extends System {
 
         if (tile) {
           newPosition.x = tile.position.x - w / 2 - 0.01;
-          rigidBody.velocity.x = 0;
+
+          if (entity.type === "energy_bolt") {
+            const r = rigidBody.velocity.reflect(new Vector2(1, 0));
+            position.rotation = Math.atan2(r.y, r.x);
+            rigidBody.velocity.fromValues(r.x, r.y);
+          } else {
+            rigidBody.velocity.x = 0;
+          }
         }
       } else if (v.x < 0) {
         // left collision
@@ -128,7 +154,14 @@ export class PhysicsSystem extends System {
 
         if (tile) {
           newPosition.x = tile.position.x + this.world.tileMap.getTileSize() + w / 2 + 0.01;
-          rigidBody.velocity.x = 0;
+
+          if (entity.type === "energy_bolt") {
+            const r = rigidBody.velocity.reflect(new Vector2(-1, 0));
+            position.rotation = Math.atan2(r.y, r.x);
+            rigidBody.velocity.fromValues(r.x, r.y);
+          } else {
+            rigidBody.velocity.x = 0;
+          }
         }
       }
     }

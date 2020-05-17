@@ -22,17 +22,3 @@ export interface ISpriteRenderParameters {
   alpha: number;
   color?: Color;
 }
-
-export enum PlayerAnimationKeys {
-  DEAD = "hero:dead",
-  IDLE = "hero:idle",
-  WALKING = "hero:walking",
-  FALLING = "hero:falling",
-  JUMPING = "hero:jumping",
-  USE_PRIMARY_WEAPON = "hero:use_primary_weapon",
-}
-
-export enum ProjectileAnimationKeys {
-  DEFAULT = "energy_bolt:idle",
-  HIT = "energy_bolt:hit",
-}

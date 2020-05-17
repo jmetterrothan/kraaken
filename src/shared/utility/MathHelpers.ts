@@ -54,3 +54,7 @@ export const linesIntersection = (x1, y1, x2, y2, x3, y3, x4, y4): Vector2 | und
 export const linesIntersectionWithVector2 = (a1: Vector2, b1: Vector2, a2: Vector2, b2: Vector2): Vector2 | undefined => {
   return linesIntersection(a1.x, a1.y, b1.x, b1.y, a2.x, a2.y, b2.x, b2.y);
 };
+
+export const pointCircleIntersection = (center: Vector2, r: number, point: Vector2): boolean => {
+  return (point.x - center.x) * (point.x - center.x) + (point.y - center.y) * (point.y - center.y) <= r * r;
+};

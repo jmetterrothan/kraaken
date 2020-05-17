@@ -12,3 +12,5 @@ export * from "./Consummable";
 export * from "./HealthModifier";
 export * from "./Collectible";
 export * from "./PlayerAnimator";
+export * from "./PlayerCombat";
+export * from "./AmmoModifier";

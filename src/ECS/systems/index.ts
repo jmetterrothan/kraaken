@@ -5,3 +5,4 @@ export * from "./AnimationSystem";
 export * from "./PlayerInputSystem";
 export * from "./PhysicsSystem";
 export * from "./ConsummableSystem";
+export * from "./PlayerCombatSystem";

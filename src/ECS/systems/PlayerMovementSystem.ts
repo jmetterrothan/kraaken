@@ -1,8 +1,8 @@
 import System from "@src/ECS/System";
 
-import { PlayerMovement, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
+import { PlayerMovement, Health, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
-import { RIGID_BODY_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_MOVEMENT_COMPONENT, POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { RIGID_BODY_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_MOVEMENT_COMPONENT, POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
 
 export class PlayerMovementSystem extends System {
   public constructor() {
@@ -21,19 +21,24 @@ export class PlayerMovementSystem extends System {
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
       const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
+      const health = entity.getComponent<Health>(HEALTH_COMPONENT);
+
+      const canMove = health.isAlive;
 
       // register direction change
-      if (input.left) {
+      if (canMove && input.left) {
         rigidBody.direction.x = -1;
-      } else if (input.right) {
+      } else if (canMove && input.right) {
         rigidBody.direction.x = 1;
       }
 
       // handle jumping
-      if (input.up && !movement.falling) {
+      if (canMove && input.up && !movement.falling) {
         if (!movement.jumping && movement.isGrounded) {
           movement.jumping = true;
           rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
+
+          movement.jumpSoundFX.play();
 
           this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
           movement.lastEffectTime = window.performance.now() + 350;
@@ -45,7 +50,7 @@ export class PlayerMovementSystem extends System {
       }
 
       // handle moving
-      if (input.right || input.left) {
+      if (canMove && (input.right || input.left)) {
         rigidBody.velocity.x += movement.acceleration;
         if (rigidBody.velocity.x > movement.speed) {
           rigidBody.velocity.x = movement.speed;

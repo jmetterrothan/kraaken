@@ -1,4 +1,4 @@
-import { HealthModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
+import { HealthModifier, PlayerCombat, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
 
 class ComponentFactory {
   public static create(name: string, metadata: any) {
@@ -23,8 +23,12 @@ class ComponentFactory {
         return new RigidBody(metadata);
       case "health_modifier":
         return new HealthModifier(metadata);
+      case "ammo_modifier":
+        return new AmmoModifier(metadata);
       case "collectible":
         return new Collectible(metadata);
+      case "player_combat":
+        return new PlayerCombat(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

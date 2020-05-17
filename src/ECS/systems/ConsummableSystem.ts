@@ -23,7 +23,7 @@ export class ConsummableSystem extends System {
       if (targetBbox.intersectBox(bbox)) {
         const position = entity.getComponent<Position>(POSITION_COMPONENT);
 
-        consummable.consummatedBy(target);
+        consummable.consummatedBy(this.world, target);
         consummable.consummated = true;
 
         if (consummable.vfx) {
