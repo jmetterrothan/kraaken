@@ -99,8 +99,8 @@ class World {
     this.addCamera(camera, true);
     this.followEntity(camera, this.player);
 
-    const hc = this.player.getComponent<Health>(HEALTH_COMPONENT);
-    hc.health -= 5;
+    const health = this.player.getComponent<Health>(HEALTH_COMPONENT);
+    health.value -= 5;
     console.info("World initialized");
   }
 

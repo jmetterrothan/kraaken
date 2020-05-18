@@ -18,7 +18,7 @@ export class Health implements Component {
     this._value = this.maxHealth;
   }
 
-  public set health(value: number) {
+  public set value(value: number) {
     this._value = value;
 
     if (this._value < 0) {
@@ -30,7 +30,7 @@ export class Health implements Component {
     }
   }
 
-  public get health(): number {
+  public get value(): number {
     return this._value;
   }
 
@@ -43,6 +43,6 @@ export class Health implements Component {
   }
 
   public toString(): string {
-    return `Health - ${this.isDead ? "dead" : "alive"} (${this.health}/${this.maxHealth})`;
+    return `Health - ${this.isDead ? "dead" : "alive"} (${this.value}/${this.maxHealth})`;
   }
 }

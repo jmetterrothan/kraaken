@@ -22,11 +22,11 @@ export class HealthModifier extends Consummable {
 
   public consummatedBy(world: World, entity: Entity): void {
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const healthComp = entity.getComponent<Health>(HEALTH_COMPONENT);
+    const health = entity.getComponent<Health>(HEALTH_COMPONENT);
 
-    healthComp.health += this.amount;
+    health.value += this.amount;
 
-    if (healthComp.isDead && !entity.hasComponent(PLAYER_INPUT_COMPONENT)) {
+    if (health.isDead && !entity.hasComponent(PLAYER_INPUT_COMPONENT)) {
       world.removeEntity(entity);
       world.playEffectOnceAt("explosion", position);
     }
@@ -37,14 +37,14 @@ export class HealthModifier extends Consummable {
       return false;
     }
 
-    const healthComp = entity.getComponent<Health>(HEALTH_COMPONENT);
+    const health = entity.getComponent<Health>(HEALTH_COMPONENT);
 
     if (this.amount > 0) {
       // health buff should only be applied if entity has taken some damage
-      return healthComp.health < healthComp.maxHealth;
+      return health.value < health.maxHealth;
     }
     // health debuff should only be applied if the entity is alive
-    return healthComp.isAlive;
+    return health.isAlive;
   }
 
   public getComponentTypes(): symbol[] {

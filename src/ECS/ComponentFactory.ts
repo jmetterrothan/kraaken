@@ -1,4 +1,4 @@
-import { HealthModifier, PlayerCombat, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
+import { HealthModifier, PlayerCombat, Fill, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
 
 class ComponentFactory {
   public static create(name: string, metadata: any) {
@@ -17,6 +17,8 @@ class ComponentFactory {
         return new Animator(metadata);
       case "sprite":
         return new Sprite(metadata);
+      case "fill":
+        return new Fill(metadata);
       case "health":
         return new Health(metadata);
       case "rigid_body":
