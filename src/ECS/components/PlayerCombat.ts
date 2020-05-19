@@ -16,16 +16,16 @@ export class PlayerCombat implements Component {
     maxAmmo: 32,
     fireSFX: "laser",
     minRange: 16,
-    maxRange: 320,
+    maxRange: 480,
   });
 
   public _weapon2: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "health_potion", speed: 350, ttl: 20000 }, //
-    rate: 50,
+    projectile: { type: "health_potion", speed: 350, ttl: 10000 }, //
+    rate: 75,
     maxAmmo: 32,
     fireSFX: "laser",
     minRange: 16,
-    maxRange: 320,
+    maxRange: 480,
   });
 
   public get weapon(): Weapon {

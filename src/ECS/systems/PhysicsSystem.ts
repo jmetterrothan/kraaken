@@ -110,7 +110,9 @@ export class PhysicsSystem extends System {
 
           if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(0, -1));
-            position.rotation = Math.atan2(r.y, r.x);
+            if (rigidBody.reflectAngle) {
+              position.rotation = Math.atan2(r.y, r.x);
+            }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
             if (rigidBody.velocity.x > 0) {
@@ -132,7 +134,9 @@ export class PhysicsSystem extends System {
 
           if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(0, 1));
-            position.rotation = Math.atan2(r.y, r.x);
+            if (rigidBody.reflectAngle) {
+              position.rotation = Math.atan2(r.y, r.x);
+            }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
             if (rigidBody.velocity.x > 0) {
@@ -156,7 +160,9 @@ export class PhysicsSystem extends System {
 
           if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(1, 0));
-            position.rotation = Math.atan2(r.y, r.x);
+            if (rigidBody.reflectAngle) {
+              position.rotation = Math.atan2(r.y, r.x);
+            }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
           } else {
             rigidBody.velocity.x = 0;
@@ -171,7 +177,9 @@ export class PhysicsSystem extends System {
 
           if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(-1, 0));
-            position.rotation = Math.atan2(r.y, r.x);
+            if (rigidBody.reflectAngle) {
+              position.rotation = Math.atan2(r.y, r.x);
+            }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
           } else {
             rigidBody.velocity.x = 0;

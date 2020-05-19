@@ -169,7 +169,7 @@
     "type": "health_potion",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.5, "reflect": true } },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.55, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
       { "name": "health_modifier", "metadata": { "amount": 1, "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
@@ -192,7 +192,7 @@
     "type": "ammo_box",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.5, "reflect": true } },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.55, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
       { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
@@ -289,7 +289,7 @@
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true } },
+      { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
       { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },

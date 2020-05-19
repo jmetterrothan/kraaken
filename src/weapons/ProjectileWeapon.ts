@@ -1,3 +1,4 @@
+import { getRandomFloat, getRandomInt } from "./../shared/utility/MathHelpers";
 import Entity from "@src/ECS/Entity";
 import { Health, RigidBody, PlayerMovement, Position, BoundingBox } from "@src/ECS/components";
 import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
@@ -77,14 +78,12 @@ class ProjectileWeapon extends Weapon {
     const position = owner.getComponent<Position>(POSITION_COMPONENT);
     const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
-    const dx = world.aim.x >= position.x ? 1 : -1;
-    const origin = new Vector2(position.x + (bbox.width / 2 + 4) * dx, position.y);
-    const d = origin.clone().sub(world.aim).normalize().negate();
+    const side = world.aim.x >= position.x ? 1 : -1;
+    const origin = new Vector2(position.x + (bbox.width / 2 + 4) * side, position.y);
+    const dir = origin.clone().sub(world.aim).normalize().negate();
 
-    const vx = this.projectile.speed * d.x;
-    const vy = this.projectile.speed * d.y;
-
-    const angle = Math.atan2(vy, vx);
+    const vx = this.projectile.speed * dir.x;
+    const vy = this.projectile.speed * dir.y;
 
     const projectile = world.spawn({ type: this.projectile.type, position: { x: origin.x, y: origin.y } });
 
@@ -97,8 +96,14 @@ class ProjectileWeapon extends Weapon {
 
     const projectilePos = projectile.getComponent<Position>(POSITION_COMPONENT);
     const projectileRigidBody = projectile.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    console.log(projectilePos.toString());
 
-    projectilePos.rotation = angle;
+    if (projectileRigidBody.reflectAngle) {
+      const angle = Math.atan2(vy, vx);
+
+      projectilePos.rotation = angle;
+    }
+
     projectileRigidBody.velocity.fromValues(vx, vy);
 
     this.ammo -= 1;
