@@ -29,7 +29,7 @@ export class PlayerCombat implements Component {
   });
 
   public get weapon(): Weapon {
-    return this._weapon;
+    return this._weapon2;
   }
 
   public toString(): string {
