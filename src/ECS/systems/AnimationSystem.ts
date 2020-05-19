@@ -40,7 +40,7 @@ export class AnimationSystem extends System {
       const animation = animator.animation;
 
       animator.previousKey = animator.currentKey;
-      animator.currentKey = animator.update(entity);
+      animator.currentKey = animator.update(this.world, entity);
 
       animation.update();
 

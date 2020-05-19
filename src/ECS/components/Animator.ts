@@ -3,6 +3,7 @@ import Component from "@src/ECS/Component";
 
 import { ANIMATOR_COMPONENT } from "@src/ECS/types";
 
+import World from "@src/world/World";
 import Animation from "@src/animation/Animation";
 
 import { IAnimation } from "@src/shared/models/animation.model";
@@ -41,7 +42,7 @@ export class Animator implements Component {
     }
   }
 
-  public update(entity: Entity): string {
+  public update(world: World, entity: Entity): string {
     return this.currentKey;
   }
 

@@ -26,6 +26,10 @@ export class HealthModifier extends Consummable {
 
     health.value += this.amount;
 
+    if (this.pickUpSFX) {
+      this.pickUpSFX.play();
+    }
+
     if (health.isDead && !entity.hasComponent(PLAYER_INPUT_COMPONENT)) {
       world.removeEntity(entity);
       world.playEffectOnceAt("explosion", position);

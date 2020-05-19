@@ -1,11 +1,11 @@
-import { Howl } from "howler";
-
 import Entity from "@src/ECS/Entity";
 import { Health, RigidBody, PlayerMovement, Position, BoundingBox } from "@src/ECS/components";
 import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
+
+import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -17,14 +17,16 @@ class ProjectileWeapon extends Weapon {
   };
   public readonly maxAmmo: number;
   public readonly rate: number;
+  public readonly minRange: number;
+  public readonly maxRange: number;
 
   protected _ammo: number;
 
   protected nextTimeToFire: number;
 
-  protected fireSoundFX: Howl;
+  protected fireSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, maxAmmo = -1, fireSFX }) {
+  constructor({ projectile, rate = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }) {
     super();
 
     if (!projectile) {
@@ -35,20 +37,23 @@ class ProjectileWeapon extends Weapon {
     this.projectile = projectile;
     this.rate = rate;
     this.maxAmmo = maxAmmo;
+    this.minRange = minRange;
+    this.maxRange = maxRange;
 
     this._ammo = this.maxAmmo;
 
     this.nextTimeToFire = 0;
 
-    this.fireSoundFX = new Howl({
-      src: fireSFX,
-      autoplay: false,
-      volume: 0.1,
-    });
+    if (fireSFX) {
+      this.fireSFX = SoundManager.create(fireSFX, {
+        autoplay: false,
+        volume: 0.1,
+      });
+    }
   }
 
   public update(world: World, owner: Entity) {
-    if (!this.canBeUsed(owner)) {
+    if (!this.canBeUsed(world, owner)) {
       return;
     }
 
@@ -98,7 +103,9 @@ class ProjectileWeapon extends Weapon {
 
     this.ammo -= 1;
 
-    this.fireSoundFX.play();
+    if (this.fireSFX) {
+      this.fireSFX.play();
+    }
 
     if (this.projectile.ttl !== -1) {
       setTimeout(() => {
@@ -107,10 +114,20 @@ class ProjectileWeapon extends Weapon {
     }
   }
 
-  public canBeUsed(entity: Entity): boolean {
+  public canBeUsed(world: World, entity: Entity): boolean {
+    const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const health = entity.getComponent<Health>(HEALTH_COMPONENT);
     const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
     const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+
+    const dist = position.clone().distanceTo(world.aim);
+
+    if (this.minRange !== -1 && dist < this.minRange) {
+      return false;
+    }
+    if (this.maxRange !== -1 && dist > this.maxRange) {
+      return false;
+    }
 
     return (this.ammo > 0 || this.maxAmmo === -1) && health.isAlive && movement.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
   }

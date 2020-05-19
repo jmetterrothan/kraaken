@@ -14,7 +14,7 @@ import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@s
 
 import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "@src/shared/events";
 
-export default ({ sprites, level, options }) => {
+export default ({ sprites, sounds, level, options }) => {
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);

@@ -1,12 +1,10 @@
-import { mat3, vec2 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
 import System from "@src/ECS/System";
 
 import { Position, Sprite, RigidBody, BoundingBox } from "@src/ECS/components";
 
 import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
-
-import World from "@src/world/World";
 
 import Vector2 from "@shared/math/Vector2";
 

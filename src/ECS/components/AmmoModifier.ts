@@ -18,6 +18,10 @@ export class AmmoModifier extends Consummable {
     const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
     combat.weapon.ammo = combat.weapon.maxAmmo;
+
+    if (this.pickUpSFX) {
+      this.pickUpSFX.play();
+    }
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {

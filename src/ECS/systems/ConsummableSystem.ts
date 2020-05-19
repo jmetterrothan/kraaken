@@ -26,8 +26,8 @@ export class ConsummableSystem extends System {
         consummable.consummatedBy(this.world, target);
         consummable.consummated = true;
 
-        if (consummable.vfx) {
-          this.world.playEffectOnceAt(consummable.vfx, { x: position.x, y: position.y });
+        if (consummable.pickUpVFX) {
+          this.world.playEffectOnceAt(consummable.pickUpVFX, { x: position.x, y: position.y });
         }
 
         this.world.removeEntity(entity);

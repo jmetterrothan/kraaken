@@ -169,10 +169,10 @@
     "type": "health_potion",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.5, "reflect": true } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
-      { "name": "health_modifier", "metadata": { "amount": 1, "vfx": "boost_effect" } },
+      { "name": "health_modifier", "metadata": { "amount": 1, "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
       {
         "name": "animator",
         "metadata": {
@@ -192,10 +192,10 @@
     "type": "ammo_box",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.5, "reflect": true } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
-      { "name": "ammo_modifier", "metadata": { "vfx": "boost_effect" } },
+      { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
       {
         "name": "animator",
         "metadata": {
@@ -218,7 +218,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
-      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "vfx": "star_effect_2", "radius": 17 } },
+      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "pickUpVFX": "star_effect_2", "pickUpSFX": "pickup", "radius": 18 } },
       {
         "name": "animator",
         "metadata": {
@@ -289,10 +289,10 @@
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false } },
+      { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
-      { "name": "health_modifier", "metadata": { "amount": -1, "vfx": "energy_blast" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },
       {
         "name": "animator",
         "metadata": {
@@ -313,24 +313,51 @@
     ]
   },
   {
+    "type": "ghost",
+    "components": [
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
+      { "name": "bounding_box", "metadata": { "width": 13, "height": 13 } },
+      { "name": "sprite", "metadata": { "alias": "ghost", "align": "center" } },
+      { "name": "health", "metadata": { "maxHealth": 2 } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "ghost:idle": {
+              "sprite": "ghost",
+              "loop": true,
+              "keyframes": [
+                { "row": 0, "col": 0, "duration": 150 },
+                { "row": 0, "col": 1, "duration": 150 },
+                { "row": 0, "col": 2, "duration": 150 }
+              ]
+            }
+          },
+          "defaultKey": "ghost:idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "bat",
     "components": [
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 11 } },
-      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
-      { "name": "health", "metadata": { "maxHealth": 3 } },
+      { "name": "sprite", "metadata": { "alias": "bat", "align": "center" } },
+      { "name": "health", "metadata": { "maxHealth": 4 } },
       {
         "name": "animator",
         "metadata": {
           "list": {
             "bat:idle": {
-              "sprite": "enemies",
+              "sprite": "bat",
               "loop": true,
               "keyframes": [
-                { "row": 2, "col": 0, "duration": 150 },
-                { "row": 2, "col": 1, "duration": 150 },
-                { "row": 2, "col": 2, "duration": 150 }
+                { "row": 0, "col": 0, "duration": 150 },
+                { "row": 0, "col": 1, "duration": 150 },
+                { "row": 0, "col": 2, "duration": 150 }
               ]
             }
           },
@@ -382,7 +409,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "player_input" },
       { "name": "player_combat" },
-      { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14 } },
+      { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14, "jumpSFX": "jump" } },
       { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
       { "name": "health", "metadata": { "maxHealth": 6 } },
       { "name": "sprite", "metadata": { "alias": "hero", "align": "bottom" } },

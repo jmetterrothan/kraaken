@@ -1,10 +1,8 @@
-import { Howl } from "howler";
-
 import Component from "@src/ECS/Component";
 
 import { PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
 
-import jumpSoundFX from "@src/data/level1/assets/sounds/jump.wav";
+import SoundManager from "@src/animation/SoundManager";
 
 interface IPlayerMovementMetadata {
   initialJumpBoost?: number;
@@ -12,6 +10,7 @@ interface IPlayerMovementMetadata {
   speed?: number;
   acceleration?: number;
   deceleration?: number;
+  jumpSFX?: string;
 }
 
 export class PlayerMovement implements Component {
@@ -31,20 +30,20 @@ export class PlayerMovement implements Component {
   public readonly acceleration: number;
   public readonly deceleration: number;
 
-  public jumpSoundFX: Howl;
+  public jumpSFX: Howl | undefined;
 
-  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration }: IPlayerMovementMetadata) {
+  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, jumpSFX }: IPlayerMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.speed = speed ?? 0;
     this.acceleration = acceleration ?? 0;
     this.deceleration = deceleration ?? 0;
 
-    this.jumpSoundFX = new Howl({
-      src: jumpSoundFX,
-      autoplay: false,
-      volume: 0.1,
-    });
+    if (jumpSFX) {
+      this.jumpSFX = SoundManager.create(jumpSFX, {
+        volume: 0.1,
+      });
+    }
   }
 
   public toString(): string {

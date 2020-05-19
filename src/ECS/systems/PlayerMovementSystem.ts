@@ -38,7 +38,9 @@ export class PlayerMovementSystem extends System {
           movement.jumping = true;
           rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
 
-          movement.jumpSoundFX.play();
+          if (movement.jumpSFX) {
+            movement.jumpSFX.play();
+          }
 
           this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
           movement.lastEffectTime = window.performance.now() + 350;

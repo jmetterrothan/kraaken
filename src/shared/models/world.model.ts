@@ -1,5 +1,6 @@
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
+import { ISoundData } from "@src/shared/models/sound.model";
 import { ITileMapData } from "@src/shared/models/tilemap.model";
 
 export interface IComponentBlueprint {
@@ -21,7 +22,10 @@ export interface IWorldBlueprint {
     spawnpoints: ISpawnpoint[];
   };
   // global data
-  resources: ISpriteData[];
+  resources: {
+    sprites: ISpriteData[];
+    sounds: ISoundData[];
+  };
   entities: IEntityBlueprint[];
 }
 

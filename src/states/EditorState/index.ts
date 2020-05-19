@@ -196,7 +196,8 @@ class EditorState extends State {
     ReactDOM.render(
       React.createElement(EditorUi, {
         level: this.world.blueprint.level, //
-        sprites: this.world.blueprint.resources,
+        sprites: this.world.blueprint.resources.sprites,
+        sounds: this.world.blueprint.resources.sounds,
         options: {
           mode: this.selectedMode,
           layerId: this.selectedLayerId,

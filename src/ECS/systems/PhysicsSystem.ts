@@ -108,10 +108,17 @@ export class PhysicsSystem extends System {
         if (tile) {
           newPosition.y = tile.position.y - h / 2 - 0.01;
 
-          if (entity.type === "energy_bolt") {
+          if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(0, -1));
             position.rotation = Math.atan2(r.y, r.x);
-            rigidBody.velocity.fromValues(r.x, r.y);
+            rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
+
+            if (rigidBody.velocity.x > 0) {
+              rigidBody.velocity.x -= 8 * delta;
+              if (rigidBody.velocity.x < 0) {
+                rigidBody.velocity.x = 0;
+              }
+            }
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -123,10 +130,17 @@ export class PhysicsSystem extends System {
         if (tile) {
           newPosition.y = tile.position.y + this.world.tileMap.getTileSize() + h / 2 + 0.01;
 
-          if (entity.type === "energy_bolt") {
+          if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(0, 1));
             position.rotation = Math.atan2(r.y, r.x);
-            rigidBody.velocity.fromValues(r.x, r.y);
+            rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
+
+            if (rigidBody.velocity.x > 0) {
+              rigidBody.velocity.x -= 8 * delta;
+              if (rigidBody.velocity.x < 0) {
+                rigidBody.velocity.x = 0;
+              }
+            }
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -140,10 +154,10 @@ export class PhysicsSystem extends System {
         if (tile) {
           newPosition.x = tile.position.x - w / 2 - 0.01;
 
-          if (entity.type === "energy_bolt") {
+          if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(1, 0));
             position.rotation = Math.atan2(r.y, r.x);
-            rigidBody.velocity.fromValues(r.x, r.y);
+            rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
           } else {
             rigidBody.velocity.x = 0;
           }
@@ -155,10 +169,10 @@ export class PhysicsSystem extends System {
         if (tile) {
           newPosition.x = tile.position.x + this.world.tileMap.getTileSize() + w / 2 + 0.01;
 
-          if (entity.type === "energy_bolt") {
+          if (rigidBody.reflect) {
             const r = rigidBody.velocity.reflect(new Vector2(-1, 0));
             position.rotation = Math.atan2(r.y, r.x);
-            rigidBody.velocity.fromValues(r.x, r.y);
+            rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
           } else {
             rigidBody.velocity.x = 0;
           }

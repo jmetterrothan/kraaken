@@ -13,14 +13,15 @@ import { Position, Health, Animator, BoundingBox, Camera, RigidBody } from "@src
 import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, POSITION_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
 
 import SpriteManager from "@src/animation/SpriteManager";
+import SoundManager from "@src/animation/SoundManager";
 
 import TileMap from "@src/world/TileMap";
 
-import Vector2 from "@src/shared/math/Vector2";
+import Vector2 from "@shared/math/Vector2";
 
-import { IVector2 } from "./../shared/models/event.model";
-import { IRGBAColorData } from "@src/shared/models/color.model";
-import { IWorldBlueprint, ISpawnpoint } from "@src/shared/models/world.model";
+import { IVector2 } from "@shared/models/event.model";
+import { IRGBAColorData } from "@shared/models/color.model";
+import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
 
 import { configSvc } from "@shared/services/config.service";
 
@@ -63,7 +64,11 @@ class World {
   }
 
   public async init() {
-    for (const sprite of this.blueprint.resources) {
+    for (const sound of this.blueprint.resources.sounds) {
+      SoundManager.register(sound.src, sound.name);
+    }
+
+    for (const sprite of this.blueprint.resources.sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
@@ -99,8 +104,6 @@ class World {
     this.addCamera(camera, true);
     this.followEntity(camera, this.player);
 
-    const health = this.player.getComponent<Health>(HEALTH_COMPONENT);
-    health.value -= 5;
     console.info("World initialized");
   }
 

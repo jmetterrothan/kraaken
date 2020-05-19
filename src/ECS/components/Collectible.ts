@@ -5,11 +5,10 @@ import { PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT }
 
 import World from "@src/world/World";
 
-import pickUpSoundFX from "@src/data/level1/assets/sounds/pickup.wav";
-
 export interface ICollectibleMetadata extends IConsummableMetadata {
   id?: string;
   amount?: number;
+  pickUpSFX?: string;
 }
 
 export class Collectible extends Consummable {
@@ -20,19 +19,11 @@ export class Collectible extends Consummable {
   public readonly id: string;
   public readonly amount: number;
 
-  public pickUpSoundFX: Howl;
-
   public constructor(metadata: ICollectibleMetadata = {}) {
     super(metadata);
 
     this.id = metadata.id;
     this.amount = metadata.amount ?? 1;
-
-    this.pickUpSoundFX = new Howl({
-      src: pickUpSoundFX,
-      autoplay: false,
-      volume: 0.1,
-    });
   }
 
   public consummatedBy(world: World, entity: Entity): void {
@@ -46,7 +37,9 @@ export class Collectible extends Consummable {
 
     Collectible.DATA[entity.uuid][this.id] += this.amount;
 
-    this.pickUpSoundFX.play();
+    if (this.pickUpSFX) {
+      this.pickUpSFX.play();
+    }
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {
