@@ -4,7 +4,7 @@ import System from "@src/ECS/System";
 
 import { PlayerInput, Position } from "@src/ECS/components";
 
-import { PLAYER_INPUT_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
+import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
 
 import { wrapper, canvas } from "@src/Game";
 
@@ -30,20 +30,21 @@ const buttonPressed = (b: GamepadButton) => {
   return b === 1.0;
 };
 
+const maxRadius = 80;
 const gamepads = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
     super([PLAYER_INPUT_COMPONENT]);
 
-    /*
     // Mouse events
+    console.log(wrapper);
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
     wrapper.addEventListener("mousedown", (e: MouseEvent) => this.handleMouseInput(e.button, true), false);
 
     // Keyboard events
-    wrapper.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
-    wrapper.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
+    window.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
+    window.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
 
     wrapper.addEventListener(
       "mousemove",
@@ -56,7 +57,6 @@ export class PlayerInputSystem extends System {
       },
       false
     );
-    */
 
     // Gamepad events
     wrapper.addEventListener(
@@ -81,7 +81,6 @@ export class PlayerInputSystem extends System {
 
     if (connecting) {
       console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
-      console.log(gamepad);
 
       gamepads[gamepad.index] = gamepad;
     } else {
@@ -99,8 +98,22 @@ export class PlayerInputSystem extends System {
     const coords = this.world.screenToCameraCoords(pos);
 
     entities.forEach((entity) => {
+      const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-      input.aim.fromValues(coords.x, coords.y);
+
+      const c = Vector2.create(coords.x - position.x, coords.y - position.y);
+      input.aim.lerp(c, 0.2);
+      Vector2.destroy(c);
+
+      const origin = Vector2.create(0, 0);
+      const dist = origin.distanceTo(input.aim);
+      Vector2.destroy(origin);
+
+      if (dist > maxRadius) {
+        const v = input.aim.clone().multiplyScalar(maxRadius / dist);
+        input.aim.fromValues(v.x, v.y);
+        Vector2.destroy(v);
+      }
     });
   }
 
@@ -127,7 +140,6 @@ export class PlayerInputSystem extends System {
 
     entities.forEach((entity) => {
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-
       switch (key) {
         case "ArrowLeft":
           input.left = active;
@@ -181,8 +193,6 @@ export class PlayerInputSystem extends System {
 
         const x = controller.axes[0];
         const y = controller.axes[1];
-
-        const maxRadius = 80;
 
         input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
         input.aim.y += Math.abs(y) >= 0.1 ? y * 450 * delta : 0;

@@ -3,14 +3,6 @@ import { vec2 } from "gl-matrix";
 import Lifo from "@shared/utility/Lifo";
 import { lerp, lerp2 } from "@shared/utility/MathHelpers";
 
-let ok;
-setInterval(() => {
-  if (ok !== Vector2.instances.length) {
-    console.log(Vector2.instances.length);
-    ok = Vector2.instances.length;
-  }
-}, 1000 / 60);
-
 class Vector2 {
   public static instances: Lifo<Vector2> = new Lifo();
 

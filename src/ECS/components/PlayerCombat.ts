@@ -2,7 +2,6 @@ import Component from "@src/ECS/Component";
 
 import { PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
-import Weapon from "@src/weapons/Weapon";
 import ProjectileWeapon from "@src/weapons/ProjectileWeapon";
 
 export class PlayerCombat implements Component {
