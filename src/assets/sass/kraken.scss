@@ -19,7 +19,10 @@ html {
 .kraken {
   position: relative;
   overflow: hidden;
-  cursor: none;
+
+  canvas {
+    cursor: none;
+  }
 
   &-ui {
     font-family: $defaultFont;
