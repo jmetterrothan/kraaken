@@ -1,4 +1,3 @@
-import { vec2 } from "gl-matrix";
 import Stats from "stats-js";
 
 import EditorState from "@src/states/EditorState";
@@ -7,6 +6,8 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 
 import { GameStates, IGameOptions } from "@shared/models/game.model";
+
+import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
 import { configSvc } from "@shared/services/config.service";
 
@@ -301,26 +302,13 @@ class Game {
       false
     );
 
-    const getCoord = (c: HTMLCanvasElement, x: number, y: number): vec2 => {
-      const rect = c.getBoundingClientRect();
-      return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
-    };
-
-    const getMouseOffsetX = (e: MouseEvent) => {
-      return e.clientX - document.body.scrollLeft + canvas.scrollLeft;
-    };
-
-    const getMouseOffsetY = (e: MouseEvent) => {
-      return e.clientY - document.body.scrollTop + canvas.scrollTop;
-    };
-
     // Click events
     wrapper.addEventListener(
       "mouseup",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
-          const x = getMouseOffsetX(e);
-          const y = getMouseOffsetY(e);
+          const x = getMouseOffsetX(canvas, e);
+          const y = getMouseOffsetY(canvas, e);
           this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, x, y));
         }
       },
@@ -331,8 +319,8 @@ class Game {
       "mousedown",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
-          const x = getMouseOffsetX(e);
-          const y = getMouseOffsetY(e);
+          const x = getMouseOffsetX(canvas, e);
+          const y = getMouseOffsetY(canvas, e);
           this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, x, y));
         }
       },
@@ -343,8 +331,8 @@ class Game {
       "mousemove",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
-          const x = getMouseOffsetX(e);
-          const y = getMouseOffsetY(e);
+          const x = getMouseOffsetX(canvas, e);
+          const y = getMouseOffsetY(canvas, e);
           this.stateManager.handleMouseMove(getCoord(canvas, x, y));
         }
       },

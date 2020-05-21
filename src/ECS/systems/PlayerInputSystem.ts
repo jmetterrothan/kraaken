@@ -8,27 +8,9 @@ import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
 
 import { wrapper, canvas } from "@src/Game";
 
+import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@shared/utility/Utility";
+
 import Vector2 from "@shared/math/Vector2";
-
-const getCoord = (c: HTMLCanvasElement, x: number, y: number): vec2 => {
-  const rect = c.getBoundingClientRect();
-  return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
-};
-
-const getMouseOffsetX = (e: MouseEvent) => {
-  return e.clientX - document.body.scrollLeft + canvas.scrollLeft;
-};
-
-const getMouseOffsetY = (e: MouseEvent) => {
-  return e.clientY - document.body.scrollTop + canvas.scrollTop;
-};
-
-const buttonPressed = (b: GamepadButton) => {
-  if (typeof b === "object") {
-    return b.pressed;
-  }
-  return b === 1.0;
-};
 
 const maxRadius = 80;
 const gamepads = {};
@@ -38,7 +20,6 @@ export class PlayerInputSystem extends System {
     super([PLAYER_INPUT_COMPONENT]);
 
     // Mouse events
-    console.log(wrapper);
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
     wrapper.addEventListener("mousedown", (e: MouseEvent) => this.handleMouseInput(e.button, true), false);
 
@@ -50,8 +31,8 @@ export class PlayerInputSystem extends System {
       "mousemove",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
-          const x = getMouseOffsetX(e);
-          const y = getMouseOffsetY(e);
+          const x = getMouseOffsetX(canvas, e);
+          const y = getMouseOffsetY(canvas, e);
           this.handleMouseMove(getCoord(canvas, x, y));
         }
       },
