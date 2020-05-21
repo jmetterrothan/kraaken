@@ -1,10 +1,35 @@
 import { vec2 } from "gl-matrix";
 
+import Lifo from "@shared/utility/Lifo";
 import { lerp, lerp2 } from "@shared/utility/MathHelpers";
 
+let ok;
+setInterval(() => {
+  if (ok !== Vector2.instances.length) {
+    console.log(Vector2.instances.length);
+    ok = Vector2.instances.length;
+  }
+}, 1000 / 60);
+
 class Vector2 {
+  public static instances: Lifo<Vector2> = new Lifo();
+
   public x: number;
   public y: number;
+
+  public static create(x?: number, y?: number): Vector2 {
+    const v = Vector2.instances.pop();
+    if (typeof v !== "undefined") {
+      v.x = x;
+      v.y = y;
+      return v;
+    }
+    return new Vector2(x, y);
+  }
+
+  public static destroy(v: Vector2) {
+    Vector2.instances.push(v);
+  }
 
   constructor(x?: number, y?: number) {
     this.x = x || 0;
@@ -245,7 +270,7 @@ class Vector2 {
   }
 
   public clone(): Vector2 {
-    return new Vector2(this.x, this.y);
+    return Vector2.create(this.x, this.y);
   }
 
   public setX(x: number): Vector2 {
@@ -263,7 +288,13 @@ class Vector2 {
   reflect(n: Vector2): Vector2 {
     // vector - 2 * Vector2.Dot(vector, normal) * normal;
     const dotProduct = this.dot(n);
-    return this.clone().sub(n.clone().multiplyScalar(dotProduct * 2));
+
+    const temp = n.clone().multiplyScalar(dotProduct * 2);
+    const output = this.clone().sub(temp);
+
+    Vector2.destroy(temp);
+
+    return output;
   }
 
   public toFixed(precision: number) {

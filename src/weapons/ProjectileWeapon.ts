@@ -80,7 +80,7 @@ class ProjectileWeapon extends Weapon {
     const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
     const target = position.clone().add(playerInput.aim);
-    const origin = new Vector2(position.x + (bbox.width / 2 + 4) * rigidBody.orientation.x, position.y);
+    const origin = Vector2.create(position.x + (bbox.width / 2 + 4) * rigidBody.orientation.x, position.y);
     const dir = origin.clone().sub(target).normalize().negate();
 
     const vx = this.projectile.speed * dir.x;
@@ -131,6 +131,10 @@ class ProjectileWeapon extends Weapon {
         world.removeEntity(projectile);
       }, this.projectile.ttl);
     }
+
+    Vector2.destroy(target);
+    Vector2.destroy(origin);
+    Vector2.destroy(dir);
   }
 
   public canBeUsed(owner: Entity): boolean {
@@ -142,6 +146,7 @@ class ProjectileWeapon extends Weapon {
 
     const target = position.clone().add(playerInput.aim);
     const dist = position.distanceTo(target);
+    Vector2.destroy(target);
 
     if (this.minRange !== -1 && dist < this.minRange) {
       return false;

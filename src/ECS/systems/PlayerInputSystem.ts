@@ -187,11 +187,14 @@ export class PlayerInputSystem extends System {
         input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
         input.aim.y += Math.abs(y) >= 0.1 ? y * 450 * delta : 0;
 
-        const dist = new Vector2(0, 0).distanceTo(input.aim);
+        const origin = Vector2.create(0, 0);
+        const dist = origin.distanceTo(input.aim);
+        Vector2.destroy(origin);
 
         if (dist > maxRadius) {
           const v = input.aim.clone().multiplyScalar(maxRadius / dist);
           input.aim.fromValues(v.x, v.y);
+          Vector2.destroy(v);
         }
 
         controller.buttons.forEach((button, index) => {

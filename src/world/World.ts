@@ -155,6 +155,9 @@ class World {
 
     if (entity.hasComponent(RIGID_BODY_COMPONENT)) {
       const rigidBodyComp = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+      rigidBodyComp.orientation.x = direction?.x ?? 1;
+      rigidBodyComp.orientation.y = direction?.y ?? 1;
+
       rigidBodyComp.direction.x = direction?.x ?? 1;
       rigidBodyComp.direction.y = direction?.y ?? 1;
     }
@@ -360,7 +363,7 @@ class World {
     const camera = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
 
     const v = vec2.transformMat3(vec2.create(), coords, camera.projectionMatrixInverse);
-    return new Vector2(v[0], v[1]);
+    return Vector2.create(v[0], v[1]);
   }
 
   public isFrustumCulled(entity: Entity): boolean {

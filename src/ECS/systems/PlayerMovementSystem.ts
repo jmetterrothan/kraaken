@@ -32,11 +32,15 @@ export class PlayerMovementSystem extends System {
         rigidBody.direction.x = 1;
       }
 
-      // register orientation change
-      if (input.aim.x < 0) {
-        rigidBody.orientation.x = -1;
-      } else if (input.aim.x > 0) {
-        rigidBody.orientation.x = 1;
+      if (input) {
+        // register orientation change
+        if (input.aim.x < 0) {
+          rigidBody.orientation.x = -1;
+        } else if (input.aim.x > 0) {
+          rigidBody.orientation.x = 1;
+        }
+      } else {
+        rigidBody.orientation.copy(rigidBody.direction);
       }
 
       // handle jumping

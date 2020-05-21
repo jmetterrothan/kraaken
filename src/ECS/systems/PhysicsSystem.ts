@@ -109,7 +109,8 @@ export class PhysicsSystem extends System {
           newPosition.y = tile.position.y - h / 2 - 0.01;
 
           if (rigidBody.reflect) {
-            const r = rigidBody.velocity.reflect(new Vector2(0, -1));
+            const n = Vector2.create(0, -1);
+            const r = rigidBody.velocity.reflect(n);
             if (rigidBody.reflectAngle) {
               position.rotation = Math.atan2(r.y, r.x);
             }
@@ -121,6 +122,8 @@ export class PhysicsSystem extends System {
                 rigidBody.velocity.x = 0;
               }
             }
+
+            Vector2.destroy(n);
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -133,7 +136,8 @@ export class PhysicsSystem extends System {
           newPosition.y = tile.position.y + this.world.tileMap.getTileSize() + h / 2 + 0.01;
 
           if (rigidBody.reflect) {
-            const r = rigidBody.velocity.reflect(new Vector2(0, 1));
+            const n = Vector2.create(0, 1);
+            const r = rigidBody.velocity.reflect(n);
             if (rigidBody.reflectAngle) {
               position.rotation = Math.atan2(r.y, r.x);
             }
@@ -145,6 +149,8 @@ export class PhysicsSystem extends System {
                 rigidBody.velocity.x = 0;
               }
             }
+
+            Vector2.destroy(n);
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -159,11 +165,14 @@ export class PhysicsSystem extends System {
           newPosition.x = tile.position.x - w / 2 - 0.01;
 
           if (rigidBody.reflect) {
-            const r = rigidBody.velocity.reflect(new Vector2(1, 0));
+            const n = Vector2.create(1, 0);
+            const r = rigidBody.velocity.reflect(n);
             if (rigidBody.reflectAngle) {
               position.rotation = Math.atan2(r.y, r.x);
             }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
+
+            Vector2.destroy(n);
           } else {
             rigidBody.velocity.x = 0;
           }
@@ -176,11 +185,14 @@ export class PhysicsSystem extends System {
           newPosition.x = tile.position.x + this.world.tileMap.getTileSize() + w / 2 + 0.01;
 
           if (rigidBody.reflect) {
-            const r = rigidBody.velocity.reflect(new Vector2(-1, 0));
+            const n = Vector2.create(-1, 0);
+            const r = rigidBody.velocity.reflect(n);
             if (rigidBody.reflectAngle) {
               position.rotation = Math.atan2(r.y, r.x);
             }
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
+
+            Vector2.destroy(n);
           } else {
             rigidBody.velocity.x = 0;
           }
@@ -189,6 +201,7 @@ export class PhysicsSystem extends System {
     }
 
     position.fromValues(newPosition.x, newPosition.y);
+    Vector2.destroy(newPosition);
 
     const now = window.performance.now();
     const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);

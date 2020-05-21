@@ -6,8 +6,6 @@ import { Position, Sprite, RigidBody, PlayerInput, BoundingBox } from "@src/ECS/
 
 import { PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
-import Vector2 from "@shared/math/Vector2";
-
 export class RenderingSystem extends System {
   public constructor() {
     super([POSITION_COMPONENT, SPRITE_COMPONENT]);
@@ -56,7 +54,6 @@ export class RenderingSystem extends System {
       }
 
       sprite.atlas.use();
-      // playerInput ? new Vector2(playerInput.aim.x >= position.x ? 1 : -1, 1) : rigidBody?.direction
       sprite.atlas.render(this.world.viewProjectionMatrix, position.transform, sprite.row, sprite.col, rigidBody?.orientation, sprite.parameters);
     });
   }

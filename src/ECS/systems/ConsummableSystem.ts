@@ -4,6 +4,8 @@ import Entity from "@src/ECS/Entity";
 import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 import { BoundingBox, Position, Consummable, RigidBody } from "@src/ECS/components";
 
+import Vector2 from "@src/shared/math/Vector2";
+
 export class ConsummableSystem extends System {
   public constructor() {
     super([POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT]);
@@ -108,6 +110,8 @@ export class ConsummableSystem extends System {
         if (rigidBody.velocity.y < -160) {
           rigidBody.velocity.y = -160;
         }
+
+        Vector2.destroy(dir);
       }
 
       this.tryConsummate(entity, targets);

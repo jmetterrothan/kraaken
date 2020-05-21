@@ -6,7 +6,7 @@ class Lifo<T> extends Stack<T> {
     this.list.push(item);
   }
 
-  public pop(): T {
+  public pop(): T | undefined {
     const temp: T = this.list.shift();
     if (temp) {
       this.size--;

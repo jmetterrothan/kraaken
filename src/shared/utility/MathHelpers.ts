@@ -45,7 +45,7 @@ export const linesIntersection = (x1, y1, x2, y2, x3, y3, x4, y4): Vector2 | und
   const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
 
   if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-    return new Vector2(x3 + u * (x4 - x3), y3 + u * (y4 - y3));
+    return Vector2.create(x3 + u * (x4 - x3), y3 + u * (y4 - y3));
   }
 
   return;

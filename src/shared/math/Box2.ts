@@ -7,8 +7,8 @@ class Box2 {
   private _max: Vector2;
 
   constructor(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
-    this._min = new Vector2(x - w / 2, y - h / 2);
-    this._max = new Vector2(x + w / 2, y + h / 2);
+    this._min = Vector2.create(x - w / 2, y - h / 2);
+    this._max = Vector2.create(x + w / 2, y + h / 2);
   }
 
   public containsBox(box: Box2): boolean {
@@ -24,22 +24,22 @@ class Box2 {
   }
 
   public intersectSegment(v1: Vector2, v2: Vector2): Vector2 | undefined {
-    const p1 = linesIntersectionWithVector2(v1, v2, new Vector2(this._min.x, this._min.y), new Vector2(this._min.x, this._max.y));
+    const p1 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._min.y), Vector2.create(this._min.x, this._max.y));
     if (p1 !== undefined) {
       // console.log("intersected box left side");
       return p1;
     }
-    const p2 = linesIntersectionWithVector2(v1, v2, new Vector2(this._max.x, this._min.y), new Vector2(this._max.x, this._max.y));
+    const p2 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._max.x, this._min.y), Vector2.create(this._max.x, this._max.y));
     if (p2 !== undefined) {
       // console.log("intersected box right side");
       return p2;
     }
-    const p3 = linesIntersectionWithVector2(v1, v2, new Vector2(this._min.x, this._min.y), new Vector2(this._max.x, this._min.y));
+    const p3 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._min.y), Vector2.create(this._max.x, this._min.y));
     if (p3 !== undefined) {
       // console.log("intersected box top side");
       return p3;
     }
-    const p4 = linesIntersectionWithVector2(v1, v2, new Vector2(this._min.x, this._max.y), new Vector2(this._max.x, this._max.y));
+    const p4 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._max.y), Vector2.create(this._max.x, this._max.y));
     if (p4 !== undefined) {
       // console.log("intersected box bottom side");
       return p4;
@@ -59,7 +59,7 @@ class Box2 {
   }
 
   public getPosition(): Vector2 {
-    return new Vector2(this.x, this.y);
+    return Vector2.create(this.x, this.y);
   }
 
   public setPositionFromVector2(v: Vector2) {
