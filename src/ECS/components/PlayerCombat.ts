@@ -8,6 +8,7 @@ export class PlayerCombat implements Component {
   public readonly type: symbol = PLAYER_COMBAT_COMPONENT;
 
   public usingPrimaryWeapon: boolean = false;
+  public primary;
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
     projectile: { type: "energy_bolt", speed: 275, ttl: 1000 }, //
@@ -15,7 +16,7 @@ export class PlayerCombat implements Component {
     maxAmmo: 32,
     fireSFX: "laser",
     minRange: 16,
-    maxRange: 480,
+    maxRange: 80,
   });
 
   private _weapon2: ProjectileWeapon = new ProjectileWeapon({
@@ -24,7 +25,7 @@ export class PlayerCombat implements Component {
     maxAmmo: 32,
     fireSFX: "laser",
     minRange: 16,
-    maxRange: 480,
+    maxRange: 160,
   });
 
   public get primaryWeapon(): ProjectileWeapon {

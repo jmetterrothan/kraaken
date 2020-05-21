@@ -291,6 +291,7 @@ class World {
     const aimPosition = this.aimEntity.getComponent<Position>(POSITION_COMPONENT);
     const playerPosition = this.player.getComponent<Position>(POSITION_COMPONENT);
     const playerInput = this.player.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+
     aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
   }
 

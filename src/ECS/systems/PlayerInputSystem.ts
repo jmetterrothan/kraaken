@@ -1,10 +1,11 @@
 import { vec2 } from "gl-matrix";
 
 import System from "@src/ECS/System";
+import Entity from "@src/ECS/Entity";
 
-import { PlayerInput, Position } from "@src/ECS/components";
+import { PlayerInput, Position, PlayerCombat } from "@src/ECS/components";
 
-import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
 import { wrapper, canvas } from "@src/Game";
 
@@ -12,7 +13,6 @@ import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@shar
 
 import Vector2 from "@shared/math/Vector2";
 
-const maxRadius = 80;
 const gamepads = {};
 
 export class PlayerInputSystem extends System {
@@ -81,6 +81,7 @@ export class PlayerInputSystem extends System {
     entities.forEach((entity) => {
       const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+      const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
       const c = Vector2.create(coords.x - position.x, coords.y - position.y);
       input.aim.lerp(c, 0.2);
@@ -90,8 +91,8 @@ export class PlayerInputSystem extends System {
       const dist = origin.distanceTo(input.aim);
       Vector2.destroy(origin);
 
-      if (dist > maxRadius) {
-        const v = input.aim.clone().multiplyScalar(maxRadius / dist);
+      if (typeof combat.primaryWeapon.maxRange !== "undefined" && dist > combat.primaryWeapon.maxRange) {
+        const v = input.aim.clone().multiplyScalar(combat.primaryWeapon.maxRange / dist);
         input.aim.fromValues(v.x, v.y);
         Vector2.destroy(v);
       }
@@ -113,7 +114,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -141,6 +142,95 @@ export class PlayerInputSystem extends System {
     });
   }
 
+  handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
+    const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
+
+    const controller = controllers[input.gamepadIndex];
+
+    if (controller) {
+      const x = controller.axes[0];
+      const y = controller.axes[1];
+
+      if (x >= 0.5) {
+        input.right = true;
+      } else {
+        input.right = false;
+      }
+
+      if (x <= -0.5) {
+        input.left = true;
+      } else {
+        input.left = false;
+      }
+
+      input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
+      input.aim.y += Math.abs(y) >= 0.1 ? y * 450 * delta : 0;
+
+      // contrains crosshair position
+      const origin = Vector2.create(0, 0);
+      const dist = origin.distanceTo(input.aim);
+      Vector2.destroy(origin);
+
+      if (typeof combat.primaryWeapon.maxRange !== "undefined" && dist > combat.primaryWeapon.maxRange) {
+        const v = input.aim.clone().multiplyScalar(combat.primaryWeapon.maxRange / dist);
+        input.aim.fromValues(v.x, v.y);
+        Vector2.destroy(v);
+      }
+
+      // handle buttons
+      controller.buttons.forEach((button, index) => {
+        const active = buttonPressed(button);
+
+        switch (index) {
+          case 0: // A
+            input.up = active;
+            break;
+
+          case 1: // B
+            break;
+
+          case 2: // X
+            input.usePrimary = active;
+            break;
+
+          case 3: // Y
+            input.useSecondary = active;
+            break;
+
+          case 4: // LB
+            break;
+
+          case 5: // RB
+            break;
+
+          case 6: // LT
+            break;
+
+          case 7: // RT
+            break;
+
+          case 12: // up arrow
+            break;
+
+          case 13: // down arrow
+            break;
+
+          case 14: // left arrow
+            break;
+
+          case 15: // right arrow
+            break;
+
+          default:
+            if (active) {
+              console.log(`Unmapped index: ${index}`);
+            }
+        }
+      });
+    }
+  }
+
   execute(delta: number): void {
     const controllers = "getGamepads" in navigator ? navigator.getGamepads() : [];
 
@@ -150,94 +240,7 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-
-      const controller = controllers[input.gamepadIndex];
-
-      if (controller) {
-        controller.axes.forEach((value, index) => {
-          // left stick x
-          if (index === 0) {
-            if (value >= 0.5) {
-              input.right = true;
-            } else {
-              input.right = false;
-            }
-
-            if (value <= -0.5) {
-              input.left = true;
-            } else {
-              input.left = false;
-            }
-          }
-        });
-
-        const x = controller.axes[0];
-        const y = controller.axes[1];
-
-        input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
-        input.aim.y += Math.abs(y) >= 0.1 ? y * 450 * delta : 0;
-
-        const origin = Vector2.create(0, 0);
-        const dist = origin.distanceTo(input.aim);
-        Vector2.destroy(origin);
-
-        if (dist > maxRadius) {
-          const v = input.aim.clone().multiplyScalar(maxRadius / dist);
-          input.aim.fromValues(v.x, v.y);
-          Vector2.destroy(v);
-        }
-
-        controller.buttons.forEach((button, index) => {
-          const active = buttonPressed(button);
-
-          switch (index) {
-            case 0: // A
-              input.up = active;
-              break;
-
-            case 1: // B
-              break;
-
-            case 2: // X
-              input.usePrimary = active;
-              break;
-
-            case 3: // Y
-              input.useSecondary = active;
-              break;
-
-            case 4: // LB
-              break;
-
-            case 5: // RB
-              break;
-
-            case 6: // LT
-              break;
-
-            case 7: // RT
-              break;
-
-            case 12: // up arrow
-              break;
-
-            case 13: // down arrow
-              break;
-
-            case 14: // left arrow
-              break;
-
-            case 15: // right arrow
-              break;
-
-            default:
-              if (active) {
-                console.log(`Unmapped index: ${index}`);
-              }
-          }
-        });
-      }
+      this.handleGamepadInput(entity, controllers, delta);
     });
   }
 }
