@@ -14,6 +14,7 @@ interface ISpriteMetadata {
   col?: number;
   alias?: string;
   align?: "bottom" | "center";
+  reflect?: boolean;
 }
 
 export class Sprite implements Component {
@@ -28,7 +29,7 @@ export class Sprite implements Component {
 
   public parameters: ISpriteRenderParameters;
 
-  public constructor({ row = 0, col = 0, alias, align = "center" }: ISpriteMetadata) {
+  public constructor({ row = 0, col = 0, alias, align = "center", reflect = true }: ISpriteMetadata) {
     this.row = row;
     this.col = col;
     this.align = align;
@@ -46,6 +47,7 @@ export class Sprite implements Component {
       flashing: false,
       alpha: 1,
       color: new Color(0, 0, 0, 1),
+      reflect,
     };
   }
 

@@ -21,4 +21,5 @@ export interface ISpriteRenderParameters {
   wireframe?: boolean;
   alpha: number;
   color?: Color;
+  reflect?: boolean;
 }

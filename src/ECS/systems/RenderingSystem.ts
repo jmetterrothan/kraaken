@@ -2,9 +2,9 @@ import { mat3 } from "gl-matrix";
 
 import System from "@src/ECS/System";
 
-import { Position, Sprite, RigidBody, BoundingBox } from "@src/ECS/components";
+import { Position, Sprite, RigidBody, PlayerInput, BoundingBox } from "@src/ECS/components";
 
-import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -28,6 +28,7 @@ export class RenderingSystem extends System {
       const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
       const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+      const playerInput = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
       if (position.shouldUpdateTransform) {
         const offsetX = -sprite.atlas.tileWidth / 2;
@@ -55,8 +56,8 @@ export class RenderingSystem extends System {
       }
 
       sprite.atlas.use();
-
-      sprite.atlas.render(this.world.viewProjectionMatrix, position.transform, sprite.row, sprite.col, entity.uuid === "player" ? new Vector2(this.world.aim.x >= position.x ? 1 : -1, 1) : rigidBody?.direction, sprite.parameters);
+      // playerInput ? new Vector2(playerInput.aim.x >= position.x ? 1 : -1, 1) : rigidBody?.direction
+      sprite.atlas.render(this.world.viewProjectionMatrix, position.transform, sprite.row, sprite.col, rigidBody?.orientation, sprite.parameters);
     });
   }
 }

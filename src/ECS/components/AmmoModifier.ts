@@ -17,7 +17,7 @@ export class AmmoModifier extends Consummable {
   public consummatedBy(world: World, entity: Entity): void {
     const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
-    combat.weapon.ammo = combat.weapon.maxAmmo;
+    combat.primaryWeapon.ammo = combat.primaryWeapon.maxAmmo;
 
     if (this.pickUpSFX) {
       this.pickUpSFX.play();
@@ -30,7 +30,7 @@ export class AmmoModifier extends Consummable {
     }
 
     const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
-    return combat.weapon.ammo < combat.weapon.maxAmmo && combat.weapon.maxAmmo !== -1;
+    return combat.primaryWeapon.ammo < combat.primaryWeapon.maxAmmo && combat.primaryWeapon.maxAmmo !== -1;
   }
 
   public getComponentTypes(): symbol[] {

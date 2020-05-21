@@ -9,6 +9,7 @@ import { IVector2 } from "@src/shared/models/event.model";
 export interface IRigidBodyMetadata {
   velocity?: IVector2;
   direction?: IVector2;
+  orientation?: IVector2;
   collide?: boolean;
   gravity?: boolean;
   clamToMap?: boolean;
@@ -27,7 +28,8 @@ export class RigidBody implements Component {
   public readonly reflectAngle: boolean;
   public readonly bounciness: number;
 
-  public direction: Vector2 = new Vector2();
+  public orientation: Vector2 = new Vector2(1, 1);
+  public direction: Vector2 = new Vector2(1, 1);
   public velocity: Vector2 = new Vector2(0, 0);
 
   public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle }: IRigidBodyMetadata = {}) {

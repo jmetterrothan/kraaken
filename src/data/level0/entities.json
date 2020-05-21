@@ -115,6 +115,10 @@
     ]
   },
   {
+    "type": "crosshair",
+    "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "star_effects", "row": 2, "col": 0, "align": "center" } }]
+  },
+  {
     "type": "star_effect_2",
     "components": [
       { "name": "position" },
@@ -171,7 +175,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.55, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
-      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
       { "name": "health_modifier", "metadata": { "amount": 1, "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
       {
         "name": "animator",
@@ -194,7 +198,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.55, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
-      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
       { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
       {
         "name": "animator",
@@ -217,7 +221,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
-      { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
       { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "pickUpVFX": "star_effect_2", "pickUpSFX": "pickup", "radius": 18 } },
       {
         "name": "animator",
@@ -291,7 +295,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
-      { "name": "sprite", "metadata": { "alias": "items", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
       { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },
       {
         "name": "animator",

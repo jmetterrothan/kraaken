@@ -24,7 +24,7 @@ export class PlayerAnimator extends Animator {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
     }
 
-    if (input && input.use && combat.weapon.canBeUsed(world, entity)) {
+    if (input && input.usePrimary && combat.primaryWeapon.canBeUsed(entity)) {
       return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
     }
 

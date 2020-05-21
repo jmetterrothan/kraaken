@@ -84,8 +84,8 @@ class SpriteTexture {
 
   public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters) {
     if (this.loaded) {
-      const dx = direction?.x ?? 1;
-      const dy = direction?.y ?? 1;
+      const dx = (parameters.reflect && (direction?.x ?? 1)) < 0 ? -1 : 1;
+      const dy = (parameters.reflect && (direction?.y ?? 1)) < 0 ? -1 : 1;
 
       // calculate frame woords in a 0 - 1 range
       this.coords[0] = (((col + (dx === -1 ? 1 : 0)) * this.tileWidth) / this.width) * dx;

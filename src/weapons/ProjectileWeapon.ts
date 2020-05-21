@@ -1,7 +1,6 @@
-import { getRandomFloat, getRandomInt } from "./../shared/utility/MathHelpers";
 import Entity from "@src/ECS/Entity";
-import { Health, RigidBody, PlayerMovement, Position, BoundingBox } from "@src/ECS/components";
-import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { Health, RigidBody, PlayerMovement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
+import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
@@ -54,7 +53,7 @@ class ProjectileWeapon extends Weapon {
   }
 
   public update(world: World, owner: Entity) {
-    if (!this.canBeUsed(world, owner)) {
+    if (!this.canBeUsed(owner)) {
       return;
     }
 
@@ -77,10 +76,12 @@ class ProjectileWeapon extends Weapon {
   protected use(world: World, owner: Entity) {
     const position = owner.getComponent<Position>(POSITION_COMPONENT);
     const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
-    const side = world.aim.x >= position.x ? 1 : -1;
-    const origin = new Vector2(position.x + (bbox.width / 2 + 4) * side, position.y);
-    const dir = origin.clone().sub(world.aim).normalize().negate();
+    const target = position.clone().add(playerInput.aim);
+    const origin = new Vector2(position.x + (bbox.width / 2 + 4) * rigidBody.orientation.x, position.y);
+    const dir = origin.clone().sub(target).normalize().negate();
 
     const vx = this.projectile.speed * dir.x;
     const vy = this.projectile.speed * dir.y;
@@ -96,7 +97,6 @@ class ProjectileWeapon extends Weapon {
 
     const projectilePos = projectile.getComponent<Position>(POSITION_COMPONENT);
     const projectileRigidBody = projectile.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-    console.log(projectilePos.toString());
 
     if (projectileRigidBody.reflectAngle) {
       const angle = Math.atan2(vy, vx);
@@ -112,6 +112,20 @@ class ProjectileWeapon extends Weapon {
       this.fireSFX.play();
     }
 
+    if (playerInput && "vibrate" in navigator) {
+      const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];
+      const gamepad = gamepads[playerInput.gamepadIndex];
+
+      if (gamepad) {
+        gamepad.vibrationActuator.playEffect("dual-rumble", {
+          startDelay: 100,
+          duration: 150,
+          weakMagnitude: 0.75,
+          strongMagnitude: 1.0,
+        });
+      }
+    }
+
     if (this.projectile.ttl !== -1) {
       setTimeout(() => {
         world.removeEntity(projectile);
@@ -119,13 +133,15 @@ class ProjectileWeapon extends Weapon {
     }
   }
 
-  public canBeUsed(world: World, entity: Entity): boolean {
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const health = entity.getComponent<Health>(HEALTH_COMPONENT);
-    const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-    const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+  public canBeUsed(owner: Entity): boolean {
+    const position = owner.getComponent<Position>(POSITION_COMPONENT);
+    const health = owner.getComponent<Health>(HEALTH_COMPONENT);
+    const movement = owner.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
+    const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
-    const dist = position.clone().distanceTo(world.aim);
+    const target = position.clone().add(playerInput.aim);
+    const dist = position.distanceTo(target);
 
     if (this.minRange !== -1 && dist < this.minRange) {
       return false;

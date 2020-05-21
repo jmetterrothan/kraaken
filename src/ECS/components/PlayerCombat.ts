@@ -10,8 +10,8 @@ export class PlayerCombat implements Component {
 
   public usingPrimaryWeapon: boolean = false;
 
-  public _weapon: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "energy_bolt", speed: 225, ttl: 1000 }, //
+  private _weapon: ProjectileWeapon = new ProjectileWeapon({
+    projectile: { type: "energy_bolt", speed: 275, ttl: 1000 }, //
     rate: 500,
     maxAmmo: 32,
     fireSFX: "laser",
@@ -19,7 +19,7 @@ export class PlayerCombat implements Component {
     maxRange: 480,
   });
 
-  public _weapon2: ProjectileWeapon = new ProjectileWeapon({
+  private _weapon2: ProjectileWeapon = new ProjectileWeapon({
     projectile: { type: "health_potion", speed: 350, ttl: 10000 }, //
     rate: 75,
     maxAmmo: 32,
@@ -28,7 +28,11 @@ export class PlayerCombat implements Component {
     maxRange: 480,
   });
 
-  public get weapon(): Weapon {
+  public get primaryWeapon(): ProjectileWeapon {
+    return this._weapon;
+  }
+
+  public get secondaryWeapon(): ProjectileWeapon {
     return this._weapon2;
   }
 

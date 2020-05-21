@@ -9,8 +9,8 @@ import Bundle from "@src/ECS/Bundle";
 import ComponentFactory from "@src/ECS/ComponentFactory";
 
 import { PlayerMovementSystem, PlayerCombatSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem, ConsummableSystem } from "@src/ECS/systems";
-import { Position, Health, Animator, BoundingBox, Camera, RigidBody } from "@src/ECS/components";
-import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, POSITION_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
+import { Position, Animator, BoundingBox, Camera, RigidBody, PlayerInput } from "@src/ECS/components";
+import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SoundManager from "@src/animation/SoundManager";
@@ -46,6 +46,7 @@ class World {
   public tileMap: TileMap;
   public gravity: number;
   public player: Entity;
+  public aimEntity: Entity;
 
   private _bundles: Map<string, Bundle> = new Map();
   // TODO: improve efficiency
@@ -56,8 +57,6 @@ class World {
 
   private _cameras: Entity[] = [];
   private _activeCameraIndex: number = 0;
-
-  public aim: Vector2 = new Vector2(0, 0);
 
   constructor(blueprint: IWorldBlueprint) {
     this.blueprint = blueprint;
@@ -103,6 +102,8 @@ class World {
     const camera = new Entity("camera").addComponent(new Position()).addComponent(cameraComponent);
     this.addCamera(camera, true);
     this.followEntity(camera, this.player);
+
+    this.aimEntity = this.spawn({ type: "crosshair", position: { x: 0, y: 0 } });
 
     console.info("World initialized");
   }
@@ -283,6 +284,11 @@ class World {
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].execute(delta);
     }
+
+    const aimPosition = this.aimEntity.getComponent<Position>(POSITION_COMPONENT);
+    const playerPosition = this.player.getComponent<Position>(POSITION_COMPONENT);
+    const playerInput = this.player.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
   }
 
   public render(alpha: number) {
@@ -320,8 +326,7 @@ class World {
   }
 
   public handleMouseMove(position: vec2) {
-    const coords = this.screenToCameraCoords(position);
-    this.aim.fromValues(coords.x, coords.y);
+    // const coords = this.screenToCameraCoords(position);
   }
 
   public handleFullscreenChange(b: boolean) {}

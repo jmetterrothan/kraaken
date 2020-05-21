@@ -19,8 +19,12 @@ export class PlayerCombatSystem extends System {
       const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
-      if (input.use) {
-        combat.weapon.update(this.world, entity);
+      if (input.usePrimary && combat.primaryWeapon) {
+        combat.primaryWeapon.update(this.world, entity);
+      }
+
+      if (input.useSecondary && combat.secondaryWeapon) {
+        combat.secondaryWeapon.update(this.world, entity);
       }
     });
   }

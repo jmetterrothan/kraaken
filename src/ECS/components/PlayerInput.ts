@@ -11,9 +11,13 @@ export class PlayerInput implements Component {
   public right: boolean = false;
   public up: boolean = false;
   public down: boolean = false;
-  public use: boolean = false;
 
-  public aim: Vector2 = new Vector2();
+  public usePrimary: boolean = false;
+  public useSecondary: boolean = false;
+
+  public aim: Vector2 = new Vector2(0, 0);
+
+  public gamepadIndex: number = 0;
 
   public toString(): string {
     return `Player input`;
