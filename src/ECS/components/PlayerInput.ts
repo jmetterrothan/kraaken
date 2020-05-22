@@ -11,6 +11,7 @@ export class PlayerInput implements Component {
   public right: boolean = false;
   public up: boolean = false;
   public down: boolean = false;
+  public hold: boolean = false;
 
   public usePrimary: boolean = false;
   public useSecondary: boolean = false;

@@ -152,16 +152,18 @@ export class PlayerInputSystem extends System {
       const x = controller.axes[0];
       const y = controller.axes[1];
 
-      if (x >= 0.5) {
-        input.right = true;
-      } else {
-        input.right = false;
-      }
+      if (!input.hold) {
+        if (x >= 0.5) {
+          input.right = true;
+        } else {
+          input.right = false;
+        }
 
-      if (x <= -0.5) {
-        input.left = true;
-      } else {
-        input.left = false;
+        if (x <= -0.5) {
+          input.left = true;
+        } else {
+          input.left = false;
+        }
       }
 
       input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
@@ -205,9 +207,13 @@ export class PlayerInputSystem extends System {
             break;
 
           case 6: // LT
+            input.hold = active;
             break;
 
           case 7: // RT
+            break;
+
+          case 10: // axis button
             break;
 
           case 12: // up arrow
