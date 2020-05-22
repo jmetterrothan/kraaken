@@ -2,15 +2,20 @@ import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
 
+import Entity from "@src/ECS/Entity";
+import { Position, Sprite } from "@src/ECS/components";
+import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
+
 import State from "@src/states/State";
-import World from "@src/world/World";
+import World, { loadData } from "@src/world/World";
 import Tile from "@src/world/Tile";
-import { loadData } from "@src/world/World";
 
 import EditorUi from "@src/states/EditorState/EditorUi";
 
 import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@shared/models/tilemap.model";
+
+import Vector2 from "@shared/math/Vector2";
 
 import { DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
@@ -34,11 +39,14 @@ import * as utility from "@src/shared/utility/Utility";
 class EditorState extends State {
   public readonly id: number;
 
-  private ready: boolean;
-  private world: World;
+  private ready: boolean = false;
+  private mouse: Vector2 = new Vector2(0, 0);
 
-  private undoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }>;
-  private redoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }>;
+  private world: World;
+  private cursor: Entity;
+
+  private undoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }> = new Fifo();
+  private redoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }> = new Fifo();
 
   private selectedTileTypeId: string | undefined;
   private selectedLayerId: ILayerId;
@@ -48,7 +56,6 @@ class EditorState extends State {
     super();
 
     this.id = id;
-    this.ready = false;
   }
 
   public async init() {
@@ -62,10 +69,9 @@ class EditorState extends State {
 
     this.world = new World(data);
 
-    this.undoStack = new Fifo();
-    this.redoStack = new Fifo();
-
     await this.world.init();
+
+    this.cursor = this.world.spawn({ type: "cursor" });
 
     this.ready = true;
 
@@ -218,6 +224,21 @@ class EditorState extends State {
 
   public update(delta: number) {
     if (this.ready) {
+      const position = this.cursor.getComponent<Position>(POSITION_COMPONENT);
+      const sprite = this.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
+
+      const tile = this.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
+
+      if (tile) {
+        const x = tile.x1 + tile.size / 2;
+        const y = tile.y1 + tile.size / 2 + 1;
+
+        position.fromValues(x, y);
+        sprite.visible = true;
+      } else {
+        sprite.visible = false;
+      }
+
       this.world.update(delta);
     }
   }
@@ -310,6 +331,8 @@ class EditorState extends State {
   }
 
   public handleMouseMove(position: vec2) {
+    this.mouse = this.world.screenToCameraCoords(position);
+
     if (this.ready) {
       this.world.handleMouseMove(position);
     }

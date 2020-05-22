@@ -22,11 +22,15 @@ export class RenderingSystem extends System {
         return;
       }
 
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+
+      if (!sprite.visible) {
+        return;
+      }
+
+      const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
       const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-      const playerInput = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
       if (position.shouldUpdateTransform) {
         const offsetX = -sprite.atlas.tileWidth / 2;

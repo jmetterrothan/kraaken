@@ -15,7 +15,7 @@ export class PlayerInput implements Component {
   public usePrimary: boolean = false;
   public useSecondary: boolean = false;
 
-  public aim: Vector2 = new Vector2(0, 0);
+  public aim: Vector2 = new Vector2(16, -16);
 
   public gamepadIndex: number = 0;
 

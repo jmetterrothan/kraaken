@@ -71,6 +71,12 @@
       "name": "bat",
       "tileWidth": 16,
       "tileHeight": 16
+    },
+    {
+      "src": "http://files.metter-rothan.fr/kraken/level0/graphics/cursors.png",
+      "name": "cursors",
+      "tileWidth": 16,
+      "tileHeight": 16
     }
   ],
   "sounds": [

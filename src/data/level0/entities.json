@@ -116,7 +116,11 @@
   },
   {
     "type": "crosshair",
-    "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "star_effects", "row": 2, "col": 0, "align": "center" } }]
+    "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 0, "align": "center" } }]
+  },
+  {
+    "type": "cursor",
+    "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 1, "align": "center" } }]
   },
   {
     "type": "star_effect_2",

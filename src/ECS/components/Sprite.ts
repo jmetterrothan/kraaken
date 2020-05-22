@@ -20,6 +20,8 @@ interface ISpriteMetadata {
 export class Sprite implements Component {
   public readonly type: symbol = SPRITE_COMPONENT;
 
+  public visible: boolean = true;
+
   public row: number;
   public col: number;
 
