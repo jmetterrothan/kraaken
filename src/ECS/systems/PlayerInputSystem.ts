@@ -164,6 +164,9 @@ export class PlayerInputSystem extends System {
         } else {
           input.left = false;
         }
+      } else {
+        input.left = false;
+        input.right = false;
       }
 
       input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
