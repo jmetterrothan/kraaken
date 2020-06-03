@@ -191,7 +191,7 @@
       "direction": { "x": 1, "y": 1 }
     },
     {
-      "type": "bat",
+      "type": "ghost",
       "uuid": "9",
       "position": { "x": 500, "y": 280 },
       "direction": { "x": -1, "y": 1 }
@@ -209,10 +209,10 @@
       "direction": { "x": 1, "y": 1 }
     },
     {
-      "type": "dino",
+      "type": "skeleton",
       "uuid": "12",
       "position": { "x": 500, "y": 300 },
-      "direction": { "x": -1, "y": 1 }
+      "direction": { "x": 1, "y": 1 }
     },
     {
       "type": "ghost",

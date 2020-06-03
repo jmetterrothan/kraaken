@@ -7,7 +7,7 @@
       "tileHeight": 16
     },
     {
-      "src": "http://files.metter-rothan.fr/kraken/level1/graphics/items.png",
+      "src": "http://files.metter-rothan.fr/kraken/level0/graphics/items.png",
       "name": "items",
       "tileWidth": 16,
       "tileHeight": 16
@@ -69,6 +69,12 @@
     {
       "src": "http://files.metter-rothan.fr/kraken/level0/graphics/bat.png",
       "name": "bat",
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "src": "http://files.metter-rothan.fr/kraken/level0/graphics/skeleton.png",
+      "name": "skeleton",
       "tileWidth": 16,
       "tileHeight": 16
     },

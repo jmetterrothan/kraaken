@@ -20,24 +20,27 @@ export class PlayerAnimator extends Animator {
     const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
     const health = entity.getComponent<Health>(HEALTH_COMPONENT);
 
-    if (health && health.isDead) {
+    if (health.isDead) {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
     }
-
-    if (input && input.usePrimary && combat.primaryWeapon.canBeUsed(entity)) {
+    // shooting
+    if (input.usePrimary && combat.primaryWeapon.canBeUsed(entity)) {
       return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
     }
-
-    if (movement) {
-      if (movement.falling) {
-        return `${entity.type}:${PlayerAnimationKeys.FALLING}`;
-      }
-      if (movement.jumping) {
-        return `${entity.type}:${PlayerAnimationKeys.JUMPING}`;
-      }
-      if (movement.walking) {
-        return `${entity.type}:${PlayerAnimationKeys.WALKING}`;
-      }
+    // vertical movement
+    if (movement.falling) {
+      return `${entity.type}:${PlayerAnimationKeys.FALLING}`;
+    }
+    if (movement.jumping) {
+      return `${entity.type}:${PlayerAnimationKeys.JUMPING}`;
+    }
+    // aiming
+    if (input.hold && !movement.falling && !movement.jumping && !movement.walking) {
+      return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+    }
+    // walk cycle
+    if (movement.walking) {
+      return `${entity.type}:${PlayerAnimationKeys.WALKING}`;
     }
 
     return `${entity.type}:${PlayerAnimationKeys.IDLE}`;

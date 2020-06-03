@@ -103,7 +103,7 @@ class World {
     this.addCamera(camera, true);
     this.followEntity(camera, this.player);
 
-    this.aimEntity = this.spawn({ type: "crosshair", position: { x: 0, y: 0 } });
+    this.aimEntity = this.spawn({ type: "crosshair" });
 
     console.info("World initialized");
   }

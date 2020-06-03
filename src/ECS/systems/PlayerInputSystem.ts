@@ -169,8 +169,8 @@ export class PlayerInputSystem extends System {
         input.right = false;
       }
 
-      input.aim.x += Math.abs(x) >= 0.1 ? x * 450 * delta : 0;
-      input.aim.y += Math.abs(y) >= 0.1 ? y * 450 * delta : 0;
+      input.aim.x += Math.abs(x) >= 0.15 ? x * 450 * delta : 0;
+      input.aim.y += Math.abs(y) >= 0.15 ? y * 450 * delta : 0;
 
       // contrains crosshair position
       const origin = Vector2.create(0, 0);

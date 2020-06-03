@@ -233,7 +233,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState(0));
     this.stateManager.add(GameStates.EDITOR, new EditorState(0));
 
-    this.stateManager.switch(GameStates.LEVEL);
+    this.stateManager.switch(GameStates.EDITOR);
 
     this.resize(this.options.width, this.options.height);
   }

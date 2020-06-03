@@ -20,7 +20,7 @@ export class PlayerCombat implements Component {
   });
 
   private _weapon2: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "health_potion", speed: 350, ttl: 10000 }, //
+    projectile: { type: "grenade", speed: 350, ttl: 10000 }, //
     rate: 75,
     maxAmmo: 32,
     fireSFX: "laser",
