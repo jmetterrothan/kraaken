@@ -16,19 +16,21 @@ interface IPlayerMovementMetadata {
 export class PlayerMovement implements Component {
   public readonly type: symbol = PLAYER_MOVEMENT_COMPONENT;
 
-  public climbing: boolean = false;
-  public falling: boolean = false;
-  public jumping: boolean = false;
-  public walking: boolean = false;
-  public idle: boolean = true;
+  public climbing = false;
+  public falling = false;
+  public jumping = false;
+  public walking = false;
+  public idle = true;
 
-  public isGrounded: boolean = false;
+  public isGrounded = false;
 
   public readonly initialJumpBoost: number;
   public readonly jumpSpeed: number;
   public readonly speed: number;
   public readonly acceleration: number;
   public readonly deceleration: number;
+
+  public lastEffectTime: number;
 
   public jumpSFX: Howl | undefined;
 
@@ -38,6 +40,8 @@ export class PlayerMovement implements Component {
     this.speed = speed ?? 0;
     this.acceleration = acceleration ?? 0;
     this.deceleration = deceleration ?? 0;
+
+    this.lastEffectTime = 0;
 
     if (jumpSFX) {
       this.jumpSFX = SoundManager.create(jumpSFX, {

@@ -1,8 +1,7 @@
 import { Observable, Subject } from "rxjs";
+import { v4 as uuidv4 } from 'uuid';
 
 import Component from "./Component";
-
-import * as utility from "@src/shared/utility/Utility";
 
 class Entity {
   public readonly type: string;
@@ -12,7 +11,7 @@ class Entity {
   private readonly _componentAddedSubject$ = new Subject<Component>();
   private readonly _componentRemovedSubject$ = new Subject<Component>();
 
-  public constructor(type: string, uuid: string = utility.uuid()) {
+  public constructor(type: string, uuid: string = uuidv4()) {
     this.type = type;
     this.uuid = uuid;
   }

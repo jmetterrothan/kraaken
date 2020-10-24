@@ -22,7 +22,7 @@ module.exports = {
         test: /\.tsx?$/,
         enforce: "pre",
         exclude: "/node_modules/",
-        use: [{ loader: "babel-loader" }, { loader: "tslint-loader" }],
+        use: [{ loader: "babel-loader" }, { loader: "eslint-loader" }],
       },
       {
         test: /\.(css|scss|sass)$/,

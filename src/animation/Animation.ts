@@ -90,7 +90,7 @@ class Animation {
     }
   }
 
-  public update() {
+  public update(): void {
     const now = window.performance.now();
 
     if (this.time === -1) {

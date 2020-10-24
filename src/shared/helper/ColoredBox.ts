@@ -35,7 +35,7 @@ class ColoredBox {
     u_color: { type: "4fv", value: undefined },
   };
 
-  public async init() {
+  public async init(): Promise<void> {
     for (const key in this.uniforms) {
       if (this.uniforms[key]) {
         this.uniforms[key].location = gl.getUniformLocation(this.colorMaterial.program, key);
@@ -45,14 +45,14 @@ class ColoredBox {
     this.setup();
   }
 
-  public use() {
+  public use(): void {
     gl.useProgram(this.colorMaterial.program);
 
     gl.bindVertexArray(this.vao);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, color: Color) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, color: Color): void {
     this.setUniform("u_mvp", mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
     this.setUniform("u_color", color.toVec4());
 

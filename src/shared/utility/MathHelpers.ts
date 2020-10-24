@@ -40,7 +40,7 @@ export const lerp2 = (a: number, b: number, t: number): number => {
 };
 
 // return the point of intersection between two segments or undefined, see https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-export const linesIntersection = (x1, y1, x2, y2, x3, y3, x4, y4): Vector2 | undefined => {
+export const linesIntersection = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): Vector2 | undefined => {
   const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
   const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
 

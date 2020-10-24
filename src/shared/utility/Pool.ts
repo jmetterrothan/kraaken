@@ -3,11 +3,11 @@ import Fifo from "@src/shared/utility/Fifo";
 class Pool<T> {
   private objects: Fifo<T> = new Fifo();
 
-  borrow() {
+  borrow(): T {
     return this.objects.pop();
   }
 
-  release(object: T) {
+  release(object: T): void {
     this.objects.push(object);
   }
 }

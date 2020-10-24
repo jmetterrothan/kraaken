@@ -1,6 +1,6 @@
 import React from "react";
 
-const Ui = ({ children }) => {
+const Ui: React.FC = ({ children }) => {
   return <div className="ui">{children}</div>;
 };
 

@@ -57,7 +57,7 @@ class TileMap {
     return Object.values(this.tileTypes).find((tileType) => tileType.key === key);
   }
 
-  public buildTiles(layers: ITileMapLayers) {
+  public buildTiles(layers: ITileMapLayers): void {
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         // convert 1d array of tiles to a 2d array
@@ -91,7 +91,7 @@ class TileMap {
     }
   }
 
-  public init() {
+  public init(): void {
     this.atlas = SpriteManager.get(this.tileSet);
   }
 
@@ -99,7 +99,7 @@ class TileMap {
     return row * this.nbCols + col;
   }
 
-  public update(world: World, delta: number) {
+  public update(world: World, delta: number): void {
     const center = world.camera.getComponent<Position>(POSITION_COMPONENT);
 
     this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
@@ -121,7 +121,7 @@ class TileMap {
     }
   }
 
-  public render(viewProjectionMatrix: mat3, alpha: number) {
+  public render(viewProjectionMatrix: mat3, alpha: number): void {
     this.atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
@@ -147,7 +147,7 @@ class TileMap {
     }
   }
 
-  public floodFill(originRow: number, originCol: number, predicate: (tile?: Tile) => boolean) {
+  public floodFill(originRow: number, originCol: number, predicate: (tile?: Tile) => boolean): any[] {
     const stack = [];
 
     const fn = (row: number, col: number) => {

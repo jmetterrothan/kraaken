@@ -1,7 +1,7 @@
 import Stack from "@shared/utility/Stack";
 
 class Lifo<T> extends Stack<T> {
-  public push(item: T) {
+  public push(item: T): void {
     this.size++;
     this.list.push(item);
   }

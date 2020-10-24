@@ -43,7 +43,7 @@ export class PhysicsSystem extends System {
     });
   }
 
-  public clampToMap(entity: Entity) {
+  public clampToMap(entity: Entity): void {
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
     const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
@@ -81,7 +81,7 @@ export class PhysicsSystem extends System {
     position.fromValues(x, y);
   }
 
-  public collideWithMap(entity: Entity, delta: number) {
+  public collideWithMap(entity: Entity, delta: number): void {
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
     const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);

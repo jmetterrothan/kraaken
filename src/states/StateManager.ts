@@ -11,7 +11,7 @@ class StateManager {
     this.currentIndex = -1;
   }
 
-  public add(index: number, state: State) {
+  public add(index: number, state: State): void {
     if (this.states.has(index)) {
       throw new Error(
         `State manager has already a State defined @ index "${index}"`
@@ -21,25 +21,25 @@ class StateManager {
     this.states.set(index, state);
   }
 
-  public update(delta: number) {
+  public update(delta: number): void {
     if (this.currentState.ready) {
       this.currentState.update(delta);
     }
   }
 
-  public render(alpha: number) {
+  public render(alpha: number): void {
     if (this.currentState.ready) {
       this.currentState.render(alpha);
     }
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean): void {
     if (this.currentState.ready) {
       this.currentState.handleKeyboardInput(key, active);
     }
   }
 
-  public handleMousePressed(button: number, active: boolean, position: vec2) {
+  public handleMousePressed(button: number, active: boolean, position: vec2): void {
     if (this.currentState.ready) {
       if (button === 0) {
         this.currentState.handleMouseLeftBtnPressed(active, position);
@@ -51,25 +51,25 @@ class StateManager {
     }
   }
 
-  public handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2): void {
     if (this.currentState.ready) {
       this.currentState.handleMouseMove(position);
     }
   }
 
-  public handleFullscreenChange(b: boolean) {
+  public handleFullscreenChange(b: boolean): void {
     if (this.currentState.ready) {
       this.currentState.handleFullscreenChange(b);
     }
   }
 
-  public handleResize() {
+  public handleResize(): void {
     if (this.currentState.ready) {
       this.currentState.handleResize();
     }
   }
 
-  public async switch(index: number) {
+  public async switch(index: number): Promise<void> {
     if (!this.states.has(index)) {
       throw new Error(`Invalid state index provided "${index}"`);
     }

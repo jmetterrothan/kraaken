@@ -8,7 +8,7 @@ import { ILayerId } from "@src/shared/models/tilemap.model";
 
 export type ModeChangeEvent = CustomEvent<{ mode: EditorMode }>;
 
-export const dispatch = <T>(event: CustomEvent<T>) => {
+export const dispatch = <T>(event: CustomEvent<T>): void => {
   console.info(`Dispatched "${event.type}"`);
   window.dispatchEvent(event);
 };
@@ -23,7 +23,7 @@ export const modeChange = (mode: EditorMode): ModeChangeEvent => {
 
 export type TileTypeChangeEvent = CustomEvent<{ id: string }>;
 
-export const tileTypeChange = (id: string) => {
+export const tileTypeChange = (id: string): TileTypeChangeEvent => {
   return new CustomEvent(CHANGE_TILETYPE_EVENT, {
     detail: {
       id,
@@ -33,7 +33,7 @@ export const tileTypeChange = (id: string) => {
 
 export type LayerChangeEvent = CustomEvent<{ id: ILayerId }>;
 
-export const layerChange = (id: ILayerId) => {
+export const layerChange = (id: ILayerId): LayerChangeEvent => {
   return new CustomEvent(CHANGE_LAYER_EVENT, {
     detail: {
       id,
@@ -51,7 +51,7 @@ interface IPlaceEventDetails extends IEventDetails {
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: ILayerId, tileType: string, position: IVector2[] | IVector2, pushToStack: boolean = true): PlaceEvent => {
+export const placeEvent = (layer: ILayerId, tileType: string, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(PLACE_EVENT, {
     detail: {
       coords: Array.isArray(position) ? position : [position],
@@ -70,7 +70,7 @@ interface ISpawnEventDetails extends IEventDetails {
 
 export type SpawnEvent = CustomEvent<ISpawnEventDetails>;
 
-export const spawnEvent = (uuid: string, type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, debug = false, pushToStack: boolean = true): SpawnEvent => {
+export const spawnEvent = (uuid: string, type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, debug = false, pushToStack = true): SpawnEvent => {
   return new CustomEvent<ISpawnEventDetails>(SPAWN_EVENT, {
     detail: {
       spawnpoint: {
@@ -93,7 +93,7 @@ interface IDespawnEventDetails {
 
 export type DespawnEvent = CustomEvent<IDespawnEventDetails>;
 
-export const despawnEvent = (uuid: string) => {
+export const despawnEvent = (uuid: string): DespawnEvent => {
   return new CustomEvent<IDespawnEventDetails>(DESPAWN_EVENT, {
     detail: {
       uuid,

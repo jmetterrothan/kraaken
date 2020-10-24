@@ -2,6 +2,8 @@ import React from "react";
 
 import "./ToolbarSeparator.scss";
 
-export default () => {
+const ToolbarSeparator: React.FC = () => {
   return <div className="toolbar-separator" />;
 };
+
+export default ToolbarSeparator;

@@ -14,12 +14,12 @@ export interface IPositionMetadata {
 export class Position extends Vector2 implements Component {
   public readonly type: symbol = POSITION_COMPONENT;
 
-  public rotation: number = 0;
+  public rotation = 0;
 
   public transform: mat3 = mat3.create();
   public previousValue: Vector2 = new Vector2();
 
-  private _shouldUpdateTransform: boolean = true;
+  private _shouldUpdateTransform = true;
 
   public constructor({ x, y }: IPositionMetadata = {}) {
     super(x ?? 0, y ?? 0);

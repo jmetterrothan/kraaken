@@ -6,7 +6,7 @@ class Box2 {
   private _min: Vector2;
   private _max: Vector2;
 
-  constructor(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
+  constructor(x = 0, y = 0, w = 1, h = 1) {
     this._min = Vector2.create(x - w / 2, y - h / 2);
     this._max = Vector2.create(x + w / 2, y + h / 2);
   }
@@ -48,7 +48,7 @@ class Box2 {
     return;
   }
 
-  public setPosition(x: number, y: number) {
+  public setPosition(x: number, y: number): void {
     const hw = this.width / 2;
     const hh = this.height / 2;
 
@@ -62,16 +62,16 @@ class Box2 {
     return Vector2.create(this.x, this.y);
   }
 
-  public setPositionFromVector2(v: Vector2) {
+  public setPositionFromVector2(v: Vector2): void {
     this.setPosition(v.x, v.y);
   }
 
-  public setMin(x: number, y: number) {
+  public setMin(x: number, y: number): void {
     this._min.x = x;
     this._min.y = y;
   }
 
-  public setMax(x: number, y: number) {
+  public setMax(x: number, y: number): void {
     this._max.x = x;
     this._max.y = y;
   }

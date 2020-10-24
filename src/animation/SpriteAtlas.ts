@@ -21,10 +21,10 @@ class SpriteTexture {
   public readonly tileWidth: number;
   public readonly tileHeight: number;
 
-  private width: number = -1;
-  private height: number = -1;
+  private width = -1;
+  private height = -1;
 
-  private loaded: boolean = false;
+  private loaded = false;
 
   private texture: WebGLTexture = gl.createTexture();
 
@@ -58,7 +58,7 @@ class SpriteTexture {
     this.tileHeight = th;
   }
 
-  public async init() {
+  public async init(): Promise<void> {
     for (const key in this.uniforms) {
       if (this.uniforms[key]) {
         this.uniforms[key].location = gl.getUniformLocation(this.textureMaterial.program, key);
@@ -74,7 +74,7 @@ class SpriteTexture {
     this.setup(image);
   }
 
-  public use() {
+  public use(): void {
     gl.useProgram(this.textureMaterial.program);
 
     gl.bindVertexArray(this.vao);
@@ -82,7 +82,7 @@ class SpriteTexture {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters) {
+  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
     if (this.loaded) {
       const dx = (parameters.reflect && (direction?.x ?? 1)) < 0 ? -1 : 1;
       const dy = (parameters.reflect && (direction?.y ?? 1)) < 0 ? -1 : 1;

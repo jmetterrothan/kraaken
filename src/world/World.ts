@@ -56,13 +56,13 @@ class World {
   private renderer: System;
 
   private _cameras: Entity[] = [];
-  private _activeCameraIndex: number = 0;
+  private _activeCameraIndex = 0;
 
   constructor(blueprint: IWorldBlueprint) {
     this.blueprint = blueprint;
   }
 
-  public async init() {
+  public async init(): Promise<void> {
     for (const sound of this.blueprint.resources.sounds) {
       SoundManager.register(sound.src, sound.name);
     }
@@ -108,7 +108,7 @@ class World {
     console.info("World initialized");
   }
 
-  public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }) {
+  public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {
     const effect = this.spawn({ type, position, direction });
 
     const animator = effect.getComponent<Animator>(ANIMATOR_COMPONENT);
@@ -190,7 +190,7 @@ class World {
     return this;
   }
 
-  public createBundleIfNotExists(componentTypes: ReadonlyArray<symbol>) {
+  public createBundleIfNotExists(componentTypes: ReadonlyArray<symbol>): string {
     const bundleId = Bundle.generateId(componentTypes);
 
     if (!this._bundles.has(bundleId)) {
@@ -275,11 +275,11 @@ class World {
     throw Error(`Unable to perform remove event on components: ${componentTypes.join(", ")}`);
   }
 
-  public setClearColor(color: IRGBAColorData) {
+  public setClearColor(color: IRGBAColorData): void {
     gl.clearColor(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
   }
 
-  public update(delta: number) {
+  public update(delta: number): void {
     mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
     this.tileMap.update(this, delta);
@@ -295,7 +295,7 @@ class World {
     aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
   }
 
-  public render(alpha: number) {
+  public render(alpha: number): void {
     const cameraComponent = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
     this.viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, cameraComponent.projectionMatrix);
 
@@ -304,49 +304,51 @@ class World {
     this.renderer.execute(alpha);
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean): void {
     if (active) {
       //
     }
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       // console.log("left click");
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       // console.log("middle click");
       this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
     }
   }
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       // console.log("right click");
     }
   }
 
-  public handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2): void {
     // const coords = this.screenToCameraCoords(position);
   }
 
-  public handleFullscreenChange(b: boolean) {}
+  public handleFullscreenChange(b: boolean): void {
+    // ...
+  }
 
-  public handleResize() {
+  public handleResize(): void {
     this.recenterCamera(this.camera);
   }
 
-  public followEntity(camera: Entity, entity: Entity) {
+  public followEntity(camera: Entity, entity: Entity): void {
     const state = camera.getComponent<Camera>(CAMERA_COMPONENT);
     state.follow(entity);
 
     this.recenterCamera(camera);
   }
 
-  public recenterCamera(camera: Entity) {
+  public recenterCamera(camera: Entity): void {
     const state = camera.getComponent<Camera>(CAMERA_COMPONENT);
 
     if (state.target) {
@@ -379,7 +381,7 @@ class World {
     return !camera.viewBox.containsPoint(entityPos);
   }
 
-  public addCamera(camera: Entity, defineAsActive = false) {
+  public addCamera(camera: Entity, defineAsActive = false): void {
     if (!camera.hasComponent(CAMERA_COMPONENT)) {
       throw new Error("Invalid camera entity");
     }
@@ -392,7 +394,7 @@ class World {
     }
   }
 
-  public selectCamera(index: number) {
+  public selectCamera(index: number): void {
     if (index < 0 || index > this._cameras.length - 1) {
       throw new Error("Camera selection index out of range");
     }

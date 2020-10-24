@@ -22,7 +22,7 @@ export abstract class Consummable implements Component {
 
   public target: Entity;
 
-  public consummated: boolean = false;
+  public consummated = false;
 
   public constructor(metadata: IConsummableMetadata = {}) {
     this.radius = metadata.radius ?? 0;

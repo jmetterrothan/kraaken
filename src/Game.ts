@@ -35,7 +35,6 @@ class Game {
   }
 
   get fullscreen(): boolean {
-    // @ts-ignore
     return document.fullscreenElement !== null;
   }
 
@@ -108,7 +107,7 @@ class Game {
     this.targetScale = Game.DEFAULT_SCALE;
   }
 
-  public resize(targetWidth: number, targetHeight: number) {
+  public resize(targetWidth: number, targetHeight: number): void {
     const ratio: number = window.devicePixelRatio || 1;
     const scale: number = Math.round(this.targetScale * ratio);
 
@@ -147,7 +146,7 @@ class Game {
     }
   }
 
-  public on(event: string, callback: CallableFunction) {
+  public on(event: string, callback: CallableFunction): void {
     if (!this.events.has(event)) {
       console.warn(`Event "${event}" does not exist`);
       return;
@@ -156,16 +155,16 @@ class Game {
     this.events.set(event, callback);
   }
 
-  public update(delta: number) {
+  public update(delta: number): void {
     this.stateManager.update(delta);
   }
 
-  public render(alpha: number) {
+  public render(alpha: number): void {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this.stateManager.render(alpha);
   }
 
-  public run() {
+  public run(): void {
     if (this.options.debug) {
       this.stats.begin();
     }

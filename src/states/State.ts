@@ -9,7 +9,7 @@ const registerEvent = (type: string, listener: EventListenerOrEventListenerObjec
 }
 
 abstract class State<O = any> {
-  public ready: boolean = false;
+  public ready = false;
 
   protected $ui: HTMLElement;
 
@@ -27,42 +27,42 @@ abstract class State<O = any> {
   /**
    * Perform actions each time the state is mounted
    */
-  public abstract mounted();
+  public abstract mounted(): void;
 
   /**
    * Perform actions each time the state is unmounted
    */
-  public abstract unmounted();
+  public abstract unmounted(): void;
 
-  public abstract update(delta: number);
+  public abstract update(delta: number): void;
 
-  public abstract render(alpha: number);
+  public abstract render(alpha: number): void;
 
-  public abstract handleKeyboardInput(key: string, active: boolean);
+  public abstract handleKeyboardInput(key: string, active: boolean): void;
 
-  public abstract handleMouseLeftBtnPressed(active: boolean, position: vec2);
+  public abstract handleMouseLeftBtnPressed(active: boolean, position: vec2): void;
 
-  public abstract handleMouseMiddleBtnPressed(active: boolean, position: vec2);
+  public abstract handleMouseMiddleBtnPressed(active: boolean, position: vec2): void;
 
-  public abstract handleMouseRightBtnPressed(active: boolean, position: vec2);
+  public abstract handleMouseRightBtnPressed(active: boolean, position: vec2): void;
 
-  public abstract handleMouseMove(position: vec2);
+  public abstract handleMouseMove(position: vec2): void;
 
-  public abstract handleFullscreenChange(b: boolean);
+  public abstract handleFullscreenChange(b: boolean): void;
 
-  public abstract handleResize();
+  public abstract handleResize(): void;
 
   /**
    * Register an event listener to the state that can be later flushed
    */
-  public registerEvent(type: string, listener: EventListenerOrEventListenerObject) {
+  public registerEvent(type: string, listener: EventListenerOrEventListenerObject): void {
     this.eventCallbackStack.push(registerEvent(type, listener));
   }
 
   /**
    * Remove all event listeners registered in the state
    */
-  public flushEvents() {
+  public flushEvents(): void {
     this.eventCallbackStack.forEach((callback) => {
       callback();
     });

@@ -27,7 +27,7 @@ export class Camera implements Component {
   public projectionMatrixInverse: mat3 = mat3.create();
   public previousPosition: Vector2 = new Vector2();
 
-  public shouldUpdateProjectionMatrix: boolean = true;
+  public shouldUpdateProjectionMatrix = true;
 
   public viewBox: Box2 = new Box2();
 
@@ -44,11 +44,11 @@ export class Camera implements Component {
     this.smoothing = 0.4;
   }
 
-  public follow(target: Entity) {
+  public follow(target: Entity): void {
     this.target = target;
   }
 
-  public unfollow() {
+  public unfollow(): void {
     this.target = undefined;
   }
 

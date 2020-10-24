@@ -9,7 +9,7 @@ class Color {
 
   private _v: vec4;
 
-  constructor(r, g, b, a = 1) {
+  constructor(r: number, g: number, b: number, a = 1) {
     this._v = vec4.fromValues(r, g, b, a);
   }
 

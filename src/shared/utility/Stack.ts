@@ -10,7 +10,7 @@ abstract class Stack<T> {
   /**
    * @param {T} item
    */
-  public abstract push(item: T);
+  public abstract push(item: T): void;
 
   /**
    * @return {T}

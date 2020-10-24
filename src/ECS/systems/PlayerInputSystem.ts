@@ -57,7 +57,7 @@ export class PlayerInputSystem extends System {
     );
   }
 
-  public handleGamepad(e: GamepadEvent, connecting: boolean) {
+  public handleGamepad(e: GamepadEvent, connecting: boolean): void {
     const gamepad = e.gamepad;
 
     if (connecting) {
@@ -69,7 +69,7 @@ export class PlayerInputSystem extends System {
     }
   }
 
-  public handleMouseMove(pos: vec2) {
+  public handleMouseMove(pos: vec2): void {
     const entities = this.world.getEntities(this.componentTypes);
 
     if (entities.length === 0) {
@@ -99,7 +99,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleMouseInput(button: number, active: boolean) {
+  public handleMouseInput(button: number, active: boolean): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;

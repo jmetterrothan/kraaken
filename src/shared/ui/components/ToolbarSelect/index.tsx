@@ -16,7 +16,7 @@ interface IToolbarSelectProps<T> extends Omit<IToolbarButtonprops, "name" | "sho
   options?: IToolbarOption<T>[];
 }
 
-function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: IToolbarSelectProps<T>) {
+function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: IToolbarSelectProps<T>): React.ReactElement {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);

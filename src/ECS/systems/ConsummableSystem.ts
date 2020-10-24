@@ -11,7 +11,7 @@ export class ConsummableSystem extends System {
     super([POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT]);
   }
 
-  tryConsummate(entity: Entity, targets: ReadonlyArray<Entity>) {
+  tryConsummate(entity: Entity, targets: ReadonlyArray<Entity>): void {
     const consummable = entity.getComponent<Consummable>(CONSUMMABLE_COMPONENT);
     const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
@@ -37,7 +37,7 @@ export class ConsummableSystem extends System {
     }
   }
 
-  findTarget(entity: Entity, targets: ReadonlyArray<Entity>) {
+  findTarget(entity: Entity, targets: ReadonlyArray<Entity>): void {
     const consummable = entity.getComponent<Consummable>(CONSUMMABLE_COMPONENT);
 
     if (consummable.target) {

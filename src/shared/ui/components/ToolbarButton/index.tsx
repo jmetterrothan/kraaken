@@ -13,7 +13,7 @@ export interface IToolbarButtonprops {
   onClick?: () => void;
 }
 
-const ToolbarButton: React.FunctionComponent<IToolbarButtonprops> = ({ theme = "blue", name, icon, active, disabled, showCaret, onClick }) => {
+const ToolbarButton: React.FC<IToolbarButtonprops> = ({ theme = "blue", name, icon, active, disabled, showCaret, onClick }) => {
   return (
     <button
       title={name} //

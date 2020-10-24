@@ -11,7 +11,7 @@ interface ISoundProperties {
 class SoundManager {
   private static MAPPING: Map<string, string> = new Map<string, string>();
 
-  public static async register(src: string, name: string) {
+  public static async register(src: string, name: string): Promise<void> {
     if (!src || !name) {
       throw new Error("Invalid sound details");
     }
@@ -19,7 +19,7 @@ class SoundManager {
     SoundManager.MAPPING.set(name, src);
   }
 
-  public static create(name, options: ISoundProperties = {}): Howl {
+  public static create(name: string, options: ISoundProperties = {}): Howl {
     if (!SoundManager.MAPPING.has(name)) {
       throw new Error(`Undefined sound "${name}"`);
     }

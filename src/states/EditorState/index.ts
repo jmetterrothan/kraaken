@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
+import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
 import { Position, Sprite } from "@src/ECS/components";
@@ -36,7 +37,9 @@ import {
 import Fifo from "@src/shared/utility/Fifo";
 import * as utility from "@src/shared/utility/Utility";
 
-class EditorState extends State<{ id: string; }> {
+interface EditorStateOptions { id: number; }
+
+class EditorState extends State<EditorStateOptions> {
   private mouse: Vector2 = new Vector2(0, 0);
 
   private world: World;
@@ -49,7 +52,7 @@ class EditorState extends State<{ id: string; }> {
   private selectedLayerId: ILayerId;
   private selectedMode: EditorMode;
 
-  public async init({ id }) {
+  public async init({ id }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
     this.ready = false;
 
@@ -69,7 +72,7 @@ class EditorState extends State<{ id: string; }> {
     this.initUi();
   }
 
-  public mounted() {
+  public mounted(): void {
     console.info("Editor mounted");
 
     this.registerEvent(UNDO_EVENT, () => {
@@ -188,13 +191,13 @@ class EditorState extends State<{ id: string; }> {
     });
   }
 
-  public unmounted() {
+  public unmounted(): void {
     console.info("Editor unmounted");
 
     this.flushEvents();
   }
 
-  public update(delta: number) {
+  public update(delta: number): void {
     const position = this.cursor.getComponent<Position>(POSITION_COMPONENT);
     const sprite = this.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
 
@@ -213,15 +216,15 @@ class EditorState extends State<{ id: string; }> {
     this.world.update(delta);
   }
 
-  public render(alpha: number) {
+  public render(alpha: number): void {
     this.world.render(alpha);
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean): void {
     this.world.handleKeyboardInput(key, active);
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseLeftBtnPressed(active, position);
 
     if (active) {
@@ -273,7 +276,7 @@ class EditorState extends State<{ id: string; }> {
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseMiddleBtnPressed(active, position);
 
     if (active) {
@@ -282,29 +285,29 @@ class EditorState extends State<{ id: string; }> {
 
       const x = tile.x1 + tile.size / 2;
       const y = tile.y1 + tile.size / 2;
-      dispatch(spawnEvent(utility.uuid(), "coin", { x, y }));
+      dispatch(spawnEvent(uuidv4(), "coin", { x, y }));
     }
   }
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseRightBtnPressed(active, position);
   }
 
-  public handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2): void {
     this.mouse = this.world.screenToCameraCoords(position);
 
     this.world.handleMouseMove(position);
   }
 
-  public handleFullscreenChange(b: boolean) {
+  public handleFullscreenChange(b: boolean): void {
     this.world.handleFullscreenChange(b);
   }
 
-  public handleResize() {
+  public handleResize(): void {
     this.world.handleResize();
   }
 
-  public initUi() {
+  public initUi(): void {
     ReactDOM.render(
       React.createElement(EditorUi, {
         level: this.world.blueprint.level, //

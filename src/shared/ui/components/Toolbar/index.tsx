@@ -2,7 +2,7 @@ import React from "react";
 
 import "./Toolbar.scss";
 
-const Toolbar: React.FunctionComponent = ({ children }) => {
+const Toolbar: React.FC = ({ children }) => {
   return <div className="toolbar">{children}</div>;
 };
 

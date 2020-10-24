@@ -19,7 +19,7 @@ class Vector2 {
     return new Vector2(x, y);
   }
 
-  public static destroy(v: Vector2) {
+  public static destroy(v: Vector2): void {
     Vector2.instances.push(v);
   }
 
@@ -49,14 +49,14 @@ class Vector2 {
     return this;
   }
 
-  public addVectors(a: Vector2, b: Vector2) {
+  public addVectors(a: Vector2, b: Vector2): Vector2 {
     this.x = a.x + b.x;
     this.y = a.y + b.y;
 
     return this;
   }
 
-  public addScaledVector(v: Vector2, s: number) {
+  public addScaledVector(v: Vector2, s: number): Vector2 {
     this.x += v.x * s;
     this.y += v.y * s;
 
@@ -230,7 +230,7 @@ class Vector2 {
     return v.x !== this.x || v.y !== this.y;
   }
 
-  public fromValues(x: number, y: number) {
+  public fromValues(x: number, y: number): Vector2 {
     this.x = x;
     this.y = y;
 
@@ -254,7 +254,7 @@ class Vector2 {
     return this;
   }
 
-  public copy(v: Vector2) {
+  public copy(v: Vector2): Vector2 {
     this.x = v.x;
     this.y = v.y;
 
@@ -289,7 +289,7 @@ class Vector2 {
     return output;
   }
 
-  public toFixed(precision: number) {
+  public toFixed(precision: number): Vector2 {
     const n = 10 ** precision;
     this.x = Math.floor(this.x * n) / n;
     this.y = Math.floor(this.y * n) / n;

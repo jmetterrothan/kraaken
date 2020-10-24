@@ -11,7 +11,7 @@ abstract class System {
 
   public abstract execute(delta: number): void;
 
-  public addedToWorld(world: World) {
+  public addedToWorld(world: World): void {
     this._world = world;
   }
 

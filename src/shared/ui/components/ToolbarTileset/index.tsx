@@ -18,7 +18,7 @@ interface IToolbarTilesetProps {
   scale?: number;
 }
 
-const ToolbarTileset: React.FunctionComponent<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
+const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
   const [tiles, setTiles] = React.useState<string[]>([]);
 
   const ref = React.useRef<HTMLDivElement>(null);

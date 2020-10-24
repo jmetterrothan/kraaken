@@ -44,7 +44,7 @@ class SpriteManager {
     return sprite;
   }
 
-  public static get(alias) {
+  public static get(alias: string): SpriteAtlas {
     if (!SpriteManager.LOADED_SPRITES.has(alias)) {
       throw new Error(`Sprite referenced by alias "${alias}" is missing`);
     }

@@ -8,10 +8,12 @@ import { loadData } from "@src/world/World";
 
 import LevelUi from "./LevelUi";
 
-class LevelState extends State<{ id: string; }> {
+interface LevelStateOptions { id: number; }
+
+class LevelState extends State<LevelStateOptions> {
   private world: World;
 
-  public async init({ id }) {
+  public async init({ id }: LevelStateOptions): Promise<void> {
     console.info("Level initialized");
 
     this.ready = false;
@@ -26,53 +28,53 @@ class LevelState extends State<{ id: string; }> {
     this.initUi();
   }
 
-  public mounted() {
+  public mounted(): void {
     console.info("Level mounted");
   }
 
-  public unmounted() {
+  public unmounted(): void {
     console.info("Level unmounted");
 
     this.flushEvents();
   }
 
-  public update(delta: number) {
+  public update(delta: number): void {
     this.world.update(delta);
   }
 
-  public render(alpha: number) {
+  public render(alpha: number): void {
     this.world.render(alpha);
   }
 
-  public handleKeyboardInput(key: string, active: boolean) {
+  public handleKeyboardInput(key: string, active: boolean): void {
     this.world.handleKeyboardInput(key, active);
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseLeftBtnPressed(active, position);
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseMiddleBtnPressed(active, position);
   }
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseRightBtnPressed(active, position);
   }
 
-  public handleMouseMove(position: vec2) {
+  public handleMouseMove(position: vec2): void {
     this.world.handleMouseMove(position);
   }
 
-  public handleFullscreenChange(b: boolean) {
+  public handleFullscreenChange(b: boolean): void {
     this.world.handleFullscreenChange(b);
   }
 
-  public handleResize() {
+  public handleResize(): void {
     this.world.handleResize();
   }
 
-  public initUi() {
+  public initUi(): void {
     ReactDOM.render(React.createElement(LevelUi, {}), this.$ui);
   }
 }

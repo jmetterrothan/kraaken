@@ -1,7 +1,10 @@
+import Component from '@src/ECS/Component';
+
 import { HealthModifier, PlayerCombat, Fill, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible } from "@src/ECS/components";
 
 class ComponentFactory {
-  public static create(name: string, metadata: any) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public static create(name: string, metadata: any): Component {
     switch (name) {
       case "position":
         return new Position(metadata);
@@ -30,7 +33,7 @@ class ComponentFactory {
       case "collectible":
         return new Collectible(metadata);
       case "player_combat":
-        return new PlayerCombat(metadata);
+        return new PlayerCombat();
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

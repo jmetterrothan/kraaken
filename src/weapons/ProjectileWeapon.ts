@@ -9,12 +9,23 @@ import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@shared/math/Vector2";
 
+interface ProjectileOptions {
+  type: string;
+  speed: number;
+  ttl: number;
+}
+
+interface ProjectileWeaponOptions {
+  projectile?: ProjectileOptions;
+  rate?: number;
+  maxAmmo?: number;
+  minRange?: number;
+  maxRange?: number;
+  fireSFX?: string;
+}
+
 class ProjectileWeapon extends Weapon {
-  public readonly projectile: {
-    type: string;
-    speed: number;
-    ttl: number;
-  };
+  public readonly projectile: ProjectileOptions;
   public readonly maxAmmo: number;
   public readonly rate: number;
   public readonly minRange: number;
@@ -26,7 +37,7 @@ class ProjectileWeapon extends Weapon {
 
   protected fireSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }) {
+  constructor({ projectile, rate = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {
@@ -52,7 +63,7 @@ class ProjectileWeapon extends Weapon {
     }
   }
 
-  public update(world: World, owner: Entity) {
+  public update(world: World, owner: Entity): void {
     if (!this.canBeUsed(owner)) {
       return;
     }
@@ -73,7 +84,7 @@ class ProjectileWeapon extends Weapon {
     }
   }
 
-  protected use(world: World, owner: Entity) {
+  protected use(world: World, owner: Entity): void {
     const position = owner.getComponent<Position>(POSITION_COMPONENT);
     const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
     const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
@@ -117,7 +128,8 @@ class ProjectileWeapon extends Weapon {
       const gamepad = gamepads[playerInput.gamepadIndex];
 
       if (gamepad) {
-        gamepad.vibrationActuator.playEffect("dual-rumble", {
+        // TODO: check on gamepad API evolution
+        (gamepad as any).vibrationActuator.playEffect("dual-rumble", {
           startDelay: 100,
           duration: 150,
           weakMagnitude: 0.75,

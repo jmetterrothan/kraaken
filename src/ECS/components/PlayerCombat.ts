@@ -7,7 +7,7 @@ import ProjectileWeapon from "@src/weapons/ProjectileWeapon";
 export class PlayerCombat implements Component {
   public readonly type: symbol = PLAYER_COMBAT_COMPONENT;
 
-  public usingPrimaryWeapon: boolean = false;
+  public usingPrimaryWeapon = false;
   public primary;
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({

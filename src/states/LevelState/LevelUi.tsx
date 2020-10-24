@@ -4,7 +4,7 @@ import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
-const LevelUi = () => {
+const LevelUi: React.FC = () => {
   return (
     <Ui>
       <Toolbar>

@@ -24,7 +24,7 @@ const createProgram = (
   gl: WebGL2RenderingContext,
   vsSource: string,
   fsSource: string,
-  validate: boolean = false
+  validate = false
 ): WebGLProgram => {
   const vertexShader: WebGLShader = createShader(
     gl,

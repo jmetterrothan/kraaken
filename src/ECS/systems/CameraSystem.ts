@@ -16,7 +16,7 @@ export class CameraSystem extends System {
     super([CAMERA_COMPONENT, POSITION_COMPONENT]);
   }
 
-  public clamp(entity: Entity) {
+  public clamp(entity: Entity): void {
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
 
     if (!camera.boundaries) {
@@ -44,7 +44,7 @@ export class CameraSystem extends System {
     }
   }
 
-  public updateViewBox(entity: Entity) {
+  public updateViewBox(entity: Entity): void {
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
 
     camera.projectionMatrixInverse = mat3.invert(mat3.create(), camera.projectionMatrix);
@@ -61,7 +61,7 @@ export class CameraSystem extends System {
     camera.viewBox.setMax(max[0], max[1]);
   }
 
-  public updatePosition(entity: Entity, delta: number) {
+  public updatePosition(entity: Entity, delta: number): void {
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
 
@@ -90,7 +90,7 @@ export class CameraSystem extends System {
     this.clamp(entity);
   }
 
-  computeProjectionMatrix(entity: Entity) {
+  computeProjectionMatrix(entity: Entity): void {
     const position = entity.getComponent<Position>(POSITION_COMPONENT);
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
 
