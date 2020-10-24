@@ -11,8 +11,6 @@
   "tileMap": {
     "defaultTileType": "12:11",
     "tileSet": "tiles",
-    "cols": 100,
-    "rows": 32,
     "tileSize": 16,
     "tileGroups": {
       "default": { "display": null, "name": "Default" }
@@ -26,6 +24,8 @@
       { "key": "rock_cracked", "row": 12, "col": 13, "group": "default" },
       { "key": "lava", "row": 14, "col": 9, "group": "default" }
     ],
+    "cols": 100,
+    "rows": 32,
     "layers": {
       "layer1": [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
