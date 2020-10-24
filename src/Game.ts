@@ -230,10 +230,14 @@ class Game {
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
-    this.stateManager.add(GameStates.LEVEL, new LevelState(0));
-    this.stateManager.add(GameStates.EDITOR, new EditorState(0));
+    this.stateManager.add(GameStates.LEVEL, new LevelState());
+    this.stateManager.add(GameStates.EDITOR, new EditorState());
 
     this.stateManager.switch(GameStates.EDITOR);
+
+    // Manipulate a game state directly
+    const state = this.stateManager.currentState;
+    state.init({ id: 0 });
 
     this.resize(this.options.width, this.options.height);
   }

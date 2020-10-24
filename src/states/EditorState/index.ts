@@ -36,10 +36,7 @@ import {
 import Fifo from "@src/shared/utility/Fifo";
 import * as utility from "@src/shared/utility/Utility";
 
-class EditorState extends State {
-  public readonly id: number;
-
-  private ready: boolean = false;
+class EditorState extends State<{ id: string; }> {
   private mouse: Vector2 = new Vector2(0, 0);
 
   private world: World;
@@ -52,16 +49,11 @@ class EditorState extends State {
   private selectedLayerId: ILayerId;
   private selectedMode: EditorMode;
 
-  constructor(id: number = 1) {
-    super();
-
-    this.id = id;
-  }
-
-  public async init() {
+  public async init({ id }) {
     console.info("Editor initialized");
+    this.ready = false;
 
-    const data = await loadData(this.id);
+    const data = await loadData(id);
 
     this.selectedLayerId = 1;
     this.selectedMode = EditorMode.PLACE;
@@ -74,10 +66,13 @@ class EditorState extends State {
     this.cursor = this.world.spawn({ type: "cursor" });
 
     this.ready = true;
+    this.initUi();
+  }
 
-    this.initEditorUi();
+  public mounted() {
+    console.info("Editor mounted");
 
-    window.addEventListener(UNDO_EVENT, () => {
+    this.registerEvent(UNDO_EVENT, () => {
       if (!this.undoStack.isEmpty) {
         const action = this.undoStack.pop();
         this.redoStack.push(action);
@@ -85,7 +80,7 @@ class EditorState extends State {
       }
     });
 
-    window.addEventListener(REDO_EVENT, () => {
+    this.registerEvent(REDO_EVENT, () => {
       if (!this.redoStack.isEmpty) {
         const action = this.redoStack.pop();
         this.undoStack.push(action);
@@ -93,19 +88,19 @@ class EditorState extends State {
       }
     });
 
-    window.addEventListener(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
+    this.registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
       this.selectedMode = e.detail.mode;
     });
 
-    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
+    this.registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
       this.selectedTileTypeId = e.detail.id;
     });
 
-    window.addEventListener(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
+    this.registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
       this.selectedLayerId = e.detail.id;
     });
 
-    window.addEventListener(PLACE_EVENT, (e: PlaceEvent) => {
+    this.registerEvent(PLACE_EVENT, (e: PlaceEvent) => {
       const { coords = [], layer, tileType, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       let oldTileType: string;
@@ -146,7 +141,7 @@ class EditorState extends State {
       }
     });
 
-    window.addEventListener(SPAWN_EVENT, (e: SpawnEvent) => {
+    this.registerEvent(SPAWN_EVENT, (e: SpawnEvent) => {
       const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       try {
@@ -176,7 +171,7 @@ class EditorState extends State {
       }
     });
 
-    window.addEventListener(DESPAWN_EVENT, (e: DespawnEvent) => {
+    this.registerEvent(DESPAWN_EVENT, (e: DespawnEvent) => {
       const { uuid, onSuccess, onFailure } = e.detail || {};
 
       try {
@@ -193,12 +188,123 @@ class EditorState extends State {
     });
   }
 
-  public initEditorUi() {
-    const $ui = document.createElement("div");
-    $ui.classList.add("kraken-ui");
+  public unmounted() {
+    console.info("Editor unmounted");
 
-    document.getElementById("game").querySelector(".kraken").appendChild($ui);
+    this.flushEvents();
+  }
 
+  public update(delta: number) {
+    const position = this.cursor.getComponent<Position>(POSITION_COMPONENT);
+    const sprite = this.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
+
+    const tile = this.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
+
+    if (tile) {
+      const x = tile.x1 + tile.size / 2;
+      const y = tile.y1 + tile.size / 2 + 1;
+
+      position.fromValues(x, y);
+      sprite.visible = true;
+    } else {
+      sprite.visible = false;
+    }
+
+    this.world.update(delta);
+  }
+
+  public render(alpha: number) {
+    this.world.render(alpha);
+  }
+
+  public handleKeyboardInput(key: string, active: boolean) {
+    this.world.handleKeyboardInput(key, active);
+  }
+
+  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseLeftBtnPressed(active, position);
+
+    if (active) {
+      const tileMap = this.world.tileMap;
+      const coords = this.world.screenToCameraCoords(position);
+
+      if (this.selectedMode === EditorMode.PICK) {
+        const tile = tileMap.getTileAtCoords(coords.x, coords.y);
+        if (tile && tile.typeId) {
+          dispatch(tileTypeChange(tile.typeId));
+        }
+      } else if (this.selectedMode === EditorMode.PLACE) {
+        dispatch(
+          placeEvent(
+            this.selectedLayerId, //
+            this.selectedTileTypeId,
+            { x: coords.x, y: coords.y }
+          )
+        );
+      } else if (this.selectedMode === EditorMode.ERASE) {
+        dispatch(
+          placeEvent(
+            this.selectedLayerId, //
+            undefined,
+            { x: coords.x, y: coords.y }
+          )
+        );
+      } else if (this.selectedMode === EditorMode.FILL) {
+        const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
+
+        if (targetTile) {
+          const targetId = targetTile.typeId;
+
+          dispatch(
+            placeEvent(
+              this.selectedLayerId, //
+              this.selectedTileTypeId,
+              tileMap
+                .floodFill(targetTile.row, targetTile.col, (tile: Tile) => {
+                  tile.activeSlot = this.selectedLayerId;
+
+                  return tile && tile.typeId === targetId;
+                })
+                .map(({ row, col }) => ({ x: col * tileMap.getTileSize(), y: row * tileMap.getTileSize() }))
+            )
+          );
+        }
+      }
+    }
+  }
+
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseMiddleBtnPressed(active, position);
+
+    if (active) {
+      const coords = this.world.screenToCameraCoords(position);
+      const tile = this.world.tileMap.getTileAtCoords(coords.x, coords.y);
+
+      const x = tile.x1 + tile.size / 2;
+      const y = tile.y1 + tile.size / 2;
+      dispatch(spawnEvent(utility.uuid(), "coin", { x, y }));
+    }
+  }
+
+  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
+    this.world.handleMouseRightBtnPressed(active, position);
+  }
+
+  public handleMouseMove(position: vec2) {
+    this.mouse = this.world.screenToCameraCoords(position);
+
+    this.world.handleMouseMove(position);
+  }
+
+  public handleFullscreenChange(b: boolean) {
+    this.world.handleFullscreenChange(b);
+  }
+
+  public handleResize() {
+    this.world.handleResize();
+  }
+
+  public initUi() {
     ReactDOM.render(
       React.createElement(EditorUi, {
         level: this.world.blueprint.level, //
@@ -210,144 +316,8 @@ class EditorState extends State {
           tileTypeId: this.selectedTileTypeId,
         },
       }),
-      $ui
+      this.$ui
     );
-  }
-
-  public mounted() {
-    console.info("Editor mounted");
-  }
-
-  public unmounted() {
-    console.info("Editor unmounted");
-  }
-
-  public update(delta: number) {
-    if (this.ready) {
-      const position = this.cursor.getComponent<Position>(POSITION_COMPONENT);
-      const sprite = this.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
-
-      const tile = this.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
-
-      if (tile) {
-        const x = tile.x1 + tile.size / 2;
-        const y = tile.y1 + tile.size / 2 + 1;
-
-        position.fromValues(x, y);
-        sprite.visible = true;
-      } else {
-        sprite.visible = false;
-      }
-
-      this.world.update(delta);
-    }
-  }
-
-  public render(alpha: number) {
-    if (this.ready) {
-      this.world.render(alpha);
-    }
-  }
-
-  public handleKeyboardInput(key: string, active: boolean) {
-    if (this.ready) {
-      this.world.handleKeyboardInput(key, active);
-    }
-  }
-
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseLeftBtnPressed(active, position);
-
-      if (active) {
-        const tileMap = this.world.tileMap;
-        const coords = this.world.screenToCameraCoords(position);
-
-        if (this.selectedMode === EditorMode.PICK) {
-          const tile = tileMap.getTileAtCoords(coords.x, coords.y);
-          if (tile && tile.typeId) {
-            dispatch(tileTypeChange(tile.typeId));
-          }
-        } else if (this.selectedMode === EditorMode.PLACE) {
-          dispatch(
-            placeEvent(
-              this.selectedLayerId, //
-              this.selectedTileTypeId,
-              { x: coords.x, y: coords.y }
-            )
-          );
-        } else if (this.selectedMode === EditorMode.ERASE) {
-          dispatch(
-            placeEvent(
-              this.selectedLayerId, //
-              undefined,
-              { x: coords.x, y: coords.y }
-            )
-          );
-        } else if (this.selectedMode === EditorMode.FILL) {
-          const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
-
-          if (targetTile) {
-            const targetId = targetTile.typeId;
-
-            dispatch(
-              placeEvent(
-                this.selectedLayerId, //
-                this.selectedTileTypeId,
-                tileMap
-                  .floodFill(targetTile.row, targetTile.col, (tile: Tile) => {
-                    tile.activeSlot = this.selectedLayerId;
-
-                    return tile && tile.typeId === targetId;
-                  })
-                  .map(({ row, col }) => ({ x: col * tileMap.getTileSize(), y: row * tileMap.getTileSize() }))
-              )
-            );
-          }
-        }
-      }
-    }
-  }
-
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseMiddleBtnPressed(active, position);
-
-      if (active) {
-        const coords = this.world.screenToCameraCoords(position);
-        const tile = this.world.tileMap.getTileAtCoords(coords.x, coords.y);
-
-        const x = tile.x1 + tile.size / 2;
-        const y = tile.y1 + tile.size / 2;
-        dispatch(spawnEvent(utility.uuid(), "coin", { x, y }));
-      }
-    }
-  }
-
-  public handleMouseRightBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseRightBtnPressed(active, position);
-    }
-  }
-
-  public handleMouseMove(position: vec2) {
-    this.mouse = this.world.screenToCameraCoords(position);
-
-    if (this.ready) {
-      this.world.handleMouseMove(position);
-    }
-  }
-
-  public handleFullscreenChange(b: boolean) {
-    if (this.ready) {
-      this.world.handleFullscreenChange(b);
-    }
-  }
-
-  public handleResize() {
-    if (this.ready) {
-      this.world.handleResize();
-    }
   }
 }
 

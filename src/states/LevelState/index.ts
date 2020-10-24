@@ -1,31 +1,29 @@
+import React from "react";
+import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
 import { loadData } from "@src/world/World";
 
-class LevelState extends State {
-  public readonly id: number;
+import LevelUi from "./LevelUi";
 
-  private ready: boolean;
+class LevelState extends State<{ id: string; }> {
   private world: World;
 
-  constructor(id: number = 1) {
-    super();
-
-    this.id = id;
-    this.ready = false;
-  }
-
-  public async init() {
+  public async init({ id }) {
     console.info("Level initialized");
 
-    const data = await loadData(this.id);
-    this.world = new World(data);
+    this.ready = false;
 
+    const data = await loadData(id);
+
+    this.world = new World(data);
     await this.world.init();
 
     this.ready = true;
+
+    this.initUi();
   }
 
   public mounted() {
@@ -34,60 +32,48 @@ class LevelState extends State {
 
   public unmounted() {
     console.info("Level unmounted");
+
+    this.flushEvents();
   }
 
   public update(delta: number) {
-    if (this.ready) {
-      this.world.update(delta);
-    }
+    this.world.update(delta);
   }
 
   public render(alpha: number) {
-    if (this.ready) {
-      this.world.render(alpha);
-    }
+    this.world.render(alpha);
   }
 
   public handleKeyboardInput(key: string, active: boolean) {
-    if (this.ready) {
-      this.world.handleKeyboardInput(key, active);
-    }
+    this.world.handleKeyboardInput(key, active);
   }
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseLeftBtnPressed(active, position);
-    }
+    this.world.handleMouseLeftBtnPressed(active, position);
   }
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseMiddleBtnPressed(active, position);
-    }
+    this.world.handleMouseMiddleBtnPressed(active, position);
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseRightBtnPressed(active, position);
-    }
+    this.world.handleMouseRightBtnPressed(active, position);
   }
 
   public handleMouseMove(position: vec2) {
-    if (this.ready) {
-      this.world.handleMouseMove(position);
-    }
+    this.world.handleMouseMove(position);
   }
 
   public handleFullscreenChange(b: boolean) {
-    if (this.ready) {
-      this.world.handleFullscreenChange(b);
-    }
+    this.world.handleFullscreenChange(b);
   }
 
   public handleResize() {
-    if (this.ready) {
-      this.world.handleResize();
-    }
+    this.world.handleResize();
+  }
+
+  public initUi() {
+    ReactDOM.render(React.createElement(LevelUi, {}), this.$ui);
   }
 }
 
