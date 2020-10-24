@@ -2,6 +2,7 @@ import React from "react";
 
 import { ITileTypes, ITileGroups, ILayerId } from "@src/shared/models/tilemap.model";
 
+import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 import ToolbarTileset from "@src/shared/ui/components/ToolbarTileset";
@@ -14,7 +15,7 @@ import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@s
 
 import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "@src/shared/events";
 
-export default ({ sprites, sounds, level, options }) => {
+const EditorUi = ({ sprites, sounds, level, options }) => {
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);
@@ -71,7 +72,7 @@ export default ({ sprites, sounds, level, options }) => {
   }, []);
 
   return (
-    <div className="ui">
+    <Ui>
       <Toolbar>
         <ToolbarButton
           icon="brush" //
@@ -134,6 +135,8 @@ export default ({ sprites, sounds, level, options }) => {
           disabled={mode === EditorMode.ERASE}
         />
       </Toolbar>
-    </div>
+    </Ui>
   );
 };
+
+export default EditorUi;
