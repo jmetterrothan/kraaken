@@ -4,7 +4,6 @@ import System from "@src/ECS/System";
 import Entity from "@src/ECS/Entity";
 
 import { PlayerInput, Position, PlayerCombat } from "@src/ECS/components";
-
 import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
 import { wrapper, canvas } from "@src/Game";
@@ -17,7 +16,7 @@ const gamepads = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
-    super([PLAYER_INPUT_COMPONENT]);
+    super([POSITION_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT]);
 
     // Mouse events
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
@@ -106,10 +105,12 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+      if (this.world.controlledEntity === entity) {
+        const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
-      if (button === 2) {
-        input.usePrimary = active;
+        if (button === 2) {
+          input.usePrimary = active;
+        }
       }
     });
   }
@@ -121,23 +122,25 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-      switch (key) {
-        case "ArrowLeft":
-          input.left = active;
-          break;
+      if (this.world.controlledEntity === entity) {
+        const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+        switch (key) {
+          case "ArrowLeft":
+            input.left = active;
+            break;
 
-        case "ArrowRight":
-          input.right = active;
-          break;
+          case "ArrowRight":
+            input.right = active;
+            break;
 
-        case "ArrowUp":
-          input.up = active;
-          break;
+          case "ArrowUp":
+            input.up = active;
+            break;
 
-        case "ArrowDown":
-          input.down = active;
-          break;
+          case "ArrowDown":
+            input.down = active;
+            break;
+        }
       }
     });
   }
@@ -224,7 +227,7 @@ export class PlayerInputSystem extends System {
 
           case 13: // down arrow
             break;
-
+          
           case 14: // left arrow
             break;
 
@@ -249,7 +252,9 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      this.handleGamepadInput(entity, controllers, delta);
+      if (this.world.controlledEntity === entity) {
+        this.handleGamepadInput(entity, controllers, delta);
+      }
     });
   }
 }

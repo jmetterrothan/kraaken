@@ -4,7 +4,20 @@ import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
+import { dispatch, editEvent } from "@src/shared/events";
+
+const useLevelActions = () => {
+  return React.useMemo(
+    () => ({
+      edit: (id: number) => dispatch(editEvent(id)),
+    }),
+    []
+  );
+};
+
 const LevelUi: React.FC = () => {
+  const actions = useLevelActions();
+
   return (
     <Ui>
       <Toolbar>
@@ -12,7 +25,7 @@ const LevelUi: React.FC = () => {
           icon="edit" //
           name="Edit level"
           active={false}
-          onClick={undefined}
+          onClick={() => actions.edit(0)}
         />
       </Toolbar>
     </Ui>

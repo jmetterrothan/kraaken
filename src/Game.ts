@@ -1,3 +1,4 @@
+import { LevelStateSwitchEvent, EditorStateSwitchEvent } from './shared/events/index';
 import Stats from "stats-js";
 
 import EditorState from "@src/states/EditorState";
@@ -6,6 +7,8 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 
 import { GameStates, IGameOptions } from "@shared/models/game.model";
+
+import { LEVEL_STATE_SWITCH_EVENT, EDITOR_STATE_SWITCH_EVENT } from '@shared/events/constants';
 
 import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
@@ -232,11 +235,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.EDITOR);
-
-    // Manipulate a game state directly
-    const state = this.stateManager.currentState;
-    state.init({ id: 0 });
+    this.stateManager.switch(GameStates.EDITOR, { id: 0 });
 
     this.resize(this.options.width, this.options.height);
   }
@@ -377,6 +376,15 @@ class Game {
     window.addEventListener("resize", () => {
       // needed if we switch screen and the pixel ratio has changed
       this.refreshScreenSize();
+    });
+
+    // game events
+    window.addEventListener(LEVEL_STATE_SWITCH_EVENT, (e: LevelStateSwitchEvent) => {
+      this.stateManager.switch(GameStates.LEVEL, { id: e.detail.id });
+    });
+
+    window.addEventListener(EDITOR_STATE_SWITCH_EVENT, (e: EditorStateSwitchEvent) => {
+      this.stateManager.switch(GameStates.EDITOR, { id: e.detail.id });
     });
   }
 

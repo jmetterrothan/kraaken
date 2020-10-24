@@ -16,7 +16,9 @@ import { IWorldBlueprint } from "@src/shared/models/world.model";
 
 import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
-import { dispatch, modeChange, tileTypeChange, layerChange, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undo, redo } from "@src/shared/events";
+import { dispatch, modeChangeEvent, tileTypeChangeEvent, layerChangeEvent, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undoEvent, redoEvent, playEvent } from "@src/shared/events";
+
+import { registerEvent } from "@shared/utility/Utility";
 
 interface EditorUiProps {
   sprites: ISpriteData[];
@@ -29,10 +31,29 @@ interface EditorUiProps {
   };
 }
 
+const useEditorActions = () => {
+  return React.useMemo(
+    () => ({
+      setPlaceMode: () => dispatch(modeChangeEvent(EditorMode.PLACE)),
+      setFillMode: () => dispatch(modeChangeEvent(EditorMode.FILL)),
+      setEraseMode: () => dispatch(modeChangeEvent(EditorMode.ERASE)),
+      setPickMode: () => dispatch(modeChangeEvent(EditorMode.PICK)),
+      undo: () => dispatch(undoEvent()),
+      redo: () => dispatch(redoEvent()),
+      selectLayer: (option: IToolbarOption<number>) => dispatch(layerChangeEvent(option.value as ILayerId)),
+      selectTileType: (id: string) => dispatch(tileTypeChangeEvent(id)),
+      play: (id: number) => dispatch(playEvent(id)),
+    }),
+    []
+  );
+};
+
 const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) => {
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);
+
+  const actions = useEditorActions();
 
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileMap.tileSet), []);
 
@@ -47,71 +68,59 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
 
   const tileGroups: ITileGroups = level.tileMap.tileGroups;
 
-  const setPlaceMode = React.useCallback(() => dispatch(modeChange(EditorMode.PLACE)), []);
-
-  const setFillMode = React.useCallback(() => dispatch(modeChange(EditorMode.FILL)), []);
-
-  const setEraseMode = React.useCallback(() => dispatch(modeChange(EditorMode.ERASE)), []);
-
-  const setPickMode = React.useCallback(() => dispatch(modeChange(EditorMode.PICK)), []);
-
-  const handleUndoClick = React.useCallback(() => {
-    dispatch(undo());
-  }, []);
-
-  const handleRedoClick = React.useCallback(() => {
-    dispatch(redo());
-  }, []);
-
-  const handleLayerSelection = React.useCallback((option: IToolbarOption<number>) => {
-    dispatch(layerChange(option.value as ILayerId));
-  }, []);
-
-  const handleTileTypeSelection = React.useCallback((id: string) => {
-    dispatch(tileTypeChange(id));
-  }, []);
-
   React.useEffect(() => {
-    window.addEventListener(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
+    const unsubFromChangeModeEvent = registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
       setMode(e.detail.mode);
     });
 
-    window.addEventListener(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
+    const unsubFromChangeTiletypeEvent = registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
       setTileTypeId(e.detail.id);
     });
 
-    window.addEventListener(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
+    const unsubFromChangeLayerEvent = registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
       setLayerId(e.detail.id);
     });
+
+    return () => {
+      unsubFromChangeModeEvent();
+      unsubFromChangeTiletypeEvent();
+      unsubFromChangeLayerEvent();
+    };
   }, []);
 
   return (
     <Ui>
       <Toolbar>
         <ToolbarButton
+          icon="play" //
+          name="Play level"
+          active={false}
+          onClick={() => actions.play(0)}
+        />
+        <ToolbarButton
           icon="brush" //
           name="Place"
           active={mode === EditorMode.PLACE}
-          onClick={setPlaceMode}
+          onClick={actions.setPlaceMode}
         />
         <ToolbarButton
           icon="fill" //
           name="Fill"
           active={mode === EditorMode.FILL}
-          onClick={setFillMode}
+          onClick={actions.setFillMode}
         />
         <ToolbarButton
           icon="eraser" //
           name="Erase"
           theme="red"
           active={mode === EditorMode.ERASE}
-          onClick={setEraseMode}
+          onClick={actions.setEraseMode}
         />
         <ToolbarButton
           icon="eye-dropper" //
           name="Pick"
           active={mode === EditorMode.PICK}
-          onClick={setPickMode}
+          onClick={actions.setPickMode}
         />
         <ToolbarSeparator />
         <ToolbarButton
@@ -119,21 +128,21 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
           name="Undo"
           active={false}
           disabled={false}
-          onClick={handleUndoClick}
+          onClick={actions.undo}
         />
         <ToolbarButton
           icon="redo" //
           name="Redo"
           active={false}
           disabled={false}
-          onClick={handleRedoClick}
+          onClick={actions.redo}
         />
         <ToolbarSeparator />
         <ToolbarSelect<number>
           icon="layer-group" //
           selected={layerId}
           active={false}
-          onItemClick={handleLayerSelection}
+          onItemClick={actions.selectLayer}
           options={[
             { name: "Layer 1", value: 1 },
             { name: "Layer 2", value: 2 },
@@ -141,7 +150,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
         />
         <ToolbarTileset
           selected={tileTypeId} //
-          onSelect={handleTileTypeSelection}
+          onSelect={actions.selectTileType}
           src={tileSet.src}
           tileSize={tileSet.tileWidth}
           tileTypes={tileTypes}

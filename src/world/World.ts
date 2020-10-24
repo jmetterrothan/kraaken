@@ -8,7 +8,7 @@ import System from "@src/ECS/System";
 import Bundle from "@src/ECS/Bundle";
 import ComponentFactory from "@src/ECS/ComponentFactory";
 
-import { PlayerMovementSystem, PlayerCombatSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, PhysicsSystem, ConsummableSystem } from "@src/ECS/systems";
+import { PlayerMovementSystem, PlayerCombatSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, BasicInputSystem, PhysicsSystem, BasicMovementSystem, ConsummableSystem } from "@src/ECS/systems";
 import { Position, Animator, BoundingBox, Camera, RigidBody, PlayerInput } from "@src/ECS/components";
 import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
 
@@ -47,6 +47,7 @@ class World {
   public gravity: number;
   public player: Entity;
   public aimEntity: Entity;
+  public controlledEntity: Entity;
 
   private _bundles: Map<string, Bundle> = new Map();
   // TODO: improve efficiency
@@ -78,6 +79,8 @@ class World {
     this.addSystem(new AnimationSystem());
     this.addSystem(new ConsummableSystem());
     this.addSystem(new PlayerCombatSystem());
+    this.addSystem(new BasicInputSystem());
+    this.addSystem(new BasicMovementSystem());
 
     this.renderer = new RenderingSystem();
     this.renderer.addedToWorld(this);
@@ -101,9 +104,6 @@ class World {
 
     const camera = new Entity("camera").addComponent(new Position()).addComponent(cameraComponent);
     this.addCamera(camera, true);
-    this.followEntity(camera, this.player);
-
-    this.aimEntity = this.spawn({ type: "crosshair" });
 
     console.info("World initialized");
   }
@@ -288,11 +288,13 @@ class World {
       this._systems[i].execute(delta);
     }
 
-    const aimPosition = this.aimEntity.getComponent<Position>(POSITION_COMPONENT);
-    const playerPosition = this.player.getComponent<Position>(POSITION_COMPONENT);
-    const playerInput = this.player.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    if (this.player && this.aimEntity) {
+      const aimPosition = this.aimEntity.getComponent<Position>(POSITION_COMPONENT);
+      const playerPosition = this.player.getComponent<Position>(POSITION_COMPONENT);
+      const playerInput = this.player.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
-    aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
+      aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
+    }
   }
 
   public render(alpha: number): void {
@@ -341,7 +343,11 @@ class World {
     this.recenterCamera(this.camera);
   }
 
-  public followEntity(camera: Entity, entity: Entity): void {
+  public controlEntity(entity?: Entity): void {
+    this.controlledEntity = entity;
+  }
+
+  public followEntity(entity: Entity, camera: Entity = this.camera): void {
     const state = camera.getComponent<Camera>(CAMERA_COMPONENT);
     state.follow(entity);
 

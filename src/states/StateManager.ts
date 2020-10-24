@@ -69,7 +69,7 @@ class StateManager {
     }
   }
 
-  public async switch(index: number): Promise<void> {
+  public async switch(index: number, options: any = undefined): Promise<void> {
     if (!this.states.has(index)) {
       throw new Error(`Invalid state index provided "${index}"`);
     }
@@ -78,12 +78,22 @@ class StateManager {
       return;
     }
 
-    if (this.states.has(this.currentIndex)) {
-      this.currentState.unmounted();
+    // unmount previous state
+    const currentState = this.currentState;
+    if (typeof currentState !== 'undefined') {
+      currentState.unmounted();
     }
 
     this.currentIndex = index;
-    this.currentState.mounted();
+
+    // mount new state
+    const newState = this.getState(index);
+    newState.ready = false;
+  
+    await newState.init(options);
+  
+    newState.ready = true;
+    newState.mounted();
   }
 
   public getState (index: number): State {

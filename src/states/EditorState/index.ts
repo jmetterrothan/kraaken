@@ -28,25 +28,26 @@ import {
   ModeChangeEvent,
   spawnEvent,
   SpawnEvent,
-  tileTypeChange,
+  tileTypeChangeEvent,
   PlaceEvent,
   despawnEvent,
   DespawnEvent,
 } from "@src/shared/events";
 
 import Fifo from "@src/shared/utility/Fifo";
-import * as utility from "@src/shared/utility/Utility";
 
 interface EditorStateOptions { id: number; }
 
+interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
+
 class EditorState extends State<EditorStateOptions> {
-  private mouse: Vector2 = new Vector2(0, 0);
+  private mouse: Vector2;
 
   private world: World;
   private cursor: Entity;
 
-  private undoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }> = new Fifo();
-  private redoStack: Fifo<{ undo: CustomEvent<any>; redo: CustomEvent<any> }> = new Fifo();
+  private undoStack: Fifo<EventStackItem>;
+  private redoStack: Fifo<EventStackItem>;
 
   private selectedTileTypeId: string | undefined;
   private selectedLayerId: ILayerId;
@@ -54,22 +55,24 @@ class EditorState extends State<EditorStateOptions> {
 
   public async init({ id }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
-    this.ready = false;
 
     const data = await loadData(id);
-
+    
+    this.world = new World(data);
     this.selectedLayerId = 1;
     this.selectedMode = EditorMode.PLACE;
     this.selectedTileTypeId = data.level.tileMap.defaultTileType;
-
-    this.world = new World(data);
+    this.mouse = new Vector2(0, 0);
+    this.undoStack = new Fifo();
+    this.redoStack = new Fifo();
 
     await this.world.init();
 
     this.cursor = this.world.spawn({ type: "cursor" });
 
-    this.ready = true;
-    this.initUi();
+    const dummy = this.world.spawn({ type: "dummy" });
+    this.world.followEntity(dummy);
+    this.world.controlEntity(dummy);
   }
 
   public mounted(): void {
@@ -189,12 +192,31 @@ class EditorState extends State<EditorStateOptions> {
         }
       }
     });
+
+    // init ui
+    ReactDOM.render(
+      React.createElement(EditorUi, {
+        level: this.world.blueprint.level, //
+        sprites: this.world.blueprint.resources.sprites,
+        sounds: this.world.blueprint.resources.sounds,
+        options: {
+          mode: this.selectedMode,
+          layerId: this.selectedLayerId,
+          tileTypeId: this.selectedTileTypeId,
+        },
+      }),
+      this.$ui
+    );
   }
 
   public unmounted(): void {
     console.info("Editor unmounted");
 
+    // remove event listeners
     this.flushEvents();
+
+    // remove ui
+    ReactDOM.unmountComponentAtNode(this.$ui);
   }
 
   public update(delta: number): void {
@@ -234,7 +256,7 @@ class EditorState extends State<EditorStateOptions> {
       if (this.selectedMode === EditorMode.PICK) {
         const tile = tileMap.getTileAtCoords(coords.x, coords.y);
         if (tile && tile.typeId) {
-          dispatch(tileTypeChange(tile.typeId));
+          dispatch(tileTypeChangeEvent(tile.typeId));
         }
       } else if (this.selectedMode === EditorMode.PLACE) {
         dispatch(
@@ -305,22 +327,6 @@ class EditorState extends State<EditorStateOptions> {
 
   public handleResize(): void {
     this.world.handleResize();
-  }
-
-  public initUi(): void {
-    ReactDOM.render(
-      React.createElement(EditorUi, {
-        level: this.world.blueprint.level, //
-        sprites: this.world.blueprint.resources.sprites,
-        sounds: this.world.blueprint.resources.sounds,
-        options: {
-          mode: this.selectedMode,
-          layerId: this.selectedLayerId,
-          tileTypeId: this.selectedTileTypeId,
-        },
-      }),
-      this.$ui
-    );
   }
 }
 

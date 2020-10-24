@@ -123,6 +123,10 @@
     "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 1, "align": "center" } }]
   },
   {
+    "type": "dummy",
+    "components": [{ "name": "position" }, { "name": "basic_input" }]
+  },
+  {
     "type": "star_effect_2",
     "components": [
       { "name": "position" },

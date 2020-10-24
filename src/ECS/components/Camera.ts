@@ -1,6 +1,8 @@
 import { mat3 } from "gl-matrix";
 
 import Entity from "@src/ECS/Entity";
+import { POSITION_COMPONENT } from '@src/ECS/types';
+import { Position } from "@src/ECS/components";
 import Component from "@src/ECS/Component";
 
 import { CAMERA_COMPONENT } from "@src/ECS/types";
@@ -42,6 +44,32 @@ export class Camera implements Component {
   public constructor({ mode }: ICameraMetadata) {
     this.mode = mode ?? CameraMode.LERP_SMOOTHING;
     this.smoothing = 0.4;
+  }
+
+  public clamp(entity: Entity): void {
+    if (!this.boundaries) {
+      return;
+    }
+
+    const position = entity.getComponent<Position>(POSITION_COMPONENT);
+
+    const x1 = this.boundaries.x1 + configSvc.innerSize.w / 2;
+    const x2 = this.boundaries.x2 - configSvc.innerSize.w / 2;
+    const y1 = this.boundaries.y1 + configSvc.innerSize.h / 2;
+    const y2 = this.boundaries.y2 - configSvc.innerSize.h / 2;
+
+    if (position.x < x1) {
+      position.x = x1;
+    }
+    if (position.y < y1) {
+      position.y = y1;
+    }
+    if (position.x > x2) {
+      position.x = x2;
+    }
+    if (position.y > y2) {
+      position.y = y2;
+    }
   }
 
   public follow(target: Entity): void {

@@ -1,12 +1,6 @@
 import { vec2 } from "gl-matrix";
 
-const registerEvent = (type: string, listener: EventListenerOrEventListenerObject): () => void => {
-  window.addEventListener(type, listener);
-
-  return () => {
-    window.removeEventListener(type, listener);
-  };
-}
+import { registerEvent } from '@shared/utility/Utility';
 
 abstract class State<O = any> {
   public ready = false;

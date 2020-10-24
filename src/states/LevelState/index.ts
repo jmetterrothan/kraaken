@@ -16,25 +16,30 @@ class LevelState extends State<LevelStateOptions> {
   public async init({ id }: LevelStateOptions): Promise<void> {
     console.info("Level initialized");
 
-    this.ready = false;
-
     const data = await loadData(id);
 
     this.world = new World(data);
+
     await this.world.init();
-
-    this.ready = true;
-
-    this.initUi();
+    
+    this.world.followEntity(this.world.player);
+    this.world.controlEntity(this.world.player);
+    this.world.aimEntity = this.world.spawn({ type: "crosshair" });
   }
 
   public mounted(): void {
     console.info("Level mounted");
+
+    ReactDOM.render(React.createElement(LevelUi, {}), this.$ui);
   }
 
   public unmounted(): void {
     console.info("Level unmounted");
 
+    // remove ui
+    ReactDOM.unmountComponentAtNode(this.$ui);
+
+    // remove event listeners
     this.flushEvents();
   }
 
@@ -72,10 +77,6 @@ class LevelState extends State<LevelStateOptions> {
 
   public handleResize(): void {
     this.world.handleResize();
-  }
-
-  public initUi(): void {
-    ReactDOM.render(React.createElement(LevelUi, {}), this.$ui);
   }
 }
 

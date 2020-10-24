@@ -4,7 +4,6 @@ import Entity from "@src/ECS/Entity";
 import System from "@src/ECS/System";
 
 import { Position, Camera, CameraMode } from "@src/ECS/components";
-
 import { CAMERA_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
 
 import Vector2 from "@shared/math/Vector2";
@@ -18,30 +17,7 @@ export class CameraSystem extends System {
 
   public clamp(entity: Entity): void {
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
-
-    if (!camera.boundaries) {
-      return;
-    }
-
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-
-    const x1 = camera.boundaries.x1 + configSvc.innerSize.w / 2;
-    const x2 = camera.boundaries.x2 - configSvc.innerSize.w / 2;
-    const y1 = camera.boundaries.y1 + configSvc.innerSize.h / 2;
-    const y2 = camera.boundaries.y2 - configSvc.innerSize.h / 2;
-
-    if (position.x < x1) {
-      position.x = x1;
-    }
-    if (position.y < y1) {
-      position.y = y1;
-    }
-    if (position.x > x2) {
-      position.x = x2;
-    }
-    if (position.y > y2) {
-      position.y = y2;
-    }
+    camera.clamp(entity);
   }
 
   public updateViewBox(entity: Entity): void {

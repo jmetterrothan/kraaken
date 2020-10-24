@@ -33,3 +33,11 @@ export const buttonPressed = (b: GamepadButton): boolean => {
   }
   return b === 1.0;
 };
+
+export const registerEvent = (type: string, listener: EventListenerOrEventListenerObject, target: Window = window): () => void => {
+  target.addEventListener(type, listener);
+
+  return () => {
+    target.removeEventListener(type, listener);
+  };
+}

@@ -6,3 +6,5 @@ export * from "./PlayerInputSystem";
 export * from "./PhysicsSystem";
 export * from "./ConsummableSystem";
 export * from "./PlayerCombatSystem";
+export * from "./BasicInputSystem";
+export * from "./BasicMovementSystem";
