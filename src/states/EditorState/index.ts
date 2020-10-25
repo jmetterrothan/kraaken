@@ -68,11 +68,23 @@ class EditorState extends State<EditorStateOptions> {
 
     await this.world.init();
 
+    // show a cursor following the mouse
     this.cursor = this.world.spawn({ type: "cursor" });
 
-    const dummy = this.world.spawn({ type: "dummy" });
-    this.world.followEntity(dummy);
-    this.world.controlEntity(dummy);
+    // add controllable object with the arrow keys to move the camera around
+    const controllableObject = this.world.spawn({ type: "controllable_object" });
+    this.world.followEntity(controllableObject);
+    this.world.controlEntity(controllableObject);
+
+    // focus on player if it exists
+    const playerSpawnPoint = data.level.spawnpoints.find((spawnpoint) => spawnpoint.uuid === 'player');
+
+    if (playerSpawnPoint) {
+      const { x, y } = playerSpawnPoint.position;
+      const position = controllableObject.getComponent<Position>(POSITION_COMPONENT);
+
+      position.fromValues(x, y);
+    }
   }
 
   public mounted(): void {
