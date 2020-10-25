@@ -1,14 +1,15 @@
+import { IWorldBlueprint } from './../../shared/models/world.model';
 import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
-import { Position, Sprite } from "@src/ECS/components";
+import { Position, Sprite, BasicInput, Camera } from "@src/ECS/components";
 import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
 
 import State from "@src/states/State";
-import World, { loadData } from "@src/world/World";
+import World from "@src/world/World";
 import Tile from "@src/world/Tile";
 
 import EditorUi from "@src/states/EditorState/EditorUi";
@@ -36,7 +37,7 @@ import {
 
 import Fifo from "@src/shared/utility/Fifo";
 
-interface EditorStateOptions { id: number; }
+interface EditorStateOptions { worldBlueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
 interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
 
@@ -53,11 +54,11 @@ class EditorState extends State<EditorStateOptions> {
   private selectedLayerId: ILayerId;
   private selectedMode: EditorMode;
 
-  public async init({ id }: EditorStateOptions): Promise<void> {
+  public async init({ worldBlueprint }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
-
-    const data = await loadData(id);
     
+    const data = await Promise.resolve(worldBlueprint);
+
     this.world = new World(data);
     this.selectedLayerId = 1;
     this.selectedMode = EditorMode.PLACE;

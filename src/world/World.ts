@@ -25,18 +25,6 @@ import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
 
 import { configSvc } from "@shared/services/config.service";
 
-export const loadData = async (i: number): Promise<IWorldBlueprint> => {
-  const { default: level } = await import(`@src/data/level${i}/level.json`);
-  const { default: entities } = await import(`@src/data/level${i}/entities.json`);
-  const { default: resources } = await import(`@src/data/level${i}/resources.json`);
-
-  return {
-    level,
-    entities,
-    resources,
-  };
-};
-
 class World {
   public readonly blueprint: IWorldBlueprint;
 

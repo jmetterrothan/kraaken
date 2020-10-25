@@ -1,4 +1,3 @@
-import { LevelStateSwitchEvent, EditorStateSwitchEvent } from './shared/events/index';
 import Stats from "stats-js";
 
 import EditorState from "@src/states/EditorState";
@@ -9,8 +8,9 @@ import StateManager from "@src/states/StateManager";
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
 import { LEVEL_STATE_SWITCH_EVENT, EDITOR_STATE_SWITCH_EVENT } from '@shared/events/constants';
+import { LevelStateSwitchEvent, EditorStateSwitchEvent } from '@shared/events/index';
 
-import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
+import { loadData, getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
 import { configSvc } from "@shared/services/config.service";
 
@@ -235,7 +235,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.EDITOR, { id: 0 });
+    this.stateManager.switch(GameStates.EDITOR, { worldBlueprint: loadData(0) });
 
     this.resize(this.options.width, this.options.height);
   }
@@ -379,12 +379,12 @@ class Game {
     });
 
     // game events
-    window.addEventListener(LEVEL_STATE_SWITCH_EVENT, (e: LevelStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.LEVEL, { id: e.detail.id });
+    window.addEventListener(LEVEL_STATE_SWITCH_EVENT, (e: LevelStateSwitchEvent) => { 
+      this.stateManager.switch(GameStates.LEVEL, { worldBlueprint: loadData(e.detail.id) });
     });
 
     window.addEventListener(EDITOR_STATE_SWITCH_EVENT, (e: EditorStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.EDITOR, { id: e.detail.id });
+      this.stateManager.switch(GameStates.EDITOR, { worldBlueprint: loadData(e.detail.id) });
     });
   }
 

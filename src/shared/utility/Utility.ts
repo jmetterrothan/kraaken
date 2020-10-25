@@ -1,5 +1,7 @@
 import { vec2 } from "gl-matrix";
 
+import { IWorldBlueprint } from '@shared/models/world.model';
+
 export const isPowerOf2 = (value: number): boolean => {
   return (value & (value - 1)) === 0;
 };
@@ -41,3 +43,15 @@ export const registerEvent = (type: string, listener: EventListenerOrEventListen
     target.removeEventListener(type, listener);
   };
 }
+
+export const loadData = async (i: number): Promise<IWorldBlueprint> => {
+  const { default: level } = await import(`@src/data/level${i}/level.json`);
+  const { default: entities } = await import(`@src/data/level${i}/entities.json`);
+  const { default: resources } = await import(`@src/data/level${i}/resources.json`);
+
+  return {
+    level,
+    entities,
+    resources,
+  };
+};

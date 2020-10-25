@@ -4,20 +4,20 @@ import { vec2 } from "gl-matrix";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
-import { loadData } from "@src/world/World";
+
+import { IWorldBlueprint } from '@shared/models/world.model';
 
 import LevelUi from "./LevelUi";
 
-interface LevelStateOptions { id: number; }
+interface LevelStateOptions { worldBlueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
 class LevelState extends State<LevelStateOptions> {
   private world: World;
 
-  public async init({ id }: LevelStateOptions): Promise<void> {
+  public async init({ worldBlueprint }: LevelStateOptions): Promise<void> {
     console.info("Level initialized");
 
-    const data = await loadData(id);
-
+    const data = await Promise.resolve(worldBlueprint);
     this.world = new World(data);
 
     await this.world.init();
