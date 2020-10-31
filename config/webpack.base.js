@@ -1,12 +1,13 @@
+/* eslint-disable */
 const path = require("path");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 const autoprefixer = require("autoprefixer");
 
 const PATHS = require("./paths");
 const ALIAS = require("./alias");
 
-// @ts-ignore
 module.exports = {
   entry: {
     bundle: ["@babel/polyfill", path.join(PATHS.SRC, "index.tsx")],
@@ -84,5 +85,6 @@ module.exports = {
       filename: "index.html",
       inject: "body",
     }),
+    new Dotenv(),
   ],
 };
