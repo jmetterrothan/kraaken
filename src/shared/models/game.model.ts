@@ -4,11 +4,15 @@ export interface IDimension {
 }
 
 export interface IGameOptions {
-  width?: number;
-  height?: number;
-  allowFullscreen?: boolean;
-  root?: HTMLElement;
-  debug?: boolean;
+  width: 'auto' | number;
+  height: 'auto' | number;
+  maxWidth?: number;
+  minWidth?: number;
+  maxHeight?: number;
+  minHeight?: number;
+  allowFullscreen: boolean;
+  root: HTMLElement;
+  levelId: string;
 }
 
 export enum GameStates {

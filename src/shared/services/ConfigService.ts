@@ -4,14 +4,14 @@ import AbstractDriver from '@src/shared/drivers/AbstractDriver';
 import { IDimension } from "@shared/models/game.model";
 
 class ConfigService {
-  public debug = true;
+  public readonly debug: boolean = process.env.DEBUG === "true";
+  public readonly driver: AbstractDriver = DriverFactory.get(process.env.DRIVER || 'local');
 
-  public scale: number;
+  // dynamic properties
+  public scale;
 
   public frameSize: IDimension = { w: -1, h: -1 };
   public innerSize: IDimension = { w: -1, h: -1 };
-
-  public driver: AbstractDriver = DriverFactory.get(process.env.DRIVER || 'local');
 }
 
 export const configSvc = new ConfigService();

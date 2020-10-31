@@ -32,7 +32,9 @@ class Game {
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-        this.resize(this.options.width, this.options.height);
+
+        const { width, height } = this.computeDimensions();
+        this.resize(width, height);
       }
     }
   }
@@ -45,12 +47,12 @@ class Game {
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
   public static readonly DEFAULT_SCALE: number = 5;
 
-  public static create(options?: IGameOptions): Game {
+  public static create(options?: Partial<IGameOptions>): Game {
     if (!(Game[instanceSym] instanceof Game)) {
       const mergedOptions = Object.assign({}, Game.DEFAULT_OPTIONS, options);
 
       Game[instanceSym] = new Game(mergedOptions);
-      Game[instanceSym].init();
+      Game[instanceSym].init(options.levelId);
     }
     return Game[instanceSym];
   }
@@ -60,7 +62,7 @@ class Game {
     height: 600,
     width: 800,
     root: undefined,
-    debug: true,
+    levelId: '',
   };
 
   private options: IGameOptions;
@@ -77,11 +79,11 @@ class Game {
   private stats: Stats;
   private upsPanel: Stats.Panel;
 
+  private targetScale: number;
+
   private ups: number;
-  private ticks: number;
 
   private paused: boolean;
-  private targetScale: number;
 
   private constructor(options: IGameOptions) {
     this.options = options;
@@ -97,17 +99,16 @@ class Game {
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
 
-    if (this.options.debug) {
+    this.targetScale = Game.DEFAULT_SCALE;
+
+    if (configSvc.debug) {
       this.stats = new Stats();
       this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
     }
 
     this.ups = 0;
-    this.ticks = 0;
 
     this.paused = false; // !document.hasFocus();
-
-    this.targetScale = Game.DEFAULT_SCALE;
   }
 
   public resize(targetWidth: number, targetHeight: number): void {
@@ -167,8 +168,31 @@ class Game {
     this.stateManager.render(alpha);
   }
 
+  public computeDimensions(): { width: number; height: number; } {
+    let width = this.options.width === 'auto' ? window.innerWidth : this.options.width;
+    let height = this.options.height === 'auto' ? window.innerHeight : this.options.height;
+
+    if (width > this.options.maxWidth) {
+      width = this.options.maxWidth;
+    }
+
+    if (width < this.options.minWidth) {
+      width = this.options.minWidth;
+    }
+
+    if (height > this.options.maxHeight) {
+      height = this.options.maxHeight;
+    }
+
+    if (height < this.options.minHeight) {
+      height = this.options.minHeight;
+    }
+
+    return { width, height };
+  }
+
   public run(): void {
-    if (this.options.debug) {
+    if (configSvc.debug) {
       this.stats.begin();
     }
 
@@ -179,7 +203,7 @@ class Game {
       if (time > this.nextTime) {
         this.nextTime += 1000;
 
-        if (this.options.debug) {
+        if (configSvc.debug) {
           this.upsPanel.update(this.ups);
         }
         this.ups = 0;
@@ -194,7 +218,6 @@ class Game {
         this.update(Game.MS_PER_UPDATE / 1000);
 
         this.ups++;
-        this.ticks++;
 
         this.lag -= Game.MS_PER_UPDATE;
 
@@ -205,22 +228,21 @@ class Game {
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);
-    if (this.options.debug) {
+    if (configSvc.debug) {
       this.stats.end();
     }
 
     window.requestAnimationFrame(this.run.bind(this));
   }
 
-  private init() {
+  private init(levelId: string) {
     this.initCanvas();
     this.initWebGL();
     this.initEvents();
 
     // Stats
-    if (this.options.debug) {
-      this.stats.showPanel(3);
-      this.stats.dom.style.display = configSvc.debug ? "block" : "none";
+    if (configSvc.debug) {
+      this.stats.showPanel(0);
       this.stats.dom.style.position = "absolute";
       this.stats.dom.style.top = "unset";
       this.stats.dom.style.bottom = 0;
@@ -236,11 +258,12 @@ class Game {
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
     this.stateManager.switch(GameStates.EDITOR, {
-      id: 'H2DAzdU049HDkTwWfmKL',
-      blueprint: configSvc.driver.load('H2DAzdU049HDkTwWfmKL'),
+      id: levelId,
+      blueprint: configSvc.driver.load(levelId),
     });
 
-    this.resize(this.options.width, this.options.height);
+    const { width, height } = this.computeDimensions();
+    this.resize(width, height);
   }
 
   private initCanvas() {
@@ -346,10 +369,14 @@ class Game {
 
     wrapper.addEventListener("mousewheel", (e: WheelEvent) => {
       if (canvas.contains(e.target as Node)) {
-        this.targetScale += e.deltaY > 0 ? -1 : 1;
-        if (this.targetScale <= 0) {
-          this.targetScale = 1;
+        let scale = this.targetScale + (e.deltaY > 0 ? -1 : 1);
+        if (scale <= 0) {
+          scale = 1;
         }
+        if (scale > 50) {
+          scale = 50;
+        }
+        this.targetScale = scale;
 
         this.refreshScreenSize();
       }
@@ -395,7 +422,8 @@ class Game {
     if (this.fullscreen) {
       this.resize(window.screen.width, window.screen.height);
     } else {
-      this.resize(this.options.width, this.options.height);
+      const { width, height } = this.computeDimensions();
+      this.resize(width, height);
     }
   };
 
