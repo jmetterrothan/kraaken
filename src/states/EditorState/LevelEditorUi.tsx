@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ITileTypes, ITileGroups, ILayerId } from "@src/shared/models/tilemap.model";
+import { ITileGroups, ILayerId, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -10,24 +10,22 @@ import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
 import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/ToolbarSelect";
 
 import { EditorMode } from "@src/shared/models/editor.model";
-import { ISoundData } from "@src/shared/models/sound.model";
-import { ISpriteData } from "@src/shared/models/sprite.model";
 import { IWorldBlueprint } from "@src/shared/models/world.model";
 
 import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
-import { dispatch, modeChangeEvent, tileTypeChangeEvent, layerChangeEvent, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undoEvent, redoEvent, playEvent } from "@src/shared/events";
+import { dispatch, saveEvent, modeChangeEvent, tileTypeChangeEvent, layerChangeEvent, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undoEvent, redoEvent, playEvent } from "@src/shared/events";
 
 import { registerEvent } from "@shared/utility/Utility";
+import SpriteManager from "@src/animation/SpriteManager";
 
 interface EditorUiProps {
-  sprites: ISpriteData[];
-  sounds: ISoundData[];
-  level: IWorldBlueprint["level"];
+  levelId: string;
+  blueprint: IWorldBlueprint;
   options: {
     mode: EditorMode;
     layerId: number;
-    tileTypeId: string;
+    tileTypeIndex: number;
   };
 }
 
@@ -41,32 +39,36 @@ const useEditorActions = () => {
       undo: () => dispatch(undoEvent()),
       redo: () => dispatch(redoEvent()),
       selectLayer: (option: IToolbarOption<number>) => dispatch(layerChangeEvent(option.value as ILayerId)),
-      selectTileType: (id: string) => dispatch(tileTypeChangeEvent(id)),
-      play: (id: number) => dispatch(playEvent(id)),
+      selectTileType: (index: number) => dispatch(tileTypeChangeEvent(index)),
+      play: (id: string) => dispatch(playEvent(id)),
+      save: (id: string) => dispatch(saveEvent(id)),
     }),
     []
   );
 };
 
-const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) => {
+const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
+  const { level, sprites } = blueprint;
+
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
-  const [tileTypeId, setTileTypeId] = React.useState<string>(options.tileTypeId);
+  const [tileTypeIndex, setTileTypeIndex] = React.useState<number>(options.tileTypeIndex);
 
   const actions = useEditorActions();
 
-  const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileMap.tileSet), []);
+  const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
 
-  const tileTypes: ITileTypes = React.useMemo(
-    () =>
-      level.tileMap.tileTypes.reduce((acc, val) => {
-        acc[`${val.row}:${val.col}`] = val;
-        return acc;
-      }, {}),
-    [level.tileMap.tileTypes]
-  );
+  const tileTypes = React.useMemo<Record<number, ITileTypeData>>(() => {
+    const atlas = SpriteManager.get(level.tileSet);
 
-  const tileGroups: ITileGroups = level.tileMap.tileGroups;
+    return level.tileTypes.reduce((acc, val) => {
+      const index = val.row * atlas.nbCols + val.col;
+      acc[index] = val;
+      return acc;
+    }, {});
+  }, [level.tileTypes]);
+
+  const tileGroups: ITileGroups = level.tileGroups;
 
   React.useEffect(() => {
     const unsubFromChangeModeEvent = registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
@@ -74,7 +76,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
     });
 
     const unsubFromChangeTiletypeEvent = registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
-      setTileTypeId(e.detail.id);
+      setTileTypeIndex(e.detail.index);
     });
 
     const unsubFromChangeLayerEvent = registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
@@ -95,8 +97,9 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
           icon="play" //
           name="Play level"
           active={false}
-          onClick={() => actions.play(0)}
+          onClick={() => actions.play(levelId)}
         />
+        <ToolbarSeparator />
         <ToolbarButton
           icon="brush" //
           name="Place"
@@ -148,14 +151,22 @@ const EditorUi: React.FC<EditorUiProps> = ({ sprites, sounds, level, options }) 
             { name: "Layer 2", value: 2 },
           ]}
         />
+        <ToolbarSeparator />
         <ToolbarTileset
-          selected={tileTypeId} //
+          selected={tileTypeIndex} //
           onSelect={actions.selectTileType}
           src={tileSet.src}
           tileSize={tileSet.tileWidth}
           tileTypes={tileTypes}
           tileGroups={tileGroups}
           disabled={mode === EditorMode.ERASE}
+        />
+        <ToolbarSeparator />
+        <ToolbarButton
+          icon="save" //
+          name="Save"
+          active={false}
+          onClick={() => actions.save(levelId)}
         />
       </Toolbar>
     </Ui>

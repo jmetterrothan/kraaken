@@ -9,13 +9,17 @@ import { dispatch, editEvent } from "@src/shared/events";
 const useLevelActions = () => {
   return React.useMemo(
     () => ({
-      edit: (id: number) => dispatch(editEvent(id)),
+      edit: (id: string) => dispatch(editEvent(id)),
     }),
     []
   );
 };
 
-const LevelUi: React.FC = () => {
+interface ILevelUiProps {
+  levelId: string;
+}
+
+const LevelUi: React.FC<ILevelUiProps> = ({ levelId }) => {
   const actions = useLevelActions();
 
   return (
@@ -25,7 +29,7 @@ const LevelUi: React.FC = () => {
           icon="edit" //
           name="Edit level"
           active={false}
-          onClick={() => actions.edit(0)}
+          onClick={() => actions.edit(levelId)}
         />
       </Toolbar>
     </Ui>

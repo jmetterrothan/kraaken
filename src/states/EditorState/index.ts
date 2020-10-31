@@ -1,4 +1,3 @@
-import { IWorldBlueprint } from './../../shared/models/world.model';
 import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
@@ -11,15 +10,20 @@ import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
 import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
+import Grid from "@src/animation/Grid";
 
-import EditorUi from "@src/states/EditorState/EditorUi";
+import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
 import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@shared/models/tilemap.model";
+import { IWorldBlueprint } from '@shared/models/world.model';
+
+import { firebaseLevelProviderSvc } from '@src/shared/services/firebaseLevelProvider.service';
 
 import Vector2 from "@shared/math/Vector2";
 
-import { DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
+import { SaveEvent } from '@shared/events/index';
+import { SAVE_EVENT, DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
 
 import {
   dispatch,
@@ -37,7 +41,7 @@ import {
 
 import Fifo from "@src/shared/utility/Fifo";
 
-interface EditorStateOptions { worldBlueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
+interface EditorStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
 interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
 
@@ -45,24 +49,26 @@ class EditorState extends State<EditorStateOptions> {
   private mouse: Vector2;
 
   private world: World;
+  private id: string;
   private cursor: Entity;
 
   private undoStack: Fifo<EventStackItem>;
   private redoStack: Fifo<EventStackItem>;
 
-  private selectedTileTypeId: string | undefined;
+  private selectedTileTypeIndex: number | undefined;
   private selectedLayerId: ILayerId;
   private selectedMode: EditorMode;
 
-  public async init({ worldBlueprint }: EditorStateOptions): Promise<void> {
+  public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
     
-    const data = await Promise.resolve(worldBlueprint);
-
+    const data = await Promise.resolve(blueprint);
     this.world = new World(data);
+    this.id = id;
+
     this.selectedLayerId = 1;
     this.selectedMode = EditorMode.PLACE;
-    this.selectedTileTypeId = data.level.tileMap.defaultTileType;
+    this.selectedTileTypeIndex = data.level.defaultTileType;
     this.mouse = new Vector2(0, 0);
     this.undoStack = new Fifo();
     this.redoStack = new Fifo();
@@ -78,7 +84,7 @@ class EditorState extends State<EditorStateOptions> {
     this.world.controlEntity(controllableObject);
 
     // focus on player if it exists
-    const playerSpawnPoint = data.level.spawnpoints.find((spawnpoint) => spawnpoint.uuid === 'player');
+    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.uuid === 'player');
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;
@@ -112,7 +118,7 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
-      this.selectedTileTypeId = e.detail.id;
+      this.selectedTileTypeIndex = e.detail.index;
     });
 
     this.registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
@@ -120,9 +126,9 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(PLACE_EVENT, (e: PlaceEvent) => {
-      const { coords = [], layer, tileType, onSuccess, onFailure, pushToStack } = e.detail || {};
-
-      let oldTileType: string;
+      const { coords = [], layer, tileTypeIndex, onSuccess, onFailure, pushToStack } = e.detail || {};
+     
+      let oldTileTypeIndex: number;
 
       try {
         const tileMap = this.world.tileMap;
@@ -131,21 +137,21 @@ class EditorState extends State<EditorStateOptions> {
           const tile = tileMap.getTileAtCoords(coord.x, coord.y);
           if (tile) {
             tile.activeSlot = layer;
-            oldTileType = tile.typeId;
-            tile.slot = tileMap.getTileType(tileType);
+            oldTileTypeIndex = tile.row * tileMap.atlas.nbCols + tile.col;
+            tile.slot = tileMap.getTileTypeByIndex(tileTypeIndex);
 
             if (layer === 1) {
-              tile.collision = tileType !== undefined;
+              tile.collision = tileTypeIndex !== undefined;
             }
           }
         });
 
         // register event
-        if (oldTileType !== tileType) {
+        if (oldTileTypeIndex !== tileTypeIndex) {
           if (pushToStack) {
             this.undoStack.push({
-              undo: placeEvent(layer, oldTileType, coords, false), //
-              redo: placeEvent(layer, tileType, coords, false),
+              undo: placeEvent(layer, oldTileTypeIndex, coords, false), //
+              redo: placeEvent(layer, tileTypeIndex, coords, false),
             });
           }
         }
@@ -206,16 +212,47 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
+    this.registerEvent(SAVE_EVENT, (e: SaveEvent) => {
+      const id = e.detail.id;
+
+      const rows = this.world.tileMap.getNbRows();
+      const cols = this.world.tileMap.getNbCols();
+
+      const n = rows * cols;
+
+      const tileMapLayer1 = new Array(n).fill(0);
+      const tileMapLayer2 = new Array(n).fill(0);
+      const tileMapLayer3 = new Array(n).fill(0);
+
+      for (let r = 0; r <= rows; r++) {
+        for (let c = 0; c <= cols; c++) {
+          const index = this.world.tileMap.getIndex(r, c);
+          const tile = this.world.tileMap.getTileAt(r, c);
+
+          if (tile) {
+            tileMapLayer1[index] = tile.collision ? 1 : 0;
+            tileMapLayer2[index] = tile.slot1 ? tile.slot1.row * this.world.tileMap.atlas.nbCols + tile.slot1.col : 0;
+            tileMapLayer3[index] = tile.slot2 ? tile.slot2.row * this.world.tileMap.atlas.nbCols + tile.slot2.col : 0;  
+          }
+        }
+      }
+
+      firebaseLevelProviderSvc.save(id, {
+        tileMapLayer1,
+        tileMapLayer2,
+        tileMapLayer3,
+      });
+    });
+
     // init ui
     ReactDOM.render(
-      React.createElement(EditorUi, {
-        level: this.world.blueprint.level, //
-        sprites: this.world.blueprint.resources.sprites,
-        sounds: this.world.blueprint.resources.sounds,
+      React.createElement(LevelEditorUi, {
+        levelId: this.id,
+        blueprint: this.world.blueprint,
         options: {
           mode: this.selectedMode,
           layerId: this.selectedLayerId,
-          tileTypeId: this.selectedTileTypeId,
+          tileTypeIndex: this.selectedTileTypeIndex,
         },
       }),
       this.$ui
@@ -268,14 +305,14 @@ class EditorState extends State<EditorStateOptions> {
 
       if (this.selectedMode === EditorMode.PICK) {
         const tile = tileMap.getTileAtCoords(coords.x, coords.y);
-        if (tile && tile.typeId) {
-          dispatch(tileTypeChangeEvent(tile.typeId));
+        if (tile && tile.slot) {
+          dispatch(tileTypeChangeEvent(tile.slot.row * this.world.tileMap.atlas.nbCols + tile.slot.col));
         }
       } else if (this.selectedMode === EditorMode.PLACE) {
         dispatch(
           placeEvent(
             this.selectedLayerId, //
-            this.selectedTileTypeId,
+            this.selectedTileTypeIndex,
             { x: coords.x, y: coords.y }
           )
         );
@@ -296,7 +333,7 @@ class EditorState extends State<EditorStateOptions> {
           dispatch(
             placeEvent(
               this.selectedLayerId, //
-              this.selectedTileTypeId,
+              this.selectedTileTypeIndex,
               tileMap
                 .floodFill(targetTile.row, targetTile.col, (tile: Tile) => {
                   tile.activeSlot = this.selectedLayerId;

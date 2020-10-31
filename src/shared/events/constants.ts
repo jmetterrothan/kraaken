@@ -11,3 +11,5 @@ export const CHANGE_LAYER_EVENT = "ui_change_layer";
 
 export const LEVEL_STATE_SWITCH_EVENT = "level_state_switch";
 export const EDITOR_STATE_SWITCH_EVENT = "editor_state_switch";
+
+export const SAVE_EVENT = "save";

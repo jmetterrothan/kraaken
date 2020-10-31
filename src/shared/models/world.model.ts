@@ -1,7 +1,7 @@
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
-import { ITileMapData } from "@src/shared/models/tilemap.model";
+import { ITileGroups, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 export interface IComponentBlueprint {
   name: string;
@@ -13,19 +13,27 @@ export interface IEntityBlueprint {
   components: IComponentBlueprint[];
 }
 
+export interface ILevelBlueprint {
+  title: string;
+  background: IRGBAColorData;
+  gravity: number;
+  spawnPoints: ISpawnpoint[];
+  defaultTileType: number;
+  tileSize: number;
+  tileSet: string;
+  tileGroups: ITileGroups;
+  tileTypes: ITileTypeData[];
+  tileMapRows: number;
+  tileMapCols: number;
+  tileMapLayer1: number[];
+  tileMapLayer2: number[];
+  tileMapLayer3: number[];
+}
+
 export interface IWorldBlueprint {
-  // level data
-  level: {
-    background: IRGBAColorData;
-    gravity: number;
-    tileMap: ITileMapData;
-    spawnpoints: ISpawnpoint[];
-  };
-  // global data
-  resources: {
-    sprites: ISpriteData[];
-    sounds: ISoundData[];
-  };
+  level: ILevelBlueprint;
+  sprites: ISpriteData[];
+  sounds: ISoundData[];
   entities: IEntityBlueprint[];
 }
 

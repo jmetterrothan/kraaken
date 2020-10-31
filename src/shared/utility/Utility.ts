@@ -1,5 +1,7 @@
 import { vec2 } from "gl-matrix";
 
+import { firebaseLevelProviderSvc } from '@src/shared/services/firebaseLevelProvider.service';
+
 import { IWorldBlueprint } from '@shared/models/world.model';
 
 export const isPowerOf2 = (value: number): boolean => {
@@ -44,14 +46,17 @@ export const registerEvent = (type: string, listener: EventListenerOrEventListen
   };
 }
 
-export const loadData = async (i: number): Promise<IWorldBlueprint> => {
+export const loadData = async (id: string): Promise<IWorldBlueprint> => {
+  const i = 0;
   const { default: level } = await import(`@src/data/level${i}/level.json`);
   const { default: entities } = await import(`@src/data/level${i}/entities.json`);
   const { default: resources } = await import(`@src/data/level${i}/resources.json`);
+ 
+  // const level = await firebaseLevelProviderSvc.fetch(id);
 
   return {
     level,
     entities,
-    resources,
+    ...resources,
   };
 };

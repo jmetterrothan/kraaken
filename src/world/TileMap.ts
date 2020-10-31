@@ -8,7 +8,7 @@ import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 import Tile from "./Tile";
 
-import { ITileMap, ITileTypes, ITileMapLayers, ITileTypeData } from "@src/shared/models/tilemap.model";
+import { ITileMap, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 import { create2DArray } from "@src/shared/utility/Utility";
 
@@ -20,6 +20,12 @@ class TileMap {
   private endCol: number;
   private endRow: number;
 
+  public tiles: Tile[][];
+  public atlas: SpriteAtlas;
+
+  private tileTypes: Record<number, ITileTypeData>;
+  private boundaries: Box2;
+
   private readonly nbCols: number;
   private readonly nbRows: number;
 
@@ -29,14 +35,11 @@ class TileMap {
   private readonly sizeX: number;
   private readonly sizeY: number;
 
-  private boundaries: Box2;
-
-  private tiles: Tile[][];
-  private tileTypes: ITileTypes;
-
-  private atlas: SpriteAtlas;
+  public readonly data: ITileMap;
 
   constructor(data: ITileMap) {
+    this.data = data;
+
     this.nbCols = data.cols;
     this.nbRows = data.rows;
     this.tileSize = data.tileSize;
@@ -47,43 +50,46 @@ class TileMap {
 
     this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
+    this.atlas = SpriteManager.get(this.tileSet);
+
+    this.tileTypes = data.tileTypes.reduce((acc, tileType) => {
+      const index = tileType.row * this.atlas.nbCols + tileType.col;
+      acc[index] = tileType;
+      return acc;
+    }, {});
+  }
+
+  public buildTiles(): void {
     this.tiles = create2DArray(this.nbRows, this.nbCols);
-    this.tileTypes = data.tileTypes;
-
-    this.buildTiles(data.layers);
-  }
-
-  public findTypeByKey(key: string): ITileTypeData | undefined {
-    return Object.values(this.tileTypes).find((tileType) => tileType.key === key);
-  }
-
-  public buildTiles(layers: ITileMapLayers): void {
+   
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         // convert 1d array of tiles to a 2d array
-        const i = this.getIndex(r, c);
-
-        const hasCollision = layers.layer1[i] === 1;
+        const tileIndex = this.getIndex(r, c);
+        const hasCollision = this.data.layer1[tileIndex] === 1;
 
         const tile = new Tile(r, c, this.tileSize, hasCollision, {
           wireframe: false,
         });
 
-        // TODO: read data
-        const rockSingleType = this.findTypeByKey("rock");
+        // slot 1
+        const layer2Index = this.data.layer2[tileIndex];
 
-        const type1 = layers.layer2[i];
-        if (type1 !== 0) {
-          tile.slot1 = rockSingleType;
-        } else {
-          tile.slot1 = undefined;
+        if (layer2Index !== 0) {
+          if (!this.tileTypes[layer2Index]) {
+            console.warn(`Could not find tileType @ index ${layer2Index} in atlas "${this.atlas.alias}"`);
+          }
+          tile.slot1 = this.tileTypes[layer2Index];
         }
 
-        const type2 = layers.layer3[i];
-        if (type2 !== 0) {
-          tile.slot2 = rockSingleType;
-        } else {
-          tile.slot2 = undefined;
+        // slot 2
+        const layer3Index = this.data.layer3[tileIndex];
+
+        if (layer3Index !== 0) {
+          if (!this.tileTypes[layer3Index]) {
+            console.warn(`Could not find tileType @ index ${layer3Index} in atlas "${this.atlas.alias}"`);
+          }
+          tile.slot2 = this.tileTypes[layer3Index];
         }
 
         this.tiles[r][c] = tile;
@@ -92,7 +98,7 @@ class TileMap {
   }
 
   public init(): void {
-    this.atlas = SpriteManager.get(this.tileSet);
+    this.buildTiles();
   }
 
   public getIndex(row: number, col: number): number {
@@ -193,8 +199,12 @@ class TileMap {
     return [r, c];
   }
 
-  public getTileType(id: string): ITileTypeData {
-    return this.tileTypes[id];
+  public getTileType(row: number, col: number): ITileTypeData {
+    return this.getTileTypeByIndex(row * this.atlas.nbCols + col);
+  }
+
+  public getTileTypeByIndex(index: number): ITileTypeData {
+    return this.tileTypes[index];
   }
 
   public getBoundaries(): Box2 {

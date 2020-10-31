@@ -235,7 +235,10 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.EDITOR, { worldBlueprint: loadData(0) });
+    this.stateManager.switch(GameStates.EDITOR, {
+      id: 'H2DAzdU049HDkTwWfmKL',
+      blueprint: loadData('H2DAzdU049HDkTwWfmKL'),
+    });
 
     this.resize(this.options.width, this.options.height);
   }
@@ -380,11 +383,11 @@ class Game {
 
     // game events
     window.addEventListener(LEVEL_STATE_SWITCH_EVENT, (e: LevelStateSwitchEvent) => { 
-      this.stateManager.switch(GameStates.LEVEL, { worldBlueprint: loadData(e.detail.id) });
+      this.stateManager.switch(GameStates.LEVEL, { id: e.detail.id, blueprint: loadData(e.detail.id) });
     });
 
     window.addEventListener(EDITOR_STATE_SWITCH_EVENT, (e: EditorStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.EDITOR, { worldBlueprint: loadData(e.detail.id) });
+      this.stateManager.switch(GameStates.EDITOR, { id: e.detail.id, blueprint: loadData(e.detail.id) });
     });
   }
 

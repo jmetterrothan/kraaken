@@ -52,11 +52,13 @@ class World {
   }
 
   public async init(): Promise<void> {
-    for (const sound of this.blueprint.resources.sounds) {
+    const { sounds, sprites, level } = this.blueprint;
+
+    for (const sound of sounds) {
       SoundManager.register(sound.src, sound.name);
     }
 
-    for (const sprite of this.blueprint.resources.sprites) {
+    for (const sprite of sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
@@ -74,18 +76,24 @@ class World {
     this.renderer.addedToWorld(this);
 
     this.tileMap = new TileMap({
-      ...this.blueprint.level.tileMap,
-      tileTypes: this.blueprint.level.tileMap.tileTypes.reduce((acc, val) => {
-        acc[`${val.row}:${val.col}`] = val;
-        return acc;
-      }, {}),
+      defaultTileType: level.defaultTileType,
+      rows: level.tileMapRows,
+      cols: level.tileMapCols,
+      tileSize: level.tileSize,
+      tileSet: level.tileSet,
+      tileGroups: level.tileGroups,
+      tileTypes: level.tileTypes,
+      layer1: level.tileMapLayer1,
+      layer2: level.tileMapLayer2,
+      layer3: level.tileMapLayer3,
     });
+    
+    this.gravity = level.gravity;
 
     this.tileMap.init();
-    this.setClearColor(this.blueprint.level.background);
+    this.setClearColor(level.background);
 
-    this.blueprint.level.spawnpoints.forEach(this.spawn.bind(this));
-    this.gravity = this.blueprint.level.gravity;
+    level.spawnPoints.forEach(this.spawn.bind(this));
 
     const cameraComponent = new Camera({ mode: 1 });
     cameraComponent.boundaries = this.tileMap.getBoundaries();

@@ -1,5 +1,5 @@
 import { EDITOR_STATE_SWITCH_EVENT } from './constants';
-import { DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT, LEVEL_STATE_SWITCH_EVENT } from "@src/shared/events/constants";
+import { SAVE_EVENT, DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT, LEVEL_STATE_SWITCH_EVENT } from "@src/shared/events/constants";
 
 import { IEventDetails } from "@src/shared/models/event.model";
 import { IVector2 } from "@src/shared/models/math.model";
@@ -22,12 +22,12 @@ export const modeChangeEvent = (mode: EditorMode): ModeChangeEvent => {
   });
 };
 
-export type TileTypeChangeEvent = CustomEvent<{ id: string }>;
+export type TileTypeChangeEvent = CustomEvent<{ index: number }>;
 
-export const tileTypeChangeEvent = (id: string): TileTypeChangeEvent => {
+export const tileTypeChangeEvent = (index: number): TileTypeChangeEvent => {
   return new CustomEvent(CHANGE_TILETYPE_EVENT, {
     detail: {
-      id,
+      index,
     },
   });
 };
@@ -45,31 +45,31 @@ export const layerChangeEvent = (id: ILayerId): LayerChangeEvent => {
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
   layer: ILayerId;
-  tileType: string;
+  tileTypeIndex: number;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: ILayerId, tileType: string, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
+export const placeEvent = (layer: ILayerId, tileTypeIndex: number, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(PLACE_EVENT, {
     detail: {
       coords: Array.isArray(position) ? position : [position],
       layer,
-      tileType,
+      tileTypeIndex,
       pushToStack,
     },
   });
 };
 
 interface ILevelStateSwitchEventDetails {
-  id: number;
+  id: string;
 }
 
 export type LevelStateSwitchEvent = CustomEvent<ILevelStateSwitchEventDetails>;
 
-export const playEvent = (id: number): LevelStateSwitchEvent  => {
+export const playEvent = (id: string): LevelStateSwitchEvent  => {
   return new CustomEvent<ILevelStateSwitchEventDetails>(LEVEL_STATE_SWITCH_EVENT, {
     detail: {
       id,
@@ -79,18 +79,33 @@ export const playEvent = (id: number): LevelStateSwitchEvent  => {
 
 
 interface IEditorStateSwitchEventDetails {
-  id: number;
+  id: string;
 }
 
 export type EditorStateSwitchEvent = CustomEvent<IEditorStateSwitchEventDetails>;
 
-export const editEvent = (id: number): EditorStateSwitchEvent  => {
+export const editEvent = (id: string): EditorStateSwitchEvent  => {
   return new CustomEvent<IEditorStateSwitchEventDetails>(EDITOR_STATE_SWITCH_EVENT, {
     detail: {
       id,
     }
   })
 }
+
+interface ISaveEventDetails {
+  id: string;
+}
+
+export type SaveEvent = CustomEvent<ISaveEventDetails>;
+
+export const saveEvent = (id: string): SaveEvent  => {
+  return new CustomEvent<ISaveEventDetails>(SAVE_EVENT, {
+    detail: {
+      id,
+    }
+  })
+}
+
 
 interface ISpawnEventDetails extends IEventDetails {
   spawnpoint: ISpawnpoint;

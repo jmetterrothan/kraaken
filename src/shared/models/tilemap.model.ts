@@ -4,42 +4,26 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import { ISpriteRenderParameters } from "./animation.model";
 
-export type ITileTypes = Record<string, ITileTypeData>;
-
 export interface ITileGroups {
   [key: string]: {
-    display?: "2x2" | "3x3" | "4x4";
+    display?: "2x2" | "3x3" | "4x2" | "4x4";
+    name: string;
   };
 }
 
 export type ILayerId = 0 | 1 | 2;
 
-export interface ITileMapLayers {
-  layer1: (0 | 1)[];
-  layer2: number[];
-  layer3: number[];
-}
-
 export interface ITileMap {
-  defaultTileType: string;
-  rows: number;
-  cols: number;
-  tileSize: number;
-  tileSet: string;
-  tileGroups: ITileGroups;
-  tileTypes: ITileTypes;
-  layers: ITileMapLayers;
-}
-
-export interface ITileMapData {
-  defaultTileType: string;
+  defaultTileType: number;
   rows: number;
   cols: number;
   tileSize: number;
   tileSet: string;
   tileGroups: ITileGroups;
   tileTypes: ITileTypeData[];
-  layers: ITileMapLayers;
+  layer1: number[];
+  layer2: number[];
+  layer3: number[];
 }
 
 export interface ITileTypeData {

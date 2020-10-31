@@ -9,16 +9,18 @@ import { IWorldBlueprint } from '@shared/models/world.model';
 
 import LevelUi from "./LevelUi";
 
-interface LevelStateOptions { worldBlueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
+interface LevelStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
 class LevelState extends State<LevelStateOptions> {
+  private id: string;
   private world: World;
 
-  public async init({ worldBlueprint }: LevelStateOptions): Promise<void> {
+  public async init({ id, blueprint }: LevelStateOptions): Promise<void> {
     console.info("Level initialized");
 
-    const data = await Promise.resolve(worldBlueprint);
+    const data = await Promise.resolve(blueprint);
     this.world = new World(data);
+    this.id = id;
 
     await this.world.init();
     
@@ -30,7 +32,7 @@ class LevelState extends State<LevelStateOptions> {
   public mounted(): void {
     console.info("Level mounted");
 
-    ReactDOM.render(React.createElement(LevelUi, {}), this.$ui);
+    ReactDOM.render(React.createElement(LevelUi, { levelId: this.id }), this.$ui);
   }
 
   public unmounted(): void {
