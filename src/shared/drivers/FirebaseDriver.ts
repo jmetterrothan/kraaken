@@ -1,16 +1,14 @@
 import pako from 'pako';
 
+import AbstractDriver from '@src/shared/drivers/AbstractDriver';
+
+import { IWorldBlueprint } from '@shared/models/world.model';
 import { ILevelBlueprint } from '@shared/models/world.model';
 
 import { db } from '@src/firebase';
 
-abstract class LevelProviderService {
-  public abstract async fetch(id: string): Promise<ILevelBlueprint>;
-  public abstract async save(id: string, levelData: Partial<ILevelBlueprint>);
-}
-
-class FirebaseLevelProviderService extends LevelProviderService {
-  public async fetch(id: string): Promise<ILevelBlueprint> {
+class FirebaseDriver extends AbstractDriver {
+  public async load(id: string): Promise<IWorldBlueprint> {
     const levelRef = await db.collection('levels').doc(id);
     const levelDoc = await levelRef.get();
 
@@ -20,15 +18,22 @@ class FirebaseLevelProviderService extends LevelProviderService {
 
     const levelData = levelDoc.data() as ILevelBlueprint;
 
-    return {
+    const level = {
       ...levelData,
       tileMapLayer1: JSON.parse(atob(pako.inflate(levelData.tileMapLayer1, { to: 'string' }))),
       tileMapLayer2: JSON.parse(atob(pako.inflate(levelData.tileMapLayer2, { to: 'string' }))),
       tileMapLayer3: JSON.parse(atob(pako.inflate(levelData.tileMapLayer3, { to: 'string' })))
     };
+
+    const { default: entities } = await import(`@src/data/${id}/entities.json`);
+    const { default: resources } = await import(`@src/data/${id}/resources.json`);
+
+    return {
+      level, entities, sprites: resources.sprites, sounds: resources.sounds
+    }
   }
 
-  public async save(id: string, levelData: Partial<ILevelBlueprint>) {
+  public async save(id: string, levelData: Partial<ILevelBlueprint>): Promise<void> {
     const levelRef = await db.collection('levels').doc(id);
 
     let temp = levelData as any;
@@ -58,7 +63,7 @@ class FirebaseLevelProviderService extends LevelProviderService {
   }
 }
 
-export const firebaseLevelProviderSvc = new FirebaseLevelProviderService();
+export default FirebaseDriver;
 
 /*
 levelSvc.save("H2DAzdU049HDkTwWfmKL", {

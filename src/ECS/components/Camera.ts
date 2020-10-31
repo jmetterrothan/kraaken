@@ -10,7 +10,7 @@ import { CAMERA_COMPONENT } from "@src/ECS/types";
 import Box2 from "@src/shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
 
-import { configSvc } from "@shared/services/config.service";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 interface ICameraMetadata {
   mode?: CameraMode;

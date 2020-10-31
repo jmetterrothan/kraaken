@@ -23,7 +23,7 @@ import { IVector2 } from "@shared/models/event.model";
 import { IRGBAColorData } from "@shared/models/color.model";
 import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
 
-import { configSvc } from "@shared/services/config.service";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 class World {
   public readonly blueprint: IWorldBlueprint;

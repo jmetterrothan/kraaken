@@ -12,7 +12,7 @@ import { ITileMap, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 import { create2DArray } from "@src/shared/utility/Utility";
 
-import { configSvc } from "@src/shared/services/config.service";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 class TileMap {
   private startCol: number;

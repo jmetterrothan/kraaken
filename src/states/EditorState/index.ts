@@ -4,13 +4,12 @@ import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
-import { Position, Sprite, BasicInput, Camera } from "@src/ECS/components";
+import { Position, Sprite } from "@src/ECS/components";
 import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
-import Grid from "@src/animation/Grid";
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
@@ -18,7 +17,6 @@ import { EditorMode } from "@src/shared/models/editor.model";
 import { ILayerId } from "@shared/models/tilemap.model";
 import { IWorldBlueprint } from '@shared/models/world.model';
 
-import { firebaseLevelProviderSvc } from '@src/shared/services/firebaseLevelProvider.service';
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -41,13 +39,15 @@ import {
 
 import Fifo from "@src/shared/utility/Fifo";
 
+import { configSvc } from '@src/shared/services/ConfigService';
+
 interface EditorStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
 interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
 
 class EditorState extends State<EditorStateOptions> {
   private mouse: Vector2;
-
+  
   private world: World;
   private id: string;
   private cursor: Entity;
@@ -237,7 +237,7 @@ class EditorState extends State<EditorStateOptions> {
         }
       }
 
-      firebaseLevelProviderSvc.save(id, {
+      configSvc.driver.save(id, {
         tileMapLayer1,
         tileMapLayer2,
         tileMapLayer3,

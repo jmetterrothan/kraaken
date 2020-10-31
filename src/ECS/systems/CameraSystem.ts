@@ -8,7 +8,7 @@ import { CAMERA_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
 
 import Vector2 from "@shared/math/Vector2";
 
-import { configSvc } from "@shared/services/config.service";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 export class CameraSystem extends System {
   public constructor() {
