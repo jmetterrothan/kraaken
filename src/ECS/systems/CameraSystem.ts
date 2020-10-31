@@ -23,12 +23,12 @@ export class CameraSystem extends System {
   public updateViewBox(entity: Entity): void {
     const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
 
-    camera.projectionMatrixInverse = mat3.invert(mat3.create(), camera.projectionMatrix);
+    camera.viewMatrixInverse = mat3.invert(mat3.create(), camera.viewMatrix);
 
-    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), camera.projectionMatrixInverse);
-    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), camera.projectionMatrixInverse);
-    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), camera.projectionMatrixInverse);
-    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), camera.projectionMatrixInverse);
+    const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), camera.viewMatrixInverse);
+    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), camera.viewMatrixInverse);
+    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), camera.viewMatrixInverse);
+    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), camera.viewMatrixInverse);
 
     const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
     const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
@@ -51,10 +51,7 @@ export class CameraSystem extends System {
         const center = targetPos.clone().trunc();
 
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
-          // const movement = camera.target.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-          // if (!movement || movement.isGrounded) {
           position.lerp(center, camera.smoothing).trunc();
-          // }
         } else {
           position.copy(center).trunc();
         }
@@ -85,9 +82,9 @@ export class CameraSystem extends System {
 
       mat3.fromScaling(scaleMatrix, [camera.zoom, camera.zoom]);
 
-      mat3.multiply(camera.projectionMatrix, mat3.create(), scaleMatrix);
-      mat3.multiply(camera.projectionMatrix, camera.projectionMatrix, positionMatrix);
-      mat3.multiply(camera.projectionMatrix, camera.projectionMatrix, offsetMatrix);
+      mat3.multiply(camera.viewMatrix, mat3.create(), scaleMatrix);
+      mat3.multiply(camera.viewMatrix, camera.viewMatrix, positionMatrix);
+      mat3.multiply(camera.viewMatrix, camera.viewMatrix, offsetMatrix);
 
       this.updateViewBox(entity);
 

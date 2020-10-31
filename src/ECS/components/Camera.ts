@@ -25,8 +25,8 @@ export enum CameraMode {
 export class Camera implements Component {
   public readonly type: symbol = CAMERA_COMPONENT;
 
-  public projectionMatrix: mat3 = mat3.create();
-  public projectionMatrixInverse: mat3 = mat3.create();
+  public viewMatrix: mat3 = mat3.create();
+  public viewMatrixInverse: mat3 = mat3.create();
   public previousPosition: Vector2 = new Vector2();
 
   public shouldUpdateProjectionMatrix = true;

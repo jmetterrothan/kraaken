@@ -28,8 +28,7 @@ import { configSvc } from "@src/shared/services/ConfigService";
 class World {
   public readonly blueprint: IWorldBlueprint;
 
-  public viewMatrix: mat3 = mat3.create();
-  public viewProjectionMatrix: mat3 = mat3.create();
+  public projectionMatrix: mat3 = mat3.create();
 
   public tileMap: TileMap;
   public gravity: number;
@@ -276,7 +275,7 @@ class World {
   }
 
   public update(delta: number): void {
-    mat3.projection(this.viewMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
+    mat3.projection(this.projectionMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
     this.tileMap.update(this, delta);
 
@@ -295,10 +294,8 @@ class World {
 
   public render(alpha: number): void {
     const cameraComponent = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
-    this.viewProjectionMatrix = mat3.multiply(mat3.create(), this.viewMatrix, cameraComponent.projectionMatrix);
-
-    this.tileMap.render(this.viewProjectionMatrix, alpha);
-
+    this.tileMap.render(this.projectionMatrix, cameraComponent.viewMatrix, alpha);
+  
     this.renderer.execute(alpha);
   }
 
@@ -367,7 +364,7 @@ class World {
   public screenToCameraCoords(coords: vec2): Vector2 {
     const camera = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
 
-    const v = vec2.transformMat3(vec2.create(), coords, camera.projectionMatrixInverse);
+    const v = vec2.transformMat3(vec2.create(), coords, camera.viewMatrixInverse);
     return Vector2.create(v[0], v[1]);
   }
 

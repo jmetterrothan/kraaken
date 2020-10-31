@@ -2,9 +2,9 @@ import { mat3 } from "gl-matrix";
 
 import System from "@src/ECS/System";
 
-import { Position, Sprite, RigidBody, PlayerInput, BoundingBox } from "@src/ECS/components";
+import { Position, Sprite, RigidBody, Camera, BoundingBox } from "@src/ECS/components";
 
-import { PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 export class RenderingSystem extends System {
   public constructor() {
@@ -12,7 +12,10 @@ export class RenderingSystem extends System {
   }
 
   execute(alpha: number): void {
+    const cameraComponent = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+
     const entities = this.world.getEntities(this.componentTypes);
+
     if (entities.length === 0) {
       return;
     }
@@ -58,7 +61,7 @@ export class RenderingSystem extends System {
       }
 
       sprite.atlas.use();
-      sprite.atlas.render(this.world.viewProjectionMatrix, position.transform, sprite.row, sprite.col, rigidBody?.orientation, sprite.parameters);
+      sprite.atlas.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, sprite.row, sprite.col, rigidBody?.orientation, sprite.parameters);
     });
   }
 }

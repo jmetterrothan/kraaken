@@ -11,7 +11,7 @@ import { gl } from "@src/Game";
 import { IAttributes, IUniforms } from "@shared/models/sprite.model";
 
 import fsColor from "@assets/shaders/color.fs.glsl";
-import vsObject from "@assets/shaders/object.vs.glsl";
+import vsObject from "@assets/shaders/color.vs.glsl";
 
 class ColoredBox {
   private colorMaterial: Material = new Material(vsObject, fsColor);

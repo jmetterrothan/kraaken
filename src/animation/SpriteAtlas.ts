@@ -6,14 +6,15 @@ import SpriteManager from "@src/animation/SpriteManager";
 import { gl } from "@src/Game";
 
 import Vector2 from "@shared/math/Vector2";
-import { ISpriteRenderParameters } from "@shared/models/animation.model";
-import { IAttributes, IUniforms } from "@shared/models/sprite.model";
 import WebGL2H from "@shared/utility/WebGL2H";
 
-import vsObject from "@assets/shaders/object.vs.glsl";
+import { ISpriteRenderParameters } from "@shared/models/animation.model";
+import { IAttributes, IUniforms } from "@shared/models/sprite.model";
+
+import vsObject from "@assets/shaders/sprite.vs.glsl";
 import fsSprite from "@assets/shaders/sprite.fs.glsl";
 
-class SpriteTexture {
+class SpriteAtlas {
   private textureMaterial: Material = new Material(vsObject, fsSprite);
 
   public readonly src: string;
@@ -41,7 +42,9 @@ class SpriteTexture {
   };
 
   private uniforms: IUniforms = {
-    u_mvp: { type: "Matrix3fv", value: undefined },
+    u_projection: { type: "Matrix3fv", value: undefined },
+    u_view: { type: "Matrix3fv", value: undefined },
+    u_model: { type: "Matrix3fv", value: undefined },
     u_frame: { type: "2fv", value: undefined },
     u_color: { type: "4fv", value: undefined },
     u_grayscale: { type: "1i", value: false },
@@ -82,7 +85,7 @@ class SpriteTexture {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(viewProjectionMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
+  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
     if (this.loaded) {
       const dx = (parameters.reflect && (direction?.x ?? 1)) < 0 ? -1 : 1;
       const dy = (parameters.reflect && (direction?.y ?? 1)) < 0 ? -1 : 1;
@@ -97,7 +100,9 @@ class SpriteTexture {
       this.setUniform("u_wireframe", parameters.wireframe);
       this.setUniform("u_color", parameters.color.toVec4());
       this.setUniform("u_frame", this.coords);
-      this.setUniform("u_mvp", mat3.multiply(mat3.create(), viewProjectionMatrix, modelMatrix));
+      this.setUniform("u_projection", projectionMatrix);
+      this.setUniform("u_view", viewMatrix);
+      this.setUniform("u_model", modelMatrix);
 
       gl.drawElements(parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }
@@ -143,6 +148,14 @@ class SpriteTexture {
 
     this.loaded = true;
   }
+
+  public get nbRows(): number {
+    return this.height / this.tileHeight;
+  }
+
+  public get nbCols(): number {
+    return this.width / this.tileWidth;
+  }
 }
 
-export default SpriteTexture;
+export default SpriteAtlas;

@@ -127,7 +127,7 @@ class TileMap {
     }
   }
 
-  public render(viewProjectionMatrix: mat3, alpha: number): void {
+  public render(projectionMatrix: mat3, viewMatrix: mat3, alpha: number): void {
     this.atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
@@ -142,11 +142,11 @@ class TileMap {
         } else {
           */
         if (this.tiles[r][c] && this.tiles[r][c].slot1) {
-          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
+          this.atlas.render(projectionMatrix, viewMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot1.row, this.tiles[r][c].slot1.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
         }
 
         if (this.tiles[r][c] && this.tiles[r][c].slot2) {
-          this.atlas.render(viewProjectionMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
+          this.atlas.render(projectionMatrix, viewMatrix, this.tiles[r][c].transform, this.tiles[r][c].slot2.row, this.tiles[r][c].slot2.col, this.tiles[r][c].direction, this.tiles[r][c].renderOptions);
         }
         /* }*/
       }
