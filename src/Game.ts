@@ -7,8 +7,8 @@ import StateManager from "@src/states/StateManager";
 
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
-import { LEVEL_STATE_SWITCH_EVENT, EDITOR_STATE_SWITCH_EVENT } from '@shared/events/constants';
-import { LevelStateSwitchEvent, EditorStateSwitchEvent } from '@shared/events/index';
+import * as GameEventTypes from '@shared/events/constants';
+import dispatch, * as GameEvents from '@shared/events';
 
 import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
@@ -43,9 +43,8 @@ class Game {
     return document.fullscreenElement !== null;
   }
 
-  public static readonly TARGET_UPS: number = 50;
+  public static readonly TARGET_UPS: number = parseInt(process.env.TARGET_UPS, 10);
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
-  public static readonly DEFAULT_SCALE: number = 5;
 
   public static create(options?: Partial<IGameOptions>): Game {
     if (!(Game[instanceSym] instanceof Game)) {
@@ -61,12 +60,11 @@ class Game {
     allowFullscreen: true,
     height: 600,
     width: 800,
-    root: undefined,
+    root: document.body,
     levelId: '',
   };
 
   private options: IGameOptions;
-  private root: HTMLElement;
 
   private events: Map<string, CallableFunction | null>;
 
@@ -87,7 +85,6 @@ class Game {
 
   private constructor(options: IGameOptions) {
     this.options = options;
-    this.root = options.root || document.body;
 
     this.stateManager = new StateManager();
 
@@ -99,7 +96,7 @@ class Game {
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
 
-    this.targetScale = Game.DEFAULT_SCALE;
+    this.targetScale = 1;
 
     if (configSvc.debug) {
       this.stats = new Stats();
@@ -276,7 +273,7 @@ class Game {
     canvas.classList.add("pixelated");
 
     wrapper.appendChild(canvas);
-    this.root.appendChild(wrapper);
+    this.options.root.appendChild(wrapper);
   }
 
   private initWebGL() {
@@ -369,16 +366,8 @@ class Game {
 
     wrapper.addEventListener("mousewheel", (e: WheelEvent) => {
       if (canvas.contains(e.target as Node)) {
-        let scale = this.targetScale + (e.deltaY > 0 ? -1 : 1);
-        if (scale <= 0) {
-          scale = 1;
-        }
-        if (scale > 50) {
-          scale = 50;
-        }
-        this.targetScale = scale;
-
-        this.refreshScreenSize();
+        const scale = this.targetScale + (e.deltaY > 0 ? -1 : 1);
+        dispatch(GameEvents.zoomEvent(scale));
       }
     });
 
@@ -409,12 +398,28 @@ class Game {
     });
 
     // game events
-    window.addEventListener(LEVEL_STATE_SWITCH_EVENT, (e: LevelStateSwitchEvent) => { 
+    window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => { 
       this.stateManager.switch(GameStates.LEVEL, { id: e.detail.id, blueprint: configSvc.driver.load(e.detail.id) });
     });
 
-    window.addEventListener(EDITOR_STATE_SWITCH_EVENT, (e: EditorStateSwitchEvent) => {
+    window.addEventListener(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, (e: GameEvents.EditorStateSwitchEvent) => {
       this.stateManager.switch(GameStates.EDITOR, { id: e.detail.id, blueprint: configSvc.driver.load(e.detail.id) });
+    });
+
+    window.addEventListener(GameEventTypes.ZOOM_EVENT, (e: GameEvents.ZoomEvent) => {
+      let scale = e.detail.scale;
+
+      if (scale < 1) {
+        scale = 1;
+      }
+      if (scale > 20) {
+        scale = 20;
+      }
+
+      if (scale !== this.targetScale) {
+        this.targetScale = scale;
+        this.refreshScreenSize();
+      }
     });
   }
 

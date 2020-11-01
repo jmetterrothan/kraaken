@@ -5,6 +5,8 @@ import { vec2 } from "gl-matrix";
 import State from "@src/states/State";
 import World from "@src/world/World";
 
+import dispatch, * as GameEvents from '@shared/events';
+
 import { IWorldBlueprint } from '@shared/models/world.model';
 
 import LevelUi from "./LevelUi";
@@ -27,6 +29,8 @@ class LevelState extends State<LevelStateOptions> {
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);
     this.world.aimEntity = this.world.spawn({ type: "crosshair" });
+
+    dispatch(GameEvents.zoomEvent(5));
   }
 
   public mounted(): void {
@@ -75,6 +79,13 @@ class LevelState extends State<LevelStateOptions> {
 
   public handleFullscreenChange(b: boolean): void {
     this.world.handleFullscreenChange(b);
+ 
+    // change zoom level to better fit the screen size
+    if (b) { 
+      dispatch(GameEvents.zoomEvent(5));
+    } else {
+      dispatch(GameEvents.zoomEvent(4));
+    }
   }
 
   public handleResize(): void {

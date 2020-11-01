@@ -19,16 +19,16 @@ class EventStack<T> extends Fifo<T> {
 
   public push(item: T): void {
     super.push(item);
-    this.subject.next(item);
+    this.subject.next(this.length);
   }
 
   public pop(): T {
     const item = super.pop();
-    this.subject.next(item);
+    this.subject.next(this.length);
     return item;
   }
 
-  public subscribe(callback): Subscription {
+  public subscribe(callback: (n: number) => void): Subscription {
     return this.subject.subscribe({
       next: callback
     });
@@ -51,15 +51,6 @@ class EventStackService {
     if (!this.redoStack.isEmpty) {
       this.redoStack = new EventStack();
     }
-  }
-
-  public subscribe(callback: () => void): Subscription {
-    const stackChange = forkJoin([
-      this.undoStack.subscribe(callback),
-      this.redoStack.subscribe(callback)
-    ]);
-
-    return stackChange.subscribe();
   }
 }
 

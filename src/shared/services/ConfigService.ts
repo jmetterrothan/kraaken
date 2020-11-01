@@ -8,7 +8,7 @@ class ConfigService {
   public readonly driver: AbstractDriver = DriverFactory.get(process.env.DRIVER || 'local');
 
   // dynamic properties
-  public scale;
+  public scale: number;
 
   public frameSize: IDimension = { w: -1, h: -1 };
   public innerSize: IDimension = { w: -1, h: -1 };
