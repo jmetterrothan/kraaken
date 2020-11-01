@@ -33,6 +33,7 @@ class Grid {
     u_color: { type: "4fv", value: [0, 0, 0, 0.5] },
     u_scale: { type: "1f", value: 1.0 },
     u_tilesize: { type: "2fv", value: [16.0, 16.0] },
+    u_offset: { type: "2fv", value: [0.0, 0.0]  }
   };
 
   private loaded = false;
@@ -58,7 +59,7 @@ class Grid {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
   }
 
-  public render(projectionMatrix: mat3, viewMatrix: mat3): void {
+  public render(projectionMatrix: mat3, viewMatrix: mat3, offset: vec2): void {
     if (this.loaded) {
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
@@ -66,6 +67,7 @@ class Grid {
       this.setUniform("u_color", [0, 0, 0, 0.5]);
       this.setUniform("u_scale", configSvc.scale);
       this.setUniform("u_tilesize", [16.0, 16.0]);
+      this.setUniform("u_offset", offset);
  
       gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }

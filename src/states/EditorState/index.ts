@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { vec2 } from "gl-matrix";
+import { vec2, mat3 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
@@ -10,7 +10,7 @@ import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS
 import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
-import Grid  from '@src/animation/Grid';
+import Grid  from '@src/shared/Grid';
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
@@ -281,9 +281,11 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public render(alpha: number): void {
-    const cameraComponent = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const camera = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    
+    // TODO: FIX - GRID ONLY LINE UP IN FULLSCREEN
     this.grid.use();
-    this.grid.render(this.world.projectionMatrix, cameraComponent.viewMatrix);
+    this.grid.render(this.world.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
     
     this.world.render(alpha);
   }
