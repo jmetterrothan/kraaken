@@ -80,21 +80,10 @@ export class PlayerInputSystem extends System {
     entities.forEach((entity) => {
       const position = entity.getComponent<Position>(POSITION_COMPONENT);
       const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-      const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
       const c = Vector2.create(coords.x - position.x, coords.y - position.y);
       input.aim.lerp(c, 0.2);
       Vector2.destroy(c);
-
-      const origin = Vector2.create(0, 0);
-      const dist = origin.distanceTo(input.aim);
-      Vector2.destroy(origin);
-
-      if (typeof combat.primaryWeapon.maxRange !== "undefined" && dist > combat.primaryWeapon.maxRange) {
-        const v = input.aim.clone().multiplyScalar(combat.primaryWeapon.maxRange / dist);
-        input.aim.fromValues(v.x, v.y);
-        Vector2.destroy(v);
-      }
     });
   }
 
@@ -147,7 +136,6 @@ export class PlayerInputSystem extends System {
 
   handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
     const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
     const controller = controllers[input.gamepadIndex];
 
@@ -174,17 +162,6 @@ export class PlayerInputSystem extends System {
 
       input.aim.x += Math.abs(x) >= 0.15 ? x * 450 * delta : 0;
       input.aim.y += Math.abs(y) >= 0.15 ? y * 450 * delta : 0;
-
-      // contrains crosshair position
-      const origin = Vector2.create(0, 0);
-      const dist = origin.distanceTo(input.aim);
-      Vector2.destroy(origin);
-
-      if (typeof combat.primaryWeapon.maxRange !== "undefined" && dist > combat.primaryWeapon.maxRange) {
-        const v = input.aim.clone().multiplyScalar(combat.primaryWeapon.maxRange / dist);
-        input.aim.fromValues(v.x, v.y);
-        Vector2.destroy(v);
-      }
 
       // handle buttons
       controller.buttons.forEach((button, index) => {
@@ -243,6 +220,31 @@ export class PlayerInputSystem extends System {
     }
   }
 
+  enforceWeaponRangeLimit(entity: Entity): void {
+    const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
+
+    const origin = Vector2.create(0, 0);
+    const dist = origin.distanceTo(input.aim);
+    Vector2.destroy(origin);
+
+    if (typeof combat.primaryWeapon.maxRange !== "undefined") {
+      if (dist > combat.primaryWeapon.maxRange) {
+        const v = input.aim.clone().multiplyScalar((combat.primaryWeapon.maxRange - 0.01) / dist);
+        input.aim.fromValues(v.x, v.y);
+        Vector2.destroy(v);
+      }
+
+      /*
+      if (dist < combat.primaryWeapon.minRange) {
+        const v = input.aim.clone().multiplyScalar((combat.primaryWeapon.minRange + 0.01) / dist);
+        input.aim.fromValues(v.x, v.y);
+        Vector2.destroy(v);
+      }
+      */
+    }
+  }
+
   execute(delta: number): void {
     const controllers = "getGamepads" in navigator ? navigator.getGamepads() : [];
 
@@ -255,6 +257,8 @@ export class PlayerInputSystem extends System {
       if (this.world.controlledEntity === entity) {
         this.handleGamepadInput(entity, controllers, delta);
       }
+
+      this.enforceWeaponRangeLimit(entity);
     });
   }
 }
