@@ -37,13 +37,11 @@ import {
   DespawnEvent,
 } from "@src/shared/events";
 
-import Fifo from "@src/shared/utility/Fifo";
-
 import { configSvc } from '@src/shared/services/ConfigService';
+import eventStackSvc from "@src/shared/services/EventStackService";
 
 interface EditorStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
-interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
 
 class EditorState extends State<EditorStateOptions> {
   private mouse: Vector2;
@@ -51,9 +49,6 @@ class EditorState extends State<EditorStateOptions> {
   private world: World;
   private id: string;
   private cursor: Entity;
-
-  private undoStack: Fifo<EventStackItem>;
-  private redoStack: Fifo<EventStackItem>;
 
   private selectedTileTypeIndex: number | undefined;
   private selectedLayerId: ILayerId;
@@ -70,8 +65,6 @@ class EditorState extends State<EditorStateOptions> {
     this.selectedMode = EditorMode.PLACE;
     this.selectedTileTypeIndex = data.level.defaultTileType;
     this.mouse = new Vector2(0, 0);
-    this.undoStack = new Fifo();
-    this.redoStack = new Fifo();
 
     await this.world.init();
 
@@ -98,17 +91,17 @@ class EditorState extends State<EditorStateOptions> {
     console.info("Editor mounted");
 
     this.registerEvent(UNDO_EVENT, () => {
-      if (!this.undoStack.isEmpty) {
-        const action = this.undoStack.pop();
-        this.redoStack.push(action);
+      if (!eventStackSvc.undoStack.isEmpty) {
+        const action = eventStackSvc.undoStack.pop();
+        eventStackSvc.redoStack.push(action);
         dispatch(action.undo);
       }
     });
 
     this.registerEvent(REDO_EVENT, () => {
-      if (!this.redoStack.isEmpty) {
-        const action = this.redoStack.pop();
-        this.undoStack.push(action);
+      if (!eventStackSvc.redoStack.isEmpty) {
+        const action = eventStackSvc.redoStack.pop();
+        eventStackSvc.undoStack.push(action);
         dispatch(action.redo);
       }
     });
@@ -149,7 +142,7 @@ class EditorState extends State<EditorStateOptions> {
         // register event
         if (oldTileTypeIndex !== tileTypeIndex) {
           if (pushToStack) {
-            this.undoStack.push({
+            eventStackSvc.undoStack.push({
               undo: placeEvent(layer, oldTileTypeIndex, coords, false), //
               redo: placeEvent(layer, tileTypeIndex, coords, false),
             });
@@ -173,7 +166,7 @@ class EditorState extends State<EditorStateOptions> {
         this.world.spawn(spawnpoint);
 
         if (pushToStack) {
-          this.undoStack.push({
+          eventStackSvc.undoStack.push({
             undo: despawnEvent(spawnpoint.uuid),
             redo: spawnEvent(
               spawnpoint.uuid, //
@@ -264,6 +257,9 @@ class EditorState extends State<EditorStateOptions> {
 
     // remove event listeners
     this.flushEvents();
+
+    // reset event history stack
+    eventStackSvc.reset();
 
     // remove ui
     ReactDOM.unmountComponentAtNode(this.$ui);

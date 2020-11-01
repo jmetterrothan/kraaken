@@ -1,6 +1,5 @@
 import React from "react";
 
-import { ITileGroups, ILayerId, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -9,6 +8,7 @@ import ToolbarTileset from "@src/shared/ui/components/ToolbarTileset";
 import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
 import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/ToolbarSelect";
 
+import { ILayerId } from "@src/shared/models/tilemap.model";
 import { EditorMode } from "@src/shared/models/editor.model";
 import { IWorldBlueprint } from "@src/shared/models/world.model";
 
@@ -17,7 +17,8 @@ import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@s
 import { dispatch, saveEvent, modeChangeEvent, tileTypeChangeEvent, layerChangeEvent, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undoEvent, redoEvent, playEvent } from "@src/shared/events";
 
 import { registerEvent } from "@shared/utility/Utility";
-import SpriteManager from "@src/animation/SpriteManager";
+
+import eventStackSvc from "@src/shared/services/EventStackService";
 
 interface EditorUiProps {
   levelId: string;
@@ -49,6 +50,9 @@ const useEditorActions = () => {
 
 const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
   const { level, sprites } = blueprint;
+
+  const [undoStackSize, setUndoStackSize] = React.useState(0);
+  const [redoStackSize, setRedoStackSize] = React.useState(0);
 
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
@@ -83,10 +87,17 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
       setLayerId(e.detail.id);
     });
 
+    const eventStackChangeSub = eventStackSvc.subscribe(() => {
+      setUndoStackSize(eventStackSvc.undoStack.length);
+      setRedoStackSize(eventStackSvc.redoStack.length);
+    });
+
     return () => {
       unsubFromChangeModeEvent();
       unsubFromChangeTiletypeEvent();
       unsubFromChangeLayerEvent();
+
+      eventStackChangeSub.unsubscribe();
     };
   }, []);
 
@@ -130,14 +141,14 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
           icon="undo" //
           name="Undo"
           active={false}
-          disabled={false}
+          disabled={undoStackSize === 0}
           onClick={actions.undo}
         />
         <ToolbarButton
           icon="redo" //
           name="Redo"
           active={false}
-          disabled={false}
+          disabled={redoStackSize === 0}
           onClick={actions.redo}
         />
         <ToolbarSeparator />
