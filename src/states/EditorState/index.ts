@@ -4,8 +4,8 @@ import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
-import { Position, Sprite } from "@src/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
+import { Camera, Position, Sprite } from "@src/ECS/components";
+import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
@@ -128,9 +128,11 @@ class EditorState extends State<EditorStateOptions> {
 
         coords.forEach((coord) => {
           const tile = tileMap.getTileAtCoords(coord.x, coord.y);
+          
           if (tile) {
             tile.activeSlot = layer;
-            oldTileTypeIndex = tile.row * tileMap.atlas.nbCols + tile.col;
+            oldTileTypeIndex = tile.slot ? tile.slot.row * tileMap.atlas.nbCols + tile.slot.col : 0;
+
             tile.slot = tileMap.getTileTypeByIndex(tileTypeIndex);
 
             if (layer === 1) {
@@ -316,7 +318,7 @@ class EditorState extends State<EditorStateOptions> {
         dispatch(
           placeEvent(
             this.selectedLayerId, //
-            undefined,
+            0,
             { x: coords.x, y: coords.y }
           )
         );

@@ -1,6 +1,5 @@
 import React from "react";
 
-
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
@@ -61,18 +60,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
   const actions = useEditorActions();
 
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
-
-  const tileTypes = React.useMemo<Record<number, ITileTypeData>>(() => {
-    const atlas = SpriteManager.get(level.tileSet);
-
-    return level.tileTypes.reduce((acc, val) => {
-      const index = val.row * atlas.nbCols + val.col;
-      acc[index] = val;
-      return acc;
-    }, {});
-  }, [level.tileTypes]);
-
-  const tileGroups: ITileGroups = level.tileGroups;
 
   React.useEffect(() => {
     const unsubFromChangeModeEvent = registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
@@ -168,8 +155,8 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
           onSelect={actions.selectTileType}
           src={tileSet.src}
           tileSize={tileSet.tileWidth}
-          tileTypes={tileTypes}
-          tileGroups={tileGroups}
+          tileTypes={level.tileTypes}
+          tileGroups={level.tileGroups}
           disabled={mode === EditorMode.ERASE}
         />
         <ToolbarSeparator />

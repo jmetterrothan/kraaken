@@ -1,29 +1,30 @@
 import React from "react";
 import cx from "classnames";
 
-import { ITileTypeData, ITileTypes, ITileGroups, ITileTypeGroup } from "@src/shared/models/tilemap.model";
+import { ITileTypeData, ITileTypeGroup } from "@src/shared/models/tilemap.model";
 
 import ToolbarButton from "../ToolbarButton";
+import TileImage from "../TileImage";
+import useTileset from "./useTileset";
 
 import "./ToolbarTileset.scss";
 
 interface IToolbarTilesetProps {
   disabled?: boolean;
-  selected: string;
-  onSelect: (id: string) => void;
+  selected: number;
+  onSelect: (index: number) => void;
   src: string;
   tileSize: number;
-  tileTypes: ITileTypes;
-  tileGroups: ITileGroups;
+  tileTypes: ITileTypeData[];
+  tileGroups: ITileTypeGroup[];
   scale?: number;
 }
 
 const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, tileTypes, tileGroups }) => {
-  const [tiles, setTiles] = React.useState<string[]>([]);
-
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
+  const tiles = useTileset(src, tileSize, tileTypes);
 
   React.useLayoutEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -43,64 +44,6 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
     setOpen(!open);
   };
 
-  const groups: ITileTypeGroup[] = React.useMemo(() => {
-    return Object.values(tileTypes)
-      .reduce((acc, val) => {
-        if (acc.findIndex((item) => item.id === val.group) === -1) {
-          const tileGroup = tileGroups[val.group] || {};
-          acc.push({ id: val.group, ...tileGroup });
-        }
-        return acc;
-      }, [])
-      .sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (b.name < a.name) {
-          return 1;
-        }
-        return 0;
-      });
-  }, [tileTypes, tileGroups]);
-
-  const data = React.useMemo<(ITileTypeData & { id: string })[]>(() => Object.entries(tileTypes).map(([id, tileType]) => ({ id, ...tileType })), [tileTypes]);
-
-  React.useEffect(() => {
-    const temp: string[] = [];
-
-    const file = new Image();
-
-    const $canvas = document.createElement("canvas");
-    const ctx = $canvas.getContext("2d");
-
-    $canvas.classList.add("pixelated");
-
-    file.onload = () => {
-      $canvas.width = file.width;
-      $canvas.height = file.height;
-
-      ctx.drawImage(file, 0, 0);
-
-      const $subCanvas = document.createElement("canvas");
-      const subCtx = $subCanvas.getContext("2d");
-
-      $subCanvas.width = tileSize;
-      $subCanvas.height = tileSize;
-
-      data.map(({ col, row }, i) => {
-        const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
-        subCtx.putImageData(imagedata, 0, 0);
-
-        temp[`${row}:${col}`] = $subCanvas.toDataURL();
-      });
-
-      setTiles(temp);
-    };
-
-    file.crossOrigin = "anonymous";
-    file.src = src;
-  }, []);
-
   return (
     <div ref={ref} className={cx("toolbar-tileset", open && "open")}>
       <ToolbarButton
@@ -111,23 +54,25 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
         showCaret={true}
         onClick={handleBtnClick}
       />
-
       <div className="toolbar-tileset__inner">
-        {groups.map((group) => {
-          const list = data.filter((item) => item.group === group.id);
+        {tileGroups.map((group) => {
+          const list = tiles.filter((tile) => {
+            return tile.group === group.id;
+          });
+
           return (
             <div key={group.id} className="toolbar-tileset-group">
               <h4 className="toolbar-tileset-group__title">{group.name || `[${group.id}]`}</h4>
-              <ul className={cx("toolbar-tileset-group__list", group && group.display && `g${group.display}`)}>
-                {list.map(({ id }) => (
-                  <li key={id} className={cx(id === selected && "active")}>
-                    <img
+              <ul className={cx("toolbar-tileset-group__list", group.display && `g${group.display}`)}>
+                {list.map(({ index, row, col, subImage }) => (
+                  <li key={index} className={cx(index === selected && "active")}>
+                    <TileImage
+                      title={`row: ${row}, col: ${col}, index: ${index}`}
+                      src={subImage}
                       onClick={() => {
-                        onSelect(id);
+                        onSelect(index);
                         setOpen(false);
                       }}
-                      className="pixelated"
-                      src={tiles[id]}
                     />
                   </li>
                 ))}

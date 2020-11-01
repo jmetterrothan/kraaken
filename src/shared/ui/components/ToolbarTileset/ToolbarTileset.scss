@@ -51,6 +51,18 @@ $fullWidth: $width + $spacing * 2;
       grid-template-rows: $fullWidth;
     }
 
+    &.g1x3 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth;
+    }
+
+    &.g1x4 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth;
+    }
+
     &.g2x1 {
       display: grid;
       grid-template-columns: $fullWidth;
@@ -61,18 +73,6 @@ $fullWidth: $width + $spacing * 2;
       display: grid;
       grid-template-columns: $fullWidth $fullWidth;
       grid-template-rows: $fullWidth $fullWidth;
-    }
-
-    &.g3x2 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g3x3 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth;
     }
 
     &.g2x3 {
@@ -87,6 +87,24 @@ $fullWidth: $width + $spacing * 2;
       grid-template-rows: $fullWidth $fullWidth;
     }
 
+    &.g3x1 {
+      display: grid;
+      grid-template-columns: $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth;
+    }
+
+    &.g3x2 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth;
+    }
+
+    &.g3x3 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth;
+    }
+
     &.g4x1 {
       display: grid;
       grid-template-columns: $fullWidth;
@@ -96,6 +114,18 @@ $fullWidth: $width + $spacing * 2;
     &.g4x2 {
       display: grid;
       grid-template-columns: $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
+    }
+
+    &.g4x3 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth $fullWidth;
+      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
+    }
+
+    &.g4x4 {
+      display: grid;
+      grid-template-columns: $fullWidth $fullWidth $fullWidth $fullWidth;
       grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
     }
 
