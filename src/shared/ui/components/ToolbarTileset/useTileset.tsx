@@ -47,7 +47,6 @@ const useTileset = (src: string, tileSize: number, tileTypes: ITileTypeData[]): 
 
       setTiles(temp);
     };
-    alert("oc");
 
     file.crossOrigin = "anonymous";
     file.src = src;
