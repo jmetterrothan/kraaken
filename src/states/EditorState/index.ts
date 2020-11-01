@@ -10,6 +10,7 @@ import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS
 import State from "@src/states/State";
 import World from "@src/world/World";
 import Tile from "@src/world/Tile";
+import Grid  from '@src/animation/Grid';
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
@@ -20,22 +21,8 @@ import { IWorldBlueprint } from '@shared/models/world.model';
 
 import Vector2 from "@shared/math/Vector2";
 
-import { SaveEvent } from '@shared/events/index';
-import { SAVE_EVENT, DESPAWN_EVENT, UNDO_EVENT, REDO_EVENT, SPAWN_EVENT, PLACE_EVENT, CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
-
-import {
-  dispatch,
-  placeEvent, //
-  TileTypeChangeEvent,
-  LayerChangeEvent,
-  ModeChangeEvent,
-  spawnEvent,
-  SpawnEvent,
-  tileTypeChangeEvent,
-  PlaceEvent,
-  despawnEvent,
-  DespawnEvent,
-} from "@src/shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import dispatch, * as GameEvents from '@shared/events';
 
 import { configSvc } from '@src/shared/services/ConfigService';
 import eventStackSvc from "@src/shared/services/EventStackService";
@@ -49,6 +36,7 @@ class EditorState extends State<EditorStateOptions> {
   private world: World;
   private id: string;
   private cursor: Entity;
+  private grid: Grid;
 
   private selectedTileTypeIndex: number | undefined;
   private selectedLayerId: ILayerId;
@@ -68,6 +56,9 @@ class EditorState extends State<EditorStateOptions> {
 
     await this.world.init();
 
+    this.grid = new Grid();
+    this.grid.init();
+
     // show a cursor following the mouse
     this.cursor = this.world.spawn({ type: "cursor" });
 
@@ -85,12 +76,14 @@ class EditorState extends State<EditorStateOptions> {
 
       position.fromValues(x, y);
     }
+
+    dispatch(GameEvents.zoomEvent(4));
   }
 
   public mounted(): void {
     console.info("Editor mounted");
 
-    this.registerEvent(UNDO_EVENT, () => {
+    this.registerEvent(GameEventTypes.UNDO_EVENT, () => {
       if (!eventStackSvc.undoStack.isEmpty) {
         const action = eventStackSvc.undoStack.pop();
         eventStackSvc.redoStack.push(action);
@@ -98,7 +91,7 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(REDO_EVENT, () => {
+    this.registerEvent(GameEventTypes.REDO_EVENT, () => {
       if (!eventStackSvc.redoStack.isEmpty) {
         const action = eventStackSvc.redoStack.pop();
         eventStackSvc.undoStack.push(action);
@@ -106,19 +99,19 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
+    this.registerEvent(GameEventTypes.CHANGE_MODE_EVENT, (e: GameEvents.ModeChangeEvent) => {
       this.selectedMode = e.detail.mode;
     });
 
-    this.registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
+    this.registerEvent(GameEventTypes.CHANGE_TILETYPE_EVENT, (e: GameEvents.TileTypeChangeEvent) => {
       this.selectedTileTypeIndex = e.detail.index;
     });
 
-    this.registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
+    this.registerEvent(GameEventTypes.CHANGE_LAYER_EVENT, (e: GameEvents.LayerChangeEvent) => {
       this.selectedLayerId = e.detail.id;
     });
 
-    this.registerEvent(PLACE_EVENT, (e: PlaceEvent) => {
+    this.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
       const { coords = [], layer, tileTypeIndex, onSuccess, onFailure, pushToStack } = e.detail || {};
      
       let oldTileTypeIndex: number;
@@ -136,7 +129,7 @@ class EditorState extends State<EditorStateOptions> {
             tile.slot = tileMap.getTileTypeByIndex(tileTypeIndex);
 
             if (layer === 1) {
-              tile.collision = tileTypeIndex !== undefined;
+              tile.collision = tileTypeIndex > 0;
             }
           }
         });
@@ -145,8 +138,8 @@ class EditorState extends State<EditorStateOptions> {
         if (oldTileTypeIndex !== tileTypeIndex) {
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: placeEvent(layer, oldTileTypeIndex, coords, false), //
-              redo: placeEvent(layer, tileTypeIndex, coords, false),
+              undo: GameEvents.placeEvent(layer, oldTileTypeIndex, coords, false), //
+              redo: GameEvents.placeEvent(layer, tileTypeIndex, coords, false),
             });
           }
         }
@@ -161,7 +154,7 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(SPAWN_EVENT, (e: SpawnEvent) => {
+    this.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       try {
@@ -169,8 +162,8 @@ class EditorState extends State<EditorStateOptions> {
 
         if (pushToStack) {
           eventStackSvc.undoStack.push({
-            undo: despawnEvent(spawnpoint.uuid),
-            redo: spawnEvent(
+            undo: GameEvents.despawnEvent(spawnpoint.uuid),
+            redo: GameEvents.spawnEvent(
               spawnpoint.uuid, //
               spawnpoint.type,
               spawnpoint.position,
@@ -191,7 +184,7 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(DESPAWN_EVENT, (e: DespawnEvent) => {
+    this.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
       const { uuid, onSuccess, onFailure } = e.detail || {};
 
       try {
@@ -207,7 +200,7 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(SAVE_EVENT, (e: SaveEvent) => {
+    this.registerEvent(GameEventTypes.SAVE_EVENT, (e: GameEvents.SaveEvent) => {
       const id = e.detail.id;
 
       const rows = this.world.tileMap.getNbRows();
@@ -245,6 +238,7 @@ class EditorState extends State<EditorStateOptions> {
         levelId: this.id,
         blueprint: this.world.blueprint,
         options: {
+          scale: 5,
           mode: this.selectedMode,
           layerId: this.selectedLayerId,
           tileTypeIndex: this.selectedTileTypeIndex,
@@ -287,6 +281,10 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public render(alpha: number): void {
+    const cameraComponent = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    this.grid.use();
+    this.grid.render(this.world.projectionMatrix, cameraComponent.viewMatrix);
+    
     this.world.render(alpha);
   }
 
@@ -304,11 +302,11 @@ class EditorState extends State<EditorStateOptions> {
       if (this.selectedMode === EditorMode.PICK) {
         const tile = tileMap.getTileAtCoords(coords.x, coords.y);
         if (tile && tile.slot) {
-          dispatch(tileTypeChangeEvent(tile.slot.row * this.world.tileMap.atlas.nbCols + tile.slot.col));
+          dispatch(GameEvents.tileTypeChangeEvent(tile.slot.row * this.world.tileMap.atlas.nbCols + tile.slot.col));
         }
       } else if (this.selectedMode === EditorMode.PLACE) {
         dispatch(
-          placeEvent(
+          GameEvents.placeEvent(
             this.selectedLayerId, //
             this.selectedTileTypeIndex,
             { x: coords.x, y: coords.y }
@@ -316,7 +314,7 @@ class EditorState extends State<EditorStateOptions> {
         );
       } else if (this.selectedMode === EditorMode.ERASE) {
         dispatch(
-          placeEvent(
+          GameEvents.placeEvent(
             this.selectedLayerId, //
             0,
             { x: coords.x, y: coords.y }
@@ -329,7 +327,7 @@ class EditorState extends State<EditorStateOptions> {
           const targetId = targetTile.typeId;
 
           dispatch(
-            placeEvent(
+            GameEvents.placeEvent(
               this.selectedLayerId, //
               this.selectedTileTypeIndex,
               tileMap
@@ -355,12 +353,18 @@ class EditorState extends State<EditorStateOptions> {
 
       const x = tile.x1 + tile.size / 2;
       const y = tile.y1 + tile.size / 2;
-      dispatch(spawnEvent(uuidv4(), "coin", { x, y }));
+      dispatch(GameEvents.spawnEvent(uuidv4(), "health_potion", { x, y }));
     }
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     this.world.handleMouseRightBtnPressed(active, position);
+
+    if (active) {
+      if (this.selectedMode === EditorMode.PLACE || this.selectedMode === EditorMode.ERASE) {
+        dispatch(GameEvents.undoEvent());
+      }
+    }
   }
 
   public handleMouseMove(position: vec2): void {

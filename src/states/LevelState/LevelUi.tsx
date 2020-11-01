@@ -4,12 +4,12 @@ import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
-import { dispatch, editEvent } from "@src/shared/events";
+import dispatch, * as GameEvents from "@src/shared/events";
 
 const useLevelActions = () => {
   return React.useMemo(
     () => ({
-      edit: (id: string) => dispatch(editEvent(id)),
+      edit: (id: string) => dispatch(GameEvents.editEvent(id)),
     }),
     []
   );

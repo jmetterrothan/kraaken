@@ -12,11 +12,12 @@ export interface IToolbarOption<T> {
 
 interface IToolbarSelectProps<T> extends Omit<IToolbarButtonprops, "name" | "showCaret" | "onClick"> {
   onItemClick?: (option: IToolbarOption<T>) => void;
+  displayedValue?: string;
   selected?: T;
   options?: IToolbarOption<T>[];
 }
 
-function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: IToolbarSelectProps<T>): React.ReactElement {
+function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick, ...props }: IToolbarSelectProps<T>): React.ReactElement {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
@@ -40,10 +41,11 @@ function ToolbarSelect<T>({ selected, options = [], onItemClick, ...props }: ITo
   };
 
   const selection = options.find((option) => option.value === selected);
+  const name = displayedValue ? displayedValue : selection ? selection.name : "Select";
 
   return (
     <div ref={ref} className={cx("toolbar-select", open && "open")}>
-      <ToolbarButton {...props} active={false} name={selection ? selection.name : "Select Layer"} showCaret={true} onClick={handleBtnClick} />
+      <ToolbarButton {...props} active={false} name={name} showCaret={true} onClick={handleBtnClick} />
       <ul className="toolbar-select__inner">
         {options.map((option, i) => {
           const handleItemClick = () => {

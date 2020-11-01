@@ -11,18 +11,20 @@ import { ILayerId } from "@src/shared/models/tilemap.model";
 import { EditorMode } from "@src/shared/models/editor.model";
 import { IWorldBlueprint } from "@src/shared/models/world.model";
 
-import { CHANGE_TILETYPE_EVENT, CHANGE_LAYER_EVENT, CHANGE_MODE_EVENT } from "@src/shared/events/constants";
-
-import { dispatch, saveEvent, modeChangeEvent, tileTypeChangeEvent, layerChangeEvent, ModeChangeEvent, TileTypeChangeEvent, LayerChangeEvent, undoEvent, redoEvent, playEvent } from "@src/shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import dispatch, * as GameEvents from "@src/shared/events";
 
 import { registerEvent } from "@shared/utility/Utility";
 
-import eventStackSvc from "@src/shared/services/EventStackService";
+import UndoToolbarButton from "./UndoToolbarButton";
+import RedoToolbarButton from "./RedoToolbarButton";
+import ZoomToolbarSelect from "./ZoomToolbarSelect";
 
 interface EditorUiProps {
   levelId: string;
   blueprint: IWorldBlueprint;
   options: {
+    scale: number;
     mode: EditorMode;
     layerId: number;
     tileTypeIndex: number;
@@ -32,16 +34,17 @@ interface EditorUiProps {
 const useEditorActions = () => {
   return React.useMemo(
     () => ({
-      setPlaceMode: () => dispatch(modeChangeEvent(EditorMode.PLACE)),
-      setFillMode: () => dispatch(modeChangeEvent(EditorMode.FILL)),
-      setEraseMode: () => dispatch(modeChangeEvent(EditorMode.ERASE)),
-      setPickMode: () => dispatch(modeChangeEvent(EditorMode.PICK)),
-      undo: () => dispatch(undoEvent()),
-      redo: () => dispatch(redoEvent()),
-      selectLayer: (option: IToolbarOption<number>) => dispatch(layerChangeEvent(option.value as ILayerId)),
-      selectTileType: (index: number) => dispatch(tileTypeChangeEvent(index)),
-      play: (id: string) => dispatch(playEvent(id)),
-      save: (id: string) => dispatch(saveEvent(id)),
+      setPlaceMode: () => dispatch(GameEvents.modeChangeEvent(EditorMode.PLACE)),
+      setFillMode: () => dispatch(GameEvents.modeChangeEvent(EditorMode.FILL)),
+      setEraseMode: () => dispatch(GameEvents.modeChangeEvent(EditorMode.ERASE)),
+      setPickMode: () => dispatch(GameEvents.modeChangeEvent(EditorMode.PICK)),
+      undo: () => dispatch(GameEvents.undoEvent()),
+      redo: () => dispatch(GameEvents.redoEvent()),
+      selectLayer: (option: IToolbarOption<number>) => dispatch(GameEvents.layerChangeEvent(option.value as ILayerId)),
+      selectTileType: (index: number) => dispatch(GameEvents.tileTypeChangeEvent(index)),
+      play: (id: string) => dispatch(GameEvents.playEvent(id)),
+      save: (id: string) => dispatch(GameEvents.saveEvent(id)),
+      zoom: (option: IToolbarOption<number>) => dispatch(GameEvents.zoomEvent(option.value)),
     }),
     []
   );
@@ -49,9 +52,6 @@ const useEditorActions = () => {
 
 const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
   const { level, sprites } = blueprint;
-
-  const [undoStackSize, setUndoStackSize] = React.useState(0);
-  const [redoStackSize, setRedoStackSize] = React.useState(0);
 
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
@@ -62,29 +62,27 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
 
   React.useEffect(() => {
-    const unsubFromChangeModeEvent = registerEvent(CHANGE_MODE_EVENT, (e: ModeChangeEvent) => {
+    /**
+     * TODO: Those listeners are not reliable because they contain raw data in the details,
+     * they should all related to an rxjs subscription in order to listen to the
+     * real value change in the game
+     */
+    const unsubFromChangeModeEvent = registerEvent(GameEventTypes.CHANGE_MODE_EVENT, (e: GameEvents.ModeChangeEvent) => {
       setMode(e.detail.mode);
     });
 
-    const unsubFromChangeTiletypeEvent = registerEvent(CHANGE_TILETYPE_EVENT, (e: TileTypeChangeEvent) => {
+    const unsubFromChangeTiletypeEvent = registerEvent(GameEventTypes.CHANGE_TILETYPE_EVENT, (e: GameEvents.TileTypeChangeEvent) => {
       setTileTypeIndex(e.detail.index);
     });
 
-    const unsubFromChangeLayerEvent = registerEvent(CHANGE_LAYER_EVENT, (e: LayerChangeEvent) => {
+    const unsubFromChangeLayerEvent = registerEvent(GameEventTypes.CHANGE_LAYER_EVENT, (e: GameEvents.LayerChangeEvent) => {
       setLayerId(e.detail.id);
-    });
-
-    const eventStackChangeSub = eventStackSvc.subscribe(() => {
-      setUndoStackSize(eventStackSvc.undoStack.length);
-      setRedoStackSize(eventStackSvc.redoStack.length);
     });
 
     return () => {
       unsubFromChangeModeEvent();
       unsubFromChangeTiletypeEvent();
       unsubFromChangeLayerEvent();
-
-      eventStackChangeSub.unsubscribe();
     };
   }, []);
 
@@ -124,20 +122,10 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
           onClick={actions.setPickMode}
         />
         <ToolbarSeparator />
-        <ToolbarButton
-          icon="undo" //
-          name="Undo"
-          active={false}
-          disabled={undoStackSize === 0}
-          onClick={actions.undo}
-        />
-        <ToolbarButton
-          icon="redo" //
-          name="Redo"
-          active={false}
-          disabled={redoStackSize === 0}
-          onClick={actions.redo}
-        />
+        <UndoToolbarButton onClick={actions.undo} />
+        <RedoToolbarButton onClick={actions.redo} />
+        <ToolbarSeparator />
+        <ZoomToolbarSelect onClick={actions.zoom} />
         <ToolbarSeparator />
         <ToolbarSelect<number>
           icon="layer-group" //
