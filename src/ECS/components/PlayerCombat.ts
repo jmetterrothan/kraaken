@@ -11,7 +11,7 @@ export class PlayerCombat implements Component {
   public primary;
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "energy_bolt", speed: 275, ttl: 1000 }, //
+    projectile: { type: "energy_bolt", speed: 275, ttl: 750 }, //
     rate: 500,
     maxAmmo: 32,
     fireSFX: "laser",

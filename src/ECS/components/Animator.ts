@@ -26,10 +26,6 @@ export class Animator implements Component {
     this.defaultKey = defaultKey;
     this.currentKey = this.defaultKey;
 
-    if (!this.currentKey) {
-      throw new Error("Undefined default animation key");
-    }
-
     // convert animation parameters in Animation objects
     for (const name of Object.keys(list ?? {})) {
       const animation = Animation.create({ name, ...list[name] });
@@ -39,6 +35,10 @@ export class Animator implements Component {
       }
 
       this.list.set(name, animation);
+    }
+
+    if (!defaultKey || !this.hasAnimation(defaultKey)) {
+      throw new Error(`Missing default animation "${defaultKey}"`);
     }
   }
 
@@ -55,8 +55,9 @@ export class Animator implements Component {
   }
 
   public get animation(): Animation {
-    if (!this.list.has(this.currentKey)) {
-      throw new Error(`Undefined animation key`);
+    if (!this.hasAnimation(this.currentKey)) {
+      console.warn(`Missing animation "${this.currentKey}"`);
+      return this.list.get(this.defaultKey);
     }
     return this.list.get(this.currentKey);
   }

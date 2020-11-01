@@ -361,9 +361,11 @@ class EditorState extends State<EditorStateOptions> {
     this.world.handleMouseRightBtnPressed(active, position);
 
     if (active) {
+      /*
       if (this.selectedMode === EditorMode.PLACE || this.selectedMode === EditorMode.ERASE) {
         dispatch(GameEvents.undoEvent());
       }
+      */
     }
   }
 
