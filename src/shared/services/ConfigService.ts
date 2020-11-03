@@ -1,17 +1,24 @@
 import DriverFactory from '@src/shared/drivers/DriverFactory';
 import AbstractDriver from '@src/shared/drivers/AbstractDriver';
 
+import config from '@src/config';
+
 import { IDimension } from "@shared/models/game.model";
 
 class ConfigService {
-  public readonly debug: boolean = process.env.DEBUG === "true";
-  public readonly driver: AbstractDriver = DriverFactory.get(process.env.DRIVER || 'local');
-
-  // dynamic properties
   public scale: number;
 
-  public frameSize: IDimension = { w: -1, h: -1 };
-  public innerSize: IDimension = { w: -1, h: -1 };
+  public frameSize: IDimension;
+  public innerSize: IDimension;
+
+  public driver: AbstractDriver;
+
+  public constructor() {
+    this.frameSize = { w: -1, h: -1 };
+    this.innerSize = { w: -1, h: -1 };
+
+    this.driver = DriverFactory.get(config.DRIVER);
+  }
 }
 
 export const configSvc = new ConfigService();

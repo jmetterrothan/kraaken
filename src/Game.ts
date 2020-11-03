@@ -15,6 +15,8 @@ import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Util
 
 import { configSvc } from "@src/shared/services/ConfigService";
 
+import config from '@src/config';
+
 const instanceSym = Symbol("instance");
 
 let wrapper: HTMLElement;
@@ -44,7 +46,7 @@ class Game {
     return document.fullscreenElement !== null;
   }
 
-  public static readonly TARGET_UPS: number = parseInt(process.env.TARGET_UPS, 10);
+  public static readonly TARGET_UPS: number = config.TARGET_UPS;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
 
   public static create(options?: Partial<IGameOptions>): Game {
@@ -99,7 +101,7 @@ class Game {
 
     this.targetScale = 1;
 
-    if (configSvc.debug) {
+    if (config.DEBUG) {
       this.stats = new Stats();
       this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
     }
@@ -193,7 +195,7 @@ class Game {
   }
 
   public run(): void {
-    if (configSvc.debug) {
+    if (config.DEBUG) {
       this.stats.begin();
     }
 
@@ -204,7 +206,7 @@ class Game {
       if (time > this.nextTime) {
         this.nextTime += 1000;
 
-        if (configSvc.debug) {
+        if (config.DEBUG) {
           this.upsPanel.update(this.ups);
         }
         this.ups = 0;
@@ -229,7 +231,7 @@ class Game {
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);
-    if (configSvc.debug) {
+    if (config.DEBUG) {
       this.stats.end();
     }
 
@@ -242,7 +244,7 @@ class Game {
     this.initEvents();
 
     // Stats
-    if (configSvc.debug) {
+    if (config.DEBUG) {
       this.stats.showPanel(0);
       this.stats.dom.style.position = "absolute";
       this.stats.dom.style.top = "unset";
