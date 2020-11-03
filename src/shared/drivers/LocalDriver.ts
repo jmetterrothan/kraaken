@@ -22,6 +22,7 @@ class LocalDriver extends AbstractDriver {
   }
 
   public async save(id: string, levelData: Partial<ILevelBlueprint>): Promise<void> {
+    alert('[Failed] Save not yet implemented on local driver');
     throw new SaveError('Save not implemented on local driver');
   }
 }

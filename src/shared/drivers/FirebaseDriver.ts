@@ -10,9 +10,13 @@ import { ILevelBlueprint } from '@shared/models/world.model';
 
 import config from '@src/config';
 
+const decompress = (data) => JSON.parse(atob(pako.inflate(data, { to: 'string' })));
+
+const compress = (data) => Array.from(pako.deflate(btoa(JSON.stringify(data))));
+
 class FirebaseDriver extends AbstractDriver {
-  private app;
-  private db;
+  private app: firebase.app.App;
+  private db: firebase.firestore.Firestore;
 
   public constructor() {
     super();
@@ -42,16 +46,18 @@ class FirebaseDriver extends AbstractDriver {
 
     const level = {
       ...levelData,
-      tileMapLayer1: JSON.parse(atob(pako.inflate(levelData.tileMapLayer1, { to: 'string' }))),
-      tileMapLayer2: JSON.parse(atob(pako.inflate(levelData.tileMapLayer2, { to: 'string' }))),
-      tileMapLayer3: JSON.parse(atob(pako.inflate(levelData.tileMapLayer3, { to: 'string' })))
+      tileMapLayer1: decompress(levelData.tileMapLayer1),
+      tileMapLayer2: decompress(levelData.tileMapLayer2),
+      tileMapLayer3: decompress(levelData.tileMapLayer3)
     };
 
     const { default: entities } = await import(`@src/data/${id}/entities.json`);
     const { default: resources } = await import(`@src/data/${id}/resources.json`);
 
     return {
-      level, entities, sprites: resources.sprites, sounds: resources.sounds
+      level, entities,
+      sprites: resources.sprites,
+      sounds: resources.sounds
     }
   }
 
@@ -63,21 +69,21 @@ class FirebaseDriver extends AbstractDriver {
     if ('tileMapLayer1' in temp) {
       temp = {
         ...temp,
-        tileMapLayer1: Array.from(pako.deflate(btoa(JSON.stringify(temp.tileMapLayer1)))),
+        tileMapLayer1: compress(temp.tileMapLayer1),
       }
     }
 
     if ('tileMapLayer2' in temp) {
       temp = {
         ...temp,
-        tileMapLayer2: Array.from(pako.deflate(btoa(JSON.stringify(temp.tileMapLayer2)))),
+        tileMapLayer2: compress(temp.tileMapLayer2),
       }
     }
 
     if ('tileMapLayer3' in temp) {
       temp = {
         ...temp,
-        tileMapLayer3: Array.from(pako.deflate(btoa(JSON.stringify(temp.tileMapLayer3)))),
+        tileMapLayer3: compress(temp.tileMapLayer3),
       }
     }
 
