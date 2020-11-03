@@ -1,4 +1,5 @@
 import Stats from "stats-js";
+import debounce from 'debounce';
 
 import EditorState from "@src/states/EditorState";
 import LevelState from "@src/states/LevelState";
@@ -136,9 +137,12 @@ class Game {
 
       configSvc.scale = scale;
 
+      console.log(configSvc);
+
       gl.viewport(0, 0, canvas.width, canvas.height);
 
       const resizeCallback = this.events.get("resize");
+      
       if (resizeCallback) {
         resizeCallback(configSvc.frameSize, configSvc.innerSize);
       }
@@ -392,10 +396,8 @@ class Game {
       this.nextTime = this.lastTime + elapsed;
     });
 
-    window.addEventListener("resize", () => {
-      // needed if we switch screen and the pixel ratio has changed
-      this.refreshScreenSize();
-    });
+    // needed if we switch screen and the pixel ratio has changed
+    window.addEventListener("resize", debounce(this.refreshScreenSize));
 
     // game events
     window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => { 
