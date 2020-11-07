@@ -15,7 +15,7 @@ interface IConfig {
 
 const config: IConfig = {
   DRIVER: (process.env.DRIVER || 'local') as IDriverType,
-  DEBUG: process.env.DEBUG === 'true',
+  DEBUG: (process.env.DEBUG || 'true') === 'true',
   TARGET_UPS: process.env.TARGET_UPS ? parseInt(process.env.TARGET_UPS, 10) : 50,
   FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
