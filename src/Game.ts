@@ -139,8 +139,6 @@ class Game {
 
       configSvc.scale = scale;
 
-      console.log(configSvc);
-
       gl.viewport(0, 0, canvas.width, canvas.height);
 
       const resizeCallback = this.events.get("resize");
@@ -403,11 +401,17 @@ class Game {
 
     // game events
     window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => { 
-      this.stateManager.switch(GameStates.LEVEL, { id: e.detail.id, blueprint: configSvc.driver.load(e.detail.id) });
+      this.stateManager.switch(GameStates.LEVEL, { 
+        id: e.detail.id,
+        blueprint: configSvc.driver.load(e.detail.id),
+      });
     });
 
     window.addEventListener(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, (e: GameEvents.EditorStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.EDITOR, { id: e.detail.id, blueprint: configSvc.driver.load(e.detail.id) });
+      this.stateManager.switch(GameStates.EDITOR, {
+        id: e.detail.id,
+        blueprint: configSvc.driver.load(e.detail.id),
+      });
     });
 
     window.addEventListener(GameEventTypes.ZOOM_EVENT, (e: GameEvents.ZoomEvent) => {

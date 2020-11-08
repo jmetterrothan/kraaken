@@ -1,3 +1,4 @@
+import { TileLayer } from './tilemap.model';
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
@@ -25,9 +26,11 @@ export interface ILevelBlueprint {
   tileTypes: ITileTypeData[];
   tileMapRows: number;
   tileMapCols: number;
-  tileMapLayer1: number[];
-  tileMapLayer2: number[];
-  tileMapLayer3: number[];
+  layers: {
+    [TileLayer.L0]: number[],
+    [TileLayer.L1]: number[],
+    [TileLayer.L2]: number[],
+  }
 }
 
 export interface IWorldBlueprint {

@@ -21,8 +21,8 @@ export class Position extends Vector2 implements Component {
 
   private _shouldUpdateTransform = true;
 
-  public constructor({ x, y }: IPositionMetadata = {}) {
-    super(x ?? 0, y ?? 0);
+  public constructor({ x = 0, y = 0 }: IPositionMetadata = {}) {
+    super(x, y);
   }
 
   public get shouldUpdateTransform(): boolean {

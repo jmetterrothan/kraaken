@@ -50,7 +50,7 @@ class World {
     this.blueprint = blueprint;
   }
 
-  public async init(): Promise<void> {
+  public async init(physics = true): Promise<void> {
     const { sounds, sprites, level } = this.blueprint;
 
     for (const sound of sounds) {
@@ -62,34 +62,25 @@ class World {
     }
 
     this.addSystem(new PlayerInputSystem());
+    this.addSystem(new BasicInputSystem());
+    this.addSystem(new BasicMovementSystem());
     this.addSystem(new PlayerMovementSystem());
-    this.addSystem(new PhysicsSystem());
+    if (physics) {
+      this.addSystem(new PhysicsSystem());
+    }
     this.addSystem(new CameraSystem());
     this.addSystem(new AnimationSystem());
     this.addSystem(new ConsummableSystem());
     this.addSystem(new PlayerCombatSystem());
-    this.addSystem(new BasicInputSystem());
-    this.addSystem(new BasicMovementSystem());
 
     this.renderer = new RenderingSystem();
     this.renderer.addedToWorld(this);
 
-    this.tileMap = new TileMap({
-      defaultTileType: level.defaultTileType,
-      rows: level.tileMapRows,
-      cols: level.tileMapCols,
-      tileSize: level.tileSize,
-      tileSet: level.tileSet,
-      tileGroups: level.tileGroups,
-      tileTypes: level.tileTypes,
-      layer1: level.tileMapLayer1,
-      layer2: level.tileMapLayer2,
-      layer3: level.tileMapLayer3,
-    });
+    this.tileMap = new TileMap(this.blueprint);
+    this.tileMap.init();
     
     this.gravity = level.gravity;
-
-    this.tileMap.init();
+  
     this.setClearColor(level.background);
 
     level.spawnPoints.forEach(this.spawn.bind(this));
@@ -370,13 +361,16 @@ class World {
 
   public isFrustumCulled(entity: Entity): boolean {
     const camera = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const entityPos = entity.getComponent<Position>(POSITION_COMPONENT);
 
     if (entity.hasComponent(BOUNDING_BOX_COMPONENT)) {
       const entityBbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+      // update bbox position to match the entity's position
+      entityBbox.setPositionFromVector2(entityPos);
+      
       return !camera.viewBox.intersectBox(entityBbox);
     }
 
-    const entityPos = entity.getComponent<Position>(POSITION_COMPONENT);
     return !camera.viewBox.containsPoint(entityPos);
   }
 

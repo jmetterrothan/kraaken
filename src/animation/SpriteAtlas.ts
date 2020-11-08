@@ -34,8 +34,6 @@ class SpriteAtlas {
   private ibo: WebGLBuffer = gl.createBuffer();
   private tbo: WebGLBuffer = gl.createBuffer();
 
-  private coords: vec2 = vec2.fromValues(0, 0);
-
   private attributes: IAttributes = {
     a_position: gl.getAttribLocation(this.textureMaterial.program, "a_position"),
     a_texture_coord: gl.getAttribLocation(this.textureMaterial.program, "a_texture_coord"),
@@ -85,24 +83,28 @@ class SpriteAtlas {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
+  public computeTileCoord(row: number, col: number, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): vec2 {
+    const dx = (parameters.reflect && (direction?.x ?? 1)) < 0 ? -1 : 1;
+    const dy = (parameters.reflect && (direction?.y ?? 1)) < 0 ? -1 : 1;
+
+    // calculate frame woords in a 0 - 1 range
+    const x = (((col + (dx === -1 ? 1 : 0)) * this.tileWidth) / this.width) * dx;
+    const y = (((row + (dy === -1 ? 1 : 0)) * this.tileHeight) / this.height) * dy;
+
+    return vec2.fromValues(x, y);
+  }
+
+  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, frame: { row: number; col: number; }, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
     if (this.loaded) {
-      const dx = (parameters.reflect && (direction?.x ?? 1)) < 0 ? -1 : 1;
-      const dy = (parameters.reflect && (direction?.y ?? 1)) < 0 ? -1 : 1;
-
-      // calculate frame woords in a 0 - 1 range
-      this.coords[0] = (((col + (dx === -1 ? 1 : 0)) * this.tileWidth) / this.width) * dx;
-      this.coords[1] = (((row + (dy === -1 ? 1 : 0)) * this.tileHeight) / this.height) * dy;
-
       this.setUniform("u_alpha", parameters.alpha);
       this.setUniform("u_grayscale", parameters.grayscale);
       this.setUniform("u_flashing", parameters.flashing);
       this.setUniform("u_wireframe", parameters.wireframe);
       this.setUniform("u_color", parameters.color.toVec4());
-      this.setUniform("u_frame", this.coords);
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", modelMatrix);
+      this.setUniform("u_frame", this.computeTileCoord(frame.row, frame.col, direction, parameters));
 
       gl.drawElements(parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }

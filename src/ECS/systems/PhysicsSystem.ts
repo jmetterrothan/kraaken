@@ -4,7 +4,8 @@ import System from "@src/ECS/System";
 import { Position, BoundingBox, RigidBody, PlayerMovement } from "@src/ECS/components";
 import { POSITION_COMPONENT, PLAYER_MOVEMENT_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
-import Tile from "@src/world/Tile";
+import { ITile } from '@shared/models/tilemap.model';
+
 import TileMap from "@src/world/TileMap";
 
 import Vector2 from "@shared/math/Vector2";
@@ -204,9 +205,10 @@ export class PhysicsSystem extends System {
     Vector2.destroy(newPosition);
 
     const now = window.performance.now();
-    const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-
-    if (movement) {
+    
+    if (entity.hasComponent(PLAYER_MOVEMENT_COMPONENT)) {
+      const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
+      
       if (movement.falling && rigidBody.velocity.y === 0 && v.y > 0) {
         this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
         movement.lastEffectTime = now + 500;
@@ -242,19 +244,19 @@ export class PhysicsSystem extends System {
     return tile !== undefined;
   }
 
-  protected testForCollision(tileMap: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): Tile | undefined {
+  protected testForCollision(tileMap: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): ITile | undefined {
     const a = tileMap.getTileAtCoords(a1x, a1y);
-    if (a && a.collision) {
+    if (a && a.hasCollision()) {
       return a;
     }
 
     const b = tileMap.getTileAtCoords(b1x, b1y);
-    if (b && b.collision) {
+    if (b && b.hasCollision()) {
       return b;
     }
 
     const c = tileMap.getTileAtCoords(c1x, c1y);
-    if (c && c.collision) {
+    if (c && c.hasCollision()) {
       return c;
     }
 

@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { vec2, mat3 } from "gl-matrix";
+import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
@@ -9,15 +9,14 @@ import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS
 
 import State from "@src/states/State";
 import World from "@src/world/World";
-import Tile from "@src/world/Tile";
 import Grid  from '@src/shared/Grid';
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
 import { EditorMode } from "@src/shared/models/editor.model";
-import { ILayerId } from "@shared/models/tilemap.model";
+import { TileLayer } from "@shared/models/tilemap.model";
 import { IWorldBlueprint } from '@shared/models/world.model';
-
+import { ITile } from '@shared/models/tilemap.model';
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -38,23 +37,23 @@ class EditorState extends State<EditorStateOptions> {
   private cursor: Entity;
   private grid: Grid;
 
-  private selectedTileTypeIndex: number | undefined;
-  private selectedLayerId: ILayerId;
+  private selectedTileTypeId: number;
+  private selectedLayerId: TileLayer;
   private selectedMode: EditorMode;
 
   public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
-    
+
     const data = await Promise.resolve(blueprint);
-    this.world = new World(data);
+    this.world = new World(await Promise.resolve(blueprint));
     this.id = id;
 
-    this.selectedLayerId = 1;
+    this.selectedLayerId = TileLayer.L1;
     this.selectedMode = EditorMode.PLACE;
-    this.selectedTileTypeIndex = data.level.defaultTileType;
+    this.selectedTileTypeId = data.level.defaultTileType || 0;
     this.mouse = new Vector2(0, 0);
 
-    await this.world.init();
+    await this.world.init(false);
 
     this.grid = new Grid();
     this.grid.init();
@@ -104,7 +103,7 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(GameEventTypes.CHANGE_TILETYPE_EVENT, (e: GameEvents.TileTypeChangeEvent) => {
-      this.selectedTileTypeIndex = e.detail.index;
+      this.selectedTileTypeId = e.detail.id;
     });
 
     this.registerEvent(GameEventTypes.CHANGE_LAYER_EVENT, (e: GameEvents.LayerChangeEvent) => {
@@ -112,42 +111,41 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
-      const { coords = [], layer, tileTypeIndex, onSuccess, onFailure, pushToStack } = e.detail || {};
-     
-      let oldTileTypeIndex: number;
+      const { coords = [], layer, tileTypeId, onSuccess, onFailure, pushToStack } = e.detail || {};
+    
+      if (typeof tileTypeId === 'undefined') {
+        throw new Error('Undefined tile type index');
+      }
+
+      let oldTileTypeId: number;
 
       try {
         const tileMap = this.world.tileMap;
 
+        // compute layer transforms
         coords.forEach((coord) => {
           const tile = tileMap.getTileAtCoords(coord.x, coord.y);
-          
+ 
           if (tile) {
-            tile.activeSlot = layer;
-            oldTileTypeIndex = tile.slot ? tile.slot.row * tileMap.atlas.nbCols + tile.slot.col : 0;
-
-            tile.slot = tileMap.getTileTypeByIndex(tileTypeIndex);
-
-            if (layer === 1) {
-              tile.collision = tileTypeIndex > 0;
-            }
+            oldTileTypeId = tile.getTileTypeId(layer);
+            tile.setTileTypeId(layer, tileTypeId);
           }
         });
 
         // register event
-        if (oldTileTypeIndex !== tileTypeIndex) {
-          if (pushToStack) {
-            eventStackSvc.undoStack.push({
-              undo: GameEvents.placeEvent(layer, oldTileTypeIndex, coords, false), //
-              redo: GameEvents.placeEvent(layer, tileTypeIndex, coords, false),
-            });
-          }
+        if (oldTileTypeId !== tileTypeId && pushToStack) {
+          eventStackSvc.undoStack.push({
+            undo: GameEvents.placeEvent(layer, oldTileTypeId, coords, false), //
+            redo: GameEvents.placeEvent(layer, tileTypeId, coords, false),
+          });
         }
 
         if (typeof onSuccess === "function") {
           onSuccess();
         }
       } catch (e) {
+        console.error(e);
+
         if (typeof onFailure === "function") {
           onFailure();
         }
@@ -158,6 +156,7 @@ class EditorState extends State<EditorStateOptions> {
       const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       try {
+        this.world.blueprint.level.spawnPoints.push(spawnpoint);
         this.world.spawn(spawnpoint);
 
         if (pushToStack) {
@@ -188,6 +187,11 @@ class EditorState extends State<EditorStateOptions> {
       const { uuid, onSuccess, onFailure } = e.detail || {};
 
       try {
+        const index = this.world.blueprint.level.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
+        if (index !== -1) {
+          this.world.blueprint.level.spawnPoints.splice(index, 1);
+        }
+
         this.world.despawn(uuid);
 
         if (typeof onSuccess === "function") {
@@ -201,35 +205,7 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(GameEventTypes.SAVE_EVENT, (e: GameEvents.SaveEvent) => {
-      const id = e.detail.id;
-
-      const rows = this.world.tileMap.getNbRows();
-      const cols = this.world.tileMap.getNbCols();
-
-      const n = rows * cols;
-
-      const tileMapLayer1 = new Array(n).fill(0);
-      const tileMapLayer2 = new Array(n).fill(0);
-      const tileMapLayer3 = new Array(n).fill(0);
-
-      for (let r = 0; r <= rows; r++) {
-        for (let c = 0; c <= cols; c++) {
-          const index = this.world.tileMap.getIndex(r, c);
-          const tile = this.world.tileMap.getTileAt(r, c);
-
-          if (tile) {
-            tileMapLayer1[index] = tile.collision ? 1 : 0;
-            tileMapLayer2[index] = tile.slot1 ? tile.slot1.row * this.world.tileMap.atlas.nbCols + tile.slot1.col : 0;
-            tileMapLayer3[index] = tile.slot2 ? tile.slot2.row * this.world.tileMap.atlas.nbCols + tile.slot2.col : 0;  
-          }
-        }
-      }
-
-      configSvc.driver.save(id, {
-        tileMapLayer1,
-        tileMapLayer2,
-        tileMapLayer3,
-      });
+      configSvc.driver.save(e.detail.id, this.world.blueprint);
     });
 
     // init ui
@@ -241,7 +217,7 @@ class EditorState extends State<EditorStateOptions> {
           scale: 5,
           mode: this.selectedMode,
           layerId: this.selectedLayerId,
-          tileTypeIndex: this.selectedTileTypeIndex,
+          tileTypeId: this.selectedTileTypeId,
         },
       }),
       this.$ui
@@ -268,8 +244,8 @@ class EditorState extends State<EditorStateOptions> {
     const tile = this.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
 
     if (tile) {
-      const x = tile.x1 + tile.size / 2;
-      const y = tile.y1 + tile.size / 2 + 1;
+      const x = tile.position.x + tile.size / 2;
+      const y = tile.position.y + tile.size / 2 + 1;
 
       position.fromValues(x, y);
       sprite.visible = true;
@@ -303,14 +279,15 @@ class EditorState extends State<EditorStateOptions> {
 
       if (this.selectedMode === EditorMode.PICK) {
         const tile = tileMap.getTileAtCoords(coords.x, coords.y);
-        if (tile && tile.slot) {
-          dispatch(GameEvents.tileTypeChangeEvent(tile.slot.row * this.world.tileMap.atlas.nbCols + tile.slot.col));
+        if (tile) {
+          const tileTypeId = tile.getTileTypeId(this.selectedLayerId);
+          dispatch(GameEvents.tileTypeChangeEvent(tileTypeId));
         }
       } else if (this.selectedMode === EditorMode.PLACE) {
         dispatch(
           GameEvents.placeEvent(
             this.selectedLayerId, //
-            this.selectedTileTypeIndex,
+            this.selectedTileTypeId,
             { x: coords.x, y: coords.y }
           )
         );
@@ -326,17 +303,15 @@ class EditorState extends State<EditorStateOptions> {
         const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
 
         if (targetTile) {
-          const targetId = targetTile.typeId;
+          const targetId = targetTile.getTileTypeId(this.selectedLayerId);
 
           dispatch(
             GameEvents.placeEvent(
               this.selectedLayerId, //
-              this.selectedTileTypeIndex,
+              this.selectedTileTypeId,
               tileMap
-                .floodFill(targetTile.row, targetTile.col, (tile: Tile) => {
-                  tile.activeSlot = this.selectedLayerId;
-
-                  return tile && tile.typeId === targetId;
+                .floodFill(targetTile.row, targetTile.col, (tile: ITile) => {
+                  return tile && tile.getTileTypeId(this.selectedLayerId) === targetId;
                 })
                 .map(({ row, col }) => ({ x: col * tileMap.getTileSize(), y: row * tileMap.getTileSize() }))
             )
@@ -353,9 +328,10 @@ class EditorState extends State<EditorStateOptions> {
       const coords = this.world.screenToCameraCoords(position);
       const tile = this.world.tileMap.getTileAtCoords(coords.x, coords.y);
 
-      const x = tile.x1 + tile.size / 2;
-      const y = tile.y1 + tile.size / 2;
-      dispatch(GameEvents.spawnEvent(uuidv4(), "health_potion", { x, y }));
+      const x = tile.position.x + tile.size / 2;
+      const y = tile.position.y + tile.size / 2;
+
+      dispatch(GameEvents.spawnEvent(uuidv4(), "ghost", { x, y }));
     }
   }
 

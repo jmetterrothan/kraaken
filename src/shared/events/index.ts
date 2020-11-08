@@ -1,10 +1,10 @@
 import * as GameEventTypes from "@src/shared/events/constants";
 
-import { IEventDetails } from "@src/shared/models/event.model";
-import { IVector2 } from "@src/shared/models/math.model";
-import { ISpawnpoint } from "@src/shared/models/world.model";
-import { EditorMode } from "@src/shared/models/editor.model";
-import { ILayerId } from "@src/shared/models/tilemap.model";
+import { TileLayer } from '@shared/models/tilemap.model';
+import { IEventDetails } from "@shared/models/event.model";
+import { IVector2 } from "@shared/models/math.model";
+import { ISpawnpoint } from "@shared/models/world.model";
+import { EditorMode } from "@shared/models/editor.model";
 
 export type ModeChangeEvent = CustomEvent<{ mode: EditorMode }>;
 
@@ -17,19 +17,19 @@ export const modeChangeEvent = (mode: EditorMode): ModeChangeEvent => {
   });
 };
 
-export type TileTypeChangeEvent = CustomEvent<{ index: number }>;
+export type TileTypeChangeEvent = CustomEvent<{ id: number }>;
 
-export const tileTypeChangeEvent = (index: number): TileTypeChangeEvent => {
+export const tileTypeChangeEvent = (id: number): TileTypeChangeEvent => {
   return new CustomEvent(GameEventTypes.CHANGE_TILETYPE_EVENT, {
     detail: {
-      index,
+      id,
     },
   });
 };
 
-export type LayerChangeEvent = CustomEvent<{ id: ILayerId }>;
+export type LayerChangeEvent = CustomEvent<{ id: TileLayer }>;
 
-export const layerChangeEvent = (id: ILayerId): LayerChangeEvent => {
+export const layerChangeEvent = (id: TileLayer): LayerChangeEvent => {
   return new CustomEvent(GameEventTypes.CHANGE_LAYER_EVENT, {
     detail: {
       id,
@@ -39,20 +39,20 @@ export const layerChangeEvent = (id: ILayerId): LayerChangeEvent => {
 
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
-  layer: ILayerId;
-  tileTypeIndex: number;
+  layer: TileLayer;
+  tileTypeId: number;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: ILayerId, tileTypeIndex: number, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
+export const placeEvent = (layer: TileLayer, tileTypeId: number, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(GameEventTypes.PLACE_EVENT, {
     detail: {
       coords: Array.isArray(position) ? position : [position],
       layer,
-      tileTypeIndex,
+      tileTypeId,
       pushToStack,
     },
   });

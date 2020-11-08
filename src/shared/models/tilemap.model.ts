@@ -2,9 +2,28 @@ import { mat3 } from "gl-matrix";
 
 import Vector2 from "@src/shared/math/Vector2";
 
-import { ISpriteRenderParameters } from "./animation.model";
+import { ISpriteRenderParameters } from '@shared/models/animation.model';
 
-export type ILayerId = 0 | 1 | 2;
+export enum TileLayer {
+  L0 = 1,
+  L1 = 2,
+  L2 = 3,
+}
+
+export interface ITile {
+  row: number;
+  col: number;
+  index: number;
+  position: Vector2;
+  size: number;
+  direction: Vector2;
+  transform: mat3;
+  renderOptions: ISpriteRenderParameters;
+  hasCollision(): boolean;
+  setCollision(b: boolean): void;
+  getTileTypeId(layer: TileLayer): number;
+  setTileTypeId(layer: TileLayer, id: number): void;
+}
 
 export interface ITileMap {
   defaultTileType: number;
@@ -32,15 +51,10 @@ export interface ITileTypeGroup {
   display?: string;
 }
 
-export interface ITile {
-  type: {
-    key: string;
-    collision: boolean;
-    row: number;
-    col: number;
-    group: string;
-  };
-  model: mat3;
-  position: Vector2;
-  parameters: ISpriteRenderParameters;
+export interface ITileTransform {
+  layer: number;
+  tileType: number;
+  row: number;
+  col: number; 
+  index: number;
 }
