@@ -1,4 +1,3 @@
-import { ITileTypeGroup } from '@src/shared/models/tilemap.model';
 import { v4 as uuidv4 } from 'uuid';
 
 interface IAtlasTexture {
@@ -42,7 +41,7 @@ const floodFill = (nbRows: number, nbCols: number, predicate: (index: number) =>
   return stack;
 }
 
-export const catalog = (src: string, tileSize: number): Promise<{ tiles: IAtlasTexture[]; groups: ITileTypeGroup[] }> => {
+export const catalog = (src: string, tileSize: number): Promise<{ tiles: IAtlasTexture[]; }> => {
   return new Promise((resolve, reject) => {
     const tiles = new Map<number, IAtlasTexture>();
 
@@ -184,7 +183,7 @@ export const catalog = (src: string, tileSize: number): Promise<{ tiles: IAtlasT
         }
       }
 
-      resolve({ tiles: Array.from(tiles.values()), groups });
+      resolve({ tiles: Array.from(tiles.values()) });
     };
 
     file.onerror = () => {

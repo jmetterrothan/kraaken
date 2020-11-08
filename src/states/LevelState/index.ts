@@ -24,7 +24,7 @@ class LevelState extends State<LevelStateOptions> {
     this.world = new World(data);
     this.id = id;
 
-    await this.world.init(true);
+    await this.world.init();
     
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);

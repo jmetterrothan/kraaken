@@ -7,6 +7,7 @@ import "./ToolbarSelect.scss";
 
 export interface IToolbarOption<T> {
   name?: string;
+  description?: string;
   value: T;
 }
 
@@ -17,7 +18,7 @@ interface IToolbarSelectProps<T> extends Omit<IToolbarButtonprops, "name" | "sho
   options?: IToolbarOption<T>[];
 }
 
-function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick, ...props }: IToolbarSelectProps<T>): React.ReactElement {
+function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick, disabled, ...props }: IToolbarSelectProps<T>): React.ReactElement {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
@@ -40,8 +41,13 @@ function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick,
   const name = displayedValue ? displayedValue : selection ? selection.name : "Select";
 
   return (
-    <div ref={ref} className={cx("toolbar-select", open && "open")} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <ToolbarButton {...props} active={false} name={name} showCaret={true} />
+    <div
+      ref={ref} //
+      className={cx("toolbar-select", open && "open")}
+      onMouseEnter={!disabled ? () => setOpen(true) : undefined}
+      onMouseLeave={!disabled ? () => setOpen(false) : undefined}
+    >
+      <ToolbarButton {...props} disabled={disabled} active={false} name={name} showCaret={true} />
       <ul className="toolbar-select__inner">
         {options.map((option, i) => {
           const handleItemClick = () => {
@@ -49,8 +55,9 @@ function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick,
             setOpen(false);
           };
           return (
-            <li key={i} className={cx(selected === option.value && "selected")} onClick={handleItemClick}>
-              {option.name || option.value}
+            <li key={i} className={cx("toolbar-select-item", selected === option.value && "selected")} onClick={handleItemClick}>
+              <span className="toolbar-select-item__name">{option.name || option.value}</span>
+              {option.description && <span className="toolbar-select-item__description">{option.description}</span>}
             </li>
           );
         })}

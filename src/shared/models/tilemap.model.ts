@@ -31,7 +31,6 @@ export interface ITileMap {
   cols: number;
   tileSize: number;
   tileSet: string;
-  tileGroups: ITileTypeGroup[];
   tileTypes: ITileTypeData[];
   layer1: number[];
   layer2: number[];

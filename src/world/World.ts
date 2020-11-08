@@ -50,7 +50,7 @@ class World {
     this.blueprint = blueprint;
   }
 
-  public async init(physics = true): Promise<void> {
+  public async init(): Promise<void> {
     const { sounds, sprites, level } = this.blueprint;
 
     for (const sound of sounds) {
@@ -65,9 +65,7 @@ class World {
     this.addSystem(new BasicInputSystem());
     this.addSystem(new BasicMovementSystem());
     this.addSystem(new PlayerMovementSystem());
-    if (physics) {
-      this.addSystem(new PhysicsSystem());
-    }
+    this.addSystem(new PhysicsSystem());
     this.addSystem(new CameraSystem());
     this.addSystem(new AnimationSystem());
     this.addSystem(new ConsummableSystem());

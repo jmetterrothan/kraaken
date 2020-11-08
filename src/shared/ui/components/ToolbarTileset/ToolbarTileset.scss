@@ -19,6 +19,7 @@ $fullWidth: $width + $spacing * 2;
       width: 48px;
       height: 48px;
       margin-left: 12px;
+      background: rgba(#40506b, 0.075);
     }
   }
 
@@ -27,7 +28,8 @@ $fullWidth: $width + $spacing * 2;
     position: absolute;
     width: fit-content;
     overflow-y: scroll;
-    height: 550px;
+    min-height: calc(64px * 4);
+    max-height: calc(64px * 10);
     top: 100%;
     left: 0;
     background: #e1e3e6;
@@ -41,14 +43,16 @@ $fullWidth: $width + $spacing * 2;
 }
 
 .toolbar-tileset-group {
-  padding: 12px 16px;
+  padding: 16px;
   width: $fullWidth * 8 + 12px;
   border-top: 1px solid #b0bdd3;
 
   &__title {
     font-weight: 600;
+    font-size: 17px;
     color: #40506b;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    margin-top: 12px;
   }
 
   &__list {

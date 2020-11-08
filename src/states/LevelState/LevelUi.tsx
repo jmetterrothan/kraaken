@@ -24,7 +24,7 @@ const LevelUi: React.FC<ILevelUiProps> = ({ levelId }) => {
 
   return (
     <Ui>
-      <Toolbar>
+      <Toolbar style={{ width: "fit-content" }}>
         <ToolbarButton
           icon="edit" //
           name="Edit level"

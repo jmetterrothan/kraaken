@@ -16,8 +16,7 @@ export interface IToolbarButtonprops {
 const ToolbarButton: React.FC<IToolbarButtonprops> = ({ theme = "blue", name, icon, active, disabled, showCaret, children, onClick }) => {
   return (
     <button
-      title={name} //
-      type="button"
+      type="button" //
       className={cx("toolbar-button", theme && `toolbar-button--${theme}`, disabled && "disabled", active && "active")}
       onClick={disabled ? undefined : onClick}
     >

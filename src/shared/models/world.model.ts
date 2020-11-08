@@ -22,7 +22,6 @@ export interface ILevelBlueprint {
   defaultTileType: number;
   tileSize: number;
   tileSet: string;
-  tileGroups: ITileTypeGroup[];
   tileTypes: ITileTypeData[];
   tileMapRows: number;
   tileMapCols: number;

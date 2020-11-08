@@ -21,26 +21,48 @@
       padding: 12px 16px;
       cursor: pointer;
       min-width: 100px;
-      font-size: 1rem;
-      font-weight: 600;
-      line-height: 1.2rem;
-      color: #40506b;
-
-      &.selected {
-        color: #4e71ad;
-      }
 
       &:last-child {
         border-radius: inherit;
-      }
-
-      &:hover {
-        background: #d0d6e0;
       }
     }
   }
 
   &.open &__inner {
     display: block;
+  }
+}
+
+.toolbar-select-item {
+  $self: &;
+
+  display: flex;
+  flex-direction: column;
+
+  &__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #40506b;
+    line-height: 1.5rem;
+  }
+
+  &__description {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #6f809e;
+  }
+
+  &:hover {
+    background: #d0d6e0;
+  }
+
+  &.selected,
+  &:hover.selected {
+    background: #d0d6e0;
+
+    #{$self}__name {
+      color: #4e71ad;
+    }
   }
 }

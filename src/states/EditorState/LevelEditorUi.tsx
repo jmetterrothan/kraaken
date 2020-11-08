@@ -63,6 +63,20 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
 
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
 
+  const mostFrequentlyUsedTiles = React.useMemo(() => {
+    const tileTypeIndexes = [...blueprint.level.layers[TileLayer.L1], ...blueprint.level.layers[TileLayer.L2]];
+
+    return tileTypeIndexes.reduce((acc, index) => {
+      if (index !== 0) {
+        if (typeof acc[index] === "undefined") {
+          acc[index] = 0;
+        }
+        acc[index]++;
+      }
+      return acc;
+    }, {});
+  }, [blueprint]);
+
   React.useEffect(() => {
     /**
      * TODO: Those listeners are not reliable because they contain raw data in the details,
@@ -149,7 +163,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
             active={false}
             onItemClick={actions.selectLayer}
             options={[
-              { name: "Layer 1", value: TileLayer.L1 },
+              { name: "Layer 1", description: "(with collision)", value: TileLayer.L1 },
               { name: "Layer 2", value: TileLayer.L2 },
             ]}
           />
@@ -160,7 +174,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
             src={tileSet.src}
             tileSize={tileSet.tileWidth}
             tileTypes={level.tileTypes}
-            tileGroups={level.tileGroups}
+            mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
             disabled={mode === EditorMode.ERASE}
           />
         </div>

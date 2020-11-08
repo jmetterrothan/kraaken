@@ -53,7 +53,7 @@ class EditorState extends State<EditorStateOptions> {
     this.selectedTileTypeId = data.level.defaultTileType || 0;
     this.mouse = new Vector2(0, 0);
 
-    await this.world.init(false);
+    await this.world.init();
 
     this.grid = new Grid();
     this.grid.init();
@@ -331,7 +331,7 @@ class EditorState extends State<EditorStateOptions> {
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
 
-      dispatch(GameEvents.spawnEvent(uuidv4(), "ghost", { x, y }));
+      dispatch(GameEvents.spawnEvent(uuidv4(), "dino", { x, y }));
     }
   }
 
