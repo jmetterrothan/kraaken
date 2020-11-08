@@ -14,7 +14,10 @@ module.exports = merge(baseConfig, {
     port: 8080,
     historyApiFallback: true,
     hot: true,
-    open: "chrome"
+    open: "chrome",
+    watchOptions: {
+      ignored: './local/**/.*',
+    },
   },
   devtool: "cheap-eval-source-map",
   plugins: []

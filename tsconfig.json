@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
     "paths": {
+      "@root/*": ["/*"],
       "@src/*": ["src/*"],
       "@shared/*": ["src/shared/*"],
       "@assets/*": ["src/assets/*"]

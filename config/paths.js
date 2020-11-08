@@ -2,6 +2,7 @@
 const path = require("path");
 
 module.exports = {
+  ROOT: path.resolve(__dirname, ".."),
   SRC: path.resolve(__dirname, "..", "src"),
   SHARED: path.resolve(__dirname, "..", "src", "shared"),
   ASSETS: path.resolve(__dirname, "..", "src", "assets"),
