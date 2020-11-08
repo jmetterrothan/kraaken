@@ -59,9 +59,9 @@ export class RenderingSystem extends System {
 
         position.shouldUpdateTransform = false;
       }
-
+      
       sprite.atlas.use();
-      sprite.atlas.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, sprite.row, sprite.col, rigidBody?.orientation, sprite.parameters);
+      sprite.atlas.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, sprite, rigidBody?.orientation, sprite.parameters);
     });
   }
 }
