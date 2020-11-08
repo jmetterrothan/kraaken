@@ -36,16 +36,12 @@ function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick,
     };
   }, [ref]);
 
-  const handleBtnClick = () => {
-    setOpen(!open);
-  };
-
   const selection = options.find((option) => option.value === selected);
   const name = displayedValue ? displayedValue : selection ? selection.name : "Select";
 
   return (
-    <div ref={ref} className={cx("toolbar-select", open && "open")}>
-      <ToolbarButton {...props} active={false} name={name} showCaret={true} onClick={handleBtnClick} />
+    <div ref={ref} className={cx("toolbar-select", open && "open")} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <ToolbarButton {...props} active={false} name={name} showCaret={true} />
       <ul className="toolbar-select__inner">
         {options.map((option, i) => {
           const handleItemClick = () => {

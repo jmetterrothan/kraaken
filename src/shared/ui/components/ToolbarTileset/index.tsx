@@ -28,7 +28,7 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
   const tiles = useTileset(src, tileSize, tileTypes);
 
   const selectedTile = tiles.find((tile) => tile.index === selected);
-  console.log(selectedTile);
+
   React.useLayoutEffect(() => {
     const fn = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -43,20 +43,15 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
     };
   }, [ref]);
 
-  const handleBtnClick = () => {
-    setOpen(!open);
-  };
-
   return (
-    <div ref={ref} className={cx("toolbar-tileset", open && "open")}>
+    <div ref={ref} className={cx("toolbar-tileset", open && "open")} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <div className="toolbar-tileset__button">
         <ToolbarButton
           icon="alien-monster" //
           disabled={disabled}
           active={false}
-          name="Select Texture"
+          name="Texture"
           showCaret={true}
-          onClick={handleBtnClick}
         >
           {selectedTile && (
             <TileImage //
