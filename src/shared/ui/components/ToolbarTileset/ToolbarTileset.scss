@@ -11,6 +11,17 @@ $fullWidth: $width + $spacing * 2;
     background: #d0d6e0;
   }
 
+  &__button {
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 48px;
+      height: 48px;
+      margin-left: 12px;
+    }
+  }
+
   &__inner {
     display: none;
     position: absolute;

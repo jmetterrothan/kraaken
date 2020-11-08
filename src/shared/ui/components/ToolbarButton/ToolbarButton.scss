@@ -1,7 +1,7 @@
 .toolbar-button {
   padding: 4px 16px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   min-width: 64px;
@@ -16,6 +16,13 @@
 
   &__icon {
     font-size: 1.25rem;
+  }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   &__name {

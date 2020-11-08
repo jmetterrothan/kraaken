@@ -24,8 +24,11 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
+
   const tiles = useTileset(src, tileSize, tileTypes);
 
+  const selectedTile = tiles.find((tile) => tile.index === selected);
+  console.log(selectedTile);
   React.useLayoutEffect(() => {
     const fn = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -46,14 +49,23 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
 
   return (
     <div ref={ref} className={cx("toolbar-tileset", open && "open")}>
-      <ToolbarButton
-        icon="alien-monster" //
-        disabled={disabled}
-        active={false}
-        name="Select Texture"
-        showCaret={true}
-        onClick={handleBtnClick}
-      />
+      <div className="toolbar-tileset__button">
+        <ToolbarButton
+          icon="alien-monster" //
+          disabled={disabled}
+          active={false}
+          name="Select Texture"
+          showCaret={true}
+          onClick={handleBtnClick}
+        >
+          {selectedTile && (
+            <TileImage //
+              title={`row: ${selectedTile.row}, col: ${selectedTile.col}, index: ${selectedTile.index}`}
+              src={selectedTile.subImage}
+            />
+          )}
+        </ToolbarButton>
+      </div>
       <div className="toolbar-tileset__inner">
         {tileGroups.map((group) => {
           const list = tiles.filter((tile) => {
