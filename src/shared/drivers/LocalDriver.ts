@@ -2,7 +2,6 @@ import axios, { AxiosInstance } from 'axios';
 
 import AbstractDriver from '@src/shared/drivers/AbstractDriver';
 
-import { TileLayer } from '@shared/models/tilemap.model';
 import { IWorldBlueprint } from '@shared/models/world.model';
 
 import  config  from '@src/config';
