@@ -8,7 +8,7 @@ interface IRedoToolbarButtonProps {
   onClick: () => void;
 }
 
-const RedoToolbarButton: React.FC<IRedoToolbarButtonProps> = ({ onClick }) => {
+export const useRedoSize = (): number => {
   const [size, setSize] = React.useState(0);
 
   React.useEffect(() => {
@@ -18,6 +18,12 @@ const RedoToolbarButton: React.FC<IRedoToolbarButtonProps> = ({ onClick }) => {
 
     return eventStackRedoChangeSub.unsubscribe;
   }, []);
+
+  return size;
+};
+
+const RedoToolbarButton: React.FC<IRedoToolbarButtonProps> = ({ onClick }) => {
+  const size = useRedoSize();
 
   return (
     <ToolbarButton

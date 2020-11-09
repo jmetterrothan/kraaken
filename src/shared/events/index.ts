@@ -37,6 +37,17 @@ export const layerChangeEvent = (id: TileLayer): LayerChangeEvent => {
   });
 };
 
+
+export type EntityTypeChangeEvent = CustomEvent<{ type: string }>;
+
+export const entityChangeEvent = (type: string): EntityTypeChangeEvent => {
+  return new CustomEvent(GameEventTypes.CHANGE_ENTITY_EVENT, {
+    detail: {
+      type,
+    },
+  });
+};
+
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
   layer: TileLayer;

@@ -83,18 +83,18 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
     >
       <div className="toolbar-tileset__button">
         <ToolbarButton
-          icon="alien-monster" //
+          icon="square" //
           disabled={disabled}
           active={false}
           name="Texture"
           showCaret={true}
         >
-          {selectedTile && (
+          {/*selectedTile && (
             <TileImage //
               title={`row: ${selectedTile.row}, col: ${selectedTile.col}, index: ${selectedTile.index}`}
               src={selectedTile.subImage}
             />
-          )}
+          )*/}
         </ToolbarButton>
       </div>
       <div className="toolbar-tileset__inner">

@@ -8,6 +8,7 @@ export const REDO_EVENT = "ui_redo";
 export const CHANGE_MODE_EVENT = "ui_change_mode";
 export const CHANGE_TILETYPE_EVENT = "ui_change_tiletype";
 export const CHANGE_LAYER_EVENT = "ui_change_layer";
+export const CHANGE_ENTITY_EVENT = "ui_change_entity";
 
 export const LEVEL_STATE_SWITCH_EVENT = "level_state_switch";
 export const EDITOR_STATE_SWITCH_EVENT = "editor_state_switch";

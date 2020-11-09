@@ -30,10 +30,10 @@ class Grid {
     u_projection: { type: "Matrix3fv", value: undefined },
     u_view: { type: "Matrix3fv", value: undefined },
     u_model: { type: "Matrix3fv", value: undefined },
-    u_color: { type: "4fv", value: [0, 0, 0, 0.5] },
-    u_scale: { type: "1f", value: 1.0 },
-    u_tilesize: { type: "2fv", value: [16.0, 16.0] },
-    u_offset: { type: "2fv", value: [0.0, 0.0]  }
+    u_color: { type: "4fv", value: undefined },
+    u_scale: { type: "1f", value: undefined },
+    u_tilesize: { type: "2fv", value: undefined },
+    u_offset: { type: "2fv", value: undefined },
   };
 
   private loaded = false;

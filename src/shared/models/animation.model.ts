@@ -1,4 +1,4 @@
-import Color from "@src/shared/helper/Color";
+import { vec4 } from 'gl-matrix';
 
 export interface IKeyFrame {
   row: number;
@@ -14,12 +14,19 @@ export interface IAnimation {
 
 export type IAnimationList = Record<string, IAnimation>;
 
+export enum TintEffect {
+  NONE = 0,
+  EFFECT1 = 1,
+  EFFECT2 = 2,
+}
+
 export interface ISpriteRenderParameters {
   flickering?: boolean;
-  flashing?: boolean;
   grayscale?: boolean;
-  wireframe?: boolean;
-  alpha: number;
-  color?: Color;
+  outline?: boolean;
+  tint: {
+    color: vec4,
+    effect: TintEffect;
+  }
   reflect?: boolean;
 }

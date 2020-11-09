@@ -22,7 +22,7 @@ const ToolbarButton: React.FC<IToolbarButtonprops> = ({ theme = "blue", name, ic
     >
       <div className="button__inner">
         <span className="toolbar-button__icon">
-          <i className={cx("far", `fa-${icon}`)} />
+          <i className={cx("fas", `fa-${icon}`)} />
         </span>
         <span className="toolbar-button__name">
           {name}

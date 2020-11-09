@@ -8,7 +8,7 @@ interface IUndoToolbarButtonProps {
   onClick: () => void;
 }
 
-const UndoToolbarButton: React.FC<IUndoToolbarButtonProps> = ({ onClick }) => {
+export const useUndoSize = (): number => {
   const [size, setSize] = React.useState(0);
 
   React.useEffect(() => {
@@ -18,6 +18,12 @@ const UndoToolbarButton: React.FC<IUndoToolbarButtonProps> = ({ onClick }) => {
 
     return eventStackUndoChangeSub.unsubscribe;
   }, []);
+
+  return size;
+};
+
+const UndoToolbarButton: React.FC<IUndoToolbarButtonProps> = ({ onClick }) => {
+  const size = useUndoSize();
 
   return (
     <ToolbarButton

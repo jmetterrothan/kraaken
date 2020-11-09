@@ -40,6 +40,7 @@ class EditorState extends State<EditorStateOptions> {
   private selectedTileTypeId: number;
   private selectedLayerId: TileLayer;
   private selectedMode: EditorMode;
+  private selectedEntityType: string;
 
   public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
@@ -51,6 +52,8 @@ class EditorState extends State<EditorStateOptions> {
     this.selectedLayerId = TileLayer.L1;
     this.selectedMode = EditorMode.PLACE;
     this.selectedTileTypeId = data.level.defaultTileType || 0;
+    this.selectedEntityType = "alien_bat";
+
     this.mouse = new Vector2(0, 0);
 
     await this.world.init();
@@ -108,6 +111,10 @@ class EditorState extends State<EditorStateOptions> {
 
     this.registerEvent(GameEventTypes.CHANGE_LAYER_EVENT, (e: GameEvents.LayerChangeEvent) => {
       this.selectedLayerId = e.detail.id;
+    });
+
+    this.registerEvent(GameEventTypes.CHANGE_ENTITY_EVENT, (e: GameEvents.EntityTypeChangeEvent) => {
+      this.selectedEntityType = e.detail.type;
     });
 
     this.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
@@ -331,7 +338,7 @@ class EditorState extends State<EditorStateOptions> {
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
 
-      dispatch(GameEvents.spawnEvent(uuidv4(), "dino", { x, y }));
+      dispatch(GameEvents.spawnEvent(uuidv4(), this.selectedEntityType, { x, y }));
     }
   }
 

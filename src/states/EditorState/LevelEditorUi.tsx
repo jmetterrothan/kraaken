@@ -42,6 +42,7 @@ const useEditorActions = () => {
       redo: () => dispatch(GameEvents.redoEvent()),
       selectLayer: (option: IToolbarOption<number>) => dispatch(GameEvents.layerChangeEvent(option.value as TileLayer)),
       selectTileType: (index: number) => dispatch(GameEvents.tileTypeChangeEvent(index)),
+      selectEntity: (option: IToolbarOption<string>) => dispatch(GameEvents.entityChangeEvent(option.value)),
       play: (id: string) => dispatch(GameEvents.playEvent(id)),
       save: (id: string) => dispatch(GameEvents.saveEvent(id)),
       zoom: (option: IToolbarOption<number>) => dispatch(GameEvents.zoomEvent(option.value)),
@@ -53,11 +54,10 @@ const useEditorActions = () => {
 const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
   const { level, sprites } = blueprint;
 
-  const [dirty, setDirty] = React.useState(false);
-
   const [mode, setMode] = React.useState<EditorMode>(options.mode);
   const [layerId, setLayerId] = React.useState<number>(options.layerId);
   const [tileTypeId, setTileTypeId] = React.useState<number>(options.tileTypeId);
+  const [entityType, setEntityType] = React.useState<string>(undefined);
 
   const actions = useEditorActions();
 
@@ -75,6 +75,12 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
       }
       return acc;
     }, {});
+  }, [blueprint]);
+
+  const entities = React.useMemo(() => {
+    return blueprint.entities
+      .filter((entity) => entity.components.find((component) => component.name === "edit_mode")) //
+      .map((entity) => ({ name: entity.type, value: entity.type }));
   }, [blueprint]);
 
   React.useEffect(() => {
@@ -95,30 +101,15 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
       setLayerId(e.detail.id);
     });
 
-    const unsubFromPlaceEvent = registerEvent(GameEventTypes.PLACE_EVENT, () => {
-      setDirty(true);
-    });
-
-    const unsubFromSpawnEvent = registerEvent(GameEventTypes.SPAWN_EVENT, () => {
-      setDirty(true);
-    });
-
-    const unsubFromDespawnEvent = registerEvent(GameEventTypes.DESPAWN_EVENT, () => {
-      setDirty(true);
-    });
-
-    const unsubFromSaveEvent = registerEvent(GameEventTypes.SAVE_EVENT, () => {
-      setDirty(false);
+    const unsubFromChangeEntityEvent = registerEvent(GameEventTypes.CHANGE_ENTITY_EVENT, (e: GameEvents.EntityTypeChangeEvent) => {
+      setEntityType(e.detail.type);
     });
 
     return () => {
       unsubFromChangeModeEvent();
       unsubFromChangeTiletypeEvent();
       unsubFromChangeLayerEvent();
-      unsubFromPlaceEvent();
-      unsubFromSpawnEvent();
-      unsubFromDespawnEvent();
-      unsubFromSaveEvent();
+      unsubFromChangeEntityEvent();
     };
   }, []);
 
@@ -152,11 +143,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
             onClick={actions.setPickMode}
           />
           <ToolbarSeparator />
-          <UndoToolbarButton onClick={actions.undo} />
-          <RedoToolbarButton onClick={actions.redo} />
-          <ToolbarSeparator />
-          <ZoomToolbarSelect onClick={actions.zoom} />
-          <ToolbarSeparator />
           <ToolbarSelect<number>
             icon="layer-group" //
             selected={layerId}
@@ -167,7 +153,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
               { name: "Layer 2", value: TileLayer.L2 },
             ]}
           />
-          <ToolbarSeparator />
           <ToolbarTileset
             selected={tileTypeId} //
             onSelect={actions.selectTileType}
@@ -177,20 +162,30 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint, options }) => {
             mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
             disabled={mode === EditorMode.ERASE}
           />
+          <ToolbarSelect<string>
+            icon="crow" //
+            selected={entityType}
+            active={false}
+            onItemClick={actions.selectEntity}
+            options={entities}
+          />
+          <ToolbarSeparator />
+          <ZoomToolbarSelect onClick={actions.zoom} />
+          <ToolbarSeparator />
+          <UndoToolbarButton onClick={actions.undo} />
+          <RedoToolbarButton onClick={actions.redo} />
         </div>
         <div>
           <ToolbarButton
             icon="save" //
             name="Save"
             active={false}
-            disabled={!dirty}
             onClick={() => actions.save(levelId)}
           />
           <ToolbarButton
             icon="play" //
             name="Play level"
             active={false}
-            disabled={dirty}
             onClick={() => actions.play(levelId)}
           />
         </div>
