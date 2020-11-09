@@ -1,4 +1,4 @@
-import { mat3, vec4, vec2 } from "gl-matrix";
+import { mat3, vec2 } from "gl-matrix";
 
 import Material from "@src/animation/Material";
 import SpriteManager from "@src/animation/SpriteManager";
@@ -44,12 +44,12 @@ class SpriteAtlas {
     u_view: { type: "Matrix3fv", value: undefined },
     u_model: { type: "Matrix3fv", value: undefined },
     u_frame: { type: "2fv", value: undefined },
-    u_color: { type: "4fv", value: undefined },
     u_grayscale: { type: "1i", value: false },
-    u_flashing: { type: "1i", value: false },
-    u_wireframe: { type: "1i", value: false },
+    u_outline: { type: "1i", value: false },
+    u_size: { type: "2fv", value: undefined },
     u_image: { type: "1i", value: undefined },
-    u_alpha: { type: "1f", value: 1 },
+    u_tint_color: { type: "4fv", value: undefined },
+    u_tint_effect: { type: "1i", value: undefined }
   };
 
   constructor(src: string, alias: string, tw: number, th: number) {
@@ -96,17 +96,19 @@ class SpriteAtlas {
 
   public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, frame: { row: number; col: number; }, direction: Vector2 | undefined, parameters: ISpriteRenderParameters): void {
     if (this.loaded) {
-      this.setUniform("u_alpha", parameters.alpha);
       this.setUniform("u_grayscale", parameters.grayscale);
-      this.setUniform("u_flashing", parameters.flashing);
-      this.setUniform("u_wireframe", parameters.wireframe);
-      this.setUniform("u_color", parameters.color.toVec4());
+      this.setUniform("u_tint_effect", parameters.tint.effect);
+      this.setUniform("u_tint_color", parameters.tint.color);
+      this.setUniform("u_outline", parameters.outline);
+      
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", modelMatrix);
+      
+      this.setUniform("u_size", [this.width, this.height]);
       this.setUniform("u_frame", this.computeTileCoord(frame.row, frame.col, direction, parameters));
 
-      gl.drawElements(parameters.wireframe ? gl.LINE_LOOP : gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }
   }
 

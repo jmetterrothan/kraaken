@@ -8,6 +8,7 @@ import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
 import { IWorldBlueprint } from '@shared/models/world.model';
+import { TintEffect } from "@src/shared/models/animation.model";
 import { TileLayer, ITile, ITileTypeData } from "@shared/models/tilemap.model";
 
 import Box2 from "@shared/math/Box2";
@@ -72,13 +73,13 @@ class TileMap {
           size: this.tileSize,
           direction: new Vector2(1, 1),
           renderOptions: {
-            wireframe: false,
             grayscale: false,
             flickering: false,
-            alpha: 1,
-            color: new Color(0.5, 0.25, 0.75),
+            tint: {
+              color: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+              effect: TintEffect.NONE,
+            },
             reflect: false,
-            flashing: false,
           },
           hasCollision: () => {
             return blueprint.level.layers[TileLayer.L0][r * this.nbCols + c] === 1;

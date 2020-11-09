@@ -5,9 +5,10 @@ import { SPRITE_COMPONENT } from "@src/ECS/types";
 import SpriteManager from "@src/animation/SpriteManager";
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 
-import Color from "@src/shared/helper/Color";
-
+import { TintEffect } from '@shared/models/animation.model';
 import { ISpriteRenderParameters } from "@shared/models/animation.model";
+
+import Color from "@src/shared/helper/Color";
 
 interface ISpriteMetadata {
   row?: number;
@@ -45,10 +46,11 @@ export class Sprite implements Component {
     this.parameters = {
       flickering: false,
       grayscale: false,
-      wireframe: false,
-      flashing: false,
-      alpha: 1,
-      color: new Color(0, 0, 0, 1),
+      outline: false,
+      tint: {
+        color: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+        effect: TintEffect.NONE,
+      },
       reflect,
     };
   }
