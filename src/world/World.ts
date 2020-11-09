@@ -8,9 +8,9 @@ import System from "@src/ECS/System";
 import Bundle from "@src/ECS/Bundle";
 import ComponentFactory from "@src/ECS/ComponentFactory";
 
-import { PlayerMovementSystem, PlayerCombatSystem, RenderingSystem, CameraSystem, AnimationSystem, PlayerInputSystem, BasicInputSystem, PhysicsSystem, BasicMovementSystem, ConsummableSystem } from "@src/ECS/systems";
-import { Position, Animator, BoundingBox, Camera, RigidBody, PlayerInput } from "@src/ECS/components";
-import { CAMERA_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_INPUT_COMPONENT, POSITION_COMPONENT, RIGID_BODY_COMPONENT, ANIMATOR_COMPONENT } from "@src/ECS/types";
+import * as Systems from "@src/ECS/systems";
+import * as Components from "@src/ECS/components";
+import * as ComponentTypes from "@src/ECS/types";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SoundManager from "@src/animation/SoundManager";
@@ -23,7 +23,7 @@ import { IVector2 } from "@shared/models/event.model";
 import { IRGBAColorData } from "@shared/models/color.model";
 import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
 
-import { configSvc } from "@src/shared/services/ConfigService";
+import { configSvc } from "@shared/services/ConfigService";
 
 class World {
   public readonly blueprint: IWorldBlueprint;
@@ -61,17 +61,17 @@ class World {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    this.addSystem(new PlayerInputSystem());
-    this.addSystem(new BasicInputSystem());
-    this.addSystem(new BasicMovementSystem());
-    this.addSystem(new PlayerMovementSystem());
-    this.addSystem(new PhysicsSystem());
-    this.addSystem(new CameraSystem());
-    this.addSystem(new AnimationSystem());
-    this.addSystem(new ConsummableSystem());
-    this.addSystem(new PlayerCombatSystem());
+    this.addSystem(new Systems.PlayerInputSystem());
+    this.addSystem(new Systems.BasicInputSystem());
+    this.addSystem(new Systems.BasicMovementSystem());
+    this.addSystem(new Systems.PlayerMovementSystem());
+    this.addSystem(new Systems.PhysicsSystem());
+    this.addSystem(new Systems.CameraSystem());
+    this.addSystem(new Systems.AnimationSystem());
+    this.addSystem(new Systems.ConsummableSystem());
+    this.addSystem(new Systems.PlayerCombatSystem());
 
-    this.renderer = new RenderingSystem();
+    this.renderer = new Systems.RenderingSystem();
     this.renderer.addedToWorld(this);
 
     this.tileMap = new TileMap(this.blueprint);
@@ -83,10 +83,10 @@ class World {
 
     level.spawnPoints.forEach(this.spawn.bind(this));
 
-    const cameraComponent = new Camera({ mode: 1 });
+    const cameraComponent = new Components.Camera({ mode: 1 });
     cameraComponent.boundaries = this.tileMap.getBoundaries();
 
-    const camera = new Entity("camera").addComponent(new Position()).addComponent(cameraComponent);
+    const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
     this.addCamera(camera, true);
 
     console.info("World initialized");
@@ -95,7 +95,7 @@ class World {
   public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {
     const effect = this.spawn({ type, position, direction });
 
-    const animator = effect.getComponent<Animator>(ANIMATOR_COMPONENT);
+    const animator = effect.getComponent<Components.Animator>(ComponentTypes.ANIMATOR_COMPONENT);
     animator.animation.reset();
 
     setTimeout(() => {
@@ -115,15 +115,16 @@ class World {
   public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
+    
+    this.blueprint.entities
+    .find((item) => item.type === type)
+    .components.forEach(({ name, metadata = {} }) => {
+      entity.addComponent(ComponentFactory.create(name, metadata));
+    });
+    
     if (uuid === "player") {
       this.player = entity;
     }
-
-    this.blueprint.entities
-      .find((item) => item.type === type)
-      .components.forEach(({ name, metadata = {} }) => {
-        entity.addComponent(ComponentFactory.create(name, metadata));
-      });
 
     return entity;
   }
@@ -131,14 +132,14 @@ class World {
   public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
     const entity = this.createEntity(type, uuid);
 
-    if (entity.hasComponent(POSITION_COMPONENT)) {
-      const positionComp = entity.getComponent<Position>(POSITION_COMPONENT);
+    if (entity.hasComponent(ComponentTypes.POSITION_COMPONENT)) {
+      const positionComp = entity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
       positionComp.x = position?.x ?? 0;
       positionComp.y = position?.y ?? 0;
     }
 
-    if (entity.hasComponent(RIGID_BODY_COMPONENT)) {
-      const rigidBodyComp = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    if (entity.hasComponent(ComponentTypes.RIGID_BODY_COMPONENT)) {
+      const rigidBodyComp = entity.getComponent<Components.RigidBody>(ComponentTypes.RIGID_BODY_COMPONENT);
       rigidBodyComp.orientation.x = direction?.x ?? 1;
       rigidBodyComp.orientation.y = direction?.y ?? 1;
 
@@ -273,16 +274,16 @@ class World {
     }
 
     if (this.player && this.aimEntity) {
-      const aimPosition = this.aimEntity.getComponent<Position>(POSITION_COMPONENT);
-      const playerPosition = this.player.getComponent<Position>(POSITION_COMPONENT);
-      const playerInput = this.player.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+      const aimPosition = this.aimEntity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const playerPosition = this.player.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const playerInput = this.player.getComponent<Components.PlayerInput>(ComponentTypes.PLAYER_INPUT_COMPONENT);
 
       aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
     }
   }
 
   public render(alpha: number): void {
-    const cameraComponent = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const cameraComponent = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
     this.tileMap.render(this.projectionMatrix, cameraComponent.viewMatrix, alpha);
   
     this.renderer.execute(alpha);
@@ -330,18 +331,18 @@ class World {
   }
 
   public followEntity(entity: Entity, camera: Entity = this.camera): void {
-    const state = camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const state = camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
     state.follow(entity);
 
     this.recenterCamera(camera);
   }
 
   public recenterCamera(camera: Entity): void {
-    const state = camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const state = camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
 
     if (state.target) {
-      const position = camera.getComponent<Position>(POSITION_COMPONENT);
-      const targetPos = state.target.getComponent<Position>(POSITION_COMPONENT);
+      const position = camera.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const targetPos = state.target.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
 
       if (targetPos) {
         position.copy(targetPos);
@@ -351,18 +352,18 @@ class World {
   }
 
   public screenToCameraCoords(coords: vec2): Vector2 {
-    const camera = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const camera = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
 
     const v = vec2.transformMat3(vec2.create(), coords, camera.viewMatrixInverse);
     return Vector2.create(v[0], v[1]);
   }
 
   public isFrustumCulled(entity: Entity): boolean {
-    const camera = this.camera.getComponent<Camera>(CAMERA_COMPONENT);
-    const entityPos = entity.getComponent<Position>(POSITION_COMPONENT);
+    const camera = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const entityPos = entity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
 
-    if (entity.hasComponent(BOUNDING_BOX_COMPONENT)) {
-      const entityBbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    if (entity.hasComponent(ComponentTypes.BOUNDING_BOX_COMPONENT)) {
+      const entityBbox = entity.getComponent<Components.BoundingBox>(ComponentTypes.BOUNDING_BOX_COMPONENT);
       // update bbox position to match the entity's position
       entityBbox.setPositionFromVector2(entityPos);
       
@@ -373,7 +374,7 @@ class World {
   }
 
   public addCamera(camera: Entity, defineAsActive = false): void {
-    if (!camera.hasComponent(CAMERA_COMPONENT)) {
+    if (!camera.hasComponent(ComponentTypes.CAMERA_COMPONENT)) {
       throw new Error("Invalid camera entity");
     }
 
