@@ -15,3 +15,4 @@ export * from "./PlayerAnimator";
 export * from "./PlayerCombat";
 export * from "./AmmoModifier";
 export * from "./BasicInput";
+export * from './EditMode';

@@ -205,6 +205,7 @@
   {
     "type": "health_potion",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
@@ -228,6 +229,7 @@
   {
     "type": "ammo_box",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
@@ -251,6 +253,7 @@
   {
     "type": "coin",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
@@ -350,8 +353,65 @@
     ]
   },
   {
+    "type": "alien_bat",
+    "components": [
+      { "name": "edit_mode" },
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
+      { "name": "bounding_box", "metadata": { "width": 9, "height": 9 } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "health", "metadata": { "maxHealth": 1 } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "alien_bat:idle": {
+              "sprite": "enemies",
+              "loop": true,
+              "keyframes": [
+                { "row": 2, "col": 0, "duration": 150 },
+                { "row": 2, "col": 1, "duration": 150 },
+                { "row": 2, "col": 2, "duration": 150 }
+              ]
+            }
+          },
+          "defaultKey": "alien_bat:idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "alien_slime",
+    "components": [
+      { "name": "edit_mode" },
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
+      { "name": "bounding_box", "metadata": { "width": 13, "height": 12 } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "health", "metadata": { "maxHealth": 1 } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "alien_slime:idle": {
+              "sprite": "enemies",
+              "loop": true,
+              "keyframes": [
+                { "row": 0, "col": 0, "duration": 150 },
+                { "row": 0, "col": 1, "duration": 150 },
+                { "row": 0, "col": 2, "duration": 150 }
+              ]
+            }
+          },
+          "defaultKey": "alien_slime:idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "ghost",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 13 } },
@@ -379,6 +439,7 @@
   {
     "type": "bat",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 11 } },
@@ -406,6 +467,7 @@
   {
     "type": "skeleton",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 14 } },
@@ -434,6 +496,7 @@
   {
     "type": "dino",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 10, "height": 13 } },
@@ -470,6 +533,7 @@
   {
     "type": "hero",
     "components": [
+      { "name": "edit_mode" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "player_input" },

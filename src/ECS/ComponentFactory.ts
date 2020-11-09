@@ -1,6 +1,6 @@
 import Component from '@src/ECS/Component';
 
-import { HealthModifier, PlayerCombat, Fill, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible, BasicInput } from "@src/ECS/components";
+import { EditMode, HealthModifier, PlayerCombat, Fill, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible, BasicInput } from "@src/ECS/components";
 
 class ComponentFactory {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -36,6 +36,8 @@ class ComponentFactory {
         return new PlayerCombat();
       case "basic_input":
         return new BasicInput();
+      case "edit_mode":
+        return new EditMode();
       default:
         throw new Error(`Unknown component name "${name}"`);
     }
