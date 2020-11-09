@@ -4,8 +4,8 @@ import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from 'uuid';
 
 import Entity from "@src/ECS/Entity";
-import { Camera, Position, Sprite } from "@src/ECS/components";
-import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
+import { BoundingBox, Camera, Position, Sprite } from "@src/ECS/components";
+import { EDIT_MODE_COMPONENT, CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT } from "@src/ECS/types";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
@@ -358,6 +358,20 @@ class EditorState extends State<EditorStateOptions> {
     this.mouse = this.world.screenToCameraCoords(position);
 
     this.world.handleMouseMove(position);
+
+    // TODO: optimize calls
+    this.outlineHoveredEntities();
+  }
+
+  public outlineHoveredEntities(): void {
+    const entities = this.world.getEntities([EDIT_MODE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, SPRITE_COMPONENT]);
+    
+    entities.forEach((entity) => {
+      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+
+      sprite.parameters.outline = bbox.containsPoint(this.mouse);
+    });
   }
 
   public handleFullscreenChange(b: boolean): void {

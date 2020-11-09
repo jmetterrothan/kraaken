@@ -1,5 +1,5 @@
 import Stats from "stats-js";
-import debounce from 'debounce';
+import { debounce } from 'debounce';
 
 import EditorState from "@src/states/EditorState";
 import LevelState from "@src/states/LevelState";
