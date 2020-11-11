@@ -1,1 +1,6 @@
-A WIP framework for making 2d games with WebGL2.
+TODO:
+
+[ ] Handle multiple cursors
+[ ] Dynamic lighting
+[ ] Deploy online server
+[ ] Bounding box helpers

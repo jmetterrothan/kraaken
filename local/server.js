@@ -5,32 +5,16 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var express = require('express');
 
+var PORT = 3000;
+
 var app = express();
 
 app.use(bodyParser.json());
 app.use(cors());
-
-app.get('/:levelId/level', function (req, res) {
-  var path = `${__dirname}\\data\\${req.params.levelId}\\level.json`;
-
-  if (!fs.existsSync(path)) {
-    res.status(404).json({
-      "error": `Could not find level "${req.params.levelId}"`
-    });
-  } else {
-    try {
-      var content = fs.readFileSync(path);
-      res.json(JSON.parse(content.toString()));
-    } catch(e) {
-      res.status(500).json({
-        "error": `Could not parse level "${req.params.levelId}"`
-      });
-    }
-  }
-});
+app.use(express.static(`${__dirname}/public`));
 
 app.post('/:levelId/level', function (req, res) {
-  var path = `${__dirname}\\data\\${req.params.levelId}\\level.json`;
+  var path = `${__dirname}\\public\\${req.params.levelId}\\level.json`;
 
   if (!fs.existsSync(path)) {
     res.status(404).json({
@@ -48,4 +32,6 @@ app.post('/:levelId/level', function (req, res) {
   }
 });
 
-app.listen(3000);
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`)
+});

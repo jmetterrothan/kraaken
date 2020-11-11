@@ -219,7 +219,7 @@
   {
     "type": "health_potion",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
@@ -243,7 +243,7 @@
   {
     "type": "ammo_box",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
@@ -267,7 +267,7 @@
   {
     "type": "coin",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
@@ -369,7 +369,7 @@
   {
     "type": "alien_bat",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 9 } },
@@ -383,9 +383,9 @@
               "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 2, "col": 0, "duration": 150 },
-                { "row": 2, "col": 1, "duration": 150 },
-                { "row": 2, "col": 2, "duration": 150 }
+                { "row": 0, "col": 0, "duration": 150 },
+                { "row": 0, "col": 1, "duration": 150 },
+                { "row": 0, "col": 2, "duration": 150 }
               ]
             }
           },
@@ -397,7 +397,7 @@
   {
     "type": "alien_slime",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 12 } },
@@ -411,9 +411,9 @@
               "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 0, "col": 0, "duration": 150 },
-                { "row": 0, "col": 1, "duration": 150 },
-                { "row": 0, "col": 2, "duration": 150 }
+                { "row": 3, "col": 0, "duration": 150 },
+                { "row": 3, "col": 1, "duration": 150 },
+                { "row": 3, "col": 2, "duration": 150 }
               ]
             }
           },
@@ -425,23 +425,23 @@
   {
     "type": "ghost",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 13 } },
-      { "name": "sprite", "metadata": { "alias": "ghost", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
       { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
         "metadata": {
           "list": {
             "ghost:idle": {
-              "sprite": "ghost",
+              "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 0, "col": 0, "duration": 150 },
-                { "row": 0, "col": 1, "duration": 150 },
-                { "row": 0, "col": 2, "duration": 150 }
+                { "row": 1, "col": 0, "duration": 150 },
+                { "row": 1, "col": 1, "duration": 150 },
+                { "row": 1, "col": 2, "duration": 150 }
               ]
             }
           },
@@ -453,18 +453,18 @@
   {
     "type": "bat",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 11 } },
-      { "name": "sprite", "metadata": { "alias": "bat", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
       { "name": "health", "metadata": { "maxHealth": 4 } },
       {
         "name": "animator",
         "metadata": {
           "list": {
             "bat:idle": {
-              "sprite": "bat",
+              "sprite": "enemies",
               "loop": true,
               "keyframes": [
                 { "row": 0, "col": 0, "duration": 150 },
@@ -479,30 +479,29 @@
     ]
   },
   {
-    "type": "skeleton",
+    "type": "frog",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
-      { "name": "bounding_box", "metadata": { "width": 9, "height": 14 } },
-      { "name": "sprite", "metadata": { "alias": "skeleton", "align": "center" } },
-      { "name": "health", "metadata": { "maxHealth": 4 } },
+      { "name": "bounding_box", "metadata": { "width": 15, "height": 11 } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
         "metadata": {
           "list": {
-            "skeleton:idle": {
-              "sprite": "skeleton",
+            "dino:idle": {
+              "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 0, "col": 0, "duration": 150 },
-                { "row": 0, "col": 1, "duration": 150 },
-                { "row": 0, "col": 2, "duration": 150 },
-                { "row": 0, "col": 3, "duration": 150 }
+                { "row": 2, "col": 0, "duration": 150 },
+                { "row": 2, "col": 1, "duration": 150 },
+                { "row": 2, "col": 2, "duration": 150 }
               ]
             }
           },
-          "defaultKey": "skeleton:idle"
+          "defaultKey": "dino:idle"
         }
       }
     ]
@@ -510,7 +509,7 @@
   {
     "type": "dino",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 10, "height": 13 } },
@@ -524,18 +523,18 @@
               "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 1, "col": 0, "duration": 250 },
-                { "row": 1, "col": 3, "duration": 250 }
+                { "row": 5, "col": 0, "duration": 250 },
+                { "row": 5, "col": 3, "duration": 250 }
               ]
             },
             "dino:walking": {
               "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 1, "col": 0, "duration": 125 },
-                { "row": 1, "col": 1, "duration": 125 },
-                { "row": 1, "col": 2, "duration": 125 },
-                { "row": 1, "col": 3, "duration": 125 }
+                { "row": 5, "col": 0, "duration": 125 },
+                { "row": 5, "col": 1, "duration": 125 },
+                { "row": 5, "col": 2, "duration": 125 },
+                { "row": 5, "col": 3, "duration": 125 }
               ]
             }
           },
@@ -547,7 +546,7 @@
   {
     "type": "hero",
     "components": [
-      { "name": "edit_mode" },
+      { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "player_input" },

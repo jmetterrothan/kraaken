@@ -18,11 +18,10 @@ class LocalDriver extends AbstractDriver {
   }
 
   public async load(id: string): Promise<IWorldBlueprint> {
-    const { data: level } = await this.http.get(`/${id}/level`);
-    
-    const { default: entities } = await import(`@root/local/data/${id}/entities.json`);
-    const { default: resources } = await import(`@root/local/data/${id}/resources.json`);
-
+    const { data: level } = await this.http.get(`/${id}/level.json`);
+    const { data: entities } = await this.http.get(`/${id}/entities.json`);
+    const { data: resources } = await this.http.get(`/${id}/resources.json`);
+  
     return { 
       level,
       entities,
