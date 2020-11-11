@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { vec2 } from "gl-matrix";
 
 import  Entity  from '@src/ECS/Entity';
-import { BoundingBox, Position, Sprite } from "@src/ECS/components";
-import { EDIT_MODE_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT } from "@src/ECS/types";
+import { BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
+import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, PLACEABLE_COMPONENT } from "@src/ECS/types";
 
 import EditorState from '@src/states/EditorState';
 
@@ -13,6 +13,7 @@ import dispatch, * as GameEvents from '@shared/events';
 import eventStackSvc from "@shared/services/EventStackService";
 
 class EntityMode {
+  public focusedEntity: Entity | undefined;
   public selectedEntity: Entity | undefined;
 
   private editor: EditorState;
@@ -25,22 +26,30 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      try {
-        this.editor.world.spawn(spawnpoint);
-        this.editor.world.blueprint.level.spawnPoints.push(spawnpoint);
+      const index = this.editor.world.blueprint.level.spawnPoints.findIndex(({ uuid }) => uuid === spawnpoint.uuid);
 
-        if (pushToStack) {
-          eventStackSvc.undoStack.push({
-            undo: GameEvents.despawnEvent(spawnpoint.uuid, false),
-            redo: GameEvents.spawnEvent(
-              spawnpoint.uuid, //
-              spawnpoint.type,
-              spawnpoint.position,
-              spawnpoint.direction,
-              spawnpoint.debug,
-              false
-            ),
-          });
+      try {
+        if (index !== -1) {
+          this.editor.world.blueprint.level.spawnPoints[index] = spawnpoint;
+
+          // TODO: push to event stack
+        } else {
+          this.editor.world.spawn(spawnpoint);
+          this.editor.world.blueprint.level.spawnPoints.push(spawnpoint);
+
+          if (pushToStack) {
+            eventStackSvc.undoStack.push({
+              undo: GameEvents.despawnEvent(spawnpoint.uuid, false),
+              redo: GameEvents.spawnEvent(
+                spawnpoint.uuid, //
+                spawnpoint.type,
+                spawnpoint.position,
+                spawnpoint.direction,
+                spawnpoint.debug,
+                false
+              ),
+            });
+          }
         }
 
         if (typeof onSuccess === "function") {
@@ -118,7 +127,27 @@ class EntityMode {
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
 
-      dispatch(GameEvents.spawnEvent(uuidv4(), this.editor.state.entityType, { x, y }));
+      
+      if (this.selectedEntity) {
+        const selectedEntityPos = this.selectedEntity.getComponent<Position>(POSITION_COMPONENT);
+        const placeable = this.selectedEntity.getComponent<Placeable>(PLACEABLE_COMPONENT);
+        placeable.unfollow();
+        selectedEntityPos.fromValues(x, y);
+
+        dispatch(GameEvents.spawnEvent(this.selectedEntity.uuid, this.selectedEntity.type, { x, y }));
+
+        this.selectedEntity = undefined;
+      } else {
+        if (this.focusedEntity && this.focusedEntity.hasComponent(PLACEABLE_COMPONENT)) {
+          const focusedEntityPos = this.focusedEntity.getComponent<Position>(POSITION_COMPONENT);
+          const placeable = this.focusedEntity.getComponent<Placeable>(PLACEABLE_COMPONENT);
+          placeable.follow(this.editor.cursor, focusedEntityPos);
+
+          this.selectedEntity = this.focusedEntity;
+        } else {
+          dispatch(GameEvents.spawnEvent(uuidv4(), this.editor.state.entityType, { x, y }));
+        }
+      }
     }
   }
 
@@ -128,28 +157,26 @@ class EntityMode {
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      if (this.selectedEntity) {
-        dispatch(GameEvents.despawnEvent(this.selectedEntity.uuid));
+      if (this.focusedEntity) {
+        dispatch(GameEvents.despawnEvent(this.focusedEntity.uuid));
       }
     }
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.world.getEntities([EDIT_MODE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, SPRITE_COMPONENT]);
+    const entities = this.editor.world.getEntities([PLACEABLE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, SPRITE_COMPONENT]);
     
-    this.selectedEntity = undefined;
+    this.focusedEntity = undefined;
 
     entities.forEach((entity) => {
       const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
       const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
 
       if (bbox.containsPoint(this.editor.mouse)) {
-        this.selectedEntity = entity;
-        sprite.renderOptions.outline = true;
+        this.focusedEntity = entity;
       }
-      else {
-        sprite.renderOptions.outline = false;
-      }
+
+      sprite.renderOptions.outline = this.focusedEntity === entity || this.selectedEntity === entity;
     });
   }
 }

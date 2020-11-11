@@ -41,6 +41,7 @@ const editorStore = {
       ...state,
       mode,
     };
+    
     subject.next(state);
   },
   setTerrainMode: (terrainMode: IEditorStoreState['terrainMode']): void => {
@@ -48,6 +49,7 @@ const editorStore = {
       ...state,
       terrainMode,
     };
+
     subject.next(state);
   },
   setSelectedLayerId: (layerId: IEditorStoreState['layerId']): void => {
@@ -55,6 +57,7 @@ const editorStore = {
       ...state,
       layerId,
     };
+
     subject.next(state);
   },
   setSelectedTileTypeId: (tileTypeId: IEditorStoreState['tileTypeId']): void => {
@@ -62,6 +65,7 @@ const editorStore = {
       ...state,
       tileTypeId,
     };
+
     subject.next(state);
   },
   setSelectedEntityType: (entityType: IEditorStoreState['entityType']): void => {
@@ -69,6 +73,7 @@ const editorStore = {
       ...state,
       entityType,
     };
+
     subject.next(state);
   },
   setScale: (scale: IEditorStoreState['scale']): void => {
@@ -76,7 +81,7 @@ const editorStore = {
       ...state,
       scale,
     };
-    
+  
     dispatch(GameEvents.zoomEvent(scale));
     subject.next(state);
   },

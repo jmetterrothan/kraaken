@@ -16,6 +16,7 @@ import dispatch, * as GameEvents from "@src/shared/events";
 import UndoToolbarButton from "./UndoToolbarButton";
 import RedoToolbarButton from "./RedoToolbarButton";
 import ZoomToolbarSelect from "./ZoomToolbarSelect";
+
 import editorStore from "./editorStore";
 
 interface EditorUiProps {
@@ -58,16 +59,18 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   const entities = React.useMemo(() => {
     return blueprint.entities
-      .filter((entity) => entity.components.find((component) => component.name === "edit_mode")) //
+      .filter((entity) => entity.components.find((component) => component.name === "placeable")) //
       .map((entity) => ({ name: entity.type, value: entity.type }));
   }, [blueprint]);
 
-  const [state, setState] = React.useState(editorStore.initialState);
+  const [editorState, setEditorState] = React.useState(editorStore.initialState);
 
   React.useLayoutEffect(() => {
-    const sub = editorStore.subscribe(setState);
+    const editorSub = editorStore.subscribe(setEditorState);
 
-    return () => sub.unsubscribe();
+    return () => {
+      editorSub.unsubscribe();
+    };
   }, []);
 
   const terrainOptions = (
@@ -75,31 +78,31 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
       <ToolbarButton
         icon="brush" //
         name="Place"
-        active={state.terrainMode === EditorTerrainMode.PLACE}
+        active={editorState.terrainMode === EditorTerrainMode.PLACE}
         onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PLACE)}
       />
       <ToolbarButton
         icon="fill" //
         name="Fill"
-        active={state.terrainMode === EditorTerrainMode.FILL}
+        active={editorState.terrainMode === EditorTerrainMode.FILL}
         onClick={() => editorStore.setTerrainMode(EditorTerrainMode.FILL)}
       />
       <ToolbarButton
         icon="eraser" //
         name="Erase"
         theme="red"
-        active={state.terrainMode === EditorTerrainMode.ERASE}
+        active={editorState.terrainMode === EditorTerrainMode.ERASE}
         onClick={() => editorStore.setTerrainMode(EditorTerrainMode.ERASE)}
       />
       <ToolbarButton
         icon="eye-dropper" //
         name="Pick"
-        active={state.terrainMode === EditorTerrainMode.PICK}
+        active={editorState.terrainMode === EditorTerrainMode.PICK}
         onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PICK)}
       />
       <ToolbarSelect<number>
         icon="layer-group" //
-        selected={state.layerId}
+        selected={editorState.layerId}
         active={false}
         onItemClick={(option) => editorStore.setSelectedLayerId(option.value)}
         options={[
@@ -108,13 +111,13 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
         ]}
       />
       <ToolbarTileset
-        selected={state.tileTypeId} //
+        selected={editorState.tileTypeId} //
         onSelect={editorStore.setSelectedTileTypeId}
         src={tileSet.src}
         tileSize={tileSet.tileWidth}
         tileTypes={level.tileTypes}
         mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
-        disabled={state.terrainMode === EditorTerrainMode.ERASE}
+        disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
       />
     </>
   );
@@ -123,7 +126,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
     <>
       <ToolbarSelect<string>
         icon="hat-wizard" //
-        selected={state.entityType}
+        selected={editorState.entityType}
         active={false}
         onItemClick={(option) => editorStore.setSelectedEntityType(option.value)}
         options={entities}
@@ -136,14 +139,14 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
       <Toolbar>
         <div>
           <ToolbarButton
-            name={state.mode === EditorMode.ENTITY ? "Terrain mode" : "Entity mode"} //
+            name={editorState.mode === EditorMode.ENTITY ? "Terrain mode" : "Entity mode"} //
             active={false}
-            onClick={() => editorStore.setMode(state.mode === EditorMode.TERRAIN ? EditorMode.ENTITY : EditorMode.TERRAIN)}
+            onClick={() => editorStore.setMode(editorState.mode === EditorMode.TERRAIN ? EditorMode.ENTITY : EditorMode.TERRAIN)}
           />
           <ToolbarSeparator />
-          {state.mode === EditorMode.TERRAIN ? terrainOptions : entityOptions}
+          {editorState.mode === EditorMode.TERRAIN ? terrainOptions : entityOptions}
           <ToolbarSeparator />
-          <ZoomToolbarSelect value={state.scale} onClick={(option) => editorStore.setScale(option.value)} />
+          <ZoomToolbarSelect value={editorState.scale} onClick={(option) => editorStore.setScale(option.value)} />
           <ToolbarSeparator />
           <UndoToolbarButton onClick={actions.undo} />
           <RedoToolbarButton onClick={actions.redo} />
