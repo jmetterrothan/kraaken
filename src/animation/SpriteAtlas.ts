@@ -46,6 +46,7 @@ class SpriteAtlas {
     u_frame: { type: "2fv", value: undefined },
     u_grayscale: { type: "1i", value: false },
     u_outline: { type: "1i", value: false },
+    u_outline_color: { type: "4fv", value: undefined },
     u_size: { type: "2fv", value: undefined },
     u_image: { type: "1i", value: undefined },
     u_tint_color: { type: "4fv", value: undefined },
@@ -102,9 +103,10 @@ class SpriteAtlas {
 
     if (this.loaded) {
       this.setUniform("u_grayscale", renderOptions.grayscale);
-      this.setUniform("u_tint_effect", renderOptions.tint.effect);
-      this.setUniform("u_tint_color", renderOptions.tint.color);
+      this.setUniform("u_tint_effect", renderOptions.tintEffect);
+      this.setUniform("u_tint_color", renderOptions.tintColor);
       this.setUniform("u_outline", renderOptions.outline);
+      this.setUniform("u_outline_color", renderOptions.outlineColor);
       
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);

@@ -38,7 +38,7 @@ export class RenderingSystem extends System {
       if (position.shouldUpdateTransform) {
         const offsetX = -sprite.atlas.tileWidth / 2;
         const offsetY = sprite.align === "bottom" ? -Math.floor(sprite.atlas.tileHeight / 2 + (sprite.atlas.tileHeight / 2 - (bbox?.height ?? 0) / 2)) : -sprite.atlas.tileWidth / 2 - 1;
-
+        
         position.transform = mat3.fromTranslation(
           position.transform,
           position
@@ -60,8 +60,13 @@ export class RenderingSystem extends System {
         position.shouldUpdateTransform = false;
       }
       
-      sprite.atlas.use();
-      sprite.atlas.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, sprite, rigidBody?.orientation, sprite.renderOptions);
+      sprite.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, rigidBody?.orientation);
+
+      /*
+      if (entity.hasComponent(BOUNDING_BOX_COMPONENT)) {
+        bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform);
+      }
+      */
     });
   }
 }

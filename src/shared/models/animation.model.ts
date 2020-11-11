@@ -25,9 +25,8 @@ export interface ISpriteRenderRenderOptions {
   flickerSpeed?: number;
   grayscale?: boolean;
   outline?: boolean;
-  tint: {
-    color: vec4,
-    effect: TintEffect;
-  }
+  outlineColor?: vec4;
+  tintEffect: TintEffect;
+  tintColor: vec4;
   reflect?: boolean;
 }

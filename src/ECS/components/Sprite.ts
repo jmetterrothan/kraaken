@@ -1,5 +1,6 @@
-import Component from "@src/ECS/Component";
+import { mat3 } from "gl-matrix";
 
+import Component from "@src/ECS/Component";
 import { SPRITE_COMPONENT } from "@src/ECS/types";
 
 import SpriteManager from "@src/animation/SpriteManager";
@@ -8,6 +9,7 @@ import SpriteAtlas from "@src/animation/SpriteAtlas";
 import { TintEffect } from '@shared/models/animation.model';
 import { ISpriteRenderRenderOptions } from "@shared/models/animation.model";
 
+import Vector2 from '@shared/math/Vector2';
 import Color from "@src/shared/helper/Color";
 
 interface ISpriteMetadata {
@@ -48,12 +50,16 @@ export class Sprite implements Component {
       flickerSpeed: 150,
       grayscale: false,
       outline: false,
-      tint: {
-        color: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
-        effect: TintEffect.NONE,
-      },
+      outlineColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+      tintColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+      tintEffect: TintEffect.NONE,
       reflect,
     };
+  }
+
+  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, direction: Vector2 | undefined): void {
+    this.atlas.use();
+    this.atlas.render(projectionMatrix, viewMatrix, modelMatrix, this, direction, this.renderOptions);
   }
 
   public toString(): string {

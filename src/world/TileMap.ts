@@ -76,10 +76,9 @@ class TileMap {
             grayscale: false,
             flickering: false,
             flickerSpeed: 250,
-            tint: {
-              color: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
-              effect: TintEffect.NONE,
-            },
+            outlineColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+            tintColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+            tintEffect: TintEffect.NONE,
             reflect: false,
           },
           hasCollision: () => {

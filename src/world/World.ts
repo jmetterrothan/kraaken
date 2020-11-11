@@ -60,16 +60,9 @@ class World {
     for (const sprite of sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
-
-    this.addSystem(new Systems.PlayerInputSystem());
-    this.addSystem(new Systems.BasicInputSystem());
-    this.addSystem(new Systems.BasicMovementSystem());
-    this.addSystem(new Systems.PlayerMovementSystem());
-    this.addSystem(new Systems.PhysicsSystem());
+    
     this.addSystem(new Systems.CameraSystem());
     this.addSystem(new Systems.AnimationSystem());
-    this.addSystem(new Systems.ConsummableSystem());
-    this.addSystem(new Systems.PlayerCombatSystem());
 
     this.renderer = new Systems.RenderingSystem();
     this.renderer.addedToWorld(this);

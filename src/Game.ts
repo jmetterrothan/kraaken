@@ -9,11 +9,13 @@ import StateManager from "@src/states/StateManager";
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
 import * as GameEventTypes from '@shared/events/constants';
-import dispatch, * as GameEvents from '@shared/events';
+import * as GameEvents from '@shared/events';
 
 import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
+import { driver } from '@shared/drivers/DriverFactory';
 import { configSvc } from "@src/shared/services/ConfigService";
+import editorStore from "./states/EditorState/editorStore";
 
 import config from '@src/config';
 
@@ -260,7 +262,7 @@ class Game {
 
     this.stateManager.switch(GameStates.EDITOR, {
       id: levelId,
-      blueprint: configSvc.driver.load(levelId),
+      blueprint: driver.load(levelId),
     });
 
     const { width, height } = this.computeDimensions();
@@ -371,7 +373,7 @@ class Game {
     wrapper.addEventListener("mousewheel", (e: WheelEvent) => {
       if (canvas.contains(e.target as Node)) {
         const scale = this.targetScale + (e.deltaY > 0 ? -1 : 1);
-        dispatch(GameEvents.zoomEvent(scale));
+        editorStore.setScale(scale);
       }
     });
 
@@ -403,14 +405,14 @@ class Game {
     window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => { 
       this.stateManager.switch(GameStates.LEVEL, { 
         id: e.detail.id,
-        blueprint: configSvc.driver.load(e.detail.id),
+        blueprint: driver.load(e.detail.id),
       });
     });
 
     window.addEventListener(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, (e: GameEvents.EditorStateSwitchEvent) => {
       this.stateManager.switch(GameStates.EDITOR, {
         id: e.detail.id,
-        blueprint: configSvc.driver.load(e.detail.id),
+        blueprint: driver.load(e.detail.id),
       });
     });
 

@@ -7,6 +7,7 @@ in vec2 v_texture_coord;
 uniform sampler2D u_image;
 uniform vec2 u_size;
 uniform bool u_outline;
+uniform vec4 u_outline_color;
 uniform vec4 u_tint_color;
 uniform int u_tint_effect;
 uniform bool u_grayscale;
@@ -50,7 +51,7 @@ void main() {
     float c4 = texture(u_image, v_texture_coord + vec2(px.x, 0.0)).a;
 
     if (textureColor.a == 0.0 && max(max(c1, c3), max(c2, c4)) == 1.0) {
-      color = vec4(1.0, 1.0, 1.0, 1.0);
+      color = u_outline_color;
     }
     // color = vec4(1.0, 1.0, 1.0, 0.0);
   }

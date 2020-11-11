@@ -3,8 +3,9 @@ import React from "react";
 import { vec2 } from "gl-matrix";
 
 import Entity from "@src/ECS/Entity";
-import { Camera, Position } from "@src/ECS/components";
-import { CAMERA_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
+import * as Components from "@src/ECS/components";
+import * as ComponentTypes from "@src/ECS/types";
+import * as Systems from '@src/ECS/systems';
 
 import State from "@src/states/State";
 import World from "@src/world/World";
@@ -20,7 +21,7 @@ import Vector2 from "@shared/math/Vector2";
 import * as GameEventTypes from "@src/shared/events/constants";
 import dispatch, * as GameEvents from '@shared/events';
 
-import { configSvc } from '@src/shared/services/ConfigService';
+import { driver } from '@shared/drivers/DriverFactory';
 import eventStackSvc from "@src/shared/services/EventStackService";
 
 import TerrainMode from './modes/TerrainMode';
@@ -71,6 +72,10 @@ class EditorState extends State<EditorStateOptions> {
     this.grid = new Grid();
     this.grid.init();
 
+    this.world.addSystem(new Systems.BasicInputSystem());
+    this.world.addSystem(new Systems.BasicMovementSystem());
+    this.world.addSystem(new Systems.PlaceableSystem());
+
     // show a cursor following the mouse
     this.cursor = this.world.spawn({ type: "cursor" });
     this.cellCursor = this.world.spawn({type: 'cursor3' });
@@ -85,12 +90,12 @@ class EditorState extends State<EditorStateOptions> {
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;
-      const position = controllableObject.getComponent<Position>(POSITION_COMPONENT);
+      const position = controllableObject.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
 
       position.fromValues(x, y);
     }
 
-    dispatch(GameEvents.zoomEvent(4));
+    editorStore.setScale(4);
   }
 
   public mounted(): void {
@@ -113,7 +118,7 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     this.registerEvent(GameEventTypes.SAVE_EVENT, (e: GameEvents.SaveEvent) => {
-      configSvc.driver.save(e.detail.id, this.world.blueprint);
+      driver.save(e.detail.id, this.world.blueprint);
     });     
     
     this.modes[EditorMode.ENTITY].mounted();
@@ -151,7 +156,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public render(alpha: number): void {
-    const camera = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const camera = this.world.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
     
     // TODO: FIX - GRID ONLY LINE UP IN FULLSCREEN
     this.grid.use();

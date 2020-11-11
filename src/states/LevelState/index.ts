@@ -2,13 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
 
+import * as Systems from "@src/ECS/systems";
+
 import State from "@src/states/State";
 import World from "@src/world/World";
 
-import dispatch, * as GameEvents from '@shared/events';
-
 import { IWorldBlueprint } from '@shared/models/world.model';
 
+import editorStore from "../EditorState/editorStore";
 import LevelUi from "./LevelUi";
 
 interface LevelStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
@@ -25,12 +26,18 @@ class LevelState extends State<LevelStateOptions> {
     this.id = id;
 
     await this.world.init();
+
+    this.world.addSystem(new Systems.PlayerInputSystem());
+    this.world.addSystem(new Systems.PlayerMovementSystem());
+    this.world.addSystem(new Systems.PhysicsSystem());
+    this.world.addSystem(new Systems.PlayerCombatSystem());
+    this.world.addSystem(new Systems.ConsummableSystem());
     
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);
     this.world.aimEntity = this.world.spawn({ type: "crosshair" });
 
-    dispatch(GameEvents.zoomEvent(5));
+    editorStore.setScale(5);
   }
 
   public mounted(): void {
@@ -82,9 +89,9 @@ class LevelState extends State<LevelStateOptions> {
  
     // change zoom level to better fit the screen size
     if (b) { 
-      dispatch(GameEvents.zoomEvent(5));
+      editorStore.setScale(5);
     } else {
-      dispatch(GameEvents.zoomEvent(4));
+      editorStore.setScale(4);
     }
   }
 
