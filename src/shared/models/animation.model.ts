@@ -20,8 +20,9 @@ export enum TintEffect {
   EFFECT2 = 2,
 }
 
-export interface ISpriteRenderParameters {
+export interface ISpriteRenderRenderOptions {
   flickering?: boolean;
+  flickerSpeed?: number;
   grayscale?: boolean;
   outline?: boolean;
   tint: {

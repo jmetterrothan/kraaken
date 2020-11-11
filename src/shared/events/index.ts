@@ -4,49 +4,6 @@ import { TileLayer } from '@shared/models/tilemap.model';
 import { IEventDetails } from "@shared/models/event.model";
 import { IVector2 } from "@shared/models/math.model";
 import { ISpawnpoint } from "@shared/models/world.model";
-import { EditorMode } from "@shared/models/editor.model";
-
-export type ModeChangeEvent = CustomEvent<{ mode: EditorMode }>;
-
-
-export const modeChangeEvent = (mode: EditorMode): ModeChangeEvent => {
-  return new CustomEvent(GameEventTypes.CHANGE_MODE_EVENT, {
-    detail: {
-      mode,
-    },
-  });
-};
-
-export type TileTypeChangeEvent = CustomEvent<{ id: number }>;
-
-export const tileTypeChangeEvent = (id: number): TileTypeChangeEvent => {
-  return new CustomEvent(GameEventTypes.CHANGE_TILETYPE_EVENT, {
-    detail: {
-      id,
-    },
-  });
-};
-
-export type LayerChangeEvent = CustomEvent<{ id: TileLayer }>;
-
-export const layerChangeEvent = (id: TileLayer): LayerChangeEvent => {
-  return new CustomEvent(GameEventTypes.CHANGE_LAYER_EVENT, {
-    detail: {
-      id,
-    },
-  });
-};
-
-
-export type EntityTypeChangeEvent = CustomEvent<{ type: string }>;
-
-export const entityChangeEvent = (type: string): EntityTypeChangeEvent => {
-  return new CustomEvent(GameEventTypes.CHANGE_ENTITY_EVENT, {
-    detail: {
-      type,
-    },
-  });
-};
 
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
@@ -83,7 +40,6 @@ export const playEvent = (id: string): LevelStateSwitchEvent  => {
   })
 }
 
-
 interface IEditorStateSwitchEventDetails {
   id: string;
 }
@@ -112,7 +68,6 @@ export const saveEvent = (id: string): SaveEvent  => {
   })
 }
 
-
 interface ISpawnEventDetails extends IEventDetails {
   spawnpoint: ISpawnpoint;
   onSuccess?: () => void;
@@ -138,16 +93,18 @@ export const spawnEvent = (uuid: string, type: string, position: IVector2, direc
 
 interface IDespawnEventDetails {
   uuid: string;
+  pushToStack?: boolean;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
 
 export type DespawnEvent = CustomEvent<IDespawnEventDetails>;
 
-export const despawnEvent = (uuid: string): DespawnEvent => {
+export const despawnEvent = (uuid: string, pushToStack = true): DespawnEvent => {
   return new CustomEvent<IDespawnEventDetails>(GameEventTypes.DESPAWN_EVENT, {
     detail: {
       uuid,
+      pushToStack,
     },
   });
 };

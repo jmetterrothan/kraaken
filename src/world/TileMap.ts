@@ -75,6 +75,7 @@ class TileMap {
           renderOptions: {
             grayscale: false,
             flickering: false,
+            flickerSpeed: 250,
             tint: {
               color: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
               effect: TintEffect.NONE,

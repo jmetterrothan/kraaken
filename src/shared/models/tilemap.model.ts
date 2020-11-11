@@ -2,7 +2,7 @@ import { mat3 } from "gl-matrix";
 
 import Vector2 from "@src/shared/math/Vector2";
 
-import { ISpriteRenderParameters } from '@shared/models/animation.model';
+import { ISpriteRenderRenderOptions } from '@shared/models/animation.model';
 
 export enum TileLayer {
   L0 = 1,
@@ -18,7 +18,7 @@ export interface ITile {
   size: number;
   direction: Vector2;
   transform: mat3;
-  renderOptions: ISpriteRenderParameters;
+  renderOptions: ISpriteRenderRenderOptions;
   hasCollision(): boolean;
   setCollision(b: boolean): void;
   getTileTypeId(layer: TileLayer): number;

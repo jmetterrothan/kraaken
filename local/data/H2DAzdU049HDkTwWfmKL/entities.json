@@ -120,6 +120,20 @@
   },
   {
     "type": "cursor",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 2, "align": "center" } }
+    ]
+  },
+  {
+    "type": "cursor3",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 1, "align": "center" } }
+    ]
+  },
+  {
+    "type": "cursor2",
     "components": [{ "name": "position" }, { "name": "sprite", "metadata": { "alias": "cursors", "row": 0, "col": 1, "align": "center" } }]
   },
   {

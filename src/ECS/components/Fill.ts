@@ -6,7 +6,7 @@ import Color from "@src/shared/helper/Color";
 import ColoredBox from "@src/shared/helper/ColoredBox";
 
 import { IRGBAColorData } from "@shared/models/color.model";
-import { ISpriteRenderParameters } from "@shared/models/animation.model";
+import { ISpriteRenderRenderOptions } from "@shared/models/animation.model";
 
 interface IFillMetadata {
   color?: IRGBAColorData;
@@ -18,7 +18,7 @@ export class Fill implements Component {
   public color: Color;
   public helper: ColoredBox;
 
-  public parameters: ISpriteRenderParameters;
+  public renderOptions: ISpriteRenderRenderOptions;
 
   public constructor({ color = { r: 0, g: 0, b: 0, a: 1 } }: IFillMetadata) {
     this.color = Color.fromRGBData(color);

@@ -21,9 +21,11 @@ const ToolbarButton: React.FC<IToolbarButtonprops> = ({ theme = "blue", name, ic
       onClick={disabled ? undefined : onClick}
     >
       <div className="button__inner">
-        <span className="toolbar-button__icon">
-          <i className={cx("fas", `fa-${icon}`)} />
-        </span>
+        {icon && (
+          <span className="toolbar-button__icon">
+            <i className={cx("fas", `fa-${icon}`)} />
+          </span>
+        )}
         <span className="toolbar-button__name">
           {name}
           {showCaret && <i className={cx("fas", "fa-caret-down", "caret")} />}

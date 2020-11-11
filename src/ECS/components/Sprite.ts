@@ -6,7 +6,7 @@ import SpriteManager from "@src/animation/SpriteManager";
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 
 import { TintEffect } from '@shared/models/animation.model';
-import { ISpriteRenderParameters } from "@shared/models/animation.model";
+import { ISpriteRenderRenderOptions } from "@shared/models/animation.model";
 
 import Color from "@src/shared/helper/Color";
 
@@ -30,7 +30,7 @@ export class Sprite implements Component {
 
   public align: "bottom" | "center";
 
-  public parameters: ISpriteRenderParameters;
+  public renderOptions: ISpriteRenderRenderOptions;
 
   public constructor({ row = 0, col = 0, alias, align = "center", reflect = true }: ISpriteMetadata) {
     this.row = row;
@@ -43,8 +43,9 @@ export class Sprite implements Component {
 
     this.atlas = SpriteManager.get(alias);
 
-    this.parameters = {
+    this.renderOptions = {
       flickering: false,
+      flickerSpeed: 150,
       grayscale: false,
       outline: false,
       tint: {
