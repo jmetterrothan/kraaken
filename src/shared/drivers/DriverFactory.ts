@@ -1,15 +1,13 @@
 import AbstractDriver from "@src/shared/drivers/AbstractDriver";
-import FirebaseDriver from "@src/shared/drivers/FirebaseDriver";
 import LocalDriver from "@src/shared/drivers/LocalDriver";
 
-export type IDriverType = 'firebase' | 'local';
+import config from '@src/config';
+
+export type IDriverType = 'local';
 
 class DriverFactory {
   static get(driver: IDriverType): AbstractDriver {
     switch(driver) {
-      case "firebase":
-        return new FirebaseDriver();
-
       case "local":
         return new LocalDriver();
 
@@ -18,5 +16,7 @@ class DriverFactory {
     }
   }
 }
+
+export const driver = DriverFactory.get(config.DRIVER);
 
 export default DriverFactory;
