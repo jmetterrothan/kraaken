@@ -1,6 +1,6 @@
 import Entity from "@src/ECS/Entity";
-import { Health, RigidBody, PlayerMovement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
-import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { Projectile, Health, RigidBody, PlayerMovement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
+import { PROJECTILE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
@@ -9,14 +9,8 @@ import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@shared/math/Vector2";
 
-interface ProjectileOptions {
-  type: string;
-  speed: number;
-  ttl: number;
-}
-
 interface ProjectileWeaponOptions {
-  projectile?: ProjectileOptions;
+  projectile?: string;
   rate?: number;
   maxAmmo?: number;
   minRange?: number;
@@ -25,11 +19,12 @@ interface ProjectileWeaponOptions {
 }
 
 class ProjectileWeapon extends Weapon {
-  public readonly projectile: ProjectileOptions;
+  public readonly projectile: string;
   public readonly maxAmmo: number;
   public readonly rate: number;
   public readonly minRange: number;
   public readonly maxRange: number;
+  public readonly damage: number;
 
   protected _ammo: number;
 
@@ -41,7 +36,7 @@ class ProjectileWeapon extends Weapon {
     super();
 
     if (!projectile) {
-      throw new Error("No projectile setup");
+      throw new Error("No projectile entity type specified");
     }
 
     // in rounds per minute
@@ -94,16 +89,22 @@ class ProjectileWeapon extends Weapon {
     const origin = Vector2.create(position.x + (bbox.width / 2 + 4) * rigidBody.orientation.x, position.y);
     const dir = origin.clone().sub(target).normalize().negate();
 
-    const vx = this.projectile.speed * dir.x;
-    const vy = this.projectile.speed * dir.y;
+    const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
+    
+    if (!projectile.hasComponent(PROJECTILE_COMPONENT)) {
+      throw new Error("Improper projectile entity (must have a projectile component)");
+    }
 
-    const projectile = world.spawn({ type: this.projectile.type, position: { x: origin.x, y: origin.y } });
+    const { speed, ttl } = projectile.getComponent<Projectile>(PROJECTILE_COMPONENT);
+
+    const vx = speed * dir.x;
+    const vy = speed * dir.y;
 
     if (!projectile.hasComponent(POSITION_COMPONENT)) {
-      throw new Error("Improper projectile entity (must have a position)");
+      throw new Error("Improper projectile entity (must have a position component)");
     }
     if (!projectile.hasComponent(RIGID_BODY_COMPONENT)) {
-      throw new Error("Improper projectile entity (must have a rigid body)");
+      throw new Error("Improper projectile entity (must have a rigid body component)");
     }
 
     const projectilePos = projectile.getComponent<Position>(POSITION_COMPONENT);
@@ -138,10 +139,10 @@ class ProjectileWeapon extends Weapon {
       }
     }
 
-    if (this.projectile.ttl !== -1) {
+    if (ttl !== -1) {
       setTimeout(() => {
         world.removeEntity(projectile);
-      }, this.projectile.ttl);
+      }, ttl);
     }
 
     Vector2.destroy(target);

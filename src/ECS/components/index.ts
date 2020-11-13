@@ -15,3 +15,4 @@ export * from "./PlayerCombat";
 export * from "./AmmoModifier";
 export * from "./BasicInput";
 export * from './Placeable';
+export * from "./Projectile";

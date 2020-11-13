@@ -10516,6 +10516,32 @@
         "y": 1
       },
       "debug": false
+    },
+    {
+      "type": "frog",
+      "uuid": "fa073726-19cd-44d1-ae21-deb4d32e3b79",
+      "position": {
+        "x": 184,
+        "y": 424
+      },
+      "direction": {
+        "x": 1,
+        "y": 1
+      },
+      "debug": false
+    },
+    {
+      "type": "dino",
+      "uuid": "2256ea6d-80b6-431a-aa81-ac3edf046417",
+      "position": {
+        "x": 152,
+        "y": 424
+      },
+      "direction": {
+        "x": 1,
+        "y": 1
+      },
+      "debug": false
     }
   ]
 }

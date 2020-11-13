@@ -343,10 +343,11 @@
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "velocity": { "x": 200, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true } },
+      { "name": "rigid_body", "metadata": { "velocity": { "x": 0, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
       { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },
+      { "name": "projectile", "metadata": { "speed": 250, "ttl": 1000 } },
       {
         "name": "animator",
         "metadata": {
@@ -401,7 +402,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 12 } },
-      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
       { "name": "health", "metadata": { "maxHealth": 1 } },
       {
         "name": "animator",
@@ -484,8 +485,8 @@
       { "name": "placeable" },
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
-      { "name": "bounding_box", "metadata": { "width": 15, "height": 11 } },
-      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "bounding_box", "metadata": { "width": 15, "height": 12 } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
       { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
@@ -513,7 +514,7 @@
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 10, "height": 13 } },
-      { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
       { "name": "health", "metadata": { "maxHealth": 3 } },
       {
         "name": "animator",

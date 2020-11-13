@@ -13,3 +13,4 @@ export const HEALTH_POTION = Symbol("health_potion");
 export const PLAYER_COMBAT_COMPONENT = Symbol("player_combat");
 export const BASIC_INPUT_COMPONENT = Symbol("basic_input");
 export const PLACEABLE_COMPONENT = Symbol("placeable");
+export const PROJECTILE_COMPONENT = Symbol("projectile");

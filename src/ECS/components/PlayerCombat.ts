@@ -11,29 +11,16 @@ export class PlayerCombat implements Component {
   public primary;
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "energy_bolt", speed: 275, ttl: 750 }, //
-    rate: 500,
-    maxAmmo: 32,
+    projectile: "energy_bolt", //
+    rate: 800,
+    maxAmmo: 100,
     fireSFX: "laser",
     minRange: 16,
     maxRange: 80,
   });
 
-  private _weapon2: ProjectileWeapon = new ProjectileWeapon({
-    projectile: { type: "grenade", speed: 350, ttl: 10000 }, //
-    rate: 75,
-    maxAmmo: 32,
-    fireSFX: "laser",
-    minRange: 16,
-    maxRange: 160,
-  });
-
   public get primaryWeapon(): ProjectileWeapon {
     return this._weapon;
-  }
-
-  public get secondaryWeapon(): ProjectileWeapon {
-    return this._weapon2;
   }
 
   public toString(): string {
