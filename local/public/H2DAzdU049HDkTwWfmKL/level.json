@@ -3232,12 +3232,12 @@
       0,
       0,
       0,
-      1,
       0,
       0,
       0,
       0,
-      1,
+      0,
+      0,
       0,
       0,
       0,
@@ -6434,12 +6434,12 @@
       0,
       0,
       0,
-      502,
       0,
       0,
       0,
       0,
-      502,
+      0,
+      0,
       0,
       0,
       0,
@@ -10235,8 +10235,8 @@
       "type": "hero",
       "uuid": "player",
       "position": {
-        "x": 24,
-        "y": 376
+        "x": 664,
+        "y": 328
       },
       "direction": {
         "x": 1,
@@ -10248,8 +10248,8 @@
       "type": "health_potion",
       "uuid": "2",
       "position": {
-        "x": 664,
-        "y": 328
+        "x": 904,
+        "y": 488
       },
       "direction": {
         "x": 1,
@@ -10262,7 +10262,7 @@
       "uuid": "9",
       "position": {
         "x": 312,
-        "y": 456
+        "y": 440
       },
       "direction": {
         "x": 1,
@@ -10521,8 +10521,8 @@
       "type": "frog",
       "uuid": "fa073726-19cd-44d1-ae21-deb4d32e3b79",
       "position": {
-        "x": 184,
-        "y": 424
+        "x": 776,
+        "y": 488
       },
       "direction": {
         "x": 1,
@@ -10536,6 +10536,32 @@
       "position": {
         "x": 152,
         "y": 424
+      },
+      "direction": {
+        "x": 1,
+        "y": 1
+      },
+      "debug": false
+    },
+    {
+      "type": "armor_box",
+      "uuid": "289362eb-6179-4b46-a812-7d135cb4b5f8",
+      "position": {
+        "x": 1096,
+        "y": 488
+      },
+      "direction": {
+        "x": 1,
+        "y": 1
+      },
+      "debug": false
+    },
+    {
+      "type": "grenade_box",
+      "uuid": "ef331acd-a454-4790-804b-059cdfdfb5a0",
+      "position": {
+        "x": 840,
+        "y": 488
       },
       "direction": {
         "x": 1,

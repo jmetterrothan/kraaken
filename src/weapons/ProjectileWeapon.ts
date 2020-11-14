@@ -59,7 +59,7 @@ class ProjectileWeapon extends Weapon {
   }
 
   public update(world: World, owner: Entity): void {
-    if (!this.canBeUsed(owner)) {
+    if (!this.canBeUsed(world, owner)) {
       return;
     }
 
@@ -86,7 +86,7 @@ class ProjectileWeapon extends Weapon {
     const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
 
     const target = position.clone().add(playerInput.aim);
-    const origin = Vector2.create(position.x + (bbox.width / 2 + 4) * rigidBody.orientation.x, position.y);
+    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
     const dir = origin.clone().sub(target).normalize().negate();
 
     const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
@@ -150,12 +150,21 @@ class ProjectileWeapon extends Weapon {
     Vector2.destroy(dir);
   }
 
-  public canBeUsed(owner: Entity): boolean {
+  public canBeUsed(world: World, owner: Entity): boolean {
     const position = owner.getComponent<Position>(POSITION_COMPONENT);
+    const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
     const health = owner.getComponent<Health>(HEALTH_COMPONENT);
     const movement = owner.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
     const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
     const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+
+    // caculate origin of the projectile and recover the tile at this position
+    const tile = world.tileMap.getTileAtCoords(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
+
+    // test if the spawn position of the projectile is not in a solid tile
+    if (tile.hasCollision()) {
+      return false;
+    }
 
     const target = position.clone().add(playerInput.aim);
     const dist = position.distanceTo(target);

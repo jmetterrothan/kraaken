@@ -46,7 +46,7 @@ export class RenderingSystem extends System {
         offsetY = -(sprite.atlas.tileHeight - bboxHeight) / 2;
       } else {
         offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
-        offsetY = -(sprite.atlas.tileHeight - bboxHeight);
+        offsetY = -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
       }
       
       if (position.shouldUpdateTransform) {

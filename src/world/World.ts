@@ -86,10 +86,13 @@ class World {
   }
 
   public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {
-    const effect = this.spawn({ type, position, direction });
+    const effect = this.createEntity(type);
+    this.placeEntity(effect, position, direction);
 
     const animator = effect.getComponent<Components.Animator>(ComponentTypes.ANIMATOR_COMPONENT);
     animator.animation.reset();
+
+    this.addEntity(effect);
 
     setTimeout(() => {
       this.removeEntity(effect);
@@ -108,7 +111,6 @@ class World {
   public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
-    
     this.blueprint.entities
     .find((item) => item.type === type)
     .components.forEach(({ name, metadata = {} }) => {
@@ -122,9 +124,7 @@ class World {
     return entity;
   }
 
-  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
-    const entity = this.createEntity(type, uuid);
-
+  public placeEntity(entity: Entity, position: IVector2, direction: IVector2): void {
     if (entity.hasComponent(ComponentTypes.POSITION_COMPONENT)) {
       const positionComp = entity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
       positionComp.x = position?.x ?? 0;
@@ -139,7 +139,11 @@ class World {
       rigidBodyComp.direction.x = direction?.x ?? 1;
       rigidBodyComp.direction.y = direction?.y ?? 1;
     }
+  }
 
+  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
+    const entity = this.createEntity(type, uuid);
+    this.placeEntity(entity, position, direction);
     this.addEntity(entity);
 
     return entity;

@@ -21,8 +21,8 @@
     {
       "src": "http://localhost:3000/H2DAzdU049HDkTwWfmKL/graphics/player2.png",
       "name": "hero",
-      "tileWidth": 16,
-      "tileHeight": 16
+      "tileWidth": 24,
+      "tileHeight": 24
     },
     {
       "src": "http://localhost:3000/H2DAzdU049HDkTwWfmKL/graphics/tiles.png",

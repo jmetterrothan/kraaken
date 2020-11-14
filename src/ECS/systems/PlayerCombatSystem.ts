@@ -22,10 +22,6 @@ export class PlayerCombatSystem extends System {
       if (input.usePrimary && combat.primaryWeapon) {
         combat.primaryWeapon.update(this.world, entity);
       }
-
-      if (input.useSecondary && combat.secondaryWeapon) {
-        combat.secondaryWeapon.update(this.world, entity);
-      }
     });
   }
 }

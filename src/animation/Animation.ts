@@ -117,6 +117,9 @@ class Animation {
 
   public reset(): void {
     this.time = -1;
+    this.freezeTime = -1;
+    this.played = 0;
+    this.index = 0;
   }
 
   public toString(): string {

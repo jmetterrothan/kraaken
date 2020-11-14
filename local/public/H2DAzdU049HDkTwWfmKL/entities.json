@@ -3,7 +3,7 @@
     "type": "dust_land_effect",
     "components": [
       { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "bottom" } },
       {
         "name": "animator",
         "metadata": {
@@ -12,14 +12,14 @@
               "sprite": "dust_effects",
               "loop": true,
               "keyframes": [
-                { "row": 0, "col": 0, "duration": 75 },
-                { "row": 0, "col": 1, "duration": 75 },
-                { "row": 0, "col": 2, "duration": 75 },
-                { "row": 0, "col": 3, "duration": 75 },
-                { "row": 0, "col": 4, "duration": 75 },
-                { "row": 0, "col": 5, "duration": 75 },
-                { "row": 0, "col": 6, "duration": 75 },
-                { "row": 0, "col": 7, "duration": 75 }
+                { "row": 0, "col": 0, "duration": 85 },
+                { "row": 0, "col": 1, "duration": 85 },
+                { "row": 0, "col": 2, "duration": 85 },
+                { "row": 0, "col": 3, "duration": 85 },
+                { "row": 0, "col": 4, "duration": 85 },
+                { "row": 0, "col": 5, "duration": 85 },
+                { "row": 0, "col": 6, "duration": 85 },
+                { "row": 0, "col": 7, "duration": 85 }
               ]
             }
           },
@@ -32,7 +32,7 @@
     "type": "dust_jump_effect",
     "components": [
       { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "bottom" } },
       {
         "name": "animator",
         "metadata": {
@@ -41,14 +41,14 @@
               "sprite": "dust_effects",
               "loop": true,
               "keyframes": [
-                { "row": 1, "col": 0, "duration": 75 },
-                { "row": 1, "col": 1, "duration": 75 },
-                { "row": 1, "col": 2, "duration": 75 },
-                { "row": 1, "col": 3, "duration": 75 },
-                { "row": 1, "col": 4, "duration": 75 },
-                { "row": 1, "col": 5, "duration": 75 },
-                { "row": 1, "col": 6, "duration": 75 },
-                { "row": 1, "col": 7, "duration": 75 }
+                { "row": 1, "col": 0, "duration": 85 },
+                { "row": 1, "col": 1, "duration": 85 },
+                { "row": 1, "col": 2, "duration": 85 },
+                { "row": 1, "col": 3, "duration": 85 },
+                { "row": 1, "col": 4, "duration": 85 },
+                { "row": 1, "col": 5, "duration": 85 },
+                { "row": 1, "col": 6, "duration": 85 },
+                { "row": 1, "col": 7, "duration": 85 }
               ]
             }
           },
@@ -62,7 +62,7 @@
     "components": [
       { "name": "position" },
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
-      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "bottom" } },
       {
         "name": "animator",
         "metadata": {
@@ -71,14 +71,14 @@
               "sprite": "dust_effects",
               "loop": true,
               "keyframes": [
-                { "row": 2, "col": 0, "duration": 75 },
-                { "row": 2, "col": 1, "duration": 75 },
-                { "row": 2, "col": 2, "duration": 75 },
-                { "row": 2, "col": 3, "duration": 75 },
-                { "row": 2, "col": 4, "duration": 75 },
-                { "row": 2, "col": 5, "duration": 75 },
-                { "row": 2, "col": 6, "duration": 75 },
-                { "row": 2, "col": 7, "duration": 75 }
+                { "row": 2, "col": 0, "duration": 85 },
+                { "row": 2, "col": 1, "duration": 85 },
+                { "row": 2, "col": 2, "duration": 85 },
+                { "row": 2, "col": 3, "duration": 85 },
+                { "row": 2, "col": 4, "duration": 85 },
+                { "row": 2, "col": 5, "duration": 85 },
+                { "row": 2, "col": 6, "duration": 85 },
+                { "row": 2, "col": 7, "duration": 85 }
               ]
             }
           },
@@ -192,31 +192,6 @@
     ]
   },
   {
-    "type": "grenade",
-    "components": [
-      { "name": "position" },
-      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.55, "reflect": true, "reflectAngle": false } },
-      { "name": "bounding_box", "metadata": { "width": 8, "height": 8 } },
-      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom" } },
-      {
-        "name": "animator",
-        "metadata": {
-          "list": {
-            "grenade:idle": {
-              "sprite": "items",
-              "loop": true,
-              "keyframes": [
-                { "row": 4, "col": 0, "duration": 150 },
-                { "row": 4, "col": 1, "duration": 150 }
-              ]
-            }
-          },
-          "defaultKey": "grenade:idle"
-        }
-      }
-    ]
-  },
-  {
     "type": "health_potion",
     "components": [
       { "name": "placeable" },
@@ -260,6 +235,52 @@
             }
           },
           "defaultKey": "ammo_box:idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "armor_box",
+    "components": [
+      { "name": "placeable" },
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
+      { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "armor_box:idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [{ "row": 3, "col": 2, "duration": -1 }]
+            }
+          },
+          "defaultKey": "armor_box:idle"
+        }
+      }
+    ]
+  },
+  {
+    "type": "grenade_box",
+    "components": [
+      { "name": "placeable" },
+      { "name": "position" },
+      { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
+      { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
+      { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "grenade_box:idle": {
+              "sprite": "items",
+              "loop": true,
+              "keyframes": [{ "row": 3, "col": 3, "duration": -1 }]
+            }
+          },
+          "defaultKey": "grenade_box:idle"
         }
       }
     ]

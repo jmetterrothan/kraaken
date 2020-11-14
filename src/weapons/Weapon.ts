@@ -7,7 +7,7 @@ abstract class Weapon {
 
   protected abstract use(world: World, owner: Entity): void;
 
-  public abstract canBeUsed(owner: Entity): boolean;
+  public abstract canBeUsed(world: World, owner: Entity): boolean;
 }
 
 export default Weapon;

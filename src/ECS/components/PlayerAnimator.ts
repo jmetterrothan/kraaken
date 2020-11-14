@@ -24,7 +24,7 @@ export class PlayerAnimator extends Animator {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
     }
     // shooting
-    if (input.usePrimary && combat.primaryWeapon.canBeUsed(entity)) {
+    if (input.usePrimary && combat.primaryWeapon.canBeUsed(world, entity)) {
       return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
     }
     // vertical movement
