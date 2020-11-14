@@ -35,38 +35,50 @@ export class RenderingSystem extends System {
       const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
       const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
+      const bboxWidth = bbox?.width ?? 0;
+      const bboxHeight = bbox?.height ?? 0;
+
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (sprite.align === "center") {
+        offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
+        offsetY = -(sprite.atlas.tileHeight - bboxHeight) / 2;
+      } else {
+        offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
+        offsetY = -(sprite.atlas.tileHeight - bboxHeight);
+      }
+      
       if (position.shouldUpdateTransform) {
-        const offsetX = -sprite.atlas.tileWidth / 2;
-        const offsetY = sprite.align === "bottom" ? -Math.floor(sprite.atlas.tileHeight / 2 + (sprite.atlas.tileHeight / 2 - (bbox?.height ?? 0) / 2)) : -sprite.atlas.tileWidth / 2 - 1;
-        
-        position.transform = mat3.fromTranslation(
+        position.transform = mat3.create();
+
+        mat3.fromTranslation(
           position.transform,
-          position
-            .clone()
-            .trunc()
-            .addValues(offsetX, offsetY)
-            .addValues(position.rotation !== 0 ? sprite.atlas.tileWidth / 2 : 0, position.rotation !== 0 ? sprite.atlas.tileHeight / 2 : 0)
-            .toGlArray()
+          position.clone().toGlArray()
         );
 
         if (position.rotation !== 0) {
           const r = mat3.fromRotation(mat3.create(), position.rotation);
           mat3.multiply(position.transform, position.transform, r);
-
-          const t = mat3.fromTranslation(mat3.create(), [-sprite.atlas.tileWidth / 2, -sprite.atlas.tileHeight / 2]);
-          mat3.multiply(position.transform, position.transform, t);
         }
 
+        const moveOriginMatrix = mat3.fromTranslation(
+          mat3.create(),
+          bbox ? [-bbox.width / 2 + offsetX, -bbox.height / 2 + offsetY] : [offsetX, offsetY]
+        );
+
+        mat3.multiply(position.transform, position.transform, moveOriginMatrix);
+
+        // fix for texture bleeding by rounding the x, y components
+        cameraComponent.viewMatrix[6] = Math.round(cameraComponent.viewMatrix[6]);
+        cameraComponent.viewMatrix[7] = Math.round(cameraComponent.viewMatrix[7]);
+        position.transform[6] = Math.round(position.transform[6]);
+        position.transform[7] = Math.round(position.transform[7]);
+        
         position.shouldUpdateTransform = false;
       }
       
       sprite.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, rigidBody?.orientation);
-
-      /*
-      if (entity.hasComponent(BOUNDING_BOX_COMPONENT)) {
-        bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform);
-      }
-      */
     });
   }
 }

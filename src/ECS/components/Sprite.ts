@@ -1,4 +1,4 @@
-import { mat3 } from "gl-matrix";
+import { mat3, vec2 } from "gl-matrix";
 
 import Component from "@src/ECS/Component";
 import { SPRITE_COMPONENT } from "@src/ECS/types";

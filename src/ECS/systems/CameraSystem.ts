@@ -48,15 +48,13 @@ export class CameraSystem extends System {
       const targetPos = camera.target.getComponent<Position>(POSITION_COMPONENT);
 
       if (targetPos) {
-        const center = targetPos.clone().trunc();
-
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
-          position.lerp(center, camera.smoothing).trunc();
+          const center = targetPos.clone();
+          position.lerp(center, camera.smoothing);
+          Vector2.destroy(center);
         } else {
-          position.copy(center).trunc();
+          position.copy(targetPos);
         }
-
-        Vector2.destroy(center);
       }
     }
 
@@ -75,8 +73,8 @@ export class CameraSystem extends System {
       const offsetMatrix = mat3.create();
       const scaleMatrix = mat3.create();
 
-      const translation = position.clone().trunc().negate();
-      mat3.fromTranslation(offsetMatrix, vec2.fromValues(Math.trunc(configSvc.innerSize.w / 2), Math.trunc(configSvc.innerSize.h / 2)));
+      const translation = position.clone().negate();
+      mat3.fromTranslation(offsetMatrix, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
       mat3.fromTranslation(positionMatrix, translation.toGlArray());
       Vector2.destroy(translation);
 

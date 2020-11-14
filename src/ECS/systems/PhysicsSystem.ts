@@ -94,15 +94,15 @@ export class PhysicsSystem extends System {
       bbox.setPositionFromVector2(position);
     }
 
+    const x1 = bbox?.x1 ?? position.x;
+    const y1 = bbox?.y1 ?? position.y;
+    const x2 = bbox?.x2 ?? position.x;
+    const y2 = bbox?.y2 ?? position.y;
+
+    const w = bbox?.width ?? 0;
+    const h = bbox?.height ?? 0;
+
     if (rigidBody.collide) {
-      const x1 = bbox?.x1 ?? position.x;
-      const y1 = bbox?.y1 ?? position.y;
-      const x2 = bbox?.x2 ?? position.x;
-      const y2 = bbox?.y2 ?? position.y;
-
-      const w = bbox?.width ?? 0;
-      const h = bbox?.height ?? 0;
-
       if (v.y > 0) {
         // bottom collision
         const tile = this.testForCollision(this.world.tileMap, x1, y2 + v.y, x1 + w / 2, y2 + v.y, x2, y2 + v.y);
@@ -210,7 +210,7 @@ export class PhysicsSystem extends System {
       const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
       
       if (movement.falling && rigidBody.velocity.y === 0 && v.y > 0) {
-        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
         movement.lastEffectTime = now + 500;
       }
 
@@ -222,7 +222,7 @@ export class PhysicsSystem extends System {
 
       if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
         movement.lastEffectTime = now + 250;
-        this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x + bbox.width / 2, y: position.y + bbox.height / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
+        this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
       }
     }
   }
