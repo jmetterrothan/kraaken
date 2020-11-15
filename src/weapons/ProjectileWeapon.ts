@@ -16,6 +16,8 @@ interface ProjectileWeaponOptions {
   minRange?: number;
   maxRange?: number;
   fireSFX?: string;
+  burstLimit?: number;
+  burstDelay?: number;
 }
 
 class ProjectileWeapon extends Weapon {
@@ -25,23 +27,33 @@ class ProjectileWeapon extends Weapon {
   public readonly minRange: number;
   public readonly maxRange: number;
   public readonly damage: number;
+  public readonly burstLimit: number;
+  public readonly burstDelay: number;
 
   protected _ammo: number;
 
   protected nextTimeToFire: number;
+  protected nextTimeToBurst: number;
+  protected burstCounter: number;
 
   protected fireSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
+  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {
       throw new Error("No projectile entity type specified");
     }
 
+    if (burstLimit < 1) {
+      throw new Error("Burst limit cannot be inferior to 1");
+    }
+
     // in rounds per minute
     this.projectile = projectile;
     this.rate = rate;
+    this.burstLimit = burstLimit;
+    this.burstDelay = burstDelay;
     this.maxAmmo = maxAmmo;
     this.minRange = minRange;
     this.maxRange = maxRange;
@@ -49,6 +61,8 @@ class ProjectileWeapon extends Weapon {
     this._ammo = this.maxAmmo;
 
     this.nextTimeToFire = 0;
+    this.nextTimeToBurst = 0;
+    this.burstCounter = this.burstLimit;
 
     if (fireSFX) {
       this.fireSFX = SoundManager.create(fireSFX, {
@@ -70,12 +84,27 @@ class ProjectileWeapon extends Weapon {
     }
 
     if (this.rate === 0) {
-      this.use(world, owner);
+      this.fire(world, owner);
     } else if (now > this.nextTimeToFire && this.rate > 0) {
       // calculate delay in ms based on fire rate
       const delay = 60000 / this.rate;
       this.nextTimeToFire = now + delay;
-      this.use(world, owner);
+      this.fire(world, owner);
+    }
+  }
+
+  public fire(world: World, owner: Entity): void {
+    const now = window.performance.now();
+
+    if (now > this.nextTimeToBurst) {       
+      if (this.burstCounter > 0) {       
+        this.use(world, owner);
+      }
+
+      if (this.burstCounter === 0) {  
+        this.nextTimeToBurst = now + this.burstDelay;
+        this.burstCounter = this.burstLimit;
+      }
     }
   }
 
@@ -119,6 +148,7 @@ class ProjectileWeapon extends Weapon {
     projectileRigidBody.velocity.fromValues(vx, vy);
 
     this.ammo -= 1;
+    this.burstCounter -= 1;
 
     if (this.fireSFX) {
       this.fireSFX.play();
@@ -151,6 +181,10 @@ class ProjectileWeapon extends Weapon {
   }
 
   public canBeUsed(world: World, owner: Entity): boolean {
+    if (this.ammo === 0 && this.maxAmmo !== -1) {
+      return false;
+    }
+
     const position = owner.getComponent<Position>(POSITION_COMPONENT);
     const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
     const health = owner.getComponent<Health>(HEALTH_COMPONENT);
@@ -177,7 +211,7 @@ class ProjectileWeapon extends Weapon {
       return false;
     }
 
-    return (this.ammo > 0 || this.maxAmmo === -1) && health.isAlive && movement.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
+    return health.isAlive && movement.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
   }
 
   public get ammo(): number {
