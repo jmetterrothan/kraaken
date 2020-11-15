@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server --mode development --progress --watch --config config/webpack.dev.js",
     "build": "webpack --mode production --config config/webpack.base.js",
+    "start": "node local/server.js",
     "lint": "eslint --fix src/**/*.{js,jsx,ts,tsx}"
   },
   "repository": {
