@@ -67,6 +67,10 @@ class TileMap {
         const tile: ITile = {
           row: r,
           col: c,
+          x1: c * this.tileSize,
+          x2: c * this.tileSize + this.tileSize,
+          y1: r * this.tileSize,
+          y2: r * this.tileSize + this.tileSize,
           index: r * this.nbCols + c,
           transform: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
           position: new Vector2(c * this.tileSize, r * this.tileSize),

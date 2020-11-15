@@ -43,7 +43,7 @@ export class HealthModifier extends Consummable {
 
     if (health.isDead && !entity.hasComponent(PLAYER_INPUT_COMPONENT)) {
       world.removeEntity(entity);
-      world.playEffectOnceAt("energy_dispersion_effect", position);
+      world.playEffectOnceAt("explosion", position);
     }
   }
 

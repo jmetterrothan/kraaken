@@ -13,6 +13,10 @@ export enum TileLayer {
 export interface ITile {
   row: number;
   col: number;
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
   index: number;
   position: Vector2;
   size: number;

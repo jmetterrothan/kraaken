@@ -125,6 +125,10 @@ export class PhysicsSystem extends System {
             }
 
             Vector2.destroy(n);
+
+            if (rigidBody.reflectVFX) {
+              this.world.playEffectOnceAt(rigidBody.reflectVFX, { x: position.x, y: tile.y1 });
+            }
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -152,6 +156,10 @@ export class PhysicsSystem extends System {
             }
 
             Vector2.destroy(n);
+
+            if (rigidBody.reflectVFX) {
+              this.world.playEffectOnceAt(rigidBody.reflectVFX, { x: position.x, y: tile.y2 });
+            }
           } else {
             rigidBody.velocity.y = 0;
           }
@@ -170,10 +178,14 @@ export class PhysicsSystem extends System {
             const r = rigidBody.velocity.reflect(n);
             if (rigidBody.reflectAngle) {
               position.rotation = Math.atan2(r.y, r.x);
-            }
+            } 
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
             Vector2.destroy(n);
+
+            if (rigidBody.reflectVFX) {
+              this.world.playEffectOnceAt(rigidBody.reflectVFX, { x: tile.x1, y: position.y });
+            }
           } else {
             rigidBody.velocity.x = 0;
           }
@@ -194,6 +206,10 @@ export class PhysicsSystem extends System {
             rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
             Vector2.destroy(n);
+
+            if (rigidBody.reflectVFX) {
+              this.world.playEffectOnceAt(rigidBody.reflectVFX, { x: tile.x2, y: position.y });
+            }
           } else {
             rigidBody.velocity.x = 0;
           }

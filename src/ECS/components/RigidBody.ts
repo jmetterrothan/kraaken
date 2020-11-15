@@ -16,6 +16,7 @@ export interface IRigidBodyMetadata {
   bounciness?: number;
   reflect?: boolean;
   reflectAngle?: boolean;
+  reflectVFX?: string;
 }
 
 export class RigidBody implements Component {
@@ -26,13 +27,14 @@ export class RigidBody implements Component {
   public readonly clamToMap: boolean;
   public readonly reflect: boolean;
   public readonly reflectAngle: boolean;
+  public readonly reflectVFX: string;
   public readonly bounciness: number;
 
   public orientation: Vector2 = new Vector2(1, 1);
   public direction: Vector2 = new Vector2(1, 1);
   public velocity: Vector2 = new Vector2(0, 0);
 
-  public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle }: IRigidBodyMetadata = {}) {
+  public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
     this.velocity.x = velocity?.x ?? 0;
     this.velocity.y = velocity?.y ?? 0;
 
@@ -44,6 +46,7 @@ export class RigidBody implements Component {
     this.clamToMap = clamToMap ?? false;
     this.reflect = reflect ?? false;
     this.reflectAngle = reflectAngle ?? false;
+    this.reflectVFX = reflectVFX;
     this.bounciness = bounciness ?? 1;
   }
 
