@@ -84,7 +84,7 @@ class SpriteAtlas {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
-  public computeTileCoord(row: number, col: number, dx: number, dy: number, reflect = false): vec2 {
+  public computeTileCoord(row: number, col: number, dx = 1, dy = 1, reflect = false): vec2 {
     const rdx = (reflect && dx) < 0 ? -1 : 1;
     const rdy = (reflect && dy) < 0 ? -1 : 1;
 
@@ -95,16 +95,13 @@ class SpriteAtlas {
     return vec2.fromValues(x, y);
   }
 
-  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, frame: { row: number; col: number; }, direction: Vector2 | undefined, renderOptions: ISpriteRenderRenderOptions): void {
+  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, index: number, direction: Vector2 | undefined, renderOptions: ISpriteRenderRenderOptions): void {
     // flickering effect - skip frames
     if (renderOptions.flickering && Math.floor(window.performance.now() / renderOptions.flickerSpeed) % 2) {
       return;
     }
     
     if (this.loaded) {
-      const dx = direction?.x ?? 1;
-      const dy = direction?.y ?? 1;
-
       this.setUniform("u_grayscale", renderOptions.grayscale);
       this.setUniform("u_tint_effect", renderOptions.tintEffect);
       this.setUniform("u_tint_color", renderOptions.tintColor);
@@ -116,7 +113,7 @@ class SpriteAtlas {
       this.setUniform("u_model", modelMatrix);
       
       this.setUniform("u_size", [this.width, this.height]);
-      this.setUniform("u_frame", this.computeTileCoord(frame.row, frame.col, dx, dy, renderOptions.reflect));
+      this.setUniform("u_frame", this.computeTileCoord(this.getRow(index), this.getCol(index), direction?.x, direction?.y, renderOptions.reflect));
 
       gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }
@@ -169,6 +166,22 @@ class SpriteAtlas {
 
   public get nbCols(): number {
     return this.width / this.tileWidth;
+  }
+
+  public getIndex(row: number, col: number): number {
+    return row * this.nbCols + col;
+  }
+
+  public getRow(index: number): number {
+    return Math.trunc(index / this.nbCols);
+  }
+
+  public getCol(index: number): number {
+    return Math.trunc(index % this.nbCols);
+  }
+
+  public getCoords(index: number): { row: number; col: number; } {
+    return { row: this.getRow(index), col: this.getCol(index) };
   }
 }
 
