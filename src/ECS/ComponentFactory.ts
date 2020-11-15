@@ -1,43 +1,42 @@
 import Component from '@src/ECS/Component';
-
-import { Projectile, Placeable, HealthModifier, PlayerCombat, AmmoModifier, PlayerMovement, PlayerInput, Animator, BoundingBox, RigidBody, Position, Sprite, Health, PlayerAnimator, Collectible, BasicInput } from "@src/ECS/components";
+import * as Components from "@src/ECS/components";
 
 class ComponentFactory {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   public static create(name: string, metadata: any): Component {
     switch (name) {
       case "position":
-        return new Position(metadata);
+        return new Components.Position(metadata);
       case "bounding_box":
-        return new BoundingBox(metadata);
+        return new Components.BoundingBox(metadata);
       case "player_movement":
-        return new PlayerMovement(metadata);
+        return new Components.PlayerMovement(metadata);
       case "player_input":
-        return new PlayerInput();
+        return new Components.PlayerInput();
       case "player_animator":
-        return new PlayerAnimator(metadata);
+        return new Components.PlayerAnimator(metadata);
       case "animator":
-        return new Animator(metadata);
+        return new Components.Animator(metadata);
       case "sprite":
-        return new Sprite(metadata);
+        return new Components.Sprite(metadata);
       case "health":
-        return new Health(metadata);
+        return new Components.Health(metadata);
       case "rigid_body":
-        return new RigidBody(metadata);
+        return new Components.RigidBody(metadata);
       case "health_modifier":
-        return new HealthModifier(metadata);
+        return new Components.HealthModifier(metadata);
       case "ammo_modifier":
-        return new AmmoModifier(metadata);
+        return new Components.AmmoModifier(metadata);
       case "collectible":
-        return new Collectible(metadata);
+        return new Components.Collectible(metadata);
       case "player_combat":
-        return new PlayerCombat();
+        return new Components.PlayerCombat();
       case "basic_input":
-        return new BasicInput();
+        return new Components.BasicInput();
       case "placeable":
-        return new Placeable();
+        return new Components.Placeable();
       case "projectile": 
-        return new Projectile(metadata);
+        return new Components.Projectile(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

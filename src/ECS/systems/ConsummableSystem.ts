@@ -19,20 +19,20 @@ export class ConsummableSystem extends System {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
-
       const targetBbox = target.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
       if (targetBbox.intersectBox(bbox)) {
         const position = entity.getComponent<Position>(POSITION_COMPONENT);
-
         consummable.consummatedBy(this.world, target);
-        consummable.consummated = true;
 
         if (consummable.pickUpVFX) {
           this.world.playEffectOnceAt(consummable.pickUpVFX, { x: position.x, y: position.y });
         }
 
-        this.world.removeEntity(entity);
+        if (consummable.limit !== -1 && consummable.nbOfTimesConsummated >= consummable.limit) {
+          consummable.consummated = true;
+          this.world.removeEntity(entity);
+        }
       }
     }
   }

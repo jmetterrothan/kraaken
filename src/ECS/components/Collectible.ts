@@ -8,7 +8,6 @@ import World from "@src/world/World";
 export interface ICollectibleMetadata extends IConsummableMetadata {
   id?: string;
   amount?: number;
-  pickUpSFX?: string;
 }
 
 export class Collectible extends Consummable {
@@ -27,6 +26,8 @@ export class Collectible extends Consummable {
   }
 
   public consummatedBy(world: World, entity: Entity): void {
+    super.consummatedBy(world, entity);
+
     if (typeof Collectible.DATA[entity.uuid] === "undefined") {
       Collectible.DATA[entity.uuid] = {};
     }

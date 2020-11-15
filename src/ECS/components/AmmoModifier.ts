@@ -15,6 +15,8 @@ export class AmmoModifier extends Consummable {
   }
 
   public consummatedBy(world: World, entity: Entity): void {
+    super.consummatedBy(world, entity);
+
     const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
 
     combat.primaryWeapon.ammo = combat.primaryWeapon.maxAmmo;
@@ -25,6 +27,10 @@ export class AmmoModifier extends Consummable {
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {
+    if (!super.canBeConsummatedBy(entity)) {
+      return false;
+    }
+    
     if (!entity.hasComponent(PLAYER_COMBAT_COMPONENT)) {
       return false;
     }
