@@ -2,7 +2,6 @@ import { TileLayer } from './tilemap.model';
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
-import { ITileTypeGroup, ITileTypeData } from "@src/shared/models/tilemap.model";
 
 export interface IComponentBlueprint {
   name: string;
@@ -22,7 +21,6 @@ export interface ILevelBlueprint {
   defaultTileType: number;
   tileSize: number;
   tileSet: string;
-  tileTypes: ITileTypeData[];
   tileMapRows: number;
   tileMapCols: number;
   layers: {

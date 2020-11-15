@@ -19,8 +19,7 @@ export class AnimationSystem extends System {
 
       // sync first frame to the default animation
       const animation = animator.animation;
-      sprite.row = animation.frame.row;
-      sprite.col = animation.frame.col;
+      sprite.index = sprite.atlas.getIndex(animation.frame.row, animation.frame.col);
     });
 
     world.entityRemoved$([ANIMATOR_COMPONENT, SPRITE_COMPONENT]).subscribe((entity) => {
@@ -49,8 +48,7 @@ export class AnimationSystem extends System {
 
       animation.update();
 
-      sprite.row = animation.frame.row;
-      sprite.col = animation.frame.col;
+      sprite.index = sprite.atlas.getIndex(animation.frame.row, animation.frame.col);
     });
   }
 }

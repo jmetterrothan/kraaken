@@ -1,7 +1,5 @@
 import React from "react";
 
-import { ITileTypeData } from "@src/shared/models/tilemap.model";
-
 interface IToolbarTilesetItem {
   key?: string;
   index: number;
@@ -11,7 +9,7 @@ interface IToolbarTilesetItem {
   subImage: string;
 }
 
-const useTileset = (src: string, tileSize: number, tileTypes: ITileTypeData[]): IToolbarTilesetItem[] => {
+const useTileset = (src: string, tileSize: number): IToolbarTilesetItem[] => {
   const [tiles, setTiles] = React.useState<IToolbarTilesetItem[]>([]);
 
   React.useEffect(() => {
@@ -33,24 +31,31 @@ const useTileset = (src: string, tileSize: number, tileTypes: ITileTypeData[]): 
       const $subCanvas = document.createElement("canvas");
       const subCtx = $subCanvas.getContext("2d");
 
-      const nbCols = (file.width / tileSize) | 0;
+      const nbRows = Math.trunc(file.height / tileSize);
+      const nbCols = Math.trunc(file.width / tileSize);
 
       $subCanvas.width = tileSize;
       $subCanvas.height = tileSize;
 
-      tileTypes.map(({ key, col, row, group }) => {
-        const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
-        subCtx.putImageData(imagedata, 0, 0);
+      for (let row = 0; row < nbRows; row++) {
+        for (let col = 0; col < nbCols; col++) {
+          const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
 
-        temp.push({ key, index: row * nbCols + col, col, row, group, subImage: $subCanvas.toDataURL() });
-      });
+          // filter out empty tiles
+          if (imagedata.data.find((value) => value !== 0)) {
+            subCtx.putImageData(imagedata, 0, 0);
+
+            temp.push({ index: row * nbCols + col, col, row, group: "default", subImage: $subCanvas.toDataURL() });
+          }
+        }
+      }
 
       setTiles(temp);
     };
 
     file.crossOrigin = "anonymous";
     file.src = src;
-  }, [src, tileSize, tileTypes]);
+  }, [src, tileSize]);
 
   return tiles;
 };

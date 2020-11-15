@@ -29,18 +29,6 @@ export interface ITile {
   setTileTypeId(layer: TileLayer, id: number): void;
 }
 
-export interface ITileMap {
-  defaultTileType: number;
-  rows: number;
-  cols: number;
-  tileSize: number;
-  tileSet: string;
-  tileTypes: ITileTypeData[];
-  layer1: number[];
-  layer2: number[];
-  layer3: number[];
-}
-
 export interface ITileTypeData {
   key?: string;
   row: number;

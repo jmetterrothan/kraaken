@@ -25,15 +25,15 @@ interface IToolbarTilesetProps {
   scale?: number;
 }
 
-const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, tileTypes, mostFrequentlyUsedTiles = {} }) => {
+const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, mostFrequentlyUsedTiles = {} }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
 
   const [history, setHistory] = React.useState<Record<number, number>>(mostFrequentlyUsedTiles);
 
-  const tiles = useTileset(src, tileSize, tileTypes);
-  const selectedTile = tiles.find((tile) => tile.index === selected);
+  const tiles = useTileset(src, tileSize);
+  // const selectedTile = tiles.find((tile) => tile.index === selected);
 
   const list = React.useMemo(() => {
     return Object.entries(history)

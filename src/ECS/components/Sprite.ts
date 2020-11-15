@@ -25,9 +25,7 @@ export class Sprite implements Component {
 
   public visible = true;
 
-  public row: number;
-  public col: number;
-
+  public index: number;
   public atlas: SpriteAtlas;
 
   public align: "bottom" | "center";
@@ -35,8 +33,6 @@ export class Sprite implements Component {
   public renderOptions: ISpriteRenderRenderOptions;
 
   public constructor({ row = -1, col = -1, alias, align = "center", reflect = true }: ISpriteMetadata) {
-    this.row = row;
-    this.col = col;
     this.align = align;
 
     if (!alias) {
@@ -44,6 +40,7 @@ export class Sprite implements Component {
     }
 
     this.atlas = SpriteManager.get(alias);
+    this.index = this.atlas.getIndex(row, col);
 
     this.renderOptions = {
       flickering: false,
@@ -59,10 +56,10 @@ export class Sprite implements Component {
 
   public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, direction: Vector2 | undefined): void {
     this.atlas.use();
-    this.atlas.render(projectionMatrix, viewMatrix, modelMatrix, this, direction, this.renderOptions);
+    this.atlas.render(projectionMatrix, viewMatrix, modelMatrix, this.index, direction, this.renderOptions);
   }
 
   public toString(): string {
-    return `Sprite - ${this.atlas.alias} (r:${this.row}, c:${this.col})`;
+    return `Sprite - ${this.atlas.alias} (index: ${this.index})`;
   }
 }

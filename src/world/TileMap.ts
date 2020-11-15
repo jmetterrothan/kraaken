@@ -9,7 +9,7 @@ import World from "@src/world/World";
 
 import { IWorldBlueprint } from '@shared/models/world.model';
 import { TintEffect } from "@src/shared/models/animation.model";
-import { TileLayer, ITile, ITileTypeData } from "@shared/models/tilemap.model";
+import { TileLayer, ITile } from "@shared/models/tilemap.model";
 
 import Box2 from "@shared/math/Box2";
 import Color from "@shared/helper/Color";
@@ -29,7 +29,6 @@ class TileMap {
   public tiles: ITile[][];
   public atlas: SpriteAtlas;
 
-  private tileTypes: Record<number, ITileTypeData>;
   private boundaries: Box2;
 
   private readonly nbCols: number;
@@ -53,12 +52,6 @@ class TileMap {
     this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
     this.atlas = SpriteManager.get(this.tileSet);
-
-    this.tileTypes = blueprint.level.tileTypes.reduce((acc, tileType) => {
-      const index = tileType.row * this.atlas.nbCols + tileType.col;
-      acc[index] = tileType;
-      return acc;
-    }, {});
 
     this.tiles = create2DArray<ITile>(this.nbRows, this.nbCols);
    
@@ -151,15 +144,15 @@ class TileMap {
         tile.transform[7] = Math.round(tile.transform[7]);
 
         if (config.DEBUG && tile.hasCollision() && layer1Index === 0) {
-          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, { row: 0, col: 0 }, tile.direction, tile.renderOptions);
+          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, 0, tile.direction, tile.renderOptions);
         }
 
-        if (layer1Index > 0 && this.tileTypes[layer1Index]) {
-           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, this.tileTypes[layer1Index], tile.direction, tile.renderOptions);
+        if (layer1Index > 0) {
+           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layer1Index, tile.direction, tile.renderOptions);
         }
 
-        if (layer2Index > 0 && this.tileTypes[layer2Index]) {
-          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, this.tileTypes[layer2Index], tile.direction, tile.renderOptions);
+        if (layer2Index > 0) {
+          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layer2Index, tile.direction, tile.renderOptions);
        }
       }
     }
@@ -250,10 +243,6 @@ class TileMap {
 
   public hasCollisionAtCoords(x: number, y: number): boolean {
     return this.getTileTypeIdAtCoords(TileLayer.L0, x, y) === 1;
-  }
-
-  public getTileTypeById(id: number): ITileTypeData {
-    return this.tileTypes[id];
   }
 
   public getBoundaries(): Box2 {
