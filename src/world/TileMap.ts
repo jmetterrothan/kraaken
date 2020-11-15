@@ -132,12 +132,19 @@ class TileMap {
   public render(projectionMatrix: mat3, viewMatrix: mat3, alpha: number): void {
     this.atlas.use();
 
+    // fix for texture bleeding by rounding the x, y components
+    viewMatrix[6] = Math.round(viewMatrix[6]);
+    viewMatrix[7] = Math.round(viewMatrix[7]);
+  
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
         const tile = this.tiles[r][c];
 
         const layer1Index = tile.getTileTypeId(TileLayer.L1);
         const layer2Index = tile.getTileTypeId(TileLayer.L2);
+
+        tile.transform[6] = Math.round(tile.transform[6]);
+        tile.transform[7] = Math.round(tile.transform[7]);
 
         if (config.DEBUG && tile.hasCollision() && layer1Index === 0) {
           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, { row: 0, col: 0 }, tile.direction, tile.renderOptions);
