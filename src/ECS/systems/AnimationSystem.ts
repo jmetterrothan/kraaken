@@ -13,12 +13,17 @@ export class AnimationSystem extends System {
   addedToWorld(world: World): void {
     super.addedToWorld(world);
 
-    world.entityAdded$([SPRITE_COMPONENT]).subscribe((entity) => {
-      // console.log(entity);
+    world.entityAdded$([ANIMATOR_COMPONENT, SPRITE_COMPONENT]).subscribe((entity) => {
+      const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
+      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+
+      // sync first frame to the default animation
+      const animation = animator.animation;
+      sprite.row = animation.frame.row;
+      sprite.col = animation.frame.col;
     });
 
-    world.entityRemoved$([SPRITE_COMPONENT]).subscribe((entity) => {
-      // console.log(entity);
+    world.entityRemoved$([ANIMATOR_COMPONENT, SPRITE_COMPONENT]).subscribe((entity) => {
       const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
 
       animator.list.forEach((animation) => {
@@ -35,7 +40,7 @@ export class AnimationSystem extends System {
 
     entities.forEach((entity) => {
       const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
-      const frame = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
 
       const animation = animator.animation;
 
@@ -44,8 +49,8 @@ export class AnimationSystem extends System {
 
       animation.update();
 
-      frame.row = animation.frame.row;
-      frame.col = animation.frame.col;
+      sprite.row = animation.frame.row;
+      sprite.col = animation.frame.col;
     });
   }
 }

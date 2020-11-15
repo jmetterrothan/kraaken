@@ -1,5 +1,33 @@
 [
   {
+    "type": "dust_hit_effect",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "dust_hit_effect:idle": {
+              "sprite": "dust_effects",
+              "loop": false,
+              "keyframes": [
+                { "row": 3, "col": 0, "duration": 85 },
+                { "row": 3, "col": 1, "duration": 85 },
+                { "row": 3, "col": 2, "duration": 85 },
+                { "row": 3, "col": 3, "duration": 85 },
+                { "row": 3, "col": 4, "duration": 85 },
+                { "row": 3, "col": 5, "duration": 85 },
+                { "row": 3, "col": 6, "duration": 85 }
+              ]
+            }
+          },
+          "defaultKey": "dust_hit_effect:idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "dust_land_effect",
     "components": [
       { "name": "position" },
@@ -329,33 +357,6 @@
             }
           },
           "defaultKey": "energy_blast:idle"
-        }
-      }
-    ]
-  },
-  {
-    "type": "dust_hit_effect",
-    "components": [
-      { "name": "position" },
-      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
-      {
-        "name": "animator",
-        "metadata": {
-          "list": {
-            "dust_hit_effect:idle": {
-              "sprite": "dust_effects",
-              "loop": false,
-              "keyframes": [
-                { "row": 3, "col": 0, "duration": 85 },
-                { "row": 3, "col": 1, "duration": 85 },
-                { "row": 3, "col": 2, "duration": 85 },
-                { "row": 3, "col": 3, "duration": 85 },
-                { "row": 3, "col": 4, "duration": 85 },
-                { "row": 3, "col": 5, "duration": 85 }
-              ]
-            }
-          },
-          "defaultKey": "dust_hit_effect:idle"
         }
       }
     ]

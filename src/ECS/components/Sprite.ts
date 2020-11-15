@@ -34,7 +34,7 @@ export class Sprite implements Component {
 
   public renderOptions: ISpriteRenderRenderOptions;
 
-  public constructor({ row = 0, col = 0, alias, align = "center", reflect = true }: ISpriteMetadata) {
+  public constructor({ row = -1, col = -1, alias, align = "center", reflect = true }: ISpriteMetadata) {
     this.row = row;
     this.col = col;
     this.align = align;
