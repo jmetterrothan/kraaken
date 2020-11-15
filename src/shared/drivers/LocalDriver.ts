@@ -13,7 +13,7 @@ class LocalDriver extends AbstractDriver {
     super();
 
     this.http = axios.create({
-      baseURL: config.LOCAL_API,
+      baseURL: config.REST_API,
     });
   }
 

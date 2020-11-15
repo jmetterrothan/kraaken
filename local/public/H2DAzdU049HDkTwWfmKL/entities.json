@@ -334,7 +334,7 @@
     ]
   },
   {
-    "type": "energy_dispersion_effect",
+    "type": "dust_hit_effect",
     "components": [
       { "name": "position" },
       { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
@@ -342,18 +342,20 @@
         "name": "animator",
         "metadata": {
           "list": {
-            "energy_dispersion_effect:idle": {
+            "dust_hit_effect:idle": {
               "sprite": "dust_effects",
               "loop": false,
               "keyframes": [
-                { "row": 3, "col": 0, "duration": 50 },
-                { "row": 3, "col": 1, "duration": 50 },
-                { "row": 3, "col": 2, "duration": 50 },
-                { "row": 3, "col": 3, "duration": 50 }
+                { "row": 3, "col": 0, "duration": 85 },
+                { "row": 3, "col": 1, "duration": 85 },
+                { "row": 3, "col": 2, "duration": 85 },
+                { "row": 3, "col": 3, "duration": 85 },
+                { "row": 3, "col": 4, "duration": 85 },
+                { "row": 3, "col": 5, "duration": 85 }
               ]
             }
           },
-          "defaultKey": "energy_dispersion_effect:idle"
+          "defaultKey": "dust_hit_effect:idle"
         }
       }
     ]
@@ -389,7 +391,7 @@
     "type": "energy_bolt",
     "components": [
       { "name": "position" },
-      { "name": "rigid_body", "metadata": { "velocity": { "x": 0, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true } },
+      { "name": "rigid_body", "metadata": { "velocity": { "x": 0, "y": 0 }, "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": false, "bounciness": 0.9, "reflect": true, "reflectAngle": true, "reflectVFX": "dust_hit_effect" } },
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
       { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },

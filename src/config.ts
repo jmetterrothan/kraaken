@@ -3,7 +3,7 @@ import { IDriverType } from './shared/drivers/DriverFactory';
 interface IConfig {
   DRIVER: IDriverType;
   DEBUG: boolean;
-  LOCAL_API: string;
+  REST_API: string;
   TARGET_UPS: number;
   FIREBASE_API_KEY: string;
   FIREBASE_AUTH_DOMAIN: string;
@@ -17,7 +17,7 @@ interface IConfig {
 const config: IConfig = {
   DRIVER: (process.env.DRIVER || 'local') as IDriverType,
   DEBUG: (process.env.DEBUG || 'true') === 'true',
-  LOCAL_API: process.env.LOCAL_API,
+  REST_API: process.env.REST_API,
   TARGET_UPS: process.env.TARGET_UPS ? parseInt(process.env.TARGET_UPS, 10) : 50,
   FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
