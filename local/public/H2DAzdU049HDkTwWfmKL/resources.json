@@ -31,6 +31,12 @@
       "tileHeight": 16
     },
     {
+      "src": "http://localhost:3000/H2DAzdU049HDkTwWfmKL/graphics/torch.png",
+      "name": "torch",
+      "tileWidth": 16,
+      "tileHeight": 34
+    },
+    {
       "src": "http://localhost:3000/H2DAzdU049HDkTwWfmKL/graphics/atlas48x48.png",
       "name": "atlas2",
       "tileWidth": 48,
