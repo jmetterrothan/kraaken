@@ -37,6 +37,8 @@ class ComponentFactory {
         return new Components.Placeable();
       case "projectile": 
         return new Components.Projectile(metadata);
+      case "flying_ai": 
+        return new Components.FlyingAI();
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

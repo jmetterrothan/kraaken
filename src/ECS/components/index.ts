@@ -16,3 +16,5 @@ export * from "./AmmoModifier";
 export * from "./BasicInput";
 export * from './Placeable';
 export * from "./Projectile";
+export * from "./FlyingAI";
+

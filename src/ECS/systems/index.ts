@@ -9,3 +9,4 @@ export * from "./PlayerCombatSystem";
 export * from "./BasicInputSystem";
 export * from "./BasicMovementSystem";
 export * from "./PlaceableSystem";
+export * from "./AISystem";
