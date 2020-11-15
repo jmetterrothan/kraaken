@@ -14,6 +14,9 @@ import LevelUi from "./LevelUi";
 
 interface LevelStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
 
+const FULLSCREEN_SCALE = 5;
+const WINDOWED_SCALE = 4;
+
 class LevelState extends State<LevelStateOptions> {
   private id: string;
   private world: World;
@@ -37,7 +40,7 @@ class LevelState extends State<LevelStateOptions> {
     this.world.controlEntity(this.world.player);
     this.world.aimEntity = this.world.spawn({ type: "crosshair" });
 
-    editorStore.setScale(5);
+    editorStore.setScale(WINDOWED_SCALE);
   }
 
   public mounted(): void {
@@ -89,9 +92,9 @@ class LevelState extends State<LevelStateOptions> {
  
     // change zoom level to better fit the screen size
     if (b) { 
-      editorStore.setScale(5);
+      editorStore.setScale(FULLSCREEN_SCALE);
     } else {
-      editorStore.setScale(4);
+      editorStore.setScale(WINDOWED_SCALE);
     }
   }
 

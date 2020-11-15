@@ -63,8 +63,8 @@
     {
       "src": "http://localhost:3000/H2DAzdU049HDkTwWfmKL/graphics/cursors.png",
       "name": "cursors",
-      "tileWidth": 16,
-      "tileHeight": 16
+      "tileWidth": 18,
+      "tileHeight": 18
     }
   ],
   "sounds": [

@@ -199,7 +199,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
-      { "name": "health_modifier", "metadata": { "amount": 1, "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
+      { "name": "health_modifier", "metadata": { "amount": 1, "pickUpVFX": "boost_effect", "pickUpSFX": "pickup", "applyToEntityTypes": ["player"], "limit": 1 } },
       {
         "name": "animator",
         "metadata": {
@@ -223,7 +223,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
-      { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup" } },
+      { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup", "applyToEntityTypes": ["player"], "limit": 1 } },
       {
         "name": "animator",
         "metadata": {
@@ -293,7 +293,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 5, "height": 7 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
-      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "pickUpVFX": "star_effect_2", "pickUpSFX": "pickup", "radius": 24 } },
+      { "name": "collectible", "metadata": { "id": "coin", "amount": 1, "pickUpVFX": "star_effect_2", "pickUpSFX": "pickup", "radius": 22, "applyToEntityTypes": ["player"], "limit": 1 } },
       {
         "name": "animator",
         "metadata": {
@@ -334,6 +334,31 @@
     ]
   },
   {
+    "type": "energy_dispersion_effect",
+    "components": [
+      { "name": "position" },
+      { "name": "sprite", "metadata": { "alias": "dust_effects", "align": "center" } },
+      {
+        "name": "animator",
+        "metadata": {
+          "list": {
+            "energy_dispersion_effect:idle": {
+              "sprite": "dust_effects",
+              "loop": false,
+              "keyframes": [
+                { "row": 3, "col": 0, "duration": 50 },
+                { "row": 3, "col": 1, "duration": 50 },
+                { "row": 3, "col": 2, "duration": 50 },
+                { "row": 3, "col": 3, "duration": 50 }
+              ]
+            }
+          },
+          "defaultKey": "energy_dispersion_effect:idle"
+        }
+      }
+    ]
+  },
+  {
     "type": "explosion",
     "components": [
       { "name": "position" },
@@ -368,7 +393,7 @@
       { "name": "bounding_box", "metadata": { "width": 4, "height": 4 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "center", "reflect": false } },
       { "name": "health_modifier", "metadata": { "amount": -1, "pickUpVFX": "energy_blast", "pickUpSFX": "hit" } },
-      { "name": "projectile", "metadata": { "speed": 250, "ttl": 1000 } },
+      { "name": "projectile", "metadata": { "speed": 275, "ttl": 1000 } },
       {
         "name": "animator",
         "metadata": {
@@ -396,7 +421,8 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 9 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
-      { "name": "health", "metadata": { "maxHealth": 1 } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
+      { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
         "metadata": {
@@ -405,9 +431,9 @@
               "sprite": "enemies",
               "loop": true,
               "keyframes": [
-                { "row": 0, "col": 0, "duration": 150 },
-                { "row": 0, "col": 1, "duration": 150 },
-                { "row": 0, "col": 2, "duration": 150 }
+                { "row": 4, "col": 0, "duration": 150 },
+                { "row": 4, "col": 1, "duration": 150 },
+                { "row": 4, "col": 2, "duration": 150 }
               ]
             }
           },
@@ -424,6 +450,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 12 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
       { "name": "health", "metadata": { "maxHealth": 1 } },
       {
         "name": "animator",
@@ -452,6 +479,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 13, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
       { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
@@ -480,6 +508,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": false, "gravity": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 11 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "center" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
       { "name": "health", "metadata": { "maxHealth": 4 } },
       {
         "name": "animator",
@@ -508,6 +537,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 15, "height": 12 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
       { "name": "health", "metadata": { "maxHealth": 2 } },
       {
         "name": "animator",
@@ -536,6 +566,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "bounding_box", "metadata": { "width": 10, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "enemies", "align": "bottom" } },
+      { "name": "health_modifier", "metadata": { "amount": -1, "pickUpSFX": "hit", "applyToEntityTypes": ["player"], "limit": -1 } },
       { "name": "health", "metadata": { "maxHealth": 3 } },
       {
         "name": "animator",
@@ -566,7 +597,7 @@
     ]
   },
   {
-    "type": "hero",
+    "type": "player",
     "components": [
       { "name": "placeable" },
       { "name": "position" },
@@ -575,13 +606,13 @@
       { "name": "player_combat" },
       { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14, "jumpSFX": "jump" } },
       { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
-      { "name": "health", "metadata": { "maxHealth": 6 } },
+      { "name": "health", "metadata": { "maxHealth": 6, "immunityDelay": 750 } },
       { "name": "sprite", "metadata": { "alias": "hero", "align": "bottom" } },
       {
         "name": "player_animator",
         "metadata": {
           "list": {
-            "hero:idle": {
+            "player:idle": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [
@@ -589,22 +620,22 @@
                 { "row": 2, "col": 1, "duration": 250 }
               ]
             },
-            "hero:dead": {
+            "player:dead": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 3, "duration": 0 }]
             },
-            "hero:jumping": {
+            "player:jumping": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 0, "duration": 0 }]
             },
-            "hero:falling": {
+            "player:falling": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 1, "col": 2, "duration": 0 }]
             },
-            "hero:walking": {
+            "player:walking": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [
@@ -613,13 +644,13 @@
                 { "row": 0, "col": 2, "duration": 85 }
               ]
             },
-            "hero:use_primary_weapon": {
+            "player:use_primary_weapon": {
               "sprite": "hero",
               "loop": true,
               "keyframes": [{ "row": 0, "col": 3, "duration": 250 }]
             }
           },
-          "defaultKey": "hero:idle"
+          "defaultKey": "player:idle"
         }
       }
     ]

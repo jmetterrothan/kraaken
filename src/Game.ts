@@ -260,7 +260,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.EDITOR, {
+    this.stateManager.switch(GameStates.LEVEL, {
       id: levelId,
       blueprint: driver.load(levelId),
     });
