@@ -11,9 +11,9 @@ abstract class State<O = any> {
 
   constructor() {
     this.$ui = document.createElement("div");
-    this.$ui.classList.add("kraken-ui");
+    this.$ui.classList.add("kraaken-ui");
 
-    document.getElementById("game").querySelector(".kraken").appendChild(this.$ui);
+    document.getElementById("game").querySelector(".kraaken").appendChild(this.$ui);
   }
 
   public abstract init(options: O): Promise<void>;

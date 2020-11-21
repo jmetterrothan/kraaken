@@ -81,7 +81,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(PATHS.ASSETS, "template.html"),
-      title: "Kraken",
+      title: "Kraaken",
       filename: "index.html",
       inject: "body",
     }),

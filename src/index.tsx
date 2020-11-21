@@ -1,6 +1,6 @@
 import Game from "@src/Game";
 
-import "@sass/kraken.scss";
+import "@sass/kraaken.scss";
 
 const game = Game.create({
   allowFullscreen: true,

@@ -1,5 +1,5 @@
 {
-  "name": "kraken",
+  "name": "kraaken",
   "version": "1.0.0",
   "description": "A framework for making 2d platformer games",
   "main": "index.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jmetterrothan/kraken.git"
+    "url": "git+https://github.com/jmetterrothan/kraaken.git"
   },
   "author": "Jérémie Metter-Rothan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jmetterrothan/kraken/issues"
+    "url": "https://github.com/jmetterrothan/kraaken/issues"
   },
-  "homepage": "https://github.com/jmetterrothan/kraken#readme",
+  "homepage": "https://github.com/jmetterrothan/kraaken#readme",
   "dependencies": {
     "@babel/polyfill": "^7.8.7",
     "@types/gl-matrix": "*",

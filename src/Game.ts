@@ -260,7 +260,7 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.LEVEL, {
+    this.stateManager.switch(GameStates.EDITOR, {
       id: levelId,
       blueprint: driver.load(levelId),
     });
@@ -272,10 +272,10 @@ class Game {
   private initCanvas() {
     // Main elements
     wrapper = document.createElement("div");
-    wrapper.classList.add("kraken");
+    wrapper.classList.add("kraaken");
 
     canvas = document.createElement("canvas");
-    canvas.classList.add("kraken-canvas");
+    canvas.classList.add("kraaken-canvas");
     canvas.classList.add("pixelated");
 
     wrapper.appendChild(canvas);

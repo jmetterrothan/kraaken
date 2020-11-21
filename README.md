@@ -1,10 +1,10 @@
-# Kraken
+# Kraaken
 
-Kraken is a (WIP) 2d platformer game project made with an integrated level editor as a side project on my free time.
+Kraaken is a (WIP) 2d platformer game project made with an integrated level editor as a side project on my free time.
 
 Playable @ [https://zen-boyd-13e691.netlify.app](https://zen-boyd-13e691.netlify.app)
 
-![Kraken preview](http://files.metter-rothan.fr/kraken/kraken001.gif)
+![Kraaken preview](http://files.metter-rothan.fr/kraaken/kraaken001.gif)
 
 ## What remains to be done
 
