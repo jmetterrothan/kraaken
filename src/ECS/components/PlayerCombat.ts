@@ -12,7 +12,7 @@ export class PlayerCombat implements Component {
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
     projectile: "energy_bolt", //
-    rate: 300,
+    rate: 350,
     burstLimit: 1,
     burstDelay: 0,
     maxAmmo: 100,

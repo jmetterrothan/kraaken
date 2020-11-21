@@ -10,3 +10,4 @@ export * from "./BasicInputSystem";
 export * from "./BasicMovementSystem";
 export * from "./PlaceableSystem";
 export * from "./AISystem";
+export * from "./FlickerOnImmuneSystem"
