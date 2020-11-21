@@ -19,6 +19,8 @@ import editorStore from "./states/EditorState/editorStore";
 
 import config from '@src/config';
 
+import "@sass/kraaken.scss";
+
 const instanceSym = Symbol("instance");
 
 let wrapper: HTMLElement;
