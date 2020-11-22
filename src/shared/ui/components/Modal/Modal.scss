@@ -1,0 +1,48 @@
+.modal-container {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 15, 0.45);
+  z-index: 200;
+
+  &.active {
+    display: flex;
+  }
+}
+
+.modal {
+  background-color: #e6e6e6;
+  max-width: calc(100% - 10vmin);
+  max-height: calc(100% - 10vmin);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.modal-grid {
+  background-image: linear-gradient(to right, rgb(190, 190, 190) 1px, transparent 1px), linear-gradient(to bottom, rgb(190, 190, 190) 1px, transparent 1px);
+
+  &__item {
+    img {
+      outline: 4px solid transparent;
+    }
+
+    &.active {
+      z-index: 201;
+
+      img {
+        outline-color: rgb(255, 208, 0);
+      }
+    }
+
+    &:hover {
+      z-index: 201;
+
+      img {
+        outline-color: rgb(0, 140, 255);
+      }
+    }
+  }
+}

@@ -11,6 +11,12 @@ $fullWidth: $width + $spacing * 2;
     background: #d0d6e0;
   }
 
+  &__footer {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
   &__button {
     display: flex;
     align-items: center;
@@ -19,7 +25,6 @@ $fullWidth: $width + $spacing * 2;
       width: 48px;
       height: 48px;
       margin-left: 12px;
-      background: rgba(#40506b, 0.075);
     }
   }
 
@@ -35,6 +40,7 @@ $fullWidth: $width + $spacing * 2;
     background: #e1e3e6;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
+    padding: 16px;
   }
 
   &.open &__inner {
@@ -43,9 +49,12 @@ $fullWidth: $width + $spacing * 2;
 }
 
 .toolbar-tileset-group {
-  padding: 16px;
   width: $fullWidth * 8 + 12px;
-  border-top: 1px solid #b0bdd3;
+
+  & + .toolbar-tileset-group {
+    border-top: 1px solid #b0bdd3;
+    margin-top: 16px;
+  }
 
   &__title {
     font-weight: 600;
@@ -59,90 +68,6 @@ $fullWidth: $width + $spacing * 2;
     display: flex;
     flex-wrap: wrap;
     // background: rgba(#40506b, 0.1);
-
-    &.g1x2 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth;
-    }
-
-    &.g1x3 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth;
-    }
-
-    &.g1x4 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth;
-    }
-
-    &.g2x1 {
-      display: grid;
-      grid-template-columns: $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth;
-    }
-
-    &.g2x2 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth;
-    }
-
-    &.g2x3 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth;
-    }
-
-    &.g2x4 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth;
-    }
-
-    &.g3x1 {
-      display: grid;
-      grid-template-columns: $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g3x2 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g3x3 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g4x1 {
-      display: grid;
-      grid-template-columns: $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g4x2 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g4x3 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
-    }
-
-    &.g4x4 {
-      display: grid;
-      grid-template-columns: $fullWidth $fullWidth $fullWidth $fullWidth;
-      grid-template-rows: $fullWidth $fullWidth $fullWidth $fullWidth;
-    }
 
     li {
       width: $width;
@@ -162,7 +87,6 @@ $fullWidth: $width + $spacing * 2;
         flex-shrink: 0;
         flex-grow: 0;
         transform-origin: center;
-        background: rgba(#40506b, 0.075);
       }
 
       &.active,
@@ -171,5 +95,23 @@ $fullWidth: $width + $spacing * 2;
         z-index: 99;
       }
     }
+  }
+}
+
+.button {
+  display: block;
+  background: #3f5d92;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+  color: #fff;
+  height: 38px;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0 24px;
+  cursor: pointer;
+
+  &:hover {
+    background: #2b426b;
   }
 }

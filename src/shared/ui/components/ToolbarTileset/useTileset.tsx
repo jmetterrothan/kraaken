@@ -1,6 +1,6 @@
 import React from "react";
 
-interface IToolbarTilesetItem {
+export interface IToolbarTilesetItem {
   key?: string;
   index: number;
   row: number;
@@ -9,8 +9,11 @@ interface IToolbarTilesetItem {
   subImage: string;
 }
 
-const useTileset = (src: string, tileSize: number): IToolbarTilesetItem[] => {
+const useTileset = (src: string, tileSize: number): { tiles: IToolbarTilesetItem[]; nbCols: number; nbRows: number } => {
   const [tiles, setTiles] = React.useState<IToolbarTilesetItem[]>([]);
+
+  const [nbRows, setNbRows] = React.useState<number>();
+  const [nbCols, setNbCols] = React.useState<number>();
 
   React.useEffect(() => {
     const temp: IToolbarTilesetItem[] = [];
@@ -31,25 +34,27 @@ const useTileset = (src: string, tileSize: number): IToolbarTilesetItem[] => {
       const $subCanvas = document.createElement("canvas");
       const subCtx = $subCanvas.getContext("2d");
 
-      const nbRows = Math.trunc(file.height / tileSize);
-      const nbCols = Math.trunc(file.width / tileSize);
-
       $subCanvas.width = tileSize;
       $subCanvas.height = tileSize;
 
-      for (let row = 0; row < nbRows; row++) {
-        for (let col = 0; col < nbCols; col++) {
+      const rows = Math.trunc(file.height / tileSize);
+      const cols = Math.trunc(file.width / tileSize);
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
           const imagedata = ctx.getImageData(col * tileSize, row * tileSize, tileSize, tileSize);
 
           // filter out empty tiles
           if (imagedata.data.find((value) => value !== 0)) {
             subCtx.putImageData(imagedata, 0, 0);
 
-            temp.push({ index: row * nbCols + col, col, row, group: "default", subImage: $subCanvas.toDataURL() });
+            temp.push({ index: row * cols + col, col, row, group: "default", subImage: $subCanvas.toDataURL() });
           }
         }
       }
 
+      setNbRows(rows);
+      setNbCols(cols);
       setTiles(temp);
     };
 
@@ -57,7 +62,7 @@ const useTileset = (src: string, tileSize: number): IToolbarTilesetItem[] => {
     file.src = src;
   }, [src, tileSize]);
 
-  return tiles;
+  return { tiles, nbRows, nbCols };
 };
 
 export default useTileset;

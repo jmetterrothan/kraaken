@@ -6,6 +6,8 @@ import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 import ToolbarTileset from "@src/shared/ui/components/ToolbarTileset";
 import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
 import ToolbarSelect from "@src/shared/ui/components/ToolbarSelect";
+import useTileset from "@src/shared/ui/components/ToolbarTileset/useTileset";
+import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
@@ -41,7 +43,11 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   const actions = useEditorActions();
 
+  const modal = useModal();
+
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
+
+  const { tiles, nbCols, nbRows } = useTileset(tileSet.src, tileSet.tileWidth);
 
   const mostFrequentlyUsedTiles = React.useMemo(() => {
     const tileTypeIndexes = [...blueprint.level.layers[TileLayer.L1], ...blueprint.level.layers[TileLayer.L2]];
@@ -115,9 +121,9 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
         onSelect={editorStore.setSelectedTileTypeId}
         src={tileSet.src}
         tileSize={tileSet.tileWidth}
-        tileTypes={level.tileTypes}
         mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
         disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
+        onClick={modal.open}
       />
     </>
   );
@@ -136,6 +142,17 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   return (
     <Ui>
+      <Modal
+        tiles={tiles} //
+        selected={editorState.tileTypeId}
+        nbCols={nbCols}
+        nbRows={nbRows}
+        tileWidth={tileSet.tileWidth}
+        tileHeight={tileSet.tileHeight}
+        isOpen={modal.isOpen}
+        onClose={modal.close}
+        onSelect={editorStore.setSelectedTileTypeId}
+      />
       <Toolbar>
         <div>
           <ToolbarButton
@@ -146,7 +163,10 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
           <ToolbarSeparator />
           {editorState.mode === EditorMode.TERRAIN ? terrainOptions : entityOptions}
           <ToolbarSeparator />
-          <ZoomToolbarSelect value={editorState.scale} onClick={(option) => editorStore.setScale(option.value)} />
+          <ZoomToolbarSelect
+            value={editorState.scale} //
+            onClick={(option) => editorStore.setScale(option.value)}
+          />
           <ToolbarSeparator />
           <UndoToolbarButton onClick={actions.undo} />
           <RedoToolbarButton onClick={actions.redo} />

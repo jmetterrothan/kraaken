@@ -5,6 +5,7 @@ import EditorState from "@src/states/EditorState";
 import LevelState from "@src/states/LevelState";
 import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
+import editorStore from "@src/states/EditorState/editorStore";
 
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
@@ -14,8 +15,7 @@ import * as GameEvents from '@shared/events';
 import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
 import { driver } from '@shared/drivers/DriverFactory';
-import { configSvc } from "@src/shared/services/ConfigService";
-import editorStore from "./states/EditorState/editorStore";
+import { configSvc } from "@shared/services/ConfigService";
 
 import config from '@src/config';
 

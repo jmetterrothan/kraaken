@@ -1,8 +1,6 @@
 import React from "react";
 import cx from "classnames";
 
-import { ITileTypeData } from "@shared/models/tilemap.model";
-
 import * as GameEventTypes from "@shared/events/constants";
 import * as GameEvents from "@shared/events";
 
@@ -10,7 +8,7 @@ import { registerEvent } from "@shared/utility/Utility";
 
 import ToolbarButton from "../ToolbarButton";
 import TileImage from "../TileImage";
-import useTileset from "./useTileset";
+import useTileset, { IToolbarTilesetItem } from "./useTileset";
 
 import "./ToolbarTileset.scss";
 
@@ -18,29 +16,31 @@ interface IToolbarTilesetProps {
   disabled?: boolean;
   selected: number;
   onSelect: (index: number) => void;
+  onClick: () => void;
   src: string;
   tileSize: number;
-  tileTypes: ITileTypeData[];
   mostFrequentlyUsedTiles: Record<number, number>;
   scale?: number;
+  gapSize?: number;
 }
 
-const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, src, tileSize, mostFrequentlyUsedTiles = {} }) => {
+const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, onClick, src, tileSize, mostFrequentlyUsedTiles = {} }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);
 
+  const [lastUsed, setLastUsed] = React.useState<number[]>([]);
   const [history, setHistory] = React.useState<Record<number, number>>(mostFrequentlyUsedTiles);
 
-  const tiles = useTileset(src, tileSize);
-  // const selectedTile = tiles.find((tile) => tile.index === selected);
+  const { tiles } = useTileset(src, tileSize);
+  const selectedTile = tiles.find((tile) => tile.index === selected);
 
   const list = React.useMemo(() => {
     return Object.entries(history)
       .sort((a, b) => {
         return b[1] - a[1];
       })
-      .slice(0, 16)
+      .slice(0, 32)
       .map(([index]) => {
         return tiles.find((tile) => tile.index === parseInt(index, 10));
       })
@@ -69,6 +69,24 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
         ...temp,
         [tileTypeId]: temp[tileTypeId] + 1,
       }));
+
+      // update last used
+      setLastUsed((old) => {
+        const temp = [...old];
+        const i = temp.findIndex((id) => id === tileTypeId);
+
+        if (i === -1) {
+          if (temp.length >= 8) {
+            temp.pop();
+          }
+        } else {
+          temp.splice(i, 1);
+        }
+
+        temp.unshift(tileTypeId);
+
+        return temp;
+      });
     });
 
     return unsubscribe;
@@ -88,54 +106,63 @@ const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, on
           active={false}
           name="Texture"
           showCaret={true}
+          onClick={onClick}
         >
-          {/*selectedTile && (
+          {selectedTile && (
             <TileImage //
               title={`row: ${selectedTile.row}, col: ${selectedTile.col}, index: ${selectedTile.index}`}
               src={selectedTile.subImage}
             />
-          )*/}
+          )}
         </ToolbarButton>
       </div>
       <div className="toolbar-tileset__inner">
-        <div className="toolbar-tileset-group">
-          <h4 className="toolbar-tileset-group__title">Most frequently used</h4>
-          <ul className="toolbar-tileset-group__list">
-            {list.map(({ index, row, col, subImage }) => (
-              <li key={index} className={cx(index === selected && "active")}>
-                <TileImage
-                  title={`row: ${row}, col: ${col}, index: ${index}`}
-                  src={subImage}
-                  onClick={() => {
-                    onSelect(index);
-                    setOpen(false);
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="toolbar-tileset-group">
-          <h4 className="toolbar-tileset-group__title">All tiles</h4>
-          <ul className="toolbar-tileset-group__list">
-            {tiles.map(({ index, row, col, subImage }) => (
-              <li key={index} className={cx(index === selected && "active")}>
-                <TileImage
-                  title={`row: ${row}, col: ${col}, index: ${index}`}
-                  src={subImage}
-                  onClick={() => {
-                    onSelect(index);
-                    setOpen(false);
-                    setHistory((temp) => ({
-                      ...temp,
-                      [index]: temp[index] + 1,
-                    }));
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
+        {lastUsed.length > 0 && (
+          <div className="toolbar-tileset-group">
+            <h4 className="toolbar-tileset-group__title">Last used</h4>
+            <ul className="toolbar-tileset-group__list">
+              {lastUsed
+                .map((id) => tiles.find((tile) => id === tile.index))
+                .filter((tile) => typeof tile !== "undefined")
+                .map(({ index, row, col, subImage }) => (
+                  <li key={index} className={cx(index === selected && "active")}>
+                    <TileImage
+                      title={`row: ${row}, col: ${col}, index: ${index}`}
+                      src={subImage}
+                      onClick={() => {
+                        onSelect(index);
+                        setOpen(false);
+                      }}
+                    />
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
+        {tiles.length > 0 && (
+          <div className="toolbar-tileset-group">
+            <h4 className="toolbar-tileset-group__title">Most frequently used</h4>
+            <ul className="toolbar-tileset-group__list">
+              {list.map(({ index, row, col, subImage }) => (
+                <li key={index} className={cx(index === selected && "active")}>
+                  <TileImage
+                    title={`row: ${row}, col: ${col}, index: ${index}`}
+                    src={subImage}
+                    onClick={() => {
+                      onSelect(index);
+                      setOpen(false);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <footer className="toolbar-tileset__footer">
+          <button className="button" onClick={onClick}>
+            Show more
+          </button>
+        </footer>
       </div>
     </div>
   );
