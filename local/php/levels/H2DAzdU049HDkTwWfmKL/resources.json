@@ -1,0 +1,94 @@
+{
+  "sprites": [
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/enemies.png",
+      "name": "enemies",
+      "tileWidth": 24,
+      "tileHeight": 24
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/items.png",
+      "name": "items",
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/meter.png",
+      "name": "meter",
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/player2.png",
+      "name": "hero",
+      "tileWidth": 24,
+      "tileHeight": 24
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/tiles.png",
+      "name": "tiles",
+      "tileWidth": 16,
+      "tileHeight": 16
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/torch.png",
+      "name": "torch",
+      "tileWidth": 16,
+      "tileHeight": 34
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/atlas48x48.png",
+      "name": "atlas2",
+      "tileWidth": 48,
+      "tileHeight": 48
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/star_effects.png",
+      "name": "star_effects",
+      "tileWidth": 24,
+      "tileHeight": 24
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/dust_effects.png",
+      "name": "dust_effects",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/atlas32x32.png",
+      "name": "atlas",
+      "tileWidth": 32,
+      "tileHeight": 32
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/atlas48x48.png",
+      "name": "atlas2",
+      "tileWidth": 48,
+      "tileHeight": 48
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/graphics/cursors.png",
+      "name": "cursors",
+      "tileWidth": 18,
+      "tileHeight": 18
+    }
+  ],
+  "sounds": [
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/sounds/jump.wav",
+      "name": "jump"
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/sounds/hit.wav",
+      "name": "hit"
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/sounds/laser.wav",
+      "name": "laser"
+    },
+    {
+      "src": "http://projects.metter-rothan.fr/kraken/levels/H2DAzdU049HDkTwWfmKL/sounds/pickup.wav",
+      "name": "pickup"
+    }
+  ]
+}
