@@ -22,25 +22,25 @@ class StateManager {
   }
 
   public update(delta: number): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.update(delta);
     }
   }
 
   public render(alpha: number): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.render(alpha);
     }
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.handleKeyboardInput(key, active);
     }
   }
 
   public handleMousePressed(button: number, active: boolean, position: vec2): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       if (button === 0) {
         this.currentState.handleMouseLeftBtnPressed(active, position);
       } else if (button === 1) {
@@ -52,19 +52,19 @@ class StateManager {
   }
 
   public handleMouseMove(position: vec2): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.handleMouseMove(position);
     }
   }
 
   public handleFullscreenChange(b: boolean): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.handleFullscreenChange(b);
     }
   }
 
   public handleResize(): void {
-    if (this.currentState.ready) {
+    if (this.isReady) {
       this.currentState.handleResize();
     }
   }
@@ -102,6 +102,10 @@ class StateManager {
 
   get currentState(): State {
     return this.getState(this.currentIndex);
+  }
+
+  get isReady(): boolean {
+    return this.currentState && this.currentState.ready;
   }
 }
 

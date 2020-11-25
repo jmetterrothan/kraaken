@@ -262,13 +262,15 @@ class Game {
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
-    this.stateManager.switch(GameStates.EDITOR, {
-      id: levelId,
-      blueprint: driver.load(levelId),
+    // Driver
+    driver.ping().catch((e) => {
+      alert('Failed to establish a connexion with the server, some features may not work properly...');
+    }).finally(() => {
+      this.stateManager.switch(GameStates.EDITOR, {
+        id: levelId,
+        blueprint: driver.load(levelId),
+      });
     });
-
-    const { width, height } = this.computeDimensions();
-    this.resize(width, height);
   }
 
   private initCanvas() {
@@ -303,6 +305,10 @@ class Game {
 
     gl.clearDepth(1.0);
     gl.clearColor(65 / 255, 140 / 255, 191 / 255, 1.0);
+
+    const { width, height } = this.computeDimensions();
+
+    this.resize(width, height);
   }
 
   private initEvents() {

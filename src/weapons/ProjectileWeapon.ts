@@ -156,11 +156,14 @@ class ProjectileWeapon extends Weapon {
 
     if (playerInput && "vibrate" in navigator) {
       const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];
-      const gamepad = gamepads[playerInput.gamepadIndex];
+      const gamepad = gamepads[playerInput.gamepadIndex] as any;
 
-      if (gamepad) {
-        // TODO: check on gamepad API evolution
-        (gamepad as any).vibrationActuator.playEffect("dual-rumble", {
+      if (gamepad && gamepad.vibrationActuator) {
+        /*
+         * TODO: Check on gamepad API evolution, only works on Chrome
+         * Should be using an intermediate interface here to regroup all browser implementations
+         */
+        gamepad.vibrationActuator.playEffect("dual-rumble", {
           startDelay: 100,
           duration: 150,
           weakMagnitude: 0.75,
