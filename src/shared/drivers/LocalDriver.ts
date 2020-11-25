@@ -14,13 +14,20 @@ class LocalDriver extends AbstractDriver {
 
     this.http = axios.create({
       baseURL: config.REST_API,
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
   }
 
+  public async ping(): Promise<void> {
+    await this.http.get(`/api`);
+  }
+
   public async load(id: string): Promise<IWorldBlueprint> {
-    const { data: level } = await this.http.get(`/${id}/level.json`);
-    const { data: entities } = await this.http.get(`/${id}/entities.json`);
-    const { data: resources } = await this.http.get(`/${id}/resources.json`);
+    const { data: level } = await this.http.get(`/levels/${id}/level.json`);
+    const { data: entities } = await this.http.get(`/levels/${id}/entities.json`);
+    const { data: resources } = await this.http.get(`/levels/${id}/resources.json`);
   
     return { 
       level,
@@ -31,7 +38,7 @@ class LocalDriver extends AbstractDriver {
   }
 
   public async save(id: string, data: IWorldBlueprint): Promise<void> {
-    await this.http.post(`/${id}/level`, data.level);
+    await this.http.post(`/api/${id}`, data.level);
   }
 }
 
