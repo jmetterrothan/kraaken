@@ -1,4 +1,4 @@
-# Playable @ [kraaken.io](https://kraaken.io) (soon)
+# Playable @ [kraaken.io](https://kraaken.io)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/b216904b-6c5a-4754-9edc-06cf5cc360b5/deploy-status)](https://app.netlify.com/sites/zen-boyd-13e691/deploys)
 
