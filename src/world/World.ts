@@ -301,7 +301,16 @@ class World {
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       // console.log("middle click");
-      this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
+      // this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
+
+      const coords = this.screenToCameraCoords(position);
+
+      const playerPosition = this.player.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+
+      const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
+      const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
+
+      this.tileMap.aStar(startTile, goalTile);
     }
   }
 

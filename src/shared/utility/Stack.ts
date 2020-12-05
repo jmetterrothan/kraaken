@@ -2,8 +2,8 @@ abstract class Stack<T> {
   protected list: T[];
   protected size: number;
 
-  constructor() {
-    this.list = [];
+  constructor(initialList: T[] = []) {
+    this.list = initialList;
     this.size = 0;
   }
 

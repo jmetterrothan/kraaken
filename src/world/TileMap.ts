@@ -14,11 +14,28 @@ import { TileLayer, ITile } from "@shared/models/tilemap.model";
 import Box2 from "@shared/math/Box2";
 import Color from "@shared/helper/Color";
 import Vector2  from '@shared/math/Vector2';
+
 import { create2DArray } from "@shared/utility/Utility";
+import  PriorityQueue  from '@src/shared/utility/PriorityQueue';
 
 import { configSvc } from "@shared/services/ConfigService";
 
 import config from '@src/config';
+
+export const heuristics = {
+  manhattan: (a: ITile, b: ITile): number => {
+    const d1 = Math.abs(a.col - b.col);
+    const d2 = Math.abs(a.row - b.row);
+  
+    return d1 + d2;
+  },
+  euclidian: (a: ITile, b: ITile): number => {
+    const d1 = Math.abs(a.col - b.col);
+    const d2 = Math.abs(a.row - b.row);
+
+    return Math.sqrt(d1 * d1 + d2 * d2);
+  },
+}
 
 class TileMap {
   private startCol: number;
@@ -40,6 +57,8 @@ class TileMap {
   private readonly sizeX: number;
   private readonly sizeY: number;
 
+  private debugLayer: Map<number, number>;
+
   constructor(blueprint: IWorldBlueprint) {
     this.nbCols = blueprint.level.tileMapCols;
     this.nbRows = blueprint.level.tileMapRows;
@@ -54,6 +73,8 @@ class TileMap {
     this.atlas = SpriteManager.get(this.tileSet);
 
     this.tiles = create2DArray<ITile>(this.nbRows, this.nbCols);
+
+    this.debugLayer = new Map<number, number>();
    
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
@@ -78,6 +99,13 @@ class TileMap {
             tintEffect: TintEffect.NONE,
             reflect: false,
           },
+          f: 0,
+          g: 0,
+          h: 0,
+          cost: 1,
+          visited: false,
+          closed: false,
+          parent: null,
           hasCollision: () => {
             return blueprint.level.layers[TileLayer.L0][r * this.nbCols + c] === 1;
           },
@@ -85,13 +113,17 @@ class TileMap {
             blueprint.level.layers[TileLayer.L1][r * this.nbCols + c] = b ? 1 : 0;
           },
           getTileTypeId: (layer) => {
-            return blueprint.level.layers[layer][r * this.nbCols + c];
+            const index = r * this.nbCols + c;
+
+            return blueprint.level.layers[layer][index];
           },
           setTileTypeId: (layer, id) => {
+            const index = r * this.nbCols + c;
+            
             if (layer === TileLayer.L1) {
-              blueprint.level.layers[TileLayer.L0][r * this.nbCols + c] = id > 0 ? 1 : 0;
+              blueprint.level.layers[TileLayer.L0][index] = id > 0 ? 1 : 0;
             }
-            blueprint.level.layers[layer][r * this.nbCols + c] = id;
+            blueprint.level.layers[layer][index] = id;
           },
         };
 
@@ -153,7 +185,11 @@ class TileMap {
 
         if (layer2Index > 0) {
           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layer2Index, tile.direction, tile.renderOptions);
-       }
+        }
+
+        if (config.DEBUG && this.debugLayer.has(tile.index) && this.debugLayer.get(tile.index) > 0) {
+          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, this.debugLayer.get(tile.index), tile.direction, tile.renderOptions);
+        }
       }
     }
   }
@@ -186,6 +222,129 @@ class TileMap {
     fn(originRow, originCol);
 
     return stack;
+  }
+
+  public getNeighbors (currentTile: ITile, orders?: Array<[number, number]>): ITile[] {
+    if (typeof orders === 'undefined') {
+      const p = (currentTile.col + currentTile.row) % 2;
+
+      if (p === 0) {
+        // South, North, West, East 
+        orders = [/*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [1, 0], [-1, 0], [0, -1], [0, 1]];
+      } else {
+        // East, West, North, South
+        orders = [/*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [0, 1], [0, -1], [-1, 0], [1, 0]];
+      }
+    }
+    //(-1, -1), (-1, +1), (+1, -1), (+1, +1), (+1, 0), (0, -1), (-1, 0), (0, +1)
+    return orders.reduce((acc, [r, c]) => {
+      const tile = this.getTileAt(currentTile.row + r, currentTile.col + c);
+      if (tile) {
+        acc.push(tile);
+      }
+      return acc;
+    }, []);
+  }
+
+  public aStar(startTile: ITile, goalTile: ITile, heuristic: (a: ITile, b: ITile) => number = heuristics.manhattan, debug = true): ITile[] {
+    if (!startTile || startTile.hasCollision()) {
+      throw new Error('Invalid start tile');
+    }
+
+    if (!goalTile || goalTile.hasCollision()) {
+      throw new Error('Invalid goal tile');
+    }
+
+    this.debugLayer = new Map<number, number>();
+
+    for (let r = 0; r < this.nbRows; r++) {
+      for (let c = 0; c < this.nbCols; c++) {
+        const tile = this.getTileAt(r, c);
+        tile.f = 0;
+        tile.g = 0;
+        tile.h = 0;
+        tile.cost = 1;
+        tile.visited = false;
+        tile.closed = false;
+        tile.parent = null;
+      }
+    }
+
+    if (debug) {
+      this.debugLayer.set(startTile.index, 624); 
+      this.debugLayer.set(goalTile.index, 623);
+    }
+
+    const openHeap = new PriorityQueue<ITile>((a, b) => a.f < b.f);
+
+    openHeap.push(startTile);
+
+    while(openHeap.size() > 0) {
+      const currentNode = openHeap.pop();
+
+      if (currentNode.index === goalTile.index) {
+        const ret = [];
+        
+        let temp = currentNode;
+        while(temp.parent) {
+          if (temp.index !== goalTile.index && temp.index !== startTile.index && debug) {
+            this.debugLayer.set(temp.index, 623);
+          }
+          ret.push(temp);
+          temp = temp.parent;
+        }
+
+        return ret.reverse();
+      }
+
+      currentNode.closed = true;
+
+      for (const neighbor of this.getNeighbors(currentNode)) {
+        if (neighbor.closed || neighbor.hasCollision()) {
+          if (neighbor.hasCollision() && neighbor.index !== goalTile.index && neighbor.index !== startTile.index  && debug) {
+            this.debugLayer.set(neighbor.index, 582);
+          }
+          continue;
+        }
+
+        const gScore = currentNode.g + neighbor.cost;
+        const visited = neighbor.visited;
+
+        if (!visited || gScore < neighbor.g) {
+          // tie breaker
+          let heuristicValue = heuristic(neighbor, goalTile)
+
+          const dx1 = currentNode.col - goalTile.col;
+          const dy1 = currentNode.row - goalTile.row;
+          const dx2 = startTile.col - goalTile.col;
+          const dy2 = startTile.row - goalTile.row;
+          const cross = Math.abs(dx1 * dy2 - dx2 * dy1);
+
+          heuristicValue += cross * 0.001;
+
+          // avoid walls
+          if (this.getNeighbors(neighbor, [[1, 1], [-1, -1], [1, -1], [-1, 1], [0, 1], [1, 0], [-1, 0], [0, -1]]).findIndex((tile) => tile.hasCollision(), true) !== -1) {
+            heuristicValue += 8;
+          }
+
+          neighbor.visited = true;
+          neighbor.parent = currentNode;
+          neighbor.h = neighbor.h || heuristicValue;
+          neighbor.g = gScore;
+          neighbor.f = neighbor.g + neighbor.h;
+
+          if (!visited) {
+            if (neighbor.index !== goalTile.index && neighbor.index !== startTile.index && debug) {
+              this.debugLayer.set(neighbor.index, 583);
+            }
+            openHeap.push(neighbor);
+          }
+        }
+      }
+    }
+
+    console.error('failed');
+    return [];
   }
 
   public getTileIndex(row: number, col: number): number {

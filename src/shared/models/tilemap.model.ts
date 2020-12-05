@@ -23,6 +23,13 @@ export interface ITile {
   direction: Vector2;
   transform: mat3;
   renderOptions: ISpriteRenderRenderOptions;
+  f: number;
+  g: number;
+  h: number;
+  cost: number;
+  visited: boolean;
+  closed: boolean;
+  parent?: ITile;
   hasCollision(): boolean;
   setCollision(b: boolean): void;
   getTileTypeId(layer: TileLayer): number;
