@@ -1,3 +1,9 @@
+# CORS
 Header set Access-Control-Allow-Origin "*"
 Header set Access-Control-Allow-Headers "Origin, Content-Type, X-Requested-With, X-Auth-Token, Authorization"
 Header set Access-Control-Allow-Methods "PUT, PATCH, GET, POST, DELETE, OPTIONS"
+
+# Disable cache
+Header set Cache-Control "no-cache, no-store, must-revalidate"
+Header set Pragma "no-cache"
+Header set Expires 0
