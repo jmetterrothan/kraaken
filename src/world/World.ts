@@ -117,7 +117,7 @@ class World {
       entity.addComponent(ComponentFactory.create(name, metadata));
     });
     
-    if (uuid === "player") {
+    if (type === "player") {
       this.player = entity;
     }
 

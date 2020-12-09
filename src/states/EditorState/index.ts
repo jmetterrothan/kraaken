@@ -86,7 +86,7 @@ class EditorState extends State<EditorStateOptions> {
     this.world.controlEntity(controllableObject);
 
     // focus on player if it exists
-    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.uuid === 'player');
+    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.type === 'player');
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;

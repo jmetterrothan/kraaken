@@ -19,6 +19,7 @@ export class ConsummableSystem extends System {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
+      
       const targetBbox = target.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
 
       if (targetBbox.intersectBox(bbox)) {
