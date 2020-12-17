@@ -1,6 +1,6 @@
 import World from "@src/world/World";
 
-import Entity from "@src/ECS/Entity";
+import { Entity } from "@src/ECS";
 
 abstract class Weapon {
   public abstract update(world: World, owner: Entity): void;

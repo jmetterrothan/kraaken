@@ -1,11 +1,7 @@
 import { mat3 } from "gl-matrix";
 
-import Entity from "@src/ECS/Entity";
-import { POSITION_COMPONENT } from '@src/ECS/types';
+import { Entity, Component } from "@src/ECS";
 import { Position } from "@src/ECS/components";
-import Component from "@src/ECS/Component";
-
-import { CAMERA_COMPONENT } from "@src/ECS/types";
 
 import Box2 from "@src/shared/math/Box2";
 import Vector2 from "@shared/math/Vector2";
@@ -23,7 +19,7 @@ export enum CameraMode {
 }
 
 export class Camera implements Component {
-  public readonly type: symbol = CAMERA_COMPONENT;
+  public static COMPONENT_TYPE = "camera";
 
   public viewMatrix: mat3 = mat3.create();
   public viewMatrixInverse: mat3 = mat3.create();
@@ -51,7 +47,7 @@ export class Camera implements Component {
       return;
     }
 
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
+    const position = entity.getComponent(Position);
 
     const x1 = this.boundaries.x1 + configSvc.innerSize.w / 2;
     const x2 = this.boundaries.x2 - configSvc.innerSize.w / 2;
@@ -81,6 +77,6 @@ export class Camera implements Component {
   }
 
   public toString(): string {
-    return `Camera`;
+    return Camera.COMPONENT_TYPE;
   }
 }

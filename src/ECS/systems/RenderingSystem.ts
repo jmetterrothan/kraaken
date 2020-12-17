@@ -1,18 +1,18 @@
 import { mat3 } from "gl-matrix";
 
-import System from "@src/ECS/System";
-
+import { System } from "@src/ECS";
 import { Position, Sprite, RigidBody, Camera, BoundingBox } from "@src/ECS/components";
-
-import { CAMERA_COMPONENT, POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 export class RenderingSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, SPRITE_COMPONENT]);
+    super([
+      Position.COMPONENT_TYPE,
+      Sprite.COMPONENT_TYPE
+    ]);
   }
 
   execute(alpha: number): void {
-    const cameraComponent = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+    const cameraComponent = this.world.camera.getComponent(Camera);
 
     const entities = this.world.getEntities(this.componentTypes);
 
@@ -25,15 +25,15 @@ export class RenderingSystem extends System {
         return;
       }
 
-      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+      const sprite = entity.getComponent(Sprite);
 
       if (!sprite.visible) {
         return;
       }
 
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+      const position = entity.getComponent(Position);
+      const rigidBody = entity.getComponent(RigidBody);
+      const bbox = entity.getComponent(BoundingBox);
 
       const bboxWidth = bbox?.width ?? 0;
       const bboxHeight = bbox?.height ?? 0;

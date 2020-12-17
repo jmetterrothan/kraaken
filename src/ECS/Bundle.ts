@@ -1,20 +1,19 @@
 import { Observable, Subject } from "rxjs";
 
-import Entity from "@src/ECS/Entity";
-import Component from "@src/ECS/Component";
+import { Entity, Component } from "@src/ECS";
 
-class Bundle {
-  public static generateId(components: ReadonlyArray<symbol>): string {
-    return components.map((type) => type.toString()).join("-");
+export class Bundle {
+  public static generateId(componentTypes: ReadonlyArray<string>): string {
+    return componentTypes.map((type) => type.toString()).join("-");
   }
 
-  private readonly _componentTypes: ReadonlyArray<symbol>;
+  private readonly _componentTypes: ReadonlyArray<string>;
 
   private readonly _entities: Entity[] = [];
   private readonly _entityAddedSubject$ = new Subject<Entity>();
   private readonly _entityRemovedSubject$ = new Subject<Entity>();
 
-  public constructor(componentTypes: ReadonlyArray<symbol>) {
+  public constructor(componentTypes: ReadonlyArray<string>) {
     this._componentTypes = [...componentTypes];
   }
 
@@ -56,7 +55,7 @@ class Bundle {
   }
 
   public onComponentRemoved(entity: Entity, component: Component): void {
-    if (this._componentTypes.findIndex((temp) => temp === component.type) !== -1) {
+    if (this._componentTypes.findIndex((temp) => temp === component.toString()) !== -1) {
       this.remove(entity);
     }
   }
@@ -73,5 +72,3 @@ class Bundle {
     return this._entities;
   }
 }
-
-export default Bundle;

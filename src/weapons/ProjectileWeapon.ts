@@ -1,6 +1,5 @@
-import Entity from "@src/ECS/Entity";
+import { Entity } from "@src/ECS";
 import { Projectile, Health, RigidBody, PlayerMovement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
-import { PROJECTILE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, HEALTH_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_MOVEMENT_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
@@ -109,10 +108,10 @@ class ProjectileWeapon extends Weapon {
   }
 
   protected use(world: World, owner: Entity): void {
-    const position = owner.getComponent<Position>(POSITION_COMPONENT);
-    const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-    const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-    const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    const position = owner.getComponent(Position);
+    const bbox = owner.getComponent(BoundingBox);
+    const rigidBody = owner.getComponent(RigidBody);
+    const playerInput = owner.getComponent(PlayerInput);
 
     const target = position.clone().add(playerInput.aim);
     const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
@@ -120,24 +119,24 @@ class ProjectileWeapon extends Weapon {
 
     const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
     
-    if (!projectile.hasComponent(PROJECTILE_COMPONENT)) {
+    if (!projectile.hasComponent(Projectile.COMPONENT_TYPE)) {
       throw new Error("Improper projectile entity (must have a projectile component)");
     }
 
-    const { speed, ttl } = projectile.getComponent<Projectile>(PROJECTILE_COMPONENT);
+    const { speed, ttl } = projectile.getComponent(Projectile);
 
     const vx = speed * dir.x;
     const vy = speed * dir.y;
 
-    if (!projectile.hasComponent(POSITION_COMPONENT)) {
+    if (!projectile.hasComponent(Position.COMPONENT_TYPE)) {
       throw new Error("Improper projectile entity (must have a position component)");
     }
-    if (!projectile.hasComponent(RIGID_BODY_COMPONENT)) {
+    if (!projectile.hasComponent(RigidBody.COMPONENT_TYPE)) {
       throw new Error("Improper projectile entity (must have a rigid body component)");
     }
 
-    const projectilePos = projectile.getComponent<Position>(POSITION_COMPONENT);
-    const projectileRigidBody = projectile.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+    const projectilePos = projectile.getComponent(Position);
+    const projectileRigidBody = projectile.getComponent(RigidBody);
 
     if (projectileRigidBody.reflectAngle) {
       const angle = Math.atan2(vy, vx);
@@ -188,12 +187,12 @@ class ProjectileWeapon extends Weapon {
       return false;
     }
 
-    const position = owner.getComponent<Position>(POSITION_COMPONENT);
-    const bbox = owner.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-    const health = owner.getComponent<Health>(HEALTH_COMPONENT);
-    const movement = owner.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-    const rigidBody = owner.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-    const playerInput = owner.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    const position = owner.getComponent(Position);
+    const bbox = owner.getComponent(BoundingBox);
+    const health = owner.getComponent(Health);
+    const movement = owner.getComponent(PlayerMovement);
+    const rigidBody = owner.getComponent(RigidBody);
+    const playerInput = owner.getComponent(PlayerInput);
 
     // caculate origin of the projectile and recover the tile at this position
     const tile = world.tileMap.getTileAtCoords(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);

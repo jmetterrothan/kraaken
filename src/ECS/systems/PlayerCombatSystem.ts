@@ -1,12 +1,12 @@
-import System from "@src/ECS/System";
-
+import { System }  from "@src/ECS";
 import { PlayerInput, PlayerCombat } from "@src/ECS/components";
-
-import { PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
 export class PlayerCombatSystem extends System {
   public constructor() {
-    super([PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT]);
+    super([
+      PlayerInput.COMPONENT_TYPE,
+      PlayerCombat.COMPONENT_TYPE
+    ]);
   }
 
   public execute(delta: number): void {
@@ -16,8 +16,8 @@ export class PlayerCombatSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+      const input = entity.getComponent(PlayerInput);
+      const combat = entity.getComponent(PlayerCombat);
 
       if (input.usePrimary && combat.primaryWeapon) {
         combat.primaryWeapon.update(this.world, entity);

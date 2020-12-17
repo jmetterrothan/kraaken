@@ -1,12 +1,9 @@
-import  Entity  from '@src/ECS/Entity';
-import Component from "@src/ECS/Component";
+import { Component, Entity } from "@src/ECS";
 
 import  Vector2  from '@shared/math/Vector2';
 
-import { PLACEABLE_COMPONENT } from "../types";
-
 export class Placeable implements Component {
-  public readonly type: symbol = PLACEABLE_COMPONENT;
+  public static COMPONENT_TYPE = "placeable";
 
   public target: Entity;
   public origin: Vector2;
@@ -22,6 +19,6 @@ export class Placeable implements Component {
   }
 
   public toString(): string {
-    return `Placeable`;
+    return Placeable.COMPONENT_TYPE;
   }
 }

@@ -1,6 +1,4 @@
-import Component from "@src/ECS/Component";
-
-import { RIGID_BODY_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -20,7 +18,7 @@ export interface IRigidBodyMetadata {
 }
 
 export class RigidBody implements Component {
-  public readonly type: symbol = RIGID_BODY_COMPONENT;
+  public static COMPONENT_TYPE = "rigid_body";
 
   public readonly collide: boolean;
   public readonly gravity: boolean;
@@ -51,6 +49,6 @@ export class RigidBody implements Component {
   }
 
   public toString(): string {
-    return `RigidBody - dx:${this.direction.x}, dy:${this.direction.y}`;
+    return RigidBody.COMPONENT_TYPE;
   }
 }

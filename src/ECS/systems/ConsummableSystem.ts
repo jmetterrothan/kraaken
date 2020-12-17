@@ -1,29 +1,31 @@
-import System from "@src/ECS/System";
-import Entity from "@src/ECS/Entity";
+import { System, Entity } from "@src/ECS";
 
-import { POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 import { BoundingBox, Position, Consummable, RigidBody } from "@src/ECS/components";
 
 import Vector2 from "@src/shared/math/Vector2";
 
 export class ConsummableSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT]);
+    super([
+      Position.COMPONENT_TYPE,
+      BoundingBox.COMPONENT_TYPE,
+      Consummable.COMPONENT_TYPE
+    ]);
   }
 
   tryConsummate(entity: Entity, targets: ReadonlyArray<Entity>): void {
-    const consummable = entity.getComponent<Consummable>(CONSUMMABLE_COMPONENT);
-    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    const consummable = entity.getComponent(Consummable);
+    const bbox = entity.getComponent(BoundingBox);
 
     for (const target of targets) {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
       
-      const targetBbox = target.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+      const targetBbox = target.getComponent(BoundingBox);
 
       if (targetBbox.intersectBox(bbox)) {
-        const position = entity.getComponent<Position>(POSITION_COMPONENT);
+        const position = entity.getComponent(Position);
         consummable.consummatedBy(this.world, target);
 
         if (consummable.pickUpVFX) {
@@ -39,20 +41,20 @@ export class ConsummableSystem extends System {
   }
 
   findTarget(entity: Entity, targets: ReadonlyArray<Entity>): void {
-    const consummable = entity.getComponent<Consummable>(CONSUMMABLE_COMPONENT);
+    const consummable = entity.getComponent(Consummable);
 
     if (consummable.target) {
       return;
     }
 
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
+    const position = entity.getComponent(Position);
 
     for (const target of targets) {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
 
-      const targetPos = target.getComponent<Position>(POSITION_COMPONENT);
+      const targetPos = target.getComponent(Position);
 
       if (consummable.radius > 0 && !consummable.target) {
         const dist = targetPos.distanceTo(position);
@@ -72,7 +74,7 @@ export class ConsummableSystem extends System {
     }
 
     for (const entity of entities) {
-      const consummable = entity.getComponent<Consummable>(CONSUMMABLE_COMPONENT);
+      const consummable = entity.getComponent(Consummable);
 
       if (consummable.consummated) {
         continue;
@@ -89,10 +91,10 @@ export class ConsummableSystem extends System {
       }
 
       if (consummable.target) {
-        const position = entity.getComponent<Position>(POSITION_COMPONENT);
-        const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+        const position = entity.getComponent(Position);
+        const rigidBody = entity.getComponent(RigidBody);
 
-        const targetPos = consummable.target.getComponent<Position>(POSITION_COMPONENT);
+        const targetPos = consummable.target.getComponent(Position);
 
         const dir = targetPos.clone().sub(position).normalize();
 

@@ -1,9 +1,7 @@
-import Component from "@src/ECS/Component";
-
-import { BASIC_INPUT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 export class BasicInput implements Component {
-  public readonly type: symbol = BASIC_INPUT_COMPONENT;
+  public static COMPONENT_TYPE = "basic_input";
 
   public left = false;
   public right = false;
@@ -15,6 +13,6 @@ export class BasicInput implements Component {
   public gamepadIndex = 0;
 
   public toString(): string {
-    return `Basic input`;
+    return BasicInput.COMPONENT_TYPE;
   }
 }

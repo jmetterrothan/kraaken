@@ -1,10 +1,12 @@
-import Component from '@src/ECS/Component';
+import { Component } from '@src/ECS';
 import * as Components from "@src/ECS/components";
 
 class ComponentFactory {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public static create(name: string, metadata: any): Component {
-    switch (name) {
+  public static create(type: string, metadata: any): Component {
+    switch (type) {
+      case "camera":
+        return new Components.Camera(metadata);
       case "position":
         return new Components.Position(metadata);
       case "bounding_box":
@@ -40,7 +42,7 @@ class ComponentFactory {
       case "flying_ai": 
         return new Components.FlyingAI();
       default:
-        throw new Error(`Unknown component name "${name}"`);
+        throw new Error(`Unknown component name "${type}"`);
     }
   }
 }

@@ -1,11 +1,11 @@
 import { IWorldBlueprint } from '@shared/models/world.model';
 
 abstract class AbstractDriver {
-  public abstract async load(id: string): Promise<IWorldBlueprint>;
+  public abstract load(id: string): Promise<IWorldBlueprint>;
 
-  public abstract async ping(): Promise<void>;
+  public abstract ping(): Promise<void>;
   
-  public abstract async save(id: string, data: IWorldBlueprint): Promise<void>;
+  public abstract save(id: string, data: IWorldBlueprint): Promise<void>;
 
 }
 

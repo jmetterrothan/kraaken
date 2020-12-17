@@ -1,10 +1,8 @@
 import { vec2 } from "gl-matrix";
 
-import System from "@src/ECS/System";
-import Entity from "@src/ECS/Entity";
+import { System, Entity } from "@src/ECS";
 
 import { PlayerInput, Position, PlayerCombat } from "@src/ECS/components";
-import { POSITION_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
 import { wrapper, canvas } from "@src/Game";
 
@@ -16,7 +14,11 @@ const gamepads = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, PLAYER_INPUT_COMPONENT, PLAYER_COMBAT_COMPONENT]);
+    super([
+      Position.COMPONENT_TYPE,
+      PlayerInput.COMPONENT_TYPE,
+      PlayerCombat.COMPONENT_TYPE
+    ]);
 
     // Mouse events
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
@@ -78,8 +80,8 @@ export class PlayerInputSystem extends System {
     const coords = this.world.screenToCameraCoords(pos);
 
     entities.forEach((entity) => {
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+      const position = entity.getComponent(Position);
+      const input = entity.getComponent(PlayerInput);
 
       const c = Vector2.create(coords.x - position.x, coords.y - position.y);
       input.aim.lerp(c, 0.2);
@@ -95,7 +97,7 @@ export class PlayerInputSystem extends System {
 
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
-        const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+        const input = entity.getComponent(PlayerInput);
 
         if (button === 2) {
           input.usePrimary = active;
@@ -112,7 +114,7 @@ export class PlayerInputSystem extends System {
 
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
-        const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+        const input = entity.getComponent(PlayerInput);
         switch (key) {
           case "ArrowLeft":
             input.left = active;
@@ -135,7 +137,7 @@ export class PlayerInputSystem extends System {
   }
 
   handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
-    const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
+    const input = entity.getComponent(PlayerInput);
 
     const controller = controllers[input.gamepadIndex];
 
@@ -221,8 +223,8 @@ export class PlayerInputSystem extends System {
   }
 
   enforceWeaponRangeLimit(entity: Entity): void {
-    const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
+    const input = entity.getComponent(PlayerInput);
+    const combat = entity.getComponent(PlayerCombat);
 
     const origin = Vector2.create(0, 0);
     const dist = origin.distanceTo(input.aim);

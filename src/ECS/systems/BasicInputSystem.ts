@@ -1,8 +1,6 @@
-import System from "@src/ECS/System";
-import Entity from "@src/ECS/Entity";
+import { System, Entity } from "@src/ECS";
 
-import { BasicInput } from "@src/ECS/components";
-import { POSITION_COMPONENT, BASIC_INPUT_COMPONENT } from "@src/ECS/types";
+import { BasicInput, Position } from "@src/ECS/components";
 
 import { wrapper } from "@src/Game";
 
@@ -13,7 +11,7 @@ const gamepads = {};
 // TODO: refactor code to make it easier to build alternative controls
 export class BasicInputSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, BASIC_INPUT_COMPONENT]);
+    super([Position.COMPONENT_TYPE, BasicInput.COMPONENT_TYPE]);
 
     // Keyboard events
     window.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
@@ -57,7 +55,7 @@ export class BasicInputSystem extends System {
 
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
-        const input = entity.getComponent<BasicInput>(BASIC_INPUT_COMPONENT);
+        const input = entity.getComponent(BasicInput);
         switch (key) {
           case "ArrowLeft":
             input.left = active;
@@ -80,7 +78,7 @@ export class BasicInputSystem extends System {
   }
 
   handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
-    const input = entity.getComponent<BasicInput>(BASIC_INPUT_COMPONENT);
+    const input = entity.getComponent(BasicInput);
 
     const controller = controllers[input.gamepadIndex];
 

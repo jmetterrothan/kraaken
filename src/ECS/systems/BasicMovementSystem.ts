@@ -1,18 +1,15 @@
-import Entity from '@src/ECS/Entity';
-import System from "@src/ECS/System";
+import { System, Entity } from "@src/ECS";
 
 import { BasicInput, Position, Camera } from "@src/ECS/components";
 
-import { POSITION_COMPONENT, CAMERA_COMPONENT, BASIC_INPUT_COMPONENT } from "@src/ECS/types";
-
 export class BasicMovementSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, BASIC_INPUT_COMPONENT]);
+    super([Position.COMPONENT_TYPE, BasicInput.COMPONENT_TYPE]);
   }
 
   public clamp(entity: Entity): void {
     if (this.world.camera) {
-      const camera = this.world.camera.getComponent<Camera>(CAMERA_COMPONENT);
+      const camera = this.world.camera.getComponent(Camera);
       camera.clamp(entity);
     }
   }
@@ -24,8 +21,8 @@ export class BasicMovementSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const input = entity.getComponent<BasicInput>(BASIC_INPUT_COMPONENT);
+      const position = entity.getComponent(Position);
+      const input = entity.getComponent(BasicInput);
 
       let vx = 0;
       let vy = 0;

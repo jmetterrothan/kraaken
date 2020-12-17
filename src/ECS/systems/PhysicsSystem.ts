@@ -1,8 +1,5 @@
-import Entity from "@src/ECS/Entity";
-import System from "@src/ECS/System";
-
+import { Entity, System } from "@src/ECS";
 import { Position, BoundingBox, RigidBody, PlayerMovement } from "@src/ECS/components";
-import { POSITION_COMPONENT, PLAYER_MOVEMENT_COMPONENT, BOUNDING_BOX_COMPONENT, RIGID_BODY_COMPONENT } from "@src/ECS/types";
 
 import { ITile } from '@shared/models/tilemap.model';
 
@@ -12,7 +9,10 @@ import Vector2 from "@shared/math/Vector2";
 
 export class PhysicsSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, RIGID_BODY_COMPONENT]);
+    super([
+      Position.COMPONENT_TYPE,
+      RigidBody.COMPONENT_TYPE
+    ]);
   }
 
   execute(delta: number): void {
@@ -22,8 +22,8 @@ export class PhysicsSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+      const position = entity.getComponent(Position);
+      const rigidBody = entity.getComponent(RigidBody);
 
       position.previousValue.copy(position);
 
@@ -45,9 +45,9 @@ export class PhysicsSystem extends System {
   }
 
   public clampToMap(entity: Entity): void {
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    const position = entity.getComponent(Position);
+    const rigidBody = entity.getComponent(RigidBody);
+    const bbox = entity.getComponent(BoundingBox);
 
     const boundaries = this.world.tileMap.getBoundaries();
 
@@ -83,9 +83,9 @@ export class PhysicsSystem extends System {
   }
 
   public collideWithMap(entity: Entity, delta: number): void {
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    const position = entity.getComponent(Position);
+    const rigidBody = entity.getComponent(RigidBody);
+    const bbox = entity.getComponent(BoundingBox);
 
     const v = rigidBody.velocity.clone().multiply(rigidBody.direction).multiplyScalar(delta);
     const newPosition = position.clone().add(v);
@@ -222,8 +222,8 @@ export class PhysicsSystem extends System {
 
     const now = window.performance.now();
     
-    if (entity.hasComponent(PLAYER_MOVEMENT_COMPONENT)) {
-      const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
+    if (entity.hasComponent(PlayerMovement.COMPONENT_TYPE)) {
+      const movement = entity.getComponent(PlayerMovement);
       
       if (movement.falling && rigidBody.velocity.y === 0 && v.y > 0) {
         this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
@@ -244,8 +244,8 @@ export class PhysicsSystem extends System {
   }
 
   public isOnSolidTile(entity: Entity): boolean {
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
+    const position = entity.getComponent(Position);
+    const bbox = entity.getComponent(BoundingBox);
 
     const tileMap = this.world.tileMap;
 

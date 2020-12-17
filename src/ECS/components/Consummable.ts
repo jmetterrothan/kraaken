@@ -1,7 +1,4 @@
-import Entity from "@src/ECS/Entity";
-import Component from "@src/ECS/Component";
-
-import { CONSUMMABLE_COMPONENT } from "@src/ECS/types";
+import { Component, Entity } from '@src/ECS';
 
 import World from "@src/world/World";
 
@@ -15,8 +12,8 @@ export interface IConsummableMetadata {
   pickUpSFX?: string;
 }
 
-export abstract class Consummable implements Component {
-  public readonly type: symbol = CONSUMMABLE_COMPONENT;
+export class Consummable extends Component {
+  public static COMPONENT_TYPE = "consummable";
 
   public readonly applyToEntityTypes?: string[];
   public readonly radius: number;
@@ -30,6 +27,8 @@ export abstract class Consummable implements Component {
   public nbOfTimesConsummated = 0;
 
   public constructor(metadata: IConsummableMetadata = {}) {
+    super();
+
     this.radius = metadata.radius ?? 0;
     this.limit = metadata.limit ?? 1;
     this.applyToEntityTypes = metadata.applyToEntityTypes;
@@ -59,9 +58,11 @@ export abstract class Consummable implements Component {
     return true;
   }
 
-  public abstract getComponentTypes(): symbol[];
+  public getComponentTypes(): string[] {
+    return [];
+  }
 
   public toString(): string {
-    return `Consummable`;
+    return Consummable.COMPONENT_TYPE;
   }
 }

@@ -1,11 +1,9 @@
-import Component from "@src/ECS/Component";
-
-import { PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import Vector2 from "@src/shared/math/Vector2";
 
 export class PlayerInput implements Component {
-  public readonly type: symbol = PLAYER_INPUT_COMPONENT;
+  public static COMPONENT_TYPE = "player_input";
 
   public left = false;
   public right = false;
@@ -21,6 +19,6 @@ export class PlayerInput implements Component {
   public gamepadIndex = 0;
 
   public toString(): string {
-    return `Player input`;
+    return PlayerInput.COMPONENT_TYPE;
   }
 }

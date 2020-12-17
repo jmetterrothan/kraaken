@@ -2,9 +2,8 @@ import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
 
-import Entity from "@src/ECS/Entity";
+import { Entity } from "@src/ECS";
 import * as Components from "@src/ECS/components";
-import * as ComponentTypes from "@src/ECS/types";
 import * as Systems from '@src/ECS/systems';
 
 import State from "@src/states/State";
@@ -90,7 +89,7 @@ class EditorState extends State<EditorStateOptions> {
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;
-      const position = controllableObject.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const position = controllableObject.getComponent(Components.Position);
 
       position.fromValues(x, y);
     }
@@ -156,7 +155,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public render(alpha: number): void {
-    const camera = this.world.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const camera = this.world.camera.getComponent(Components.Camera);
     
     // TODO: FIX - GRID ONLY LINE UP IN FULLSCREEN
     this.grid.use();

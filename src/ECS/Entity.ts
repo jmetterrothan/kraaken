@@ -1,13 +1,15 @@
 import { Observable, Subject } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
 
-import Component from "./Component";
+import { Component} from "@src/ECS";
 
-class Entity {
+type ComponentConstructor<T extends Component> = new (...args: any[]) => T;
+
+export class Entity {
   public readonly type: string;
   public readonly uuid: string;
 
-  private _components: Map<symbol, Component> = new Map();
+  private _components: Map<string, Component> = new Map();
   private readonly _componentAddedSubject$ = new Subject<Component>();
   private readonly _componentRemovedSubject$ = new Subject<Component>();
 
@@ -16,14 +18,14 @@ class Entity {
     this.uuid = uuid;
   }
 
-  public addComponent(component: Component): Entity {
-    this._components.set(component.type, component);
+  public addComponent<T extends Component = Component>(component: T): Entity {
+    this._components.set(component.toString(), component);
     this._componentAddedSubject$.next(component);
 
     return this;
   }
 
-  public removeComponent(type: symbol): Entity {
+  public removeComponent(type: string): Entity {
     const component = this._components.get(type);
 
     if (typeof component !== "undefined") {
@@ -34,15 +36,16 @@ class Entity {
     return this;
   }
 
-  public getComponent<T extends Component = Component>(type: symbol): T | undefined {
-    const component = this._components.get(type);
+  public getComponent<T extends Component = Component>(ComponentClass: ComponentConstructor<T>): T | undefined {
+    const component = this._components.get((ComponentClass as any).COMPONENT_TYPE);
+  
     if (typeof component !== "undefined") {
       return component as T;
     }
     return undefined;
   }
 
-  public hasComponent(type: symbol): boolean {
+  public hasComponent(type: string): boolean {
     return this._components.has(type);
   }
 
@@ -64,5 +67,3 @@ class Entity {
     return str;
   }
 }
-
-export default Entity;

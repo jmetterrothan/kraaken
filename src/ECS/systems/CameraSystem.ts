@@ -1,10 +1,7 @@
 import { mat3, vec2 } from "gl-matrix";
 
-import Entity from "@src/ECS/Entity";
-import System from "@src/ECS/System";
-
+import { Entity, System } from "@src/ECS";
 import { Position, Camera, CameraMode } from "@src/ECS/components";
-import { CAMERA_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -12,16 +9,19 @@ import { configSvc } from "@src/shared/services/ConfigService";
 
 export class CameraSystem extends System {
   public constructor() {
-    super([CAMERA_COMPONENT, POSITION_COMPONENT]);
+    super([
+      Camera.COMPONENT_TYPE,
+      Position.COMPONENT_TYPE
+    ]);
   }
 
   public clamp(entity: Entity): void {
-    const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
+    const camera = entity.getComponent(Camera);
     camera.clamp(entity);
   }
 
   public updateViewBox(entity: Entity): void {
-    const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
+    const camera = entity.getComponent(Camera);
 
     camera.viewMatrixInverse = mat3.invert(mat3.create(), camera.viewMatrix);
 
@@ -38,14 +38,14 @@ export class CameraSystem extends System {
   }
 
   public updatePosition(entity: Entity, delta: number): void {
-    const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
+    const camera = entity.getComponent(Camera);
+    const position = entity.getComponent(Position);
 
     camera.previousPosition.copy(position);
 
     // Follow target
     if (camera.target) {
-      const targetPos = camera.target.getComponent<Position>(POSITION_COMPONENT);
+      const targetPos = camera.target.getComponent(Position);
 
       if (targetPos) {
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
@@ -62,8 +62,8 @@ export class CameraSystem extends System {
   }
 
   computeProjectionMatrix(entity: Entity): void {
-    const position = entity.getComponent<Position>(POSITION_COMPONENT);
-    const camera = entity.getComponent<Camera>(CAMERA_COMPONENT);
+    const position = entity.getComponent(Position);
+    const camera = entity.getComponent(Camera);
 
     if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || camera.zoom !== configSvc.scale) {
       // update zoom level

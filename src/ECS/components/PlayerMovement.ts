@@ -1,6 +1,4 @@
-import Component from "@src/ECS/Component";
-
-import { PLAYER_MOVEMENT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import SoundManager from "@src/animation/SoundManager";
 
@@ -14,7 +12,7 @@ interface IPlayerMovementMetadata {
 }
 
 export class PlayerMovement implements Component {
-  public readonly type: symbol = PLAYER_MOVEMENT_COMPONENT;
+  public static COMPONENT_TYPE = "player_movement";
 
   public climbing = false;
   public falling = false;
@@ -51,6 +49,6 @@ export class PlayerMovement implements Component {
   }
 
   public toString(): string {
-    return `Player movement`;
+    return PlayerMovement.COMPONENT_TYPE;
   }
 }

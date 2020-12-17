@@ -1,7 +1,6 @@
 import { vec2 } from "gl-matrix";
 
-import { Position, Sprite } from "@src/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
+import { Position } from "@src/ECS/components";
 
 import EditorState from '@src/states/EditorState';
 
@@ -71,8 +70,8 @@ class TerrainMode {
   }
 
   public update(delta: number): void {
-    const cursorPosition = this.editor.cursor.getComponent<Position>(POSITION_COMPONENT);
-    const cellCursorPosition = this.editor.cellCursor.getComponent<Position>(POSITION_COMPONENT);
+    const cursorPosition = this.editor.cursor.getComponent(Position);
+    const cellCursorPosition = this.editor.cellCursor.getComponent(Position);
     // const sprite = this.editor.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
     
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);

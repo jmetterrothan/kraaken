@@ -1,11 +1,9 @@
-import Component from "@src/ECS/Component";
-
-import { PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import ProjectileWeapon from "@src/weapons/ProjectileWeapon";
 
 export class PlayerCombat implements Component {
-  public readonly type: symbol = PLAYER_COMBAT_COMPONENT;
+  public static COMPONENT_TYPE = "player_combat";
 
   public usingPrimaryWeapon = false;
   public primary;
@@ -26,6 +24,6 @@ export class PlayerCombat implements Component {
   }
 
   public toString(): string {
-    return `Player combat`;
+    return PlayerCombat.COMPONENT_TYPE;
   }
 }

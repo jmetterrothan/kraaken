@@ -1,7 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 
-import Component from "@src/ECS/Component";
-import { SPRITE_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SpriteAtlas from "@src/animation/SpriteAtlas";
@@ -21,7 +20,7 @@ interface ISpriteMetadata {
 }
 
 export class Sprite implements Component {
-  public readonly type: symbol = SPRITE_COMPONENT;
+  public static COMPONENT_TYPE = "sprite";
 
   public visible = true;
 
@@ -60,6 +59,6 @@ export class Sprite implements Component {
   }
 
   public toString(): string {
-    return `Sprite - ${this.atlas.alias} (index: ${this.index})`;
+    return Sprite.COMPONENT_TYPE;
   }
 }

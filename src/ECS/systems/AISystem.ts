@@ -1,12 +1,11 @@
-import { RIGID_BODY_COMPONENT, FLYING_AI_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
+import { System } from "@src/ECS";
 import { RigidBody, FlyingAI, Position } from '@src/ECS/components';
-import System from "@src/ECS/System";
 
 import Vector2 from '@shared/math/Vector2';
 
 export class AISystem extends System {
   public constructor() {
-    super([FLYING_AI_COMPONENT]);
+    super([FlyingAI.COMPONENT_TYPE]);
   }
 
   execute(delta: number): void {
@@ -16,7 +15,7 @@ export class AISystem extends System {
     }
 
     entities.forEach((entity) => {
-      const ai = entity.getComponent<FlyingAI>(FLYING_AI_COMPONENT);
+      const ai = entity.getComponent(FlyingAI);
 
       if (!ai.target) {
         ai.follow(this.world.player);
@@ -26,10 +25,10 @@ export class AISystem extends System {
       const visible = ai.canSeeObject(this.world, entity);
 
       if (visible) {
-        const targetPos = ai.target.getComponent<Position>(POSITION_COMPONENT);
+        const targetPos = ai.target.getComponent(Position);
         
-        const position = entity.getComponent<Position>(POSITION_COMPONENT);
-        const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
+        const position = entity.getComponent(Position);
+        const rigidBody = entity.getComponent(RigidBody);
 
         // orient the ai entity towards the target entity
         rigidBody.orientation.x = targetPos.x > position.x ? 1 : -1;

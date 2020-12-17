@@ -1,8 +1,6 @@
-import { mat3, vec2 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
-import Component from "@src/ECS/Component";
-
-import { POSITION_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -12,7 +10,7 @@ export interface IPositionMetadata {
 }
 
 export class Position extends Vector2 implements Component {
-  public readonly type: symbol = POSITION_COMPONENT;
+  public static COMPONENT_TYPE = "position";
 
   public rotation = 0;
 
@@ -34,6 +32,6 @@ export class Position extends Vector2 implements Component {
   }
 
   public toString(): string {
-    return `Position - ${super.toString()}`;
+    return Position.COMPONENT_TYPE;
   }
 }

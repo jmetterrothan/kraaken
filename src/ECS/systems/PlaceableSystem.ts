@@ -1,11 +1,10 @@
-import System from "@src/ECS/System";
+import { System } from "@src/ECS";
 
 import { Position, Placeable } from "@src/ECS/components";
-import { PLACEABLE_COMPONENT, POSITION_COMPONENT } from "@src/ECS/types";
 
 export class PlaceableSystem extends System {
   public constructor() {
-    super([PLACEABLE_COMPONENT, POSITION_COMPONENT]);
+    super([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE]);
   }
 
   execute(delta: number): void {
@@ -15,12 +14,12 @@ export class PlaceableSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const placeable = entity.getComponent<Placeable>(PLACEABLE_COMPONENT);
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
+      const placeable = entity.getComponent(Placeable);
+      const position = entity.getComponent(Position);
 
       // Follow target
       if (placeable.target) {
-        const targetPos = placeable.target.getComponent<Position>(POSITION_COMPONENT);
+        const targetPos = placeable.target.getComponent(Position);
 
         if (targetPos) {
           position.lerp(targetPos, 0.15);

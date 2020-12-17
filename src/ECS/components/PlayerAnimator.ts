@@ -1,6 +1,5 @@
-import Entity from "@src/ECS/Entity";
+import { Entity } from "@src/ECS";
 import { Animator, PlayerCombat, PlayerMovement, PlayerInput, Health } from "@src/ECS/components";
-import { PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT, HEALTH_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
 
 import World from "@src/world/World";
 
@@ -15,10 +14,10 @@ export enum PlayerAnimationKeys {
 
 export class PlayerAnimator extends Animator {
   public update(world: World, entity: Entity): string {
-    const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
-    const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-    const health = entity.getComponent<Health>(HEALTH_COMPONENT);
+    const movement = entity.getComponent(PlayerMovement);
+    const combat = entity.getComponent(PlayerCombat);
+    const input = entity.getComponent(PlayerInput);
+    const health = entity.getComponent(Health);
 
     if (health.isDead) {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
@@ -44,5 +43,9 @@ export class PlayerAnimator extends Animator {
     }
 
     return `${entity.type}:${PlayerAnimationKeys.IDLE}`;
+  }
+
+  public toString(): string {
+    return PlayerAnimator.COMPONENT_TYPE;
   }
 }

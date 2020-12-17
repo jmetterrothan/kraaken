@@ -1,7 +1,6 @@
 import { mat3 } from "gl-matrix";
 
-import Component from "@src/ECS/Component";
-import { BOUNDING_BOX_COMPONENT } from "@src/ECS/types";
+import { Component } from "@src/ECS";
 
 import Color  from '@shared/helper/Color';
 import BoundingBoxHelper from "@src/shared/helper/BoundingBoxHelper";
@@ -14,7 +13,7 @@ interface IBoundingBoxMetadata {
 }
 
 export class BoundingBox extends Box2 implements Component {
-  public readonly type: symbol = BOUNDING_BOX_COMPONENT;
+  public static COMPONENT_TYPE = "bounding_box";
 
   public helper: BoundingBoxHelper;
 
@@ -31,6 +30,6 @@ export class BoundingBox extends Box2 implements Component {
   }
 
   public toString(): string {
-    return `Bounding box - w:${this.width}, h:${this.height}`;
+    return BoundingBox.COMPONENT_TYPE;
   }
 }

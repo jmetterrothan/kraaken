@@ -1,14 +1,13 @@
-import Component from "@src/ECS/Component";
-
-import { HEALTH_COMPONENT } from "../types";
+import { Component } from "@src/ECS";
 
 interface IHealthMetadata {
   maxHealth?: number;
   immunityDelay?: number;
 }
 
-export class Health implements Component {
-  public readonly type: symbol = HEALTH_COMPONENT;
+export class Health extends Component {
+  public static COMPONENT_TYPE = 'health';
+
   // maximum health cap
   public readonly maxHealth: number;
   // delay during which the entity cannot take further damages or heal
@@ -19,6 +18,8 @@ export class Health implements Component {
   private _value: number;
 
   public constructor({ maxHealth, immunityDelay }: IHealthMetadata) {
+    super();
+    
     this.maxHealth = maxHealth ?? 0;
     this.immunityDelay = immunityDelay ?? 0;
     
@@ -52,6 +53,6 @@ export class Health implements Component {
   }
 
   public toString(): string {
-    return `Health - ${this.isDead ? "dead" : "alive"} (${this.value}/${this.maxHealth})`;
+    return Health.COMPONENT_TYPE;
   }
 }

@@ -3,14 +3,10 @@ import { mat3, vec2 } from "gl-matrix";
 
 import { gl } from "@src/Game";
 
-import Entity from "@src/ECS/Entity";
-import System from "@src/ECS/System";
-import Bundle from "@src/ECS/Bundle";
 import ComponentFactory from "@src/ECS/ComponentFactory";
-
+import { Entity, Bundle, System } from "@src/ECS";
 import * as Systems from "@src/ECS/systems";
 import * as Components from "@src/ECS/components";
-import * as ComponentTypes from "@src/ECS/types";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SoundManager from "@src/animation/SoundManager";
@@ -80,6 +76,7 @@ class World {
     cameraComponent.boundaries = this.tileMap.getBoundaries();
 
     const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
+
     this.addCamera(camera, true);
 
     console.info("World initialized");
@@ -89,7 +86,7 @@ class World {
     const effect = this.createEntity(type);
     this.placeEntity(effect, position, direction);
 
-    const animator = effect.getComponent<Components.Animator>(ComponentTypes.ANIMATOR_COMPONENT);
+    const animator = effect.getComponent(Components.Animator);
     animator.animation.reset();
 
     this.addEntity(effect);
@@ -125,14 +122,14 @@ class World {
   }
 
   public placeEntity(entity: Entity, position: IVector2, direction: IVector2): void {
-    if (entity.hasComponent(ComponentTypes.POSITION_COMPONENT)) {
-      const positionComp = entity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+    if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
+      const positionComp = entity.getComponent(Components.Position);
       positionComp.x = position?.x ?? 0;
       positionComp.y = position?.y ?? 0;
     }
 
-    if (entity.hasComponent(ComponentTypes.RIGID_BODY_COMPONENT)) {
-      const rigidBodyComp = entity.getComponent<Components.RigidBody>(ComponentTypes.RIGID_BODY_COMPONENT);
+    if (entity.hasComponent(Components.RigidBody.COMPONENT_TYPE)) {
+      const rigidBodyComp = entity.getComponent(Components.RigidBody);
       rigidBodyComp.orientation.x = direction?.x ?? 1;
       rigidBodyComp.orientation.y = direction?.y ?? 1;
 
@@ -172,7 +169,7 @@ class World {
     return this;
   }
 
-  public createBundleIfNotExists(componentTypes: ReadonlyArray<symbol>): string {
+  public createBundleIfNotExists(componentTypes: ReadonlyArray<string>): string {
     const bundleId = Bundle.generateId(componentTypes);
 
     if (!this._bundles.has(bundleId)) {
@@ -189,7 +186,7 @@ class World {
     return bundleId;
   }
 
-  public getEntities(componentTypes: ReadonlyArray<symbol>): ReadonlyArray<Entity> {
+  public getEntities(componentTypes: ReadonlyArray<string>): ReadonlyArray<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
     const bundle = this._bundles.get(bundleId);
 
@@ -235,7 +232,7 @@ class World {
     return this;
   }
 
-  public entityAdded$(componentTypes: ReadonlyArray<symbol>): Observable<Entity> {
+  public entityAdded$(componentTypes: ReadonlyArray<string>): Observable<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
 
     const bundle = this._bundles.get(bundleId);
@@ -246,7 +243,7 @@ class World {
     throw Error(`Unable to perform add event on components: ${componentTypes.join(", ")}`);
   }
 
-  public entityRemoved$(componentTypes: ReadonlyArray<symbol>): Observable<Entity> {
+  public entityRemoved$(componentTypes: ReadonlyArray<string>): Observable<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
 
     const bundle = this._bundles.get(bundleId);
@@ -271,16 +268,16 @@ class World {
     }
 
     if (this.player && this.aimEntity) {
-      const aimPosition = this.aimEntity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
-      const playerPosition = this.player.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
-      const playerInput = this.player.getComponent<Components.PlayerInput>(ComponentTypes.PLAYER_INPUT_COMPONENT);
+      const aimPosition = this.aimEntity.getComponent(Components.Position);
+      const playerPosition = this.player.getComponent(Components.Position);
+      const playerInput = this.player.getComponent(Components.PlayerInput);
 
       aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
     }
   }
 
   public render(alpha: number): void {
-    const cameraComponent = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const cameraComponent = this.camera.getComponent(Components.Camera);
     this.tileMap.render(this.projectionMatrix, cameraComponent.viewMatrix, alpha);
   
     this.renderer.execute(alpha);
@@ -305,7 +302,7 @@ class World {
 
       const coords = this.screenToCameraCoords(position);
 
-      const playerPosition = this.player.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const playerPosition = this.player.getComponent(Components.Position);
 
       const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
       const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
@@ -337,18 +334,18 @@ class World {
   }
 
   public followEntity(entity: Entity, camera: Entity = this.camera): void {
-    const state = camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const state = camera.getComponent(Components.Camera);
     state.follow(entity);
 
     this.recenterCamera(camera);
   }
 
   public recenterCamera(camera: Entity): void {
-    const state = camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const state = camera.getComponent(Components.Camera);
 
     if (state.target) {
-      const position = camera.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
-      const targetPos = state.target.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+      const position = camera.getComponent(Components.Position);
+      const targetPos = state.target.getComponent(Components.Position);
 
       if (targetPos) {
         position.copy(targetPos);
@@ -358,18 +355,18 @@ class World {
   }
 
   public screenToCameraCoords(coords: vec2): Vector2 {
-    const camera = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
+    const camera = this.camera.getComponent(Components.Camera);
 
     const v = vec2.transformMat3(vec2.create(), coords, camera.viewMatrixInverse);
     return Vector2.create(v[0], v[1]);
   }
 
   public isFrustumCulled(entity: Entity): boolean {
-    const camera = this.camera.getComponent<Components.Camera>(ComponentTypes.CAMERA_COMPONENT);
-    const entityPos = entity.getComponent<Components.Position>(ComponentTypes.POSITION_COMPONENT);
+    const camera = this.camera.getComponent(Components.Camera);
+    const entityPos = entity.getComponent(Components.Position);
 
-    if (entity.hasComponent(ComponentTypes.BOUNDING_BOX_COMPONENT)) {
-      const entityBbox = entity.getComponent<Components.BoundingBox>(ComponentTypes.BOUNDING_BOX_COMPONENT);
+    if (entity.hasComponent(Components.BoundingBox.COMPONENT_TYPE)) {
+      const entityBbox = entity.getComponent(Components.BoundingBox);
       // update bbox position to match the entity's position
       entityBbox.setPositionFromVector2(entityPos);
       
@@ -380,7 +377,7 @@ class World {
   }
 
   public addCamera(camera: Entity, defineAsActive = false): void {
-    if (!camera.hasComponent(ComponentTypes.CAMERA_COMPONENT)) {
+    if (!camera.hasComponent(Components.Camera.COMPONENT_TYPE)) {
       throw new Error("Invalid camera entity");
     }
 

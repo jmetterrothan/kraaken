@@ -1,7 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 
 import { Position } from "@src/ECS/components";
-import { POSITION_COMPONENT } from "@src/ECS/types";
 
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
@@ -137,7 +136,7 @@ class TileMap {
   }
 
   public update(world: World, delta: number): void {
-    const center = world.camera.getComponent<Position>(POSITION_COMPONENT);
+    const center = world.camera.getComponent(Position);
 
     this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
     this.startRow = Math.floor((center.y - configSvc.innerSize.h / 2) / this.tileSize);

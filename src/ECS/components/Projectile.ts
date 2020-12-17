@@ -1,6 +1,4 @@
-import Component from "@src/ECS/Component";
-
-import { PROJECTILE_COMPONENT } from "../types";
+import { Component } from "@src/ECS";
 
 interface IProjectileMetadata {
   speed?: number;
@@ -8,7 +6,7 @@ interface IProjectileMetadata {
 }
 
 export class Projectile implements Component {
-  public readonly type: symbol = PROJECTILE_COMPONENT;
+  public static COMPONENT_TYPE = "projectile";
 
   public speed: number;
   public ttl: number;
@@ -19,6 +17,6 @@ export class Projectile implements Component {
   }
 
   public toString(): string {
-    return `Projectile`;
+    return Projectile.COMPONENT_TYPE;
   }
 }

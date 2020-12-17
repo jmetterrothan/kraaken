@@ -1,7 +1,6 @@
-import Entity from "@src/ECS/Entity";
+import { Entity } from "@src/ECS";
 
-import { Consummable, IConsummableMetadata } from "@src/ECS/components";
-import { PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT } from "@src/ECS/types";
+import { Consummable, PlayerInput, BoundingBox, IConsummableMetadata } from "@src/ECS/components";
 
 import World from "@src/world/World";
 
@@ -12,8 +11,6 @@ export interface ICollectibleMetadata extends IConsummableMetadata {
 
 export class Collectible extends Consummable {
   public static DATA = {};
-
-  public readonly type: symbol = CONSUMMABLE_COMPONENT;
 
   public readonly id: string;
   public readonly amount: number;
@@ -44,10 +41,14 @@ export class Collectible extends Consummable {
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {
-    return entity.hasComponent(PLAYER_INPUT_COMPONENT);
+    return entity.hasComponent(PlayerInput.COMPONENT_TYPE);
   }
 
-  public getComponentTypes(): symbol[] {
-    return [PLAYER_INPUT_COMPONENT, BOUNDING_BOX_COMPONENT];
+  public getComponentTypes(): string[] {
+    return [PlayerInput.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE];
+  }
+
+  public toString(): string {
+    return Collectible.COMPONENT_TYPE;
   }
 }

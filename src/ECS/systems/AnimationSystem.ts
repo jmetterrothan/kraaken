@@ -1,29 +1,28 @@
 import World from "@src/world/World";
 import Animation from "@src/animation/Animation";
 
-import { ANIMATOR_COMPONENT, SPRITE_COMPONENT } from "@src/ECS/types";
-import System from "@src/ECS/System";
+import { System } from "@src/ECS";
 import { Animator, Sprite } from "@src/ECS/components";
 
 export class AnimationSystem extends System {
   public constructor() {
-    super([ANIMATOR_COMPONENT, SPRITE_COMPONENT]);
+    super([Animator.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
   }
 
   addedToWorld(world: World): void {
     super.addedToWorld(world);
 
-    world.entityAdded$([ANIMATOR_COMPONENT, SPRITE_COMPONENT]).subscribe((entity) => {
-      const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
-      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+    world.entityAdded$([Animator.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]).subscribe((entity) => {
+      const animator = entity.getComponent(Animator);
+      const sprite = entity.getComponent(Sprite);
 
       // sync first frame to the default animation
       const animation = animator.animation;
       sprite.index = sprite.atlas.getIndex(animation.frame.row, animation.frame.col);
     });
 
-    world.entityRemoved$([ANIMATOR_COMPONENT, SPRITE_COMPONENT]).subscribe((entity) => {
-      const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
+    world.entityRemoved$([Animator.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]).subscribe((entity) => {
+      const animator = entity.getComponent(Animator);
 
       animator.list.forEach((animation) => {
         Animation.destroy(animation);
@@ -38,8 +37,8 @@ export class AnimationSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const animator = entity.getComponent<Animator>(ANIMATOR_COMPONENT);
-      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+      const animator = entity.getComponent(Animator);
+      const sprite = entity.getComponent(Sprite);
 
       const animation = animator.animation;
 

@@ -1,15 +1,13 @@
 import World  from '@src/world/World';
 
-import Entity  from '@src/ECS/Entity';
-import Component from "@src/ECS/Component";
+import { Component, Entity }  from '@src/ECS';
 import { Position } from '@src/ECS/components';
-import { POSITION_COMPONENT, FLYING_AI_COMPONENT } from "@src/ECS/types";
 
 const MAX_DETECTION_DISTANCE = 250;
 const RAYCAST_STEPS_NB = 32;
 
 export class FlyingAI implements Component {
-  public readonly type: symbol = FLYING_AI_COMPONENT;
+  public static COMPONENT_TYPE = "flying_ai";
 
   public target: Entity;
 
@@ -27,8 +25,8 @@ export class FlyingAI implements Component {
 
   public canSeeObject(world: World, entity: Entity): boolean {
     if (this.target) {
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const targetPos = this.target.getComponent<Position>(POSITION_COMPONENT);
+      const position = entity.getComponent(Position);
+      const targetPos = this.target.getComponent(Position);
   
       const temp = position.clone();
 
@@ -60,6 +58,6 @@ export class FlyingAI implements Component {
   }
 
   public toString(): string {
-    return `Flying AI`;
+    return FlyingAI.COMPONENT_TYPE;
   }
 }

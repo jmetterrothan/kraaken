@@ -1,15 +1,13 @@
-import System from "@src/ECS/System";
+import { System } from "@src/ECS";
 
 import { Sprite, Health } from "@src/ECS/components";
-
-import { SPRITE_COMPONENT, HEALTH_COMPONENT } from "@src/ECS/types";
 
 /**
  * Make sprite flicker when an entity that can take damages enters immunity mode
  */
 export class FlickerOnImmuneSystem extends System {
   public constructor() {
-    super([SPRITE_COMPONENT, HEALTH_COMPONENT]);
+    super([Sprite.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
   }
 
   public execute(delta: number): void {
@@ -19,8 +17,8 @@ export class FlickerOnImmuneSystem extends System {
     }
 
     entities.forEach((entity) => {    
-      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
-      const health = entity.getComponent<Health>(HEALTH_COMPONENT);
+      const sprite = entity.getComponent(Sprite);
+      const health = entity.getComponent(Health);
 
       sprite.renderOptions.flickering = health.immunity;
     });

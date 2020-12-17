@@ -251,7 +251,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": 1, "y": 1 }, "collide": true, "gravity": true, "bounciness": 0.45, "reflect": true, "reflectAngle": false } },
       { "name": "bounding_box", "metadata": { "width": 9, "height": 13 } },
       { "name": "sprite", "metadata": { "alias": "items", "align": "bottom", "reflect": false } },
-      { "name": "ammo_modifier", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup", "applyToEntityTypes": ["player"], "limit": 1 } },
+      { "name": "consummable", "metadata": { "pickUpVFX": "boost_effect", "pickUpSFX": "pickup", "applyToEntityTypes": ["player"], "limit": 1 } },
       {
         "name": "animator",
         "metadata": {

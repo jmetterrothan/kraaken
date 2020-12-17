@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { vec2 } from "gl-matrix";
 
-import  Entity  from '@src/ECS/Entity';
+import { Entity }  from '@src/ECS';
 import { BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
-import { POSITION_COMPONENT, SPRITE_COMPONENT, BOUNDING_BOX_COMPONENT, PLACEABLE_COMPONENT } from "@src/ECS/types";
 
 import EditorState from '@src/states/EditorState';
 
@@ -106,7 +105,7 @@ class EntityMode {
   }
   
   public update(delta: number): void {
-    const position = this.editor.cursor.getComponent<Position>(POSITION_COMPONENT);
+    const position = this.editor.cursor.getComponent(Position);
     position.fromValues(this.editor.mouse.x, this.editor.mouse.y);
   }
   
@@ -129,8 +128,8 @@ class EntityMode {
 
       
       if (this.selectedEntity) {
-        const selectedEntityPos = this.selectedEntity.getComponent<Position>(POSITION_COMPONENT);
-        const placeable = this.selectedEntity.getComponent<Placeable>(PLACEABLE_COMPONENT);
+        const selectedEntityPos = this.selectedEntity.getComponent(Position);
+        const placeable = this.selectedEntity.getComponent(Placeable);
         placeable.unfollow();
         selectedEntityPos.fromValues(x, y);
 
@@ -138,9 +137,9 @@ class EntityMode {
 
         this.selectedEntity = undefined;
       } else {
-        if (this.focusedEntity && this.focusedEntity.hasComponent(PLACEABLE_COMPONENT)) {
-          const focusedEntityPos = this.focusedEntity.getComponent<Position>(POSITION_COMPONENT);
-          const placeable = this.focusedEntity.getComponent<Placeable>(PLACEABLE_COMPONENT);
+        if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
+          const focusedEntityPos = this.focusedEntity.getComponent(Position);
+          const placeable = this.focusedEntity.getComponent(Placeable);
           placeable.follow(this.editor.cursor, focusedEntityPos);
 
           this.selectedEntity = this.focusedEntity;
@@ -164,13 +163,18 @@ class EntityMode {
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.world.getEntities([PLACEABLE_COMPONENT, POSITION_COMPONENT, BOUNDING_BOX_COMPONENT, SPRITE_COMPONENT]);
+    const entities = this.editor.world.getEntities([
+      Placeable.COMPONENT_TYPE,
+      Position.COMPONENT_TYPE,
+      BoundingBox.COMPONENT_TYPE,
+      Sprite.COMPONENT_TYPE
+    ]);
     
     this.focusedEntity = undefined;
 
     entities.forEach((entity) => {
-      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-      const sprite = entity.getComponent<Sprite>(SPRITE_COMPONENT);
+      const bbox = entity.getComponent(BoundingBox);
+      const sprite = entity.getComponent(Sprite);
 
       if (bbox.containsPoint(this.editor.mouse)) {
         this.focusedEntity = entity;

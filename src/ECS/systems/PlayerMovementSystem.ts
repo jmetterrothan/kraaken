@@ -1,12 +1,17 @@
-import System from "@src/ECS/System";
+import { System } from "@src/ECS";
 
 import { PlayerMovement, Health, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
-import { RIGID_BODY_COMPONENT, HEALTH_COMPONENT, BOUNDING_BOX_COMPONENT, PLAYER_MOVEMENT_COMPONENT, POSITION_COMPONENT, PLAYER_INPUT_COMPONENT } from "@src/ECS/types";
-
 export class PlayerMovementSystem extends System {
   public constructor() {
-    super([POSITION_COMPONENT, RIGID_BODY_COMPONENT, PLAYER_MOVEMENT_COMPONENT, PLAYER_INPUT_COMPONENT, HEALTH_COMPONENT, BOUNDING_BOX_COMPONENT]);
+    super([
+      Position.COMPONENT_TYPE,
+      RigidBody.COMPONENT_TYPE,
+      PlayerMovement.COMPONENT_TYPE,
+      PlayerInput.COMPONENT_TYPE,
+      Health.COMPONENT_TYPE,
+      BoundingBox.COMPONENT_TYPE
+    ]);
   }
 
   execute(delta: number): void {
@@ -16,12 +21,12 @@ export class PlayerMovementSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const position = entity.getComponent<Position>(POSITION_COMPONENT);
-      const bbox = entity.getComponent<BoundingBox>(BOUNDING_BOX_COMPONENT);
-      const rigidBody = entity.getComponent<RigidBody>(RIGID_BODY_COMPONENT);
-      const input = entity.getComponent<PlayerInput>(PLAYER_INPUT_COMPONENT);
-      const movement = entity.getComponent<PlayerMovement>(PLAYER_MOVEMENT_COMPONENT);
-      const health = entity.getComponent<Health>(HEALTH_COMPONENT);
+      const position = entity.getComponent(Position);
+      const bbox = entity.getComponent(BoundingBox);
+      const rigidBody = entity.getComponent(RigidBody);
+      const input = entity.getComponent(PlayerInput);
+      const movement = entity.getComponent(PlayerMovement);
+      const health = entity.getComponent(Health);
 
       if (health.isAlive) {
         // handle jumping

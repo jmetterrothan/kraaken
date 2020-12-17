@@ -1,13 +1,10 @@
-import Entity from "@src/ECS/Entity";
+import { Entity } from '@src/ECS';
 
-import { Consummable, PlayerCombat } from "@src/ECS/components";
-import { BOUNDING_BOX_COMPONENT, CONSUMMABLE_COMPONENT, PLAYER_COMBAT_COMPONENT } from "@src/ECS/types";
+import { Consummable, PlayerCombat, BoundingBox } from "@src/ECS/components";
 
 import World from "@src/world/World";
 
 export class AmmoModifier extends Consummable {
-  public readonly symbol: symbol = CONSUMMABLE_COMPONENT;
-
   public readonly amount: number;
 
   public constructor(metadata = {}) {
@@ -17,7 +14,7 @@ export class AmmoModifier extends Consummable {
   public consummatedBy(world: World, entity: Entity): void {
     super.consummatedBy(world, entity);
 
-    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
+    const combat = entity.getComponent(PlayerCombat);
 
     combat.primaryWeapon.ammo = combat.primaryWeapon.maxAmmo;
 
@@ -31,15 +28,15 @@ export class AmmoModifier extends Consummable {
       return false;
     }
     
-    if (!entity.hasComponent(PLAYER_COMBAT_COMPONENT)) {
+    if (!entity.hasComponent(PlayerCombat.COMPONENT_TYPE)) {
       return false;
     }
 
-    const combat = entity.getComponent<PlayerCombat>(PLAYER_COMBAT_COMPONENT);
+    const combat = entity.getComponent(PlayerCombat);
     return combat.primaryWeapon.ammo < combat.primaryWeapon.maxAmmo && combat.primaryWeapon.maxAmmo !== -1;
   }
 
-  public getComponentTypes(): symbol[] {
-    return [PLAYER_COMBAT_COMPONENT, BOUNDING_BOX_COMPONENT];
+  public getComponentTypes(): string[] {
+    return [PlayerCombat.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE];
   }
 }
