@@ -77,8 +77,29 @@ export class MovementSystem extends System {
       } else if (input.aim.x > 0) {
         rigidBody.orientation.x = 1;
       }
+
       
-      //rigidBody.orientation.copy(rigidBody.direction);
+      // apply movement trailing effects and update states
+      const now = window.performance.now();
+    
+      if (entity.hasComponent(Movement.COMPONENT_TYPE)) {
+        const movement = entity.getComponent(Movement);
+        
+        if (movement.falling && rigidBody.previousVelocity.y === 0 && rigidBody.velocity.y > 0) {
+          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
+          movement.lastEffectTime = now + 500;
+        }
+
+        movement.falling = rigidBody.velocity.y > 0;
+        movement.walking = Math.abs(rigidBody.velocity.x) > 0;
+        movement.isGrounded = rigidBody.velocity.y === 0;
+        movement.idle = rigidBody.velocity.x === 0;
+
+        if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+          movement.lastEffectTime = now + 250;
+          this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
+        }
+      }
     });
   }
 }

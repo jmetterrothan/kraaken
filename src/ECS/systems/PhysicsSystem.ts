@@ -1,5 +1,5 @@
 import { Entity, System } from "@src/ECS";
-import { Collider, Position, BoundingBox, RigidBody, Movement } from "@src/ECS/components";
+import { Collider, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
 import { ITile } from '@shared/models/tilemap.model';
 import Vector2 from "@shared/math/Vector2";
@@ -28,14 +28,9 @@ export class PhysicsSystem extends System {
       const bbox = entity.getComponent(BoundingBox);
       const rigidBody = entity.getComponent(RigidBody);
 
-      // save velocity for later
-      const vy = rigidBody.velocity.y;
-      // save previous pos
+      // save previous velocity/pos for later
       position.previousValue.copy(position);
-      // sync bbox position
-      if (bbox) {
-        bbox.setPositionFromVector2(position);
-      }
+      rigidBody.previousVelocity.copy(rigidBody.velocity);
 
       // apply gravity
       if (rigidBody.gravity) {
@@ -46,39 +41,20 @@ export class PhysicsSystem extends System {
         }
       }
 
-      const newVelocity = rigidBody.velocity.clone().multiply(rigidBody.direction).multiplyScalar(delta);
-      const newPosition = position.clone().add(newVelocity);
+      // we move one step
+      const step = rigidBody.velocity.clone().multiply(rigidBody.direction).multiplyScalar(delta);
+      position.add(step);
 
-      this.collideWithMap(entity, newPosition, newVelocity, delta);
-      // this.collideWithBoundingBox(entity, colliders, newPosition, newVelocity, delta);
-
-      position.fromValues(newPosition.x, newPosition.y);
-      Vector2.destroy(newPosition);
+      this.collideWithMap(entity, step, delta);
+      // this.collideWithBoundingBox(entity, colliders, step, delta);
 
       if (rigidBody.clamToMap) {
         this.clampToMap(entity);
       }
 
-      // apply movement trailing effects and update states
-      const now = window.performance.now();
-    
-      if (entity.hasComponent(Movement.COMPONENT_TYPE)) {
-        const movement = entity.getComponent(Movement);
-        
-        if (movement.falling && vy === 0 && rigidBody.velocity.y > 0) {
-          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
-          movement.lastEffectTime = now + 500;
-        }
-
-        movement.falling = rigidBody.velocity.y > 0;
-        movement.walking = Math.abs(rigidBody.velocity.x) > 0;
-        movement.isGrounded = rigidBody.velocity.y === 0;
-        movement.idle = rigidBody.velocity.x === 0;
-
-        if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
-          movement.lastEffectTime = now + 250;
-          this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
-        }
+      // sync bbox position
+      if (bbox) {
+        bbox.setPositionFromVector2(position);
       }
     });
   }
@@ -224,55 +200,62 @@ export class PhysicsSystem extends System {
   }
 
   public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], newPosition: Vector2, newVelocity: Vector2, delta: number): void {
-    
-  }
+    /*
+    colliders.forEach((collider) => {
+      if (collider.uuid === entity.uuid) {
+        return;
+      }
+    });
+    */
+  } 
 
-  public collideWithMap(entity: Entity, newPosition: Vector2, newVelocity: Vector2, delta: number): void {
+  public collideWithMap(entity: Entity, step: Vector2, delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
 
-    const x1 = bbox?.x1 ?? position.x;
-    const y1 = bbox?.y1 ?? position.y;
-    const x2 = bbox?.x2 ?? position.x;
-    const y2 = bbox?.y2 ?? position.y;
-
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;
 
-    if (rigidBody.collide) {
-      if (newVelocity.y > 0) {
+    const x1 = position.previousValue.x - w / 2;
+    const y1 = position.previousValue.y - h / 2;
+    const x2 = position.previousValue.x + w / 2;
+    const y2 = position.previousValue.y + h / 2;
 
+    const tileSize = this.world.tileMap.getTileSize();
+
+    if (rigidBody.collide) {
+      if (step.y > 0) {
         // top side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y2 + newVelocity.y, x1 + w / 2, y2 + newVelocity.y, x2, y2 + newVelocity.y);
+        const tile = this.testForCollision(this.world.tileMap, x1, y2 + step.y, x1 + w / 2, y2 + step.y, x2, y2 + step.y);
         if (tile) {
-          newPosition.y = tile.position.y - h / 2 - 0.01;
+          position.y = tile.position.y - h / 2 - 0.01;
           this.handleCollisionWithBottomSide(entity, tile, delta);
         }
-      } else if (newVelocity.y < 0) {
+      } else if (step.y < 0) {
         // bottom side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y1 + newVelocity.y, x1 + w / 2, y1 + newVelocity.y, x2, y1 + newVelocity.y);
+        const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + w / 2, y1 + step.y, x2, y1 + step.y);
 
         if (tile) {
-          newPosition.y = tile.position.y + this.world.tileMap.getTileSize() + h / 2 + 0.01;
+          position.y = tile.position.y + tileSize + h / 2 + 0.01;
           this.handleCollisionWithTopSide(entity, tile, delta);
         }
       }
 
-      if (newVelocity.x > 0) {
+      if (step.x > 0) {
         // left side collision
-        const tile = this.testForCollision(this.world.tileMap, x2 + newVelocity.x, y1, x2 + newVelocity.x, y1 + h / 2, x2 + newVelocity.x, y2);
+        const tile = this.testForCollision(this.world.tileMap, x2 + step.x, y1, x2 + step.x, y1 + h / 2, x2 + step.x, y2);
 
         if (tile) {
-          newPosition.x = tile.position.x - w / 2 - 0.01;
+          position.x = tile.position.x - w / 2 - 0.01;
           this.handleCollisionWithLeftSide(entity, tile, delta);
         }
-      } else if (newVelocity.x < 0) {
+      } else if (step.x < 0) {
         // right side collision
-        const tile = this.testForCollision(this.world.tileMap, x1 + newVelocity.x, y1, x1 + newVelocity.x, y1 + h / 2, x1 + newVelocity.x, y2);
+        const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + h / 2, x1 + step.x, y2);
         
         if (tile) {
-          newPosition.x = tile.position.x + this.world.tileMap.getTileSize() + w / 2 + 0.01;
+          position.x = tile.position.x + tileSize + w / 2 + 0.01;
           this.handleCollisionWithRightSide(entity, tile, delta);
         }
       }
@@ -283,15 +266,14 @@ export class PhysicsSystem extends System {
     const position = entity.getComponent(Position);
     const bbox = entity.getComponent(BoundingBox);
 
-    const tileMap = this.world.tileMap;
-
     const w = bbox?.width ?? 0;
+
     const x1 = bbox?.x1 ?? position.x;
     const x2 = x1 + w / 2;
     const x3 = bbox?.x2 ?? position.x;
     const y = (bbox?.y2 ?? position.y) + 0.01;
 
-    const tile = this.testForCollision(tileMap, x1, y, x2, y, x3, y);
+    const tile = this.testForCollision(this.world.tileMap, x1, y, x2, y, x3, y);
 
     return tile !== undefined;
   }
