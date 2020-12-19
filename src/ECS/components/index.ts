@@ -1,7 +1,7 @@
 export * from "./Health";
 export * from "./Position";
 export * from "./Sprite";
-export * from "./PlayerMovement";
+export * from "./Movement";
 export * from "./PlayerInput";
 export * from "./Animator";
 export * from "./BoundingBox";
@@ -17,3 +17,5 @@ export * from "./BasicInput";
 export * from './Placeable';
 export * from "./Projectile";
 export * from "./FlyingAI";
+export * from "./Collider";
+

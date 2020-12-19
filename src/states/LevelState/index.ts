@@ -30,7 +30,7 @@ class LevelState extends State<LevelStateOptions> {
     await this.world.init();
 
     this.world.addSystem(new Systems.PlayerInputSystem());
-    this.world.addSystem(new Systems.PlayerMovementSystem());
+    this.world.addSystem(new Systems.MovementSystem());
     this.world.addSystem(new Systems.PhysicsSystem());
     this.world.addSystem(new Systems.PlayerCombatSystem());
     this.world.addSystem(new Systems.ConsummableSystem());

@@ -1,7 +1,7 @@
 import World from "@src/world/World";
 
 import { Entity } from "@src/ECS";
-import { Animator, PlayerMovement, Health } from "@src/ECS/components";
+import { Animator, Movement, Health } from "@src/ECS/components";
 
 export enum EnemyAnimationKeys {
   DEAD = "dead",
@@ -12,7 +12,7 @@ export enum EnemyAnimationKeys {
 
 export class EnemyAnimator extends Animator {
   public update(world: World, entity: Entity): string {
-    const movement = entity.getComponent(PlayerMovement);
+    const movement = entity.getComponent(Movement);
     const health = entity.getComponent(Health);
 
     if (health && health.isDead) {

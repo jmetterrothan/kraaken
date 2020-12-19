@@ -2,7 +2,7 @@ import { Component } from "@src/ECS";
 
 import SoundManager from "@src/animation/SoundManager";
 
-interface IPlayerMovementMetadata {
+interface IMovementMetadata {
   initialJumpBoost?: number;
   jumpSpeed?: number;
   speed?: number;
@@ -11,8 +11,8 @@ interface IPlayerMovementMetadata {
   jumpSFX?: string;
 }
 
-export class PlayerMovement implements Component {
-  public static COMPONENT_TYPE = "player_movement";
+export class Movement implements Component {
+  public static COMPONENT_TYPE = "movement";
 
   public climbing = false;
   public falling = false;
@@ -32,7 +32,7 @@ export class PlayerMovement implements Component {
 
   public jumpSFX: Howl | undefined;
 
-  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, jumpSFX }: IPlayerMovementMetadata) {
+  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, jumpSFX }: IMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.speed = speed ?? 0;
@@ -49,6 +49,6 @@ export class PlayerMovement implements Component {
   }
 
   public toString(): string {
-    return PlayerMovement.COMPONENT_TYPE;
+    return Movement.COMPONENT_TYPE;
   }
 }

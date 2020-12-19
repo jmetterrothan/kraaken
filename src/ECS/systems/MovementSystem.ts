@@ -1,13 +1,13 @@
 import { System } from "@src/ECS";
 
-import { PlayerMovement, Health, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
+import { Movement, Health, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
-export class PlayerMovementSystem extends System {
+export class MovementSystem extends System {
   public constructor() {
     super([
       Position.COMPONENT_TYPE,
       RigidBody.COMPONENT_TYPE,
-      PlayerMovement.COMPONENT_TYPE,
+      Movement.COMPONENT_TYPE,
       PlayerInput.COMPONENT_TYPE,
       Health.COMPONENT_TYPE,
       BoundingBox.COMPONENT_TYPE
@@ -23,9 +23,9 @@ export class PlayerMovementSystem extends System {
     entities.forEach((entity) => {
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
+      const movement = entity.getComponent(Movement);
       const rigidBody = entity.getComponent(RigidBody);
       const input = entity.getComponent(PlayerInput);
-      const movement = entity.getComponent(PlayerMovement);
       const health = entity.getComponent(Health);
 
       if (health.isAlive) {

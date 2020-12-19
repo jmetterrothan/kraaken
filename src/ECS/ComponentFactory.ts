@@ -11,8 +11,8 @@ class ComponentFactory {
         return new Components.Position(metadata);
       case "bounding_box":
         return new Components.BoundingBox(metadata);
-      case "player_movement":
-        return new Components.PlayerMovement(metadata);
+      case "movement":
+        return new Components.Movement(metadata);
       case "player_input":
         return new Components.PlayerInput();
       case "player_animator":
@@ -41,6 +41,8 @@ class ComponentFactory {
         return new Components.Projectile(metadata);
       case "flying_ai": 
         return new Components.FlyingAI();
+      case "collider": 
+        return new Components.Collider();
       default:
         throw new Error(`Unknown component name "${type}"`);
     }

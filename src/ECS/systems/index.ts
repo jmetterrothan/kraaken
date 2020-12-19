@@ -1,5 +1,5 @@
 export * from "./CameraSystem";
-export * from "./PlayerMovementSystem";
+export * from "./MovementSystem";
 export * from "./RenderingSystem";
 export * from "./AnimationSystem";
 export * from "./PlayerInputSystem";

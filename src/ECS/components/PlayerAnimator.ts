@@ -1,5 +1,5 @@
 import { Entity } from "@src/ECS";
-import { Animator, PlayerCombat, PlayerMovement, PlayerInput, Health } from "@src/ECS/components";
+import { Animator, PlayerCombat, Movement, PlayerInput, Health } from "@src/ECS/components";
 
 import World from "@src/world/World";
 
@@ -14,7 +14,7 @@ export enum PlayerAnimationKeys {
 
 export class PlayerAnimator extends Animator {
   public update(world: World, entity: Entity): string {
-    const movement = entity.getComponent(PlayerMovement);
+    const movement = entity.getComponent(Movement);
     const combat = entity.getComponent(PlayerCombat);
     const input = entity.getComponent(PlayerInput);
     const health = entity.getComponent(Health);

@@ -636,7 +636,7 @@
       { "name": "rigid_body", "metadata": { "direction": { "x": -1, "y": 1 }, "collide": true, "gravity": true } },
       { "name": "player_input" },
       { "name": "player_combat" },
-      { "name": "player_movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14, "jumpSFX": "jump" } },
+      { "name": "movement", "metadata": { "initialJumpBoost": 185, "jumpSpeed": 320, "speed": 100, "acceleration": 10, "deceleration": 14, "jumpSFX": "jump" } },
       { "name": "bounding_box", "metadata": { "width": 8, "height": 13 } },
       { "name": "health", "metadata": { "maxHealth": 12, "immunityDelay": 1000 } },
       { "name": "sprite", "metadata": { "alias": "hero", "align": "bottom" } },

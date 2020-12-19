@@ -1,5 +1,5 @@
 import { Entity } from "@src/ECS";
-import { Projectile, Health, RigidBody, PlayerMovement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
+import { Projectile, Health, RigidBody, Movement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
@@ -190,7 +190,7 @@ class ProjectileWeapon extends Weapon {
     const position = owner.getComponent(Position);
     const bbox = owner.getComponent(BoundingBox);
     const health = owner.getComponent(Health);
-    const movement = owner.getComponent(PlayerMovement);
+    const movement = owner.getComponent(Movement);
     const rigidBody = owner.getComponent(RigidBody);
     const playerInput = owner.getComponent(PlayerInput);
 
