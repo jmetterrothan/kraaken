@@ -23,11 +23,10 @@ class LevelState extends State<LevelStateOptions> {
   public async init({ id, blueprint }: LevelStateOptions): Promise<void> {
     console.info("Level initialized");
 
+    this.id = id;
+    
     const data = await Promise.resolve(blueprint);
     this.world = new World(data);
-    this.id = id;
-
-    await this.world.init();
 
     this.world.addSystem(new Systems.PlayerInputSystem());
     this.world.addSystem(new Systems.MovementSystem());
@@ -36,6 +35,8 @@ class LevelState extends State<LevelStateOptions> {
     this.world.addSystem(new Systems.ConsummableSystem());
     this.world.addSystem(new Systems.AISystem());
     this.world.addSystem(new Systems.FlickerOnImmuneSystem());
+
+    await this.world.init();
     
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);

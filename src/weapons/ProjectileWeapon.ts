@@ -198,7 +198,7 @@ class ProjectileWeapon extends Weapon {
     const tile = world.tileMap.getTileAtCoords(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
 
     // test if the spawn position of the projectile is not in a solid tile
-    if (tile.hasCollision()) {
+    if (!tile || tile.hasCollision()) {
       return false;
     }
 

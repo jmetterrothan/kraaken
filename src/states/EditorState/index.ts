@@ -50,9 +50,14 @@ class EditorState extends State<EditorStateOptions> {
   public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
     console.info("Editor initialized");
 
+    this.id = id;
+
     const data = await Promise.resolve(blueprint);
     this.world = new World(await Promise.resolve(blueprint));
-    this.id = id;
+
+    this.world.addSystem(new Systems.BasicInputSystem());
+    this.world.addSystem(new Systems.BasicMovementSystem());
+    this.world.addSystem(new Systems.PlaceableSystem());
 
     this.state = editorStore.initialState;   
     
@@ -70,10 +75,6 @@ class EditorState extends State<EditorStateOptions> {
 
     this.grid = new Grid();
     this.grid.init();
-
-    this.world.addSystem(new Systems.BasicInputSystem());
-    this.world.addSystem(new Systems.BasicMovementSystem());
-    this.world.addSystem(new Systems.PlaceableSystem());
 
     // show a cursor following the mouse
     this.cursor = this.world.spawn({ type: "cursor" });

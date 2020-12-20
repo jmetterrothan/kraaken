@@ -4,8 +4,8 @@ import { Collider, Position, BoundingBox, RigidBody } from "@src/ECS/components"
 import { ITile } from '@shared/models/tilemap.model';
 import Vector2 from "@shared/math/Vector2";
 
+import World from '@src/world/World';
 import TileMap from "@src/world/TileMap";
-
 
 export class PhysicsSystem extends System {
   public constructor() {
@@ -13,6 +13,18 @@ export class PhysicsSystem extends System {
       Position.COMPONENT_TYPE,
       RigidBody.COMPONENT_TYPE
     ]);
+  }
+
+  public addedToWorld(world: World): void {
+    super.addedToWorld(world);
+
+    world.entityAdded$([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]).subscribe((entity) => {
+      const position = entity.getComponent(Position);
+      const bbox = entity.getComponent(BoundingBox);
+
+      // sync bbox position
+      bbox.setPositionFromVector2(position);
+    });
   }
 
   execute(delta: number): void {

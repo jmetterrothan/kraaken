@@ -176,7 +176,7 @@ class EntityMode {
       const bbox = entity.getComponent(BoundingBox);
       const sprite = entity.getComponent(Sprite);
 
-      if (bbox.containsPoint(this.editor.mouse)) {
+      if (bbox.containsPointWithVector2(this.editor.mouse)) {
         this.focusedEntity = entity;
       }
 
