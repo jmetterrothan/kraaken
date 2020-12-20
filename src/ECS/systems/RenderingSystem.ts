@@ -37,17 +37,6 @@ export class RenderingSystem extends System {
 
       const bboxWidth = bbox?.width ?? 0;
       const bboxHeight = bbox?.height ?? 0;
-
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (sprite.align === "center") {
-        offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
-        offsetY = -(sprite.atlas.tileHeight - bboxHeight) / 2;
-      } else {
-        offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
-        offsetY = -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
-      }
       
       if (position.shouldUpdateTransform) {
         position.transform = mat3.create();
@@ -62,14 +51,42 @@ export class RenderingSystem extends System {
           mat3.multiply(position.transform, position.transform, r);
         }
 
-        const moveOriginMatrix = mat3.fromTranslation(
+        /**
+         * position is located at the center of the bounding box
+         */
+        if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
+          const moveOriginMatrix = mat3.fromTranslation(
+            mat3.create(),
+            [-bbox.width / 2, -bbox.height / 2]
+          );
+  
+          mat3.multiply(position.transform, position.transform, moveOriginMatrix);
+        }
+
+        /**
+         * calculate the correct offset to render the sprite at the center of the bounding box
+         */
+        let offsetX = 0;
+        let offsetY = 0;
+  
+        if (sprite.align === "center") {
+          offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
+          offsetY = -(sprite.atlas.tileHeight - bboxHeight) / 2;
+        } else {
+          offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
+          offsetY = -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
+        }
+
+        const moveOriginMatrix2 = mat3.fromTranslation(
           mat3.create(),
-          bbox ? [-bbox.width / 2 + offsetX, -bbox.height / 2 + offsetY] : [offsetX, offsetY]
+          [offsetX, offsetY]
         );
 
-        mat3.multiply(position.transform, position.transform, moveOriginMatrix);
+        mat3.multiply(position.transform, position.transform, moveOriginMatrix2);
 
-        // fix for texture bleeding by rounding the x, y components
+        /**
+         * fix for texture bleeding by rounding the x, y components
+         */
         cameraComponent.viewMatrix[6] = Math.round(cameraComponent.viewMatrix[6]);
         cameraComponent.viewMatrix[7] = Math.round(cameraComponent.viewMatrix[7]);
         position.transform[6] = Math.round(position.transform[6]);
@@ -77,8 +94,32 @@ export class RenderingSystem extends System {
         
         position.shouldUpdateTransform = false;
       }
-      
+
       sprite.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, rigidBody?.orientation);
+
+      /*
+      // show bounding box helper
+      if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
+        const modelMatrix = mat3.create();
+
+        mat3.fromTranslation(
+          modelMatrix,
+          position.clone().toGlArray()
+        );
+
+        const moveOriginMatrix = mat3.fromTranslation(
+          mat3.create(),
+          [-bbox.width / 2, -bbox.height / 2]
+        );
+
+        mat3.multiply(modelMatrix, modelMatrix, moveOriginMatrix);
+
+        modelMatrix[6] = Math.round(modelMatrix[6]);
+        modelMatrix[7] = Math.round(modelMatrix[7]);
+
+        bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
+      }
+      */
     });
   }
 }
