@@ -1,6 +1,6 @@
 {
   "name": "kraaken",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A framework for making 2d platformer games",
   "main": "index.js",
   "scripts": {
