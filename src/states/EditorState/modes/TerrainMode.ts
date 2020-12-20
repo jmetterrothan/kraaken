@@ -9,6 +9,8 @@ import dispatch, * as GameEvents from '@shared/events';
 
 import eventStackSvc from "@shared/services/EventStackService";
 
+import { driver } from '@shared/drivers/DriverFactory';
+
 import { EditorTerrainMode } from '@shared/models/editor.model';
 import { ITile } from '@shared/models/tilemap.model';
 
@@ -47,8 +49,8 @@ class TerrainMode {
         // register event
         if (oldTileTypeId !== tileTypeId && pushToStack) {
           eventStackSvc.undoStack.push({
-            undo: GameEvents.placeEvent(layer, oldTileTypeId, coords, false), //
-            redo: GameEvents.placeEvent(layer, tileTypeId, coords, false),
+            undo: () => driver.place(layer, oldTileTypeId, coords, false), //
+            redo: () => driver.place(layer, tileTypeId, coords, false),
           });
         }
 
@@ -98,45 +100,29 @@ class TerrainMode {
       const tileMap = this.editor.world.tileMap;
       const coords = this.editor.world.screenToCameraCoords(position);
 
-      if (this.editor.state.terrainMode === EditorTerrainMode.PICK) {
+      const { layerId, tileTypeId, terrainMode } = this.editor.state;
+
+      if (terrainMode === EditorTerrainMode.PICK) {
         const tile = tileMap.getTileAtCoords(coords.x, coords.y);
         if (tile) {
-          const tileTypeId = tile.getTileTypeId(this.editor.state.layerId);
+          const tileTypeId = tile.getTileTypeId(layerId);
           editorStore.setSelectedTileTypeId(tileTypeId);
         }
       } else if (this.editor.state.terrainMode === EditorTerrainMode.PLACE) {
-        dispatch(
-          GameEvents.placeEvent(
-            this.editor.state.layerId, //
-            this.editor.state.tileTypeId,
-            { x: coords.x, y: coords.y }
-          )
-        );
+        driver.place(layerId, tileTypeId, [coords], true);
       } else if (this.editor.state.terrainMode === EditorTerrainMode.ERASE) {
-        dispatch(
-          GameEvents.placeEvent(
-            this.editor.state.layerId, //
-            0,
-            { x: coords.x, y: coords.y }
-          )
-        );
+        driver.place(layerId, 0, [coords], true);
       } else if (this.editor.state.terrainMode === EditorTerrainMode.FILL) {
         const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
+        const tileSize = tileMap.getTileSize();
 
         if (targetTile) {
-          const targetId = targetTile.getTileTypeId(this.editor.state.layerId);
+          const targetId = targetTile.getTileTypeId(layerId);
+          const listOfCoords = tileMap
+          .floodFill(targetTile.row, targetTile.col, (tile: ITile) => tile && tile.getTileTypeId(layerId) === targetId)
+          .map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
-          dispatch(
-            GameEvents.placeEvent(
-              this.editor.state.layerId, //
-              this.editor.state.tileTypeId,
-              tileMap
-                .floodFill(targetTile.row, targetTile.col, (tile: ITile) => {
-                  return tile && tile.getTileTypeId(this.editor.state.layerId) === targetId;
-                })
-                .map(({ row, col }) => ({ x: col * tileMap.getTileSize(), y: row * tileMap.getTileSize() }))
-            )
-          );
+          driver.place(layerId, tileTypeId, listOfCoords, true);
         }
       }
     }

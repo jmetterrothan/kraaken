@@ -104,16 +104,18 @@ class EditorState extends State<EditorStateOptions> {
     this.registerEvent(GameEventTypes.UNDO_EVENT, () => {
       if (!eventStackSvc.undoStack.isEmpty) {
         const action = eventStackSvc.undoStack.pop();
+
         eventStackSvc.redoStack.push(action);
-        dispatch(action.undo);
+        action.undo();
       }
     });
 
     this.registerEvent(GameEventTypes.REDO_EVENT, () => {
       if (!eventStackSvc.redoStack.isEmpty) {
         const action = eventStackSvc.redoStack.pop();
+        
         eventStackSvc.undoStack.push(action);
-        dispatch(action.redo);
+        action.redo();
       }
     });
 

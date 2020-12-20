@@ -6,8 +6,10 @@ import { BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
 
 import EditorState from '@src/states/EditorState';
 
+import { driver } from '@shared/drivers/DriverFactory';
+
 import * as GameEventTypes from "@shared/events/constants";
-import dispatch, * as GameEvents from '@shared/events';
+import * as GameEvents from '@shared/events';
 
 import eventStackSvc from "@shared/services/EventStackService";
 
@@ -38,15 +40,8 @@ class EntityMode {
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: GameEvents.despawnEvent(spawnpoint.uuid, false),
-              redo: GameEvents.spawnEvent(
-                spawnpoint.uuid, //
-                spawnpoint.type,
-                spawnpoint.position,
-                spawnpoint.direction,
-                spawnpoint.debug,
-                false
-              ),
+              undo: () => driver.despawn(spawnpoint.uuid, false),
+              redo: () => driver.spawn(spawnpoint, false),
             });
           }
         }
@@ -77,15 +72,8 @@ class EntityMode {
 
         if (pushToStack) {
           eventStackSvc.undoStack.push({
-            undo: GameEvents.spawnEvent(
-              spawnPoint.uuid, //
-              spawnPoint.type,
-              spawnPoint.position,
-              spawnPoint.direction,
-              spawnPoint.debug,
-              false
-            ),
-            redo: GameEvents.despawnEvent(spawnPoint.uuid, false),
+            undo: () => driver.spawn(spawnPoint, false),
+            redo: () => driver.despawn(spawnPoint.uuid, false),
           });
         }
 
@@ -125,26 +113,37 @@ class EntityMode {
   
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
-
-      
+ 
       if (this.selectedEntity) {
         const selectedEntityPos = this.selectedEntity.getComponent(Position);
         const placeable = this.selectedEntity.getComponent(Placeable);
+
         placeable.unfollow();
         selectedEntityPos.fromValues(x, y);
 
-        dispatch(GameEvents.spawnEvent(this.selectedEntity.uuid, this.selectedEntity.type, { x, y }));
+        driver.spawn({ 
+          uuid: this.selectedEntity.uuid,
+          type: this.selectedEntity.type,
+          position: { x, y },
+          direction: { x: 1, y: 1 },
+        }, true);
 
         this.selectedEntity = undefined;
       } else {
         if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
           const focusedEntityPos = this.focusedEntity.getComponent(Position);
           const placeable = this.focusedEntity.getComponent(Placeable);
+
           placeable.follow(this.editor.cursor, focusedEntityPos);
 
           this.selectedEntity = this.focusedEntity;
         } else {
-          dispatch(GameEvents.spawnEvent(uuidv4(), this.editor.state.entityType, { x, y }));
+          driver.spawn({
+            uuid: uuidv4(),
+            type: this.editor.state.entityType,
+            position: { x, y },
+            direction: { x: 1, y: 1 },
+          }, true);
         }
       }
     }
@@ -157,7 +156,7 @@ class EntityMode {
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       if (this.focusedEntity) {
-        dispatch(GameEvents.despawnEvent(this.focusedEntity.uuid));
+        driver.despawn(this.focusedEntity.uuid, true);
       }
     }
   }

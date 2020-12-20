@@ -15,10 +15,10 @@ interface IPlaceEventDetails extends IEventDetails {
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: TileLayer, tileTypeId: number, position: IVector2[] | IVector2, pushToStack = true): PlaceEvent => {
+export const placeEvent = (layer: TileLayer, tileTypeId: number, coords: IVector2[], pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(GameEventTypes.PLACE_EVENT, {
     detail: {
-      coords: Array.isArray(position) ? position : [position],
+      coords,
       layer,
       tileTypeId,
       pushToStack,

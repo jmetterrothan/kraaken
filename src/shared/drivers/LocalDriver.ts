@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
 
 import AbstractDriver from '@src/shared/drivers/AbstractDriver';
+import dispatch, * as GameEvents from '@src/shared/events';
 
-import { IWorldBlueprint } from '@shared/models/world.model';
+import { IVector2 } from '@shared/models/math.model';
+import { ISpawnpoint, IWorldBlueprint } from '@shared/models/world.model';
 
 import  config  from '@src/config';
 
@@ -22,6 +24,32 @@ class LocalDriver extends AbstractDriver {
 
   public async ping(): Promise<void> {
     await this.http.get(`/api`);
+  }
+
+  public async place(layerId: number, tileTypeId: number, coords: IVector2[], pushToStack: boolean): Promise<void> {
+    dispatch(
+      GameEvents.placeEvent(
+        layerId,
+        tileTypeId,
+        coords,
+        pushToStack
+      )
+    );
+  }
+
+  public async spawn(spawnpoint: ISpawnpoint, pushToStack: boolean): Promise<void> {
+    dispatch(GameEvents.spawnEvent(
+      spawnpoint.uuid, //
+      spawnpoint.type,
+      spawnpoint.position,
+      spawnpoint.direction,
+      spawnpoint.debug,
+      pushToStack
+    ));
+  }
+
+  public async despawn(uuid: string, pushToStack: boolean): Promise<void> {
+    dispatch(GameEvents.despawnEvent(uuid, pushToStack));
   }
 
   public async load(id: string): Promise<IWorldBlueprint> {

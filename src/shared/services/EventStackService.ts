@@ -1,9 +1,8 @@
-import { Observable } from 'rxjs';
-import { forkJoin, Subject, Subscription } from 'rxjs';
+import {  Subject, Subscription } from 'rxjs';
 
 import Fifo from "@src/shared/utility/Fifo";
 
-interface EventStackItem { undo: CustomEvent<any>; redo: CustomEvent<any> }
+interface EventStackItem { undo: () => void; redo: () => void; }
 
 /**
  * Fifo list you can subscribe to changes
