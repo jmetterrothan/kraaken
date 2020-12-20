@@ -42,11 +42,14 @@ export class PhysicsSystem extends System {
       }
 
       // we move one step
-      const step = rigidBody.velocity.clone().multiply(rigidBody.direction).multiplyScalar(delta);
+      const step = rigidBody.velocity.clone().multiply(rigidBody.velocityModifier).multiply(rigidBody.direction).multiplyScalar(delta);
       position.add(step);
 
       this.collideWithMap(entity, step, delta);
-      // this.collideWithBoundingBox(entity, colliders, step, delta);
+      
+      if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
+        this.collideWithBoundingBox(entity, colliders, step, delta);
+      }
 
       if (rigidBody.clamToMap) {
         this.clampToMap(entity);
@@ -199,15 +202,21 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], newPosition: Vector2, newVelocity: Vector2, delta: number): void {
-    /*
+  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], step: Vector2, delta: number): void {
+    const bbox = entity.getComponent(BoundingBox);
+    // const rigidBody = entity.getComponent(RigidBody);
+
     colliders.forEach((collider) => {
       if (collider.uuid === entity.uuid) {
         return;
       }
+
+      if (bbox.intersectBox(collider.getComponent(BoundingBox))) {
+        // console.log('colliding', entity.type, collider.type);
+        // rigidBody.velocityModifier.multiplyScalar(0);
+      }
     });
-    */
-  } 
+  }
 
   public collideWithMap(entity: Entity, step: Vector2, delta: number): void {
     const position = entity.getComponent(Position);

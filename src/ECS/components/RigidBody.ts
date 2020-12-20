@@ -32,6 +32,7 @@ export class RigidBody implements Component {
   public direction: Vector2 = new Vector2(1, 1);
   public velocity: Vector2 = new Vector2(0, 0);
   public previousVelocity: Vector2 = new Vector2(0, 0);
+  public velocityModifier: Vector2 = new Vector2(1, 1);
 
   public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
     this.velocity.x = velocity?.x ?? 0;

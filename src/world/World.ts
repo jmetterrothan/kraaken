@@ -373,7 +373,7 @@ class World {
       return !camera.viewBox.intersectBox(entityBbox);
     }
 
-    return !camera.viewBox.containsPoint(entityPos);
+    return !camera.viewBox.containsPointWithVector2(entityPos);
   }
 
   public addCamera(camera: Entity, defineAsActive = false): void {

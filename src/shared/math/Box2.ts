@@ -1,6 +1,6 @@
 import Vector2 from "@shared/math/Vector2";
 
-import { linesIntersectionWithVector2 } from "@src/shared/utility/MathHelpers";
+import { linesIntersection, linesIntersectionWithVector2 } from "@src/shared/utility/MathHelpers";
 
 class Box2 {
   private _min: Vector2;
@@ -15,7 +15,11 @@ class Box2 {
     return this._min.x <= box._min.x && box._max.x <= this._max.x && this._min.y <= box._min.y && box._max.y <= this._max.y;
   }
 
-  public containsPoint(point: Vector2): boolean {
+  public containsPoint(x: number, y: number): boolean {
+    return x < this._min.x || x > this._max.x || y < this._min.y || y > this._max.y ? false : true;
+  }
+
+  public containsPointWithVector2(point: Vector2): boolean {
     return point.x < this._min.x || point.x > this._max.x || point.y < this._min.y || point.y > this._max.y ? false : true;
   }
 
@@ -23,7 +27,32 @@ class Box2 {
     return box._max.x < this._min.x || box._min.x > this._max.x || box._max.y < this._min.y || box._min.y > this._max.y ? false : true;
   }
 
-  public intersectSegment(v1: Vector2, v2: Vector2): Vector2 | undefined {
+  public intersectSegment(x1: number, y1: number, x2: number, y2: number): Vector2 | undefined {
+    const p1 = linesIntersection(x1, y1, x2, y2, this._min.x, this._min.y, this._min.x, this._max.y);
+    if (p1 !== undefined) {
+      // console.log("intersected box left side");
+      return p1;
+    }
+    const p2 = linesIntersection(x1, y1, x2, y2, this._max.x, this._min.y, this._max.x, this._max.y);
+    if (p2 !== undefined) {
+      // console.log("intersected box right side");
+      return p2;
+    }
+    const p3 = linesIntersection(x1, y1, x2, y2, this._min.x, this._min.y, this._max.x, this._min.y);
+    if (p3 !== undefined) {
+      // console.log("intersected box top side");
+      return p3;
+    }
+    const p4 = linesIntersection(x1, y1, x2, y2, this._min.x, this._max.y, this._max.x, this._max.y);
+    if (p4 !== undefined) {
+      // console.log("intersected box bottom side");
+      return p4;
+    }
+
+    return;
+  }
+
+  public intersectSegmentWithVector2(v1: Vector2, v2: Vector2): Vector2 | undefined {
     const p1 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._min.y), Vector2.create(this._min.x, this._max.y));
     if (p1 !== undefined) {
       // console.log("intersected box left side");
