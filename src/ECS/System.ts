@@ -21,7 +21,7 @@ export abstract class System {
 
   public get world(): World {
     if (!this._world) {
-      throw new Error("System has not been added to the world yet");
+      throw new Error(`System "${this.constructor.name}" has not been added to the world yet`);
     }
     return this._world;
   }
