@@ -88,9 +88,9 @@ export class MovementSystem extends System {
       }
 
       movement.falling = rigidBody.velocity.y > 0;
-      movement.walking = Math.abs(rigidBody.velocity.x) > 0;
+      movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
       movement.isGrounded = rigidBody.velocity.y === 0;
-      movement.idle = rigidBody.velocity.x === 0;
+      movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
 
       if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
         movement.lastEffectTime = now + 250;

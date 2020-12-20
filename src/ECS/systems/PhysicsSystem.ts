@@ -218,9 +218,9 @@ export class PhysicsSystem extends System {
     const h = bbox?.height ?? 0;
 
     const x1 = position.previousValue.x - w / 2;
-    const y1 = position.previousValue.y - h / 2;
     const x2 = position.previousValue.x + w / 2;
-    const y2 = position.previousValue.y + h / 2;
+    let y1 = position.previousValue.y - h / 2;
+    let y2 = position.previousValue.y + h / 2;
 
     const tileSize = this.world.tileMap.getTileSize();
 
@@ -241,6 +241,12 @@ export class PhysicsSystem extends System {
           this.handleCollisionWithTopSide(entity, tile, delta);
         }
       }
+
+      /**
+       * Fix corner collision bug when you get stuck - use newly computed y position to better estimate left/right side collisions
+       */
+      y1 = position.y - h / 2;
+      y2 = position.y + h / 2;
 
       if (step.x > 0) {
         // left side collision
