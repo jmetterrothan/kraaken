@@ -7,6 +7,7 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 import editorStore from "@src/states/EditorState/editorStore";
 
+
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
 import * as GameEventTypes from '@shared/events/constants';
@@ -266,7 +267,7 @@ class Game {
     driver.ping().catch((e) => {
       alert('Failed to establish a connexion with the server, some features may not work properly...');
     }).finally(() => {
-      this.stateManager.switch(GameStates.LEVEL, {
+      this.stateManager.switch(GameStates.EDITOR, {
         id: levelId,
         blueprint: driver.load(levelId),
       });

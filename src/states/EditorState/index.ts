@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom";
 import React from "react";
 import { vec2 } from "gl-matrix";
+import { v4 as uuidv4 } from 'uuid';
 
 import { Entity } from "@src/ECS";
 import * as Components from "@src/ECS/components";
@@ -18,7 +19,7 @@ import { IWorldBlueprint } from '@shared/models/world.model';
 import Vector2 from "@shared/math/Vector2";
 
 import * as GameEventTypes from "@src/shared/events/constants";
-import dispatch, * as GameEvents from '@shared/events';
+import * as GameEvents from '@shared/events';
 
 import { driver } from '@shared/drivers/DriverFactory';
 import eventStackSvc from "@src/shared/services/EventStackService";
@@ -33,11 +34,12 @@ interface EditorStateOptions { id: string; blueprint: Promise<IWorldBlueprint> |
 
 class EditorState extends State<EditorStateOptions> {
   public mouse: Vector2;
+  public cursor: Entity;
+  public gridCursor: Entity;
+  public cursors: Entity[];
   
   public world: World;
   public id: string;
-  public cursor: Entity;
-  public cellCursor: Entity;
   public grid: Grid;
 
   public state: IEditorStoreState;
@@ -77,11 +79,17 @@ class EditorState extends State<EditorStateOptions> {
     this.grid.init();
 
     // show a cursor following the mouse
-    this.cursor = this.world.spawn({ type: "cursor" });
-    this.cellCursor = this.world.spawn({type: 'cursor3' });
+    this.cursors = [];
+    
+    this.gridCursor = this.createGridCursor();
+    this.world.addEntity(this.gridCursor);
+
+    this.cursor = this.createCursor();
+    this.world.addEntity(this.cursor);
 
     // add controllable object with the arrow keys to move the camera around
-    const controllableObject = this.world.spawn({ type: "controllable_object" });
+    const controllableObject = this.createControllableEntity();
+    this.world.addEntity(controllableObject);
     this.world.followEntity(controllableObject);
     this.world.controlEntity(controllableObject);
 
@@ -96,6 +104,33 @@ class EditorState extends State<EditorStateOptions> {
     }
 
     editorStore.setScale(4);
+  }
+
+  public createControllableEntity(uuid = uuidv4()): Entity {
+    const entity = new Entity('controllable_object', uuid);
+
+    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
+    entity.addComponent(new Components.BasicInput());
+
+    return entity;
+  }
+
+  public createCursor(uuid = uuidv4()): Entity {
+    const entity = new Entity('cursor', uuid);
+
+    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
+    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 2, align: 'center' }));
+
+    return entity;
+  }
+
+  public createGridCursor(uuid = uuidv4()): Entity {
+    const entity = new Entity('cursor', uuid);
+
+    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
+    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 1, align: 'center' }));
+
+    return entity;
   }
 
   public mounted(): void {
@@ -121,8 +156,20 @@ class EditorState extends State<EditorStateOptions> {
 
     this.registerEvent(GameEventTypes.SAVE_EVENT, (e: GameEvents.SaveEvent) => {
       driver.save(e.detail.id, this.world.blueprint);
-    });     
-    
+    });
+
+    this.registerEvent(GameEventTypes.USER_JOINED_ROOM_EVENT, (e: GameEvents.UserJoinedRoomEvent) => {
+      /*
+      const cursor = this.createCursor(e.detail.uuid);
+      this.world.addEntity(cursor);
+      this.cursors.push(cursor);
+      */
+    });
+
+    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (e: GameEvents.UserLeftRoomEvent) => {
+
+    });
+
     this.modes[EditorMode.ENTITY].mounted();
     this.modes[EditorMode.TERRAIN].mounted();
 

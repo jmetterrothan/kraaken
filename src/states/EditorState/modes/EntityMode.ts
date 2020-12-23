@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { vec2 } from "gl-matrix";
 
 import { Entity }  from '@src/ECS';
-import { BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
+import { RigidBody, BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
 
 import EditorState from '@src/states/EditorState';
 
@@ -25,24 +25,38 @@ class EntityMode {
 
   public mounted(): void {
     this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
-      const { spawnpoint, onSuccess, onFailure, pushToStack } = e.detail || {};
+      const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      const index = this.editor.world.blueprint.level.spawnPoints.findIndex(({ uuid }) => uuid === spawnpoint.uuid);
+      const index = this.editor.world.blueprint.level.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
       try {
         if (index !== -1) {
-          this.editor.world.blueprint.level.spawnPoints[index] = spawnpoint;
+          this.editor.world.blueprint.level.spawnPoints[index] = spawnPoint;
 
           // TODO: push to event stack
         } else {
-          this.editor.world.spawn(spawnpoint);
-          this.editor.world.blueprint.level.spawnPoints.push(spawnpoint);
+          this.editor.world.spawn(spawnPoint);
+          this.editor.world.blueprint.level.spawnPoints.push(spawnPoint);
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: () => driver.despawn(spawnpoint.uuid, false),
-              redo: () => driver.spawn(spawnpoint, false),
+              undo: () => driver.despawn(spawnPoint.uuid, false),
+              redo: () => driver.spawn(spawnPoint, false),
             });
+          }
+        }
+
+        // if entity already exists in the world we update its position
+        const entity = this.editor.world.getEntityByUuid(spawnPoint.uuid);
+        if (entity) {
+          if (entity.hasComponent(Position.COMPONENT_TYPE)) {
+            const position = entity.getComponent(Position);
+            position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+          }
+          
+          if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
+            const rigidBody = entity.getComponent(RigidBody);
+            rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
           }
         }
 

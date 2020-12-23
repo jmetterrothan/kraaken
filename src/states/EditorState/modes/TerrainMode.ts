@@ -49,8 +49,8 @@ class TerrainMode {
         // register event
         if (oldTileTypeId !== tileTypeId && pushToStack) {
           eventStackSvc.undoStack.push({
-            undo: () => driver.place(layer, oldTileTypeId, coords, false), //
-            redo: () => driver.place(layer, tileTypeId, coords, false),
+            undo: () => driver.place({ layerId: layer, tileTypeId: oldTileTypeId, coords }, false), //
+            redo: () => driver.place({ layerId: layer, tileTypeId, coords }, false),
           });
         }
 
@@ -73,8 +73,7 @@ class TerrainMode {
 
   public update(delta: number): void {
     const cursorPosition = this.editor.cursor.getComponent(Position);
-    const cellCursorPosition = this.editor.cellCursor.getComponent(Position);
-    // const sprite = this.editor.cursor.getComponent<Sprite>(SPRITE_COMPONENT);
+    const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
     
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
@@ -83,7 +82,7 @@ class TerrainMode {
     if (tile) {
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2 + 1;
-      cellCursorPosition.fromValues(x, y);
+      gridCursorPosition.fromValues(x, y);
     }
   }
 
@@ -109,9 +108,9 @@ class TerrainMode {
           editorStore.setSelectedTileTypeId(tileTypeId);
         }
       } else if (this.editor.state.terrainMode === EditorTerrainMode.PLACE) {
-        driver.place(layerId, tileTypeId, [coords], true);
+        driver.place({ layerId, tileTypeId, coords: [coords] }, true);
       } else if (this.editor.state.terrainMode === EditorTerrainMode.ERASE) {
-        driver.place(layerId, 0, [coords], true);
+        driver.place({ layerId, tileTypeId: 0, coords: [coords] }, true);
       } else if (this.editor.state.terrainMode === EditorTerrainMode.FILL) {
         const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
         const tileSize = tileMap.getTileSize();
@@ -122,7 +121,7 @@ class TerrainMode {
           .floodFill(targetTile.row, targetTile.col, (tile: ITile) => tile && tile.getTileTypeId(layerId) === targetId)
           .map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
-          driver.place(layerId, tileTypeId, listOfCoords, true);
+          driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
         }
       }
     }

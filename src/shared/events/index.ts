@@ -132,7 +132,35 @@ export const zoomEvent = (scale: number): ZoomEvent => {
     detail: {
       scale,
     },
-  })
+  });
+}
+
+interface IUserJoinedRoomEventDetails {
+  uuid: string;
+}
+
+export type UserJoinedRoomEvent = CustomEvent<IUserJoinedRoomEventDetails>;
+
+export const userJoinedRoomEvent = (uuid: string): UserJoinedRoomEvent  => {
+  return new CustomEvent<IUserJoinedRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
+    detail: {
+      uuid,
+    }
+  });
+}
+
+interface IUserLeftRoomEventDetails {
+  uuid: string;
+}
+
+export type UserLeftRoomEvent = CustomEvent<IUserLeftRoomEventDetails>;
+
+export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent  => {
+  return new CustomEvent<IUserLeftRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
+    detail: {
+      uuid,
+    }
+  });
 }
 
 const dispatch = <T>(event: CustomEvent<T>): void => {

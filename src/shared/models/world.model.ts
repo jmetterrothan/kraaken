@@ -1,4 +1,5 @@
-import { TileLayer } from './tilemap.model';
+import { IVector2 } from '@src/shared/models/math.model';
+import { TileLayer } from '@src/shared/models/tilemap.model';
 import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
@@ -43,4 +44,10 @@ export interface ISpawnpoint {
   direction?: { x: number; y: number };
   type: string;
   debug?: boolean;
+}
+
+export interface IPlaceData {
+  layerId: number;
+  tileTypeId: number;
+  coords: IVector2[];
 }

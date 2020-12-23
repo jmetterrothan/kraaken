@@ -4,6 +4,7 @@ interface IConfig {
   DRIVER: IDriverType;
   DEBUG: boolean;
   REST_API: string;
+  WEBSOCKET_API: string;
   TARGET_UPS: number;
   FIREBASE_API_KEY: string;
   FIREBASE_AUTH_DOMAIN: string;
@@ -18,6 +19,7 @@ const config: IConfig = {
   DRIVER: (process.env.DRIVER || 'local') as IDriverType,
   DEBUG: (process.env.DEBUG || 'true') === 'true',
   REST_API: process.env.REST_API,
+  WEBSOCKET_API: process.env.WEBSOCKET_API,
   TARGET_UPS: process.env.TARGET_UPS ? parseInt(process.env.TARGET_UPS, 10) : 50,
   FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,

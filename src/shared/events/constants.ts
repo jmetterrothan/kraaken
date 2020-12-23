@@ -17,3 +17,6 @@ export const EDITOR_STATE_SWITCH_EVENT = "editor_state_switch";
 export const SAVE_EVENT = "save";
 
 export const ZOOM_EVENT = "zoom";
+
+export const USER_JOINED_ROOM_EVENT = 'user_joined_room';
+export const USER_LEFT_ROOM_EVENT = 'user_left_room';

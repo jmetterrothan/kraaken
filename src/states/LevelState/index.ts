@@ -1,8 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
+import { v4 as uuidv4 } from 'uuid';
 
 import * as Systems from "@src/ECS/systems";
+import * as Components from '@src/ECS/components';
+import { Entity } from "@src/ECS";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
@@ -40,9 +43,21 @@ class LevelState extends State<LevelStateOptions> {
     
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);
-    this.world.aimEntity = this.world.spawn({ type: "crosshair" });
+
+    this.world.aimEntity = this.createCrosshair();
 
     editorStore.setScale(SCALE);
+  }
+
+  public createCrosshair(uuid = uuidv4()): Entity {
+    const entity = new Entity('cursor', uuid);
+
+    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
+    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 0, align: 'center' }));
+
+    this.world.addEntity(entity);
+
+    return entity;
   }
 
   public mounted(): void {

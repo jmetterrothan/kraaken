@@ -186,6 +186,10 @@ class World {
     return bundleId;
   }
 
+  public getEntityByUuid(uuid: string): Entity | undefined {
+    return this._entities.find(entity => entity.uuid === uuid);
+  }
+
   public getEntities(componentTypes: ReadonlyArray<string>): ReadonlyArray<Entity> {
     const bundleId = this.createBundleIfNotExists(componentTypes);
     const bundle = this._bundles.get(bundleId);

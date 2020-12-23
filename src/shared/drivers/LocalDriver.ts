@@ -1,15 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
 
-import AbstractDriver from '@src/shared/drivers/AbstractDriver';
-import dispatch, * as GameEvents from '@src/shared/events';
+import AbstractDriver from '@shared/drivers/AbstractDriver';
 
-import { IVector2 } from '@shared/models/math.model';
-import { ISpawnpoint, IWorldBlueprint } from '@shared/models/world.model';
+import { wsSvc } from '@shared/services/WebSocketService';
+
+import { IPlaceData, ISpawnpoint, IWorldBlueprint } from '@shared/models/world.model';
 
 import  config  from '@src/config';
 
 class LocalDriver extends AbstractDriver {
   private http: AxiosInstance;
+  private id: string;
 
   public constructor() {
     super();
@@ -20,53 +21,44 @@ class LocalDriver extends AbstractDriver {
         'Content-Type': 'application/json',
       }
     });
+    
+    // WS
+    wsSvc.connect();
   }
 
   public async ping(): Promise<void> {
     await this.http.get(`/api`);
   }
 
-  public async place(layerId: number, tileTypeId: number, coords: IVector2[], pushToStack: boolean): Promise<void> {
-    dispatch(
-      GameEvents.placeEvent(
-        layerId,
-        tileTypeId,
-        coords,
-        pushToStack
-      )
-    );
+  public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
+    await wsSvc.placeEvent(this.id, data, pushToStack);
   }
 
   public async spawn(spawnpoint: ISpawnpoint, pushToStack: boolean): Promise<void> {
-    dispatch(GameEvents.spawnEvent(
-      spawnpoint.uuid, //
-      spawnpoint.type,
-      spawnpoint.position,
-      spawnpoint.direction,
-      spawnpoint.debug,
-      pushToStack
-    ));
+    await wsSvc.spawnEvent(this.id, spawnpoint, pushToStack);
   }
 
   public async despawn(uuid: string, pushToStack: boolean): Promise<void> {
-    dispatch(GameEvents.despawnEvent(uuid, pushToStack));
+    await wsSvc.despawnEvent(this.id, uuid, pushToStack);
   }
 
   public async load(id: string): Promise<IWorldBlueprint> {
-    const { data: level } = await this.http.get(`/levels/${id}/level.json`);
-    const { data: entities } = await this.http.get(`/levels/${id}/entities.json`);
-    const { data: resources } = await this.http.get(`/levels/${id}/resources.json`);
+    this.id = id;
+
+    await wsSvc.joinRoom(this.id);
+
+    const { data } = await this.http.get(`/api/levels/${this.id}`);
   
     return { 
-      level,
-      entities,
-      sprites: resources.sprites,
-      sounds: resources.sounds
+      level: data.level,
+      entities: data.entities,
+      sprites: data.resources.sprites,
+      sounds: data.resources.sounds
     };
   }
 
   public async save(id: string, data: IWorldBlueprint): Promise<void> {
-    await this.http.post(`/api/${id}`, data.level);
+    await this.http.post(`/api/levels/${id}`, data.level);
   }
 }
 
