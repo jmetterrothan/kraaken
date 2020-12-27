@@ -13,6 +13,8 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 import { IWorldBlueprint } from "@src/shared/models/world.model";
 
+import { driver } from "@src/shared/drivers/DriverFactory";
+
 import dispatch, * as GameEvents from "@src/shared/events";
 
 import UndoToolbarButton from "./UndoToolbarButton";
@@ -47,7 +49,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
 
-  const { tiles, nbCols, nbRows } = useTileset(tileSet.src, tileSet.tileWidth);
+  const { tiles, nbCols, nbRows } = useTileset(driver.getAssetUrl(tileSet.src), tileSet.tileWidth);
 
   const mostFrequentlyUsedTiles = React.useMemo(() => {
     const tileTypeIndexes = [...blueprint.level.layers[TileLayer.L1], ...blueprint.level.layers[TileLayer.L2]];
@@ -119,7 +121,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
       <ToolbarTileset
         selected={editorState.tileTypeId} //
         onSelect={editorStore.setSelectedTileTypeId}
-        src={tileSet.src}
+        src={driver.getAssetUrl(tileSet.src)}
         tileSize={tileSet.tileWidth}
         mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
         disabled={editorState.terrainMode === EditorTerrainMode.ERASE}

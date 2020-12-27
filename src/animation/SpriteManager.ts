@@ -2,6 +2,8 @@ import md5 from "md5";
 
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 
+import { driver } from "@src/shared/drivers/DriverFactory";
+
 class SpriteManager {
   private static LOADED_SPRITES: Map<string, SpriteAtlas> = new Map<string, SpriteAtlas>();
   private static LOADED_FILES: Map<string, HTMLImageElement> = new Map<string, HTMLImageElement>();
@@ -37,7 +39,9 @@ class SpriteManager {
       return SpriteManager.LOADED_SPRITES.get(alias);
     }
 
-    const sprite = new SpriteAtlas(src, alias, tw, th);
+    const url = driver.getAssetUrl(src);
+
+    const sprite = new SpriteAtlas(url, alias, tw, th);
     await sprite.init();
     SpriteManager.LOADED_SPRITES.set(alias, sprite);
 

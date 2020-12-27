@@ -60,6 +60,10 @@ class LocalDriver extends AbstractDriver {
   public async save(id: string, data: IWorldBlueprint): Promise<void> {
     await this.http.post(`/api/levels/${id}`, data.level);
   }
+
+  public getAssetUrl(path: string): string {
+    return `${config.REST_API}/api/levels/${this.id}${path}`;
+  }
 }
 
 export default LocalDriver;

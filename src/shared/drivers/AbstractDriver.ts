@@ -13,6 +13,7 @@ abstract class AbstractDriver {
 
   public abstract save(id: string, data: IWorldBlueprint): Promise<void>;
 
+  public abstract getAssetUrl(path: string): string;
 }
 
 export default AbstractDriver;

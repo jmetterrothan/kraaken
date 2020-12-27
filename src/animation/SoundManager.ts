@@ -1,5 +1,7 @@
 import { Howl } from "howler";
 
+import { driver } from '@shared/drivers/DriverFactory';
+
 interface ISoundProperties {
   volume?: number;
   loop?: boolean;
@@ -16,7 +18,7 @@ class SoundManager {
       throw new Error("Invalid sound details");
     }
 
-    SoundManager.MAPPING.set(name, src);
+    SoundManager.MAPPING.set(name, driver.getAssetUrl(src));
   }
 
   public static create(name: string, options: ISoundProperties = {}): Howl {
