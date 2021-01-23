@@ -1,15 +1,15 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { vec2 } from "gl-matrix";
 
-import { Entity }  from '@src/ECS';
+import { Entity } from "@src/ECS";
 import { RigidBody, BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
 
-import EditorState from '@src/states/EditorState';
+import EditorState from "@src/states/EditorState";
 
-import { driver } from '@shared/drivers/DriverFactory';
+import { driver } from "@shared/drivers/DriverFactory";
 
 import * as GameEventTypes from "@shared/events/constants";
-import * as GameEvents from '@shared/events';
+import * as GameEvents from "@shared/events";
 
 import eventStackSvc from "@shared/services/EventStackService";
 
@@ -53,7 +53,7 @@ class EntityMode {
             const position = entity.getComponent(Position);
             position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
           }
-          
+
           if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
             const rigidBody = entity.getComponent(RigidBody);
             rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
@@ -102,32 +102,26 @@ class EntityMode {
     });
   }
 
-  public unmounted(): void {
+  public unmounted(): void {}
 
-  }
-  
   public update(delta: number): void {
     const position = this.editor.cursor.getComponent(Position);
     position.fromValues(this.editor.mouse.x, this.editor.mouse.y);
   }
-  
-  public render(alpha: number): void {
-    
-  }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
-    
-  }
-  
+  public render(alpha: number): void {}
+
+  public handleKeyboardInput(key: string, active: boolean): void {}
+
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
       const coords = this.editor.world.screenToCameraCoords(position);
-      
+
       const tile = this.editor.world.tileMap.getTileAtCoords(coords.x, coords.y);
-  
+
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
- 
+
       if (this.selectedEntity) {
         const selectedEntityPos = this.selectedEntity.getComponent(Position);
         const placeable = this.selectedEntity.getComponent(Placeable);
@@ -135,12 +129,15 @@ class EntityMode {
         placeable.unfollow();
         selectedEntityPos.fromValues(x, y);
 
-        driver.spawn({ 
-          uuid: this.selectedEntity.uuid,
-          type: this.selectedEntity.type,
-          position: { x, y },
-          direction: { x: 1, y: 1 },
-        }, true);
+        driver.spawn(
+          {
+            uuid: this.selectedEntity.uuid,
+            type: this.selectedEntity.type,
+            position: { x, y },
+            direction: { x: 1, y: 1 },
+          },
+          true
+        );
 
         this.selectedEntity = undefined;
       } else {
@@ -152,20 +149,21 @@ class EntityMode {
 
           this.selectedEntity = this.focusedEntity;
         } else {
-          driver.spawn({
-            uuid: uuidv4(),
-            type: this.editor.state.entityType,
-            position: { x, y },
-            direction: { x: 1, y: 1 },
-          }, true);
+          driver.spawn(
+            {
+              uuid: uuidv4(),
+              type: this.editor.state.entityType,
+              position: { x, y },
+              direction: { x: 1, y: 1 },
+            },
+            true
+          );
         }
       }
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    
-  }
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
     if (active) {
@@ -176,13 +174,8 @@ class EntityMode {
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.world.getEntities([
-      Placeable.COMPONENT_TYPE,
-      Position.COMPONENT_TYPE,
-      BoundingBox.COMPONENT_TYPE,
-      Sprite.COMPONENT_TYPE
-    ]);
-    
+    const entities = this.editor.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
+
     this.focusedEntity = undefined;
 
     entities.forEach((entity) => {

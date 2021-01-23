@@ -2,17 +2,17 @@ import { vec2 } from "gl-matrix";
 
 import { Position } from "@src/ECS/components";
 
-import EditorState from '@src/states/EditorState';
+import EditorState from "@src/states/EditorState";
 
 import * as GameEventTypes from "@shared/events/constants";
-import dispatch, * as GameEvents from '@shared/events';
+import dispatch, * as GameEvents from "@shared/events";
 
 import eventStackSvc from "@shared/services/EventStackService";
 
-import { driver } from '@shared/drivers/DriverFactory';
+import { driver } from "@shared/drivers/DriverFactory";
 
-import { EditorTerrainMode } from '@shared/models/editor.model';
-import { ITile } from '@shared/models/tilemap.model';
+import { EditorTerrainMode } from "@shared/models/editor.model";
+import { ITile } from "@shared/models/tilemap.model";
 
 import editorStore from "../editorStore";
 
@@ -22,13 +22,13 @@ class TerrainMode {
   public constructor(editor: EditorState) {
     this.editor = editor;
   }
-  
+
   public mounted(): void {
     this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
       const { coords = [], layer, tileTypeId, onSuccess, onFailure, pushToStack } = e.detail || {};
-    
-      if (typeof tileTypeId === 'undefined') {
-        throw new Error('Undefined tile type index');
+
+      if (typeof tileTypeId === "undefined") {
+        throw new Error("Undefined tile type index");
       }
 
       let oldTileTypeId: number;
@@ -39,7 +39,7 @@ class TerrainMode {
         // compute layer transforms
         coords.forEach((coord) => {
           const tile = tileMap.getTileAtCoords(coord.x, coord.y);
- 
+
           if (tile) {
             oldTileTypeId = tile.getTileTypeId(layer);
             tile.setTileTypeId(layer, tileTypeId);
@@ -67,14 +67,12 @@ class TerrainMode {
     });
   }
 
-  public unmounted(): void {
-
-  }
+  public unmounted(): void {}
 
   public update(delta: number): void {
     const cursorPosition = this.editor.cursor.getComponent(Position);
     const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
-    
+
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
     const tile = this.editor.world.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
@@ -86,13 +84,9 @@ class TerrainMode {
     }
   }
 
-  public render(alpha: number): void {
+  public render(alpha: number): void {}
 
-  }
-
-  public handleKeyboardInput(key: string, active: boolean): void {
-    
-  }
+  public handleKeyboardInput(key: string, active: boolean): void {}
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
@@ -117,9 +111,7 @@ class TerrainMode {
 
         if (targetTile) {
           const targetId = targetTile.getTileTypeId(layerId);
-          const listOfCoords = tileMap
-          .floodFill(targetTile.row, targetTile.col, (tile: ITile) => tile && tile.getTileTypeId(layerId) === targetId)
-          .map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
+          const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile) => tile && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
           driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
         }
@@ -127,17 +119,11 @@ class TerrainMode {
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    
-  }
+  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
-    
-  }
+  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {}
 
-  public handleMouseMove(position: vec2): void {
-
-  }
+  public handleMouseMove(position: vec2): void {}
 }
 
 export default TerrainMode;

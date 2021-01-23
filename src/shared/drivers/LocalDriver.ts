@@ -1,16 +1,16 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from "axios";
 
-import AbstractDriver from '@shared/drivers/AbstractDriver';
+import AbstractDriver from "@shared/drivers/AbstractDriver";
 
-import { wsSvc } from '@shared/services/WebSocketService';
+import { IPlaceData, ISpawnpoint, IWorldBlueprint } from "@shared/models/world.model";
 
-import { IPlaceData, ISpawnpoint, IWorldBlueprint } from '@shared/models/world.model';
+import dispatch, * as GameEvents from "@src/shared/events";
 
-import  config  from '@src/config';
+import config from "@src/config";
 
 class LocalDriver extends AbstractDriver {
-  private http: AxiosInstance;
-  private id: string;
+  protected http: AxiosInstance;
+  protected currentLevelId: string;
 
   public constructor() {
     super();
@@ -18,12 +18,9 @@ class LocalDriver extends AbstractDriver {
     this.http = axios.create({
       baseURL: config.REST_API,
       headers: {
-        'Content-Type': 'application/json',
-      }
+        "Content-Type": "application/json",
+      },
     });
-    
-    // WS
-    wsSvc.connect();
   }
 
   public async ping(): Promise<void> {
@@ -31,29 +28,36 @@ class LocalDriver extends AbstractDriver {
   }
 
   public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
-    await wsSvc.placeEvent(this.id, data, pushToStack);
+    dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, pushToStack));
   }
 
-  public async spawn(spawnpoint: ISpawnpoint, pushToStack: boolean): Promise<void> {
-    await wsSvc.spawnEvent(this.id, spawnpoint, pushToStack);
+  public async spawn(data: ISpawnpoint, pushToStack: boolean): Promise<void> {
+    dispatch(
+      GameEvents.spawnEvent(
+        data.uuid, //
+        data.type,
+        data.position,
+        data.direction,
+        data.debug,
+        pushToStack
+      )
+    );
   }
 
   public async despawn(uuid: string, pushToStack: boolean): Promise<void> {
-    await wsSvc.despawnEvent(this.id, uuid, pushToStack);
+    dispatch(GameEvents.despawnEvent(uuid, pushToStack));
   }
 
   public async load(id: string): Promise<IWorldBlueprint> {
-    this.id = id;
+    this.currentLevelId = id;
 
-    await wsSvc.joinRoom(this.id);
+    const { data } = await this.http.get(`/api/levels/${this.currentLevelId}`);
 
-    const { data } = await this.http.get(`/api/levels/${this.id}`);
-  
-    return { 
+    return {
       level: data.level,
       entities: data.entities,
       sprites: data.resources.sprites,
-      sounds: data.resources.sounds
+      sounds: data.resources.sounds,
     };
   }
 
@@ -62,7 +66,7 @@ class LocalDriver extends AbstractDriver {
   }
 
   public getAssetUrl(path: string): string {
-    return `${config.REST_API}/api/levels/${this.id}${path}`;
+    return `${config.REST_API}/api/levels/${this.currentLevelId}${path}`;
   }
 }
 

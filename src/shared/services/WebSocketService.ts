@@ -1,17 +1,17 @@
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
-import dispatch, * as GameEvents from '@src/shared/events';
+import dispatch, * as GameEvents from "@src/shared/events";
 
-import { IPlaceData, ISpawnpoint } from '@shared/models/world.model';
+import { IPlaceData, ISpawnpoint } from "@shared/models/world.model";
 
-import config from '@src/config';
+import config from "@src/config";
 
-const WS_PLACE_EVENT = 'place';
-const WS_SPAWN_EVENT = 'spawn';
-const WS_DESPAWN_EVENT = 'despawn';
+const WS_PLACE_EVENT = "place";
+const WS_SPAWN_EVENT = "spawn";
+const WS_DESPAWN_EVENT = "despawn";
 
-const WS_USER_JOINED_ROOM = 'user_joined_room';
-const WS_USER_LEFT_ROOM = 'user_left_room';
+const WS_USER_JOINED_ROOM = "user_joined_room";
+const WS_USER_LEFT_ROOM = "user_left_room";
 
 class WebSocketService {
   private socket;
@@ -20,33 +20,28 @@ class WebSocketService {
     return new Promise((resolve) => {
       this.socket = io(config.WEBSOCKET_API);
 
-      this.socket.on('connect', () => {
+      this.socket.on("connect", () => {
         console.info(`Connected`);
 
-        this.socket.on('disconnect', () => {
+        this.socket.on("disconnect", () => {
           console.info(`Disconnected`);
         });
 
         this.socket.on(WS_PLACE_EVENT, ({ data, options }) => {
-          dispatch(
-            GameEvents.placeEvent(
-              data.layerId,
-              data.tileTypeId,
-              data.coords,
-              options.pushToStack
-            )
-          );
+          dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, options.pushToStack));
         });
 
         this.socket.on(WS_SPAWN_EVENT, ({ data, options }) => {
-          dispatch(GameEvents.spawnEvent(
-            data.uuid, //
-            data.type,
-            data.position,
-            data.direction,
-            data.debug,
-            options.pushToStack
-          ));
+          dispatch(
+            GameEvents.spawnEvent(
+              data.uuid, //
+              data.type,
+              data.position,
+              data.direction,
+              data.debug,
+              options.pushToStack
+            )
+          );
         });
 
         this.socket.on(WS_DESPAWN_EVENT, ({ data: uuid, options }) => {
@@ -74,7 +69,7 @@ class WebSocketService {
         reject();
       }
 
-      this.socket.emit('join_room', roomId);
+      this.socket.emit("join_room", roomId);
       resolve();
     });
   }
@@ -97,7 +92,7 @@ class WebSocketService {
         reject();
       }
 
-      this.socket.emit('event', { roomId, event: { type, data, options } });
+      this.socket.emit("event", { roomId, event: { type, data, options } });
       resolve();
     });
   }
