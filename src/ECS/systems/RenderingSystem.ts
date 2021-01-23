@@ -66,15 +66,15 @@ export class RenderingSystem extends System {
         /**
          * calculate the correct offset to render the sprite at the center of the bounding box
          */
-        let offsetX = 0;
-        let offsetY = 0;
+        let offsetX = sprite.offset.x;
+        let offsetY = sprite.offset.y;
   
         if (sprite.align === "center") {
-          offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
-          offsetY = -(sprite.atlas.tileHeight - bboxHeight) / 2;
+          offsetX += -(sprite.atlas.tileWidth - bboxWidth) / 2;
+          offsetY += -(sprite.atlas.tileHeight - bboxHeight) / 2;
         } else {
-          offsetX = -(sprite.atlas.tileWidth - bboxWidth) / 2;
-          offsetY = -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
+          offsetX += -(sprite.atlas.tileWidth - bboxWidth) / 2;
+          offsetY += -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
         }
 
         const moveOriginMatrix2 = mat3.fromTranslation(
