@@ -1,4 +1,4 @@
-import { Component, Entity } from "@src/ECS";
+import { Entity } from "@src/ECS";
 
 import { Consummable, Health, IConsummableMetadata, PlayerInput, BoundingBox, Position } from "@src/ECS/components";
 
@@ -40,7 +40,13 @@ export class HealthModifier extends Consummable {
 
     if (health.isDead && !entity.hasComponent(PlayerInput.COMPONENT_TYPE)) {
       world.removeEntity(entity);
-      world.playEffectOnceAt("explosion", position);
+
+      if (health.deathVFX) {
+        world.playEffectOnceAt(health.deathVFX, position);
+      }
+      if (health.deathSFX) {
+        health.deathSFX.play();
+      }
     }
   }
 

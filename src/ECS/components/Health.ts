@@ -1,12 +1,19 @@
 import { Component } from "@src/ECS";
 
+import SoundManager from '@src/animation/SoundManager';
+
 interface IHealthMetadata {
   maxHealth?: number;
   immunityDelay?: number;
+  deathVFX?: string;
+  deathSFX?: string;
 }
 
 export class Health extends Component {
   public static COMPONENT_TYPE = 'health';
+
+  public readonly deathVFX?: string;
+  public readonly deathSFX?: Howl;
 
   // maximum health cap
   public readonly maxHealth: number;
@@ -17,11 +24,18 @@ export class Health extends Component {
 
   private _value: number;
 
-  public constructor({ maxHealth, immunityDelay }: IHealthMetadata) {
+  public constructor({ maxHealth, immunityDelay, deathVFX, deathSFX }: IHealthMetadata) {
     super();
     
     this.maxHealth = maxHealth ?? 0;
     this.immunityDelay = immunityDelay ?? 0;
+    this.deathVFX = deathVFX;
+    
+    if (deathSFX) {
+      this.deathSFX = SoundManager.create(deathSFX, {
+        volume: 0.1,
+      });
+    }
     
     this.immunity = false;
 
