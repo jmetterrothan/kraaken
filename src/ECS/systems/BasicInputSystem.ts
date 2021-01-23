@@ -6,6 +6,8 @@ import { wrapper } from "@src/Game";
 
 import { buttonPressed } from "@shared/utility/Utility";
 
+import config from "@src/config";
+
 const gamepads = {};
 
 // TODO: refactor code to make it easier to build alternative controls
@@ -16,7 +18,7 @@ export class BasicInputSystem extends System {
     // Keyboard events
     window.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
     window.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
-    
+
     // Gamepad events
     wrapper.addEventListener(
       "gamepadconnected",
@@ -39,7 +41,7 @@ export class BasicInputSystem extends System {
     const gamepad = e.gamepad;
 
     if (connecting) {
-      console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+      if (config.DEBUG) console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
 
       gamepads[gamepad.index] = gamepad;
     } else {
@@ -108,7 +110,7 @@ export class BasicInputSystem extends System {
         input.down = true;
       } else {
         input.down = false;
-      } 
+      }
 
       // handle buttons
       controller.buttons.forEach((button, index) => {

@@ -10,15 +10,13 @@ import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@shar
 
 import Vector2 from "@shared/math/Vector2";
 
+import config from "@src/config";
+
 const gamepads = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
-    super([
-      Position.COMPONENT_TYPE,
-      PlayerInput.COMPONENT_TYPE,
-      PlayerCombat.COMPONENT_TYPE
-    ]);
+    super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE]);
 
     // Mouse events
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
@@ -62,7 +60,7 @@ export class PlayerInputSystem extends System {
     const gamepad = e.gamepad;
 
     if (connecting) {
-      console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+      if (config.DEBUG) console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
 
       gamepads[gamepad.index] = gamepad;
     } else {
@@ -206,7 +204,7 @@ export class PlayerInputSystem extends System {
 
           case 13: // down arrow
             break;
-          
+
           case 14: // left arrow
             break;
 
@@ -214,7 +212,7 @@ export class PlayerInputSystem extends System {
             break;
 
           default:
-            if (active) {
+            if (active && config.DEBUG) {
               console.log(`Unmapped index: ${index}`);
             }
         }
