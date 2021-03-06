@@ -8,7 +8,7 @@ module.exports = merge(baseConfig, {
   mode: "development",
   output: {
     publicPath: "/",
-    filename: "[name].[hash].js"
+    filename: "[name].[hash].js",
   },
   devServer: {
     port: 8080,
@@ -16,9 +16,9 @@ module.exports = merge(baseConfig, {
     hot: true,
     open: "chrome",
     watchOptions: {
-      ignored: './local/**/.*',
+      ignored: "./local/**/.*",
     },
   },
   devtool: "cheap-eval-source-map",
-  plugins: []
+  plugins: [],
 });
