@@ -1,23 +1,26 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import * as Systems from "@src/ECS/systems";
-import * as Components from '@src/ECS/components';
+import * as Components from "@src/ECS/components";
 import { Entity } from "@src/ECS";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
 
-import { IWorldBlueprint } from '@shared/models/world.model';
+import { IWorldBlueprint } from "@shared/models/world.model";
 
 import editorStore from "../EditorState/editorStore";
 import LevelUi from "./LevelUi";
 
-interface LevelStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
+interface LevelStateOptions {
+  id: string;
+  blueprint: Promise<IWorldBlueprint> | IWorldBlueprint;
+}
 
-const SCALE = 5;
+const SCALE = 6;
 
 class LevelState extends State<LevelStateOptions> {
   private id: string;
@@ -27,7 +30,7 @@ class LevelState extends State<LevelStateOptions> {
     console.info("Level initialized");
 
     this.id = id;
-    
+
     const data = await Promise.resolve(blueprint);
     this.world = new World(data);
 
@@ -40,7 +43,7 @@ class LevelState extends State<LevelStateOptions> {
     this.world.addSystem(new Systems.FlickerOnImmuneSystem());
 
     await this.world.init();
-    
+
     this.world.followEntity(this.world.player);
     this.world.controlEntity(this.world.player);
 
@@ -50,10 +53,10 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public createCrosshair(uuid = uuidv4()): Entity {
-    const entity = new Entity('cursor', uuid);
+    const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 0, align: 'center' }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 0, align: "center" }));
 
     this.world.addEntity(entity);
 
