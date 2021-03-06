@@ -9,10 +9,7 @@ import { configSvc } from "@src/shared/services/ConfigService";
 
 export class CameraSystem extends System {
   public constructor() {
-    super([
-      Camera.COMPONENT_TYPE,
-      Position.COMPONENT_TYPE
-    ]);
+    super([Camera.COMPONENT_TYPE, Position.COMPONENT_TYPE]);
   }
 
   public clamp(entity: Entity): void {

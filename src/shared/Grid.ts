@@ -1,6 +1,6 @@
-import { vec2 } from 'gl-matrix';
-import { configSvc } from '@src/shared/services/ConfigService';
-import { mat3 } from 'gl-matrix';
+import { vec2 } from "gl-matrix";
+import { configSvc } from "@src/shared/services/ConfigService";
+import { mat3, vec4 } from "gl-matrix";
 
 import Material from "@src/animation/Material";
 
@@ -22,6 +22,13 @@ class Grid {
 
   private transform: mat3;
 
+  private width: number;
+  private height: number;
+
+  private size: vec2;
+
+  private color: vec4;
+
   private attributes: IAttributes = {
     a_position: gl.getAttribLocation(this.material.program, "a_position"),
   };
@@ -38,8 +45,14 @@ class Grid {
 
   private loaded = false;
 
-  public constructor() {
+  public constructor(nbRows: number, nbCols: number, tileSize: number, c: vec4) {
     this.transform = mat3.create();
+
+    this.width = nbRows * tileSize;
+    this.height = nbCols * tileSize;
+    this.size = [tileSize, tileSize];
+
+    this.color = c;
   }
 
   public async init(): Promise<void> {
@@ -64,11 +77,11 @@ class Grid {
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", this.transform);
-      this.setUniform("u_color", [0, 0, 0, 0.5]);
+      this.setUniform("u_color", this.color);
       this.setUniform("u_scale", configSvc.scale);
-      this.setUniform("u_tilesize", [16.0, 16.0]);
+      this.setUniform("u_tilesize", this.size);
       this.setUniform("u_offset", offset);
- 
+
       gl.drawElements(gl.TRIANGLE_FAN, 6, gl.UNSIGNED_SHORT, 0);
     }
   }
@@ -82,7 +95,7 @@ class Grid {
     gl.useProgram(this.material.program);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, 16 * 100, 16 * 32), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.width, this.height), gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([3, 2, 1, 3, 1, 0]), gl.STATIC_DRAW);

@@ -63,6 +63,17 @@ class WebSocketService {
     });
   }
 
+  sync(roomId): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject();
+      }
+
+      this.socket.emit("sync_with_room", roomId);
+      resolve();
+    });
+  }
+
   joinRoom(roomId): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {

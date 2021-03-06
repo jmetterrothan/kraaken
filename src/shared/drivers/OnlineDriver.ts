@@ -12,6 +12,10 @@ class OnlineDriver extends LocalDriver {
     wsSvc.connect();
   }
 
+  public async sync(id: string): Promise<void> {
+    await wsSvc.sync(id);
+  }
+
   public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
     await wsSvc.placeEvent(this.currentLevelId, data, pushToStack);
   }

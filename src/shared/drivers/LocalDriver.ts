@@ -27,6 +27,8 @@ class LocalDriver extends AbstractDriver {
     await this.http.get(`/api`);
   }
 
+  public async sync(id: string): Promise<void> {}
+
   public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, pushToStack));
   }

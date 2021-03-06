@@ -39,7 +39,7 @@ export class Camera implements Component {
 
   public constructor({ mode }: ICameraMetadata) {
     this.mode = mode ?? CameraMode.LERP_SMOOTHING;
-    this.smoothing = 0.4;
+    this.smoothing = 0.2;
   }
 
   public clamp(entity: Entity): void {

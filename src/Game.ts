@@ -1,5 +1,5 @@
 import Stats from "stats-js";
-import { debounce } from 'debounce';
+import { debounce } from "debounce";
 
 import EditorState from "@src/states/EditorState";
 import LevelState from "@src/states/LevelState";
@@ -7,18 +7,17 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 import editorStore from "@src/states/EditorState/editorStore";
 
-
 import { GameStates, IGameOptions } from "@shared/models/game.model";
 
-import * as GameEventTypes from '@shared/events/constants';
-import * as GameEvents from '@shared/events';
+import * as GameEventTypes from "@shared/events/constants";
+import * as GameEvents from "@shared/events";
 
 import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
 
-import { driver } from '@shared/drivers/DriverFactory';
+import { driver } from "@shared/drivers/DriverFactory";
 import { configSvc } from "@shared/services/ConfigService";
 
-import config from '@src/config';
+import config from "@src/config";
 
 import "@sass/kraaken.scss";
 
@@ -69,7 +68,7 @@ class Game {
     height: 600,
     width: 800,
     root: document.body,
-    levelId: '',
+    levelId: "",
   };
 
   private options: IGameOptions;
@@ -118,7 +117,7 @@ class Game {
 
   public resize(targetWidth: number, targetHeight: number): void {
     const ratio: number = window.devicePixelRatio || 1;
-    const scale: number = Math.round(this.targetScale * ratio);
+    const scale = Math.round(this.targetScale * ratio);
 
     // fix for tearing issues
     const w: number = Math.round(targetWidth / 8) * 8;
@@ -147,7 +146,7 @@ class Game {
       gl.viewport(0, 0, canvas.width, canvas.height);
 
       const resizeCallback = this.events.get("resize");
-      
+
       if (resizeCallback) {
         resizeCallback(configSvc.frameSize, configSvc.innerSize);
       }
@@ -174,9 +173,9 @@ class Game {
     this.stateManager.render(alpha);
   }
 
-  public computeDimensions(): { width: number; height: number; } {
-    let width = this.options.width === 'auto' ? window.innerWidth : this.options.width;
-    let height = this.options.height === 'auto' ? window.innerHeight : this.options.height;
+  public computeDimensions(): { width: number; height: number } {
+    let width = this.options.width === "auto" ? window.innerWidth : this.options.width;
+    let height = this.options.height === "auto" ? window.innerHeight : this.options.height;
 
     if (width > this.options.maxWidth) {
       width = this.options.maxWidth;
@@ -264,14 +263,17 @@ class Game {
     this.stateManager.add(GameStates.EDITOR, new EditorState());
 
     // Driver
-    driver.ping().catch((e) => {
-      alert('Failed to establish a connexion with the server, some features may not work properly...');
-    }).finally(() => {
-      this.stateManager.switch(GameStates.EDITOR, {
-        id: levelId,
-        blueprint: driver.load(levelId),
+    driver
+      .ping()
+      .catch((e) => {
+        alert("Failed to establish a connexion with the server, some features may not work properly...");
+      })
+      .finally(() => {
+        this.stateManager.switch(GameStates.EDITOR, {
+          id: levelId,
+          blueprint: driver.load(levelId),
+        });
       });
-    });
   }
 
   private initCanvas() {
@@ -411,8 +413,8 @@ class Game {
     window.addEventListener("resize", debounce(this.refreshScreenSize));
 
     // game events
-    window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => { 
-      this.stateManager.switch(GameStates.LEVEL, { 
+    window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => {
+      this.stateManager.switch(GameStates.LEVEL, {
         id: e.detail.id,
         blueprint: driver.load(e.detail.id),
       });

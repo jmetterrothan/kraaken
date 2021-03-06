@@ -1,43 +1,46 @@
+import { configSvc } from "./../../shared/services/ConfigService";
 import ReactDOM from "react-dom";
 import React from "react";
-import { vec2 } from "gl-matrix";
-import { v4 as uuidv4 } from 'uuid';
+import { mat3, vec2 } from "gl-matrix";
+import { v4 as uuidv4 } from "uuid";
 
 import { Entity } from "@src/ECS";
 import * as Components from "@src/ECS/components";
-import * as Systems from '@src/ECS/systems';
+import * as Systems from "@src/ECS/systems";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
-import Grid  from '@src/shared/Grid';
+import Grid from "@src/shared/Grid";
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
-import { EditorMode } from '@shared/models/editor.model';
-import { IWorldBlueprint } from '@shared/models/world.model';
+import { EditorMode } from "@shared/models/editor.model";
+import { IWorldBlueprint } from "@shared/models/world.model";
 
 import Vector2 from "@shared/math/Vector2";
 
 import * as GameEventTypes from "@src/shared/events/constants";
-import * as GameEvents from '@shared/events';
+import * as GameEvents from "@shared/events";
 
-import { driver } from '@shared/drivers/DriverFactory';
+import { driver } from "@shared/drivers/DriverFactory";
 import eventStackSvc from "@src/shared/services/EventStackService";
 
-import TerrainMode from './modes/TerrainMode';
-import EntityMode from './modes/EntityMode';
+import TerrainMode from "./modes/TerrainMode";
+import EntityMode from "./modes/EntityMode";
 
-import editorStore, { IEditorStoreState } from './editorStore';
+import editorStore, { IEditorStoreState } from "./editorStore";
 
-interface EditorStateOptions { id: string; blueprint: Promise<IWorldBlueprint> | IWorldBlueprint; }
-
+interface EditorStateOptions {
+  id: string;
+  blueprint: Promise<IWorldBlueprint> | IWorldBlueprint;
+}
 
 class EditorState extends State<EditorStateOptions> {
   public mouse: Vector2;
   public cursor: Entity;
   public gridCursor: Entity;
   public cursors: Entity[];
-  
+
   public world: World;
   public id: string;
   public grid: Grid;
@@ -45,8 +48,8 @@ class EditorState extends State<EditorStateOptions> {
   public state: IEditorStoreState;
 
   public modes: {
-    [EditorMode.TERRAIN]: TerrainMode,
-    [EditorMode.ENTITY]: EntityMode,
+    [EditorMode.TERRAIN]: TerrainMode;
+    [EditorMode.ENTITY]: EntityMode;
   };
 
   public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
@@ -61,9 +64,9 @@ class EditorState extends State<EditorStateOptions> {
     this.world.addSystem(new Systems.BasicMovementSystem());
     this.world.addSystem(new Systems.PlaceableSystem());
 
-    this.state = editorStore.initialState;   
-    
-    editorStore.subscribe((state) => this.state = state);
+    this.state = editorStore.initialState;
+
+    editorStore.subscribe((state) => (this.state = state));
     editorStore.init();
 
     this.mouse = new Vector2(0, 0);
@@ -73,14 +76,19 @@ class EditorState extends State<EditorStateOptions> {
     this.modes = {
       [EditorMode.TERRAIN]: new TerrainMode(this),
       [EditorMode.ENTITY]: new EntityMode(this),
-    }
+    };
 
-    this.grid = new Grid();
+    this.grid = new Grid(
+      this.world.blueprint.level.tileMapCols, //
+      this.world.blueprint.level.tileMapRows,
+      this.world.blueprint.level.tileSize,
+      [0, 0, 0, 0.1]
+    );
     this.grid.init();
 
     // show a cursor following the mouse
     this.cursors = [];
-    
+
     this.gridCursor = this.createGridCursor();
     this.world.addEntity(this.gridCursor);
 
@@ -94,7 +102,7 @@ class EditorState extends State<EditorStateOptions> {
     this.world.controlEntity(controllableObject);
 
     // focus on player if it exists
-    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.type === 'player');
+    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.type === "player");
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;
@@ -107,7 +115,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public createControllableEntity(uuid = uuidv4()): Entity {
-    const entity = new Entity('controllable_object', uuid);
+    const entity = new Entity("controllable_object", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
     entity.addComponent(new Components.BasicInput());
@@ -116,19 +124,19 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public createCursor(uuid = uuidv4()): Entity {
-    const entity = new Entity('cursor', uuid);
+    const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 2, align: 'center' }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 2, align: "center" }));
 
     return entity;
   }
 
   public createGridCursor(uuid = uuidv4()): Entity {
-    const entity = new Entity('cursor', uuid);
+    const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: 'cursors', row: 0, col: 1, align: 'center' }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 1, align: "center" }));
 
     return entity;
   }
@@ -148,7 +156,7 @@ class EditorState extends State<EditorStateOptions> {
     this.registerEvent(GameEventTypes.REDO_EVENT, () => {
       if (!eventStackSvc.redoStack.isEmpty) {
         const action = eventStackSvc.redoStack.pop();
-        
+
         eventStackSvc.undoStack.push(action);
         action.redo();
       }
@@ -166,12 +174,12 @@ class EditorState extends State<EditorStateOptions> {
       */
     });
 
-    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (e: GameEvents.UserLeftRoomEvent) => {
-
-    });
+    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (e: GameEvents.UserLeftRoomEvent) => {});
 
     this.modes[EditorMode.ENTITY].mounted();
     this.modes[EditorMode.TERRAIN].mounted();
+
+    driver.sync(this.id);
 
     // init ui
     ReactDOM.render(
@@ -191,10 +199,10 @@ class EditorState extends State<EditorStateOptions> {
 
     // reset event history stack
     eventStackSvc.reset();
-  
+
     this.modes[EditorMode.ENTITY].unmounted();
     this.modes[EditorMode.TERRAIN].unmounted();
-    
+
     // remove ui
     ReactDOM.unmountComponentAtNode(this.$ui);
   }
@@ -206,13 +214,13 @@ class EditorState extends State<EditorStateOptions> {
 
   public render(alpha: number): void {
     const camera = this.world.camera.getComponent(Components.Camera);
-    
-    // TODO: FIX - GRID ONLY LINE UP IN FULLSCREEN
-    this.grid.use();
-    this.grid.render(this.world.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
-    
+
     this.world.render(alpha);
     this.currentMode.render(alpha);
+
+    this.grid.use();
+
+    this.grid.render(this.world.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
