@@ -1,4 +1,4 @@
-import { IDriverType } from './shared/drivers/DriverFactory';
+import { IDriverType } from "./shared/drivers/DriverFactory";
 
 interface IConfig {
   DRIVER: IDriverType;
@@ -16,8 +16,8 @@ interface IConfig {
 }
 
 const config: IConfig = {
-  DRIVER: (process.env.DRIVER || 'local') as IDriverType,
-  DEBUG: (process.env.DEBUG || 'true') === 'true',
+  DRIVER: (process.env.DRIVER || "local") as IDriverType,
+  DEBUG: (process.env.DEBUG || "true") === "true",
   REST_API: process.env.REST_API,
   WEBSOCKET_API: process.env.WEBSOCKET_API,
   TARGET_UPS: process.env.TARGET_UPS ? parseInt(process.env.TARGET_UPS, 10) : 50,
@@ -27,7 +27,7 @@ const config: IConfig = {
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
   FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_APP_ID: process.env.FIREBASE_APP_ID
-}
+  FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
+};
 
 export default config;
