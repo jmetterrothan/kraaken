@@ -69,7 +69,7 @@ class WebSocketService {
         reject();
       }
 
-      this.socket.emit("sync_with_room", roomId);
+      this.socket.emit("sync_room", roomId);
       resolve();
     });
   }
@@ -81,6 +81,17 @@ class WebSocketService {
       }
 
       this.socket.emit("join_room", roomId);
+      resolve();
+    });
+  }
+
+  resetRoom(roomId): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject();
+      }
+
+      this.socket.emit("reset_room", roomId);
       resolve();
     });
   }

@@ -33,6 +33,11 @@ class OnlineDriver extends LocalDriver {
 
     return super.load(id);
   }
+
+  public async save(id: string, data: IWorldBlueprint): Promise<void> {
+    await super.save(id, data);
+    await wsSvc.resetRoom(id);
+  }
 }
 
 export default OnlineDriver;
