@@ -6,26 +6,24 @@ import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
-import { IWorldBlueprint } from '@shared/models/world.model';
+import { IWorldBlueprint } from "@shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
 import { TileLayer, ITile } from "@shared/models/tilemap.model";
 
 import Box2 from "@shared/math/Box2";
 import Color from "@shared/helper/Color";
-import Vector2  from '@shared/math/Vector2';
+import Vector2 from "@shared/math/Vector2";
 
 import { create2DArray } from "@shared/utility/Utility";
-import  PriorityQueue  from '@src/shared/utility/PriorityQueue';
+import PriorityQueue from "@src/shared/utility/PriorityQueue";
 
 import { configSvc } from "@shared/services/ConfigService";
-
-import config from '@src/config';
 
 export const heuristics = {
   manhattan: (a: ITile, b: ITile): number => {
     const d1 = Math.abs(a.col - b.col);
     const d2 = Math.abs(a.row - b.row);
-  
+
     return d1 + d2;
   },
   euclidian: (a: ITile, b: ITile): number => {
@@ -34,7 +32,7 @@ export const heuristics = {
 
     return Math.sqrt(d1 * d1 + d2 * d2);
   },
-}
+};
 
 class TileMap {
   private startCol: number;
@@ -74,9 +72,19 @@ class TileMap {
     this.tiles = create2DArray<ITile>(this.nbRows, this.nbCols);
 
     this.debugLayer = new Map<number, number>();
-   
+
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
+        const getTileTypeId = (layer) => {
+          const index = r * this.nbCols + c;
+          return blueprint.level.layers[layer][index];
+        };
+
+        const setTileTypeId = (layer, id) => {
+          const index = r * this.nbCols + c;
+          blueprint.level.layers[layer][index] = id;
+        };
+
         const tile: ITile = {
           row: r,
           col: c,
@@ -105,24 +113,11 @@ class TileMap {
           visited: false,
           closed: false,
           parent: null,
-          hasCollision: () => {
-            return blueprint.level.layers[TileLayer.L0][r * this.nbCols + c] === 1;
-          },
+          getTileTypeId,
+          setTileTypeId,
+          hasCollision: () => getTileTypeId(TileLayer.L0) === 1,
           setCollision: (b) => {
-            blueprint.level.layers[TileLayer.L1][r * this.nbCols + c] = b ? 1 : 0;
-          },
-          getTileTypeId: (layer) => {
-            const index = r * this.nbCols + c;
-
-            return blueprint.level.layers[layer][index];
-          },
-          setTileTypeId: (layer, id) => {
-            const index = r * this.nbCols + c;
-            
-            if (layer === TileLayer.L1) {
-              blueprint.level.layers[TileLayer.L0][index] = id > 0 ? 1 : 0;
-            }
-            blueprint.level.layers[layer][index] = id;
+            setTileTypeId(TileLayer.L0, b ? 1 : 0);
           },
         };
 
@@ -132,7 +127,7 @@ class TileMap {
   }
 
   public init(): void {}
-    
+
   public update(world: World, delta: number): void {
     const center = world.camera.getComponent(Position);
 
@@ -166,8 +161,8 @@ class TileMap {
         if (layerIndex > 0 || (layerIndex === 0 && tile.hasCollision())) {
           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layerIndex, tile.direction, tile.renderOptions);
         }
-        }
-        }
+      }
+    }
   }
 
   public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, alpha: number): void {
@@ -214,16 +209,26 @@ class TileMap {
     return stack;
   }
 
-  public getNeighbors (currentTile: ITile, orders?: Array<[number, number]>): ITile[] {
-    if (typeof orders === 'undefined') {
+  public getNeighbors(currentTile: ITile, orders?: Array<[number, number]>): ITile[] {
+    if (typeof orders === "undefined") {
       const p = (currentTile.col + currentTile.row) % 2;
 
       if (p === 0) {
-        // South, North, West, East 
-        orders = [/*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [1, 0], [-1, 0], [0, -1], [0, 1]];
+        // South, North, West, East
+        orders = [
+          /*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [1, 0],
+          [-1, 0],
+          [0, -1],
+          [0, 1],
+        ];
       } else {
         // East, West, North, South
-        orders = [/*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [0, 1], [0, -1], [-1, 0], [1, 0]];
+        orders = [
+          /*[1, 1], [-1, -1], [1, -1], [-1, 1],*/ [0, 1],
+          [0, -1],
+          [-1, 0],
+          [1, 0],
+        ];
       }
     }
     //(-1, -1), (-1, +1), (+1, -1), (+1, +1), (+1, 0), (0, -1), (-1, 0), (0, +1)
@@ -238,11 +243,11 @@ class TileMap {
 
   public aStar(startTile: ITile, goalTile: ITile, heuristic: (a: ITile, b: ITile) => number = heuristics.manhattan, debug = true): ITile[] {
     if (!startTile || startTile.hasCollision()) {
-      throw new Error('Invalid start tile');
+      throw new Error("Invalid start tile");
     }
 
     if (!goalTile || goalTile.hasCollision()) {
-      throw new Error('Invalid goal tile');
+      throw new Error("Invalid goal tile");
     }
 
     this.debugLayer = new Map<number, number>();
@@ -261,7 +266,7 @@ class TileMap {
     }
 
     if (debug) {
-      this.debugLayer.set(startTile.index, 624); 
+      this.debugLayer.set(startTile.index, 624);
       this.debugLayer.set(goalTile.index, 623);
     }
 
@@ -269,14 +274,14 @@ class TileMap {
 
     openHeap.push(startTile);
 
-    while(openHeap.size() > 0) {
+    while (openHeap.size() > 0) {
       const currentNode = openHeap.pop();
 
       if (currentNode.index === goalTile.index) {
         const ret = [];
-        
+
         let temp = currentNode;
-        while(temp.parent) {
+        while (temp.parent) {
           if (temp.index !== goalTile.index && temp.index !== startTile.index && debug) {
             this.debugLayer.set(temp.index, 623);
           }
@@ -291,7 +296,7 @@ class TileMap {
 
       for (const neighbor of this.getNeighbors(currentNode)) {
         if (neighbor.closed || neighbor.hasCollision()) {
-          if (neighbor.hasCollision() && neighbor.index !== goalTile.index && neighbor.index !== startTile.index  && debug) {
+          if (neighbor.hasCollision() && neighbor.index !== goalTile.index && neighbor.index !== startTile.index && debug) {
             this.debugLayer.set(neighbor.index, 582);
           }
           continue;
@@ -302,7 +307,7 @@ class TileMap {
 
         if (!visited || gScore < neighbor.g) {
           // tie breaker
-          let heuristicValue = heuristic(neighbor, goalTile)
+          let heuristicValue = heuristic(neighbor, goalTile);
 
           const dx1 = currentNode.col - goalTile.col;
           const dy1 = currentNode.row - goalTile.row;
@@ -313,7 +318,18 @@ class TileMap {
           heuristicValue += cross * 0.001;
 
           // avoid walls
-          if (this.getNeighbors(neighbor, [[1, 1], [-1, -1], [1, -1], [-1, 1], [0, 1], [1, 0], [-1, 0], [0, -1]]).findIndex((tile) => tile.hasCollision(), true) !== -1) {
+          if (
+            this.getNeighbors(neighbor, [
+              [1, 1],
+              [-1, -1],
+              [1, -1],
+              [-1, 1],
+              [0, 1],
+              [1, 0],
+              [-1, 0],
+              [0, -1],
+            ]).findIndex((tile) => tile.hasCollision(), true) !== -1
+          ) {
             heuristicValue += 8;
           }
 
@@ -333,7 +349,7 @@ class TileMap {
       }
     }
 
-    console.error('failed');
+    console.error("failed");
     return [];
   }
 
@@ -341,11 +357,11 @@ class TileMap {
     return row * this.nbCols + col;
   }
 
-  public getRowAtCoord (y: number): number {
+  public getRowAtCoord(y: number): number {
     return Math.trunc(y / this.tileSize);
   }
 
-  public getColAtCoord (x: number): number {
+  public getColAtCoord(x: number): number {
     return Math.trunc(x / this.tileSize);
   }
 

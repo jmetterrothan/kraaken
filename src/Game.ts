@@ -269,7 +269,7 @@ class Game {
         alert("Failed to establish a connexion with the server, some features may not work properly...");
       })
       .finally(() => {
-        this.stateManager.switch(GameStates.LEVEL, {
+        this.stateManager.switch(GameStates.EDITOR, {
           id: levelId,
           blueprint: driver.load(levelId),
         });

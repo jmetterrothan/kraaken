@@ -27,6 +27,7 @@ import eventStackSvc from "@src/shared/services/EventStackService";
 
 import TerrainMode from "./modes/TerrainMode";
 import EntityMode from "./modes/EntityMode";
+import CollisionMode from "./modes/CollisionMode";
 
 import editorStore, { IEditorStoreState } from "./editorStore";
 
@@ -50,6 +51,7 @@ class EditorState extends State<EditorStateOptions> {
   public modes: {
     [EditorMode.TERRAIN]: TerrainMode;
     [EditorMode.ENTITY]: EntityMode;
+    [EditorMode.COLLISION]: CollisionMode;
   };
 
   public async init({ id, blueprint }: EditorStateOptions): Promise<void> {
@@ -76,6 +78,7 @@ class EditorState extends State<EditorStateOptions> {
     this.modes = {
       [EditorMode.TERRAIN]: new TerrainMode(this),
       [EditorMode.ENTITY]: new EntityMode(this),
+      [EditorMode.COLLISION]: new CollisionMode(this),
     };
 
     this.grid = new Grid(

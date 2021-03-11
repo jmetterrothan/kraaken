@@ -12,7 +12,7 @@ import eventStackSvc from "@shared/services/EventStackService";
 import { driver } from "@shared/drivers/DriverFactory";
 
 import { EditorTerrainMode } from "@shared/models/editor.model";
-import { ITile } from "@shared/models/tilemap.model";
+import { ITile, TileLayer } from "@shared/models/tilemap.model";
 
 import editorStore from "../editorStore";
 
@@ -42,7 +42,12 @@ class TerrainMode {
 
           if (tile) {
             oldTileTypeId = tile.getTileTypeId(layer);
-            tile.setTileTypeId(layer, tileTypeId);
+
+            if (layer === TileLayer.L0) {
+              tile.setCollision(tileTypeId > 0);
+            } else {
+              tile.setTileTypeId(layer, tileTypeId);
+            }
           }
         });
 

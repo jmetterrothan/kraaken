@@ -22,7 +22,9 @@
       border-top: 1px solid #b0bdd3;
       padding: 12px 16px;
       cursor: pointer;
-      min-width: 100px;
+      min-width: 120px;
+      width: fit-content;
+      white-space: nowrap;
 
       &:last-child {
         border-radius: inherit;

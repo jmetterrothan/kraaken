@@ -10,7 +10,7 @@ import useTileset from "@src/shared/ui/components/ToolbarTileset/useTileset";
 import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
+import { EditorMode, EditorTerrainMode, EditorCollisionMode } from "@src/shared/models/editor.model";
 import { IWorldBlueprint } from "@src/shared/models/world.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
@@ -38,6 +38,93 @@ const useEditorActions = () => {
     }),
     []
   );
+};
+
+const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsedTiles }) => {
+  switch (editorState.mode) {
+    case EditorMode.ENTITY:
+      return (
+        <>
+          <ToolbarSelect<string>
+            icon="hat-wizard" //
+            selected={editorState.entityType}
+            active={false}
+            onItemClick={(option) => editorStore.setSelectedEntityType(option.value)}
+            options={entities}
+          />
+        </>
+      );
+    case EditorMode.COLLISION:
+      return (
+        <>
+          <ToolbarButton
+            icon="brush" //
+            name="Place"
+            active={editorState.collisionMode === EditorCollisionMode.PLACE}
+            onClick={() => editorStore.setCollisionMode(EditorCollisionMode.PLACE)}
+          />
+          <ToolbarButton
+            icon="eraser" //
+            name="Erase"
+            theme="red"
+            active={editorState.collisionMode === EditorCollisionMode.ERASE}
+            onClick={() => editorStore.setCollisionMode(EditorCollisionMode.ERASE)}
+          />
+        </>
+      );
+    case EditorMode.TERRAIN:
+      return (
+        <>
+          <ToolbarButton
+            icon="brush" //
+            name="Place"
+            active={editorState.terrainMode === EditorTerrainMode.PLACE}
+            onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PLACE)}
+          />
+          <ToolbarButton
+            icon="fill" //
+            name="Fill"
+            active={editorState.terrainMode === EditorTerrainMode.FILL}
+            onClick={() => editorStore.setTerrainMode(EditorTerrainMode.FILL)}
+          />
+          <ToolbarButton
+            icon="eraser" //
+            name="Erase"
+            theme="red"
+            active={editorState.terrainMode === EditorTerrainMode.ERASE}
+            onClick={() => editorStore.setTerrainMode(EditorTerrainMode.ERASE)}
+          />
+          <ToolbarButton
+            icon="eye-dropper" //
+            name="Pick"
+            active={editorState.terrainMode === EditorTerrainMode.PICK}
+            onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PICK)}
+          />
+          <ToolbarSeparator />
+          <ToolbarSelect<number>
+            icon="layer-group" //
+            selected={editorState.layerId}
+            active={false}
+            onItemClick={(option) => editorStore.setSelectedLayerId(option.value)}
+            options={[
+              { name: "Primary layer", description: "", value: TileLayer.L1 },
+              { name: "Secondary layer", description: "", value: TileLayer.L2 },
+            ]}
+          />
+          <ToolbarTileset
+            selected={editorState.tileTypeId} //
+            onSelect={editorStore.setSelectedTileTypeId}
+            src={driver.getAssetUrl(tileSet.src)}
+            tileSize={tileSet.tileWidth}
+            mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
+            disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
+            onClick={modal.open}
+          />
+        </>
+      );
+    default:
+      return null;
+  }
 };
 
 const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
@@ -81,67 +168,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
     };
   }, []);
 
-  const terrainOptions = (
-    <>
-      <ToolbarButton
-        icon="brush" //
-        name="Place"
-        active={editorState.terrainMode === EditorTerrainMode.PLACE}
-        onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PLACE)}
-      />
-      <ToolbarButton
-        icon="fill" //
-        name="Fill"
-        active={editorState.terrainMode === EditorTerrainMode.FILL}
-        onClick={() => editorStore.setTerrainMode(EditorTerrainMode.FILL)}
-      />
-      <ToolbarButton
-        icon="eraser" //
-        name="Erase"
-        theme="red"
-        active={editorState.terrainMode === EditorTerrainMode.ERASE}
-        onClick={() => editorStore.setTerrainMode(EditorTerrainMode.ERASE)}
-      />
-      <ToolbarButton
-        icon="eye-dropper" //
-        name="Pick"
-        active={editorState.terrainMode === EditorTerrainMode.PICK}
-        onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PICK)}
-      />
-      <ToolbarSelect<number>
-        icon="layer-group" //
-        selected={editorState.layerId}
-        active={false}
-        onItemClick={(option) => editorStore.setSelectedLayerId(option.value)}
-        options={[
-          { name: "Layer 1", description: "(with collision)", value: TileLayer.L1 },
-          { name: "Layer 2", value: TileLayer.L2 },
-        ]}
-      />
-      <ToolbarTileset
-        selected={editorState.tileTypeId} //
-        onSelect={editorStore.setSelectedTileTypeId}
-        src={driver.getAssetUrl(tileSet.src)}
-        tileSize={tileSet.tileWidth}
-        mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
-        disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
-        onClick={modal.open}
-      />
-    </>
-  );
-
-  const entityOptions = (
-    <>
-      <ToolbarSelect<string>
-        icon="hat-wizard" //
-        selected={editorState.entityType}
-        active={false}
-        onItemClick={(option) => editorStore.setSelectedEntityType(option.value)}
-        options={entities}
-      />
-    </>
-  );
-
   return (
     <Ui>
       <Modal
@@ -157,14 +183,26 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
       />
       <Toolbar>
         <div>
-          <ToolbarButton
-            name={editorState.mode === EditorMode.ENTITY ? "Terrain mode" : "Entity mode"} //
-            active={false}
-            onClick={() => editorStore.setMode(editorState.mode === EditorMode.TERRAIN ? EditorMode.ENTITY : EditorMode.TERRAIN)}
+          <ToolbarSelect<number>
+            selected={editorState.mode}
+            onItemClick={(option) => editorStore.setMode(option.value)}
+            active={true}
+            options={[
+              { value: EditorMode.TERRAIN, name: "Painting mode" },
+              { value: EditorMode.ENTITY, name: "Entity mode" },
+              { value: EditorMode.COLLISION, name: "Collision mode" },
+            ]}
           />
           <ToolbarSeparator />
-          {editorState.mode === EditorMode.TERRAIN ? terrainOptions : entityOptions}
-          <ToolbarSeparator />
+          <ToolbarMode
+            editorState={editorState} //
+            tileSet={tileSet}
+            entities={entities}
+            modal={modal}
+            mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
+          />
+        </div>
+        <div>
           <ZoomToolbarSelect
             value={editorState.scale} //
             onClick={(option) => editorStore.setScale(option.value)}
@@ -172,8 +210,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
           <ToolbarSeparator />
           <UndoToolbarButton onClick={actions.undo} />
           <RedoToolbarButton onClick={actions.redo} />
-        </div>
-        <div>
+          <ToolbarSeparator />
           <ToolbarButton
             icon="save" //
             name="Save"
