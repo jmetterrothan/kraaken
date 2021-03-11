@@ -73,7 +73,7 @@ class BoundingBoxHelper {
 
   private setup() {
     gl.useProgram(this.colorMaterial.program);
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.bbox.width, this.bbox.height), gl.STATIC_DRAW);
 

@@ -18,8 +18,11 @@ import Vector2 from "@shared/math/Vector2";
 import { IVector2 } from "@shared/models/event.model";
 import { IRGBAColorData } from "@shared/models/color.model";
 import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
+import { TileLayer } from "@shared/models/tilemap.model";
 
 import { configSvc } from "@shared/services/ConfigService";
+
+import config from "@src/config";
 
 class World {
   public readonly blueprint: IWorldBlueprint;
@@ -56,7 +59,7 @@ class World {
     for (const sprite of sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
-    
+
     this.addSystem(new Systems.CameraSystem());
     this.addSystem(new Systems.AnimationSystem());
 
@@ -65,9 +68,9 @@ class World {
 
     this.tileMap = new TileMap(this.blueprint);
     this.tileMap.init();
-    
+
     this.gravity = level.gravity;
-  
+
     this.setClearColor(level.background);
 
     level.spawnPoints.forEach(this.spawn.bind(this));
@@ -109,11 +112,11 @@ class World {
     const entity = new Entity(type, uuid);
 
     this.blueprint.entities
-    .find((item) => item.type === type)
-    .components.forEach(({ name, metadata = {} }) => {
-      entity.addComponent(ComponentFactory.create(name, metadata));
-    });
-    
+      .find((item) => item.type === type)
+      .components.forEach(({ name, metadata = {} }) => {
+        entity.addComponent(ComponentFactory.create(name, metadata));
+      });
+
     if (type === "player") {
       this.player = entity;
     }
@@ -187,7 +190,7 @@ class World {
   }
 
   public getEntityByUuid(uuid: string): Entity | undefined {
-    return this._entities.find(entity => entity.uuid === uuid);
+    return this._entities.find((entity) => entity.uuid === uuid);
   }
 
   public getEntities(componentTypes: ReadonlyArray<string>): ReadonlyArray<Entity> {
@@ -281,10 +284,17 @@ class World {
   }
 
   public render(alpha: number): void {
-    const cameraComponent = this.camera.getComponent(Components.Camera);
-    this.tileMap.render(this.projectionMatrix, cameraComponent.viewMatrix, alpha);
-  
+    const camera = this.camera.getComponent(Components.Camera);
+
+    this.tileMap.renderLayer(TileLayer.L1, this.projectionMatrix, camera.viewMatrix, alpha);
+
     this.renderer.execute(alpha);
+
+    this.tileMap.renderLayer(TileLayer.L2, this.projectionMatrix, camera.viewMatrix, alpha);
+
+    if (config.DEBUG) {
+      this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+    }
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
@@ -373,7 +383,7 @@ class World {
       const entityBbox = entity.getComponent(Components.BoundingBox);
       // update bbox position to match the entity's position
       entityBbox.setPositionFromVector2(entityPos);
-      
+
       return !camera.viewBox.intersectBox(entityBbox);
     }
 

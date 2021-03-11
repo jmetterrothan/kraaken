@@ -5,10 +5,7 @@ import { Position, Sprite, RigidBody, Camera, BoundingBox } from "@src/ECS/compo
 
 export class RenderingSystem extends System {
   public constructor() {
-    super([
-      Position.COMPONENT_TYPE,
-      Sprite.COMPONENT_TYPE
-    ]);
+    super([Position.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
   }
 
   execute(alpha: number): void {
@@ -37,14 +34,11 @@ export class RenderingSystem extends System {
 
       const bboxWidth = bbox?.width ?? 0;
       const bboxHeight = bbox?.height ?? 0;
-      
+
       if (position.shouldUpdateTransform) {
         position.transform = mat3.create();
 
-        mat3.fromTranslation(
-          position.transform,
-          position.clone().toGlArray()
-        );
+        mat3.fromTranslation(position.transform, position.clone().toGlArray());
 
         if (position.rotation !== 0) {
           const r = mat3.fromRotation(mat3.create(), position.rotation);
@@ -55,11 +49,8 @@ export class RenderingSystem extends System {
          * position is located at the center of the bounding box
          */
         if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
-          const moveOriginMatrix = mat3.fromTranslation(
-            mat3.create(),
-            [-bbox.width / 2, -bbox.height / 2]
-          );
-  
+          const moveOriginMatrix = mat3.fromTranslation(mat3.create(), [-bbox.width / 2, -bbox.height / 2]);
+
           mat3.multiply(position.transform, position.transform, moveOriginMatrix);
         }
 
@@ -68,7 +59,7 @@ export class RenderingSystem extends System {
          */
         let offsetX = sprite.offset.x;
         let offsetY = sprite.offset.y;
-  
+
         if (sprite.align === "center") {
           offsetX += -(sprite.atlas.tileWidth - bboxWidth) / 2;
           offsetY += -(sprite.atlas.tileHeight - bboxHeight) / 2;
@@ -77,10 +68,7 @@ export class RenderingSystem extends System {
           offsetY += -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
         }
 
-        const moveOriginMatrix2 = mat3.fromTranslation(
-          mat3.create(),
-          [offsetX, offsetY]
-        );
+        const moveOriginMatrix2 = mat3.fromTranslation(mat3.create(), [offsetX, offsetY]);
 
         mat3.multiply(position.transform, position.transform, moveOriginMatrix2);
 
@@ -89,9 +77,9 @@ export class RenderingSystem extends System {
          */
         cameraComponent.viewMatrix[6] = Math.round(cameraComponent.viewMatrix[6]);
         cameraComponent.viewMatrix[7] = Math.round(cameraComponent.viewMatrix[7]);
-        position.transform[6] = Math.round(position.transform[6]);
-        position.transform[7] = Math.round(position.transform[7]);
-        
+        // position.transform[6] = Math.round(position.transform[6]);
+        // position.transform[7] = Math.round(position.transform[7]);
+
         position.shouldUpdateTransform = false;
       }
 

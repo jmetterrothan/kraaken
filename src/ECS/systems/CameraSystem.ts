@@ -81,6 +81,8 @@ export class CameraSystem extends System {
       mat3.multiply(camera.viewMatrix, camera.viewMatrix, positionMatrix);
       mat3.multiply(camera.viewMatrix, camera.viewMatrix, offsetMatrix);
 
+      camera.fixBleedingEdges();
+
       this.updateViewBox(entity);
 
       camera.shouldUpdateProjectionMatrix = false;

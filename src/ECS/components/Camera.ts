@@ -68,6 +68,12 @@ export class Camera implements Component {
     }
   }
 
+  public fixBleedingEdges(): void {
+    // fix for texture bleeding by rounding the x, y components
+    this.viewMatrix[6] = Math.floor(this.viewMatrix[6]);
+    this.viewMatrix[7] = Math.floor(this.viewMatrix[7]);
+  }
+
   public follow(target: Entity): void {
     this.target = target;
   }

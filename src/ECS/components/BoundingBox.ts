@@ -2,7 +2,7 @@ import { mat3 } from "gl-matrix";
 
 import { Component } from "@src/ECS";
 
-import Color  from '@shared/helper/Color';
+import Color from "@shared/helper/Color";
 import BoundingBoxHelper from "@src/shared/helper/BoundingBoxHelper";
 
 import Box2 from "@src/shared/math/Box2";
