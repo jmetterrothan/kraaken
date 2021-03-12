@@ -1,7 +1,9 @@
 import { System } from "@src/ECS";
-import { RigidBody, FlyingAI, Position } from '@src/ECS/components';
+import { RigidBody, FlyingAI, Position } from "@src/ECS/components";
 
-import Vector2 from '@shared/math/Vector2';
+import Vector2 from "@shared/math/Vector2";
+
+const maxSpeed = 54;
 
 export class AISystem extends System {
   public constructor() {
@@ -26,7 +28,7 @@ export class AISystem extends System {
 
       if (visible) {
         const targetPos = ai.target.getComponent(Position);
-        
+
         const position = entity.getComponent(Position);
         const rigidBody = entity.getComponent(RigidBody);
 
@@ -44,11 +46,11 @@ export class AISystem extends System {
           rigidBody.velocity.x += 4;
           rigidBody.velocity.y += 4;
 
-          if (rigidBody.velocity.x > 96) {
-            rigidBody.velocity.x = 96;
+          if (rigidBody.velocity.x > maxSpeed) {
+            rigidBody.velocity.x = maxSpeed;
           }
-          if (rigidBody.velocity.y > 96) {
-            rigidBody.velocity.y = 96;
+          if (rigidBody.velocity.y > maxSpeed) {
+            rigidBody.velocity.y = maxSpeed;
           }
         } else {
           rigidBody.velocity.x -= 4;

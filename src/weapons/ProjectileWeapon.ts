@@ -7,6 +7,8 @@ import Weapon from "@src/weapons/Weapon";
 import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@shared/math/Vector2";
+import { IVector2 } from "@shared/models/event.model";
+import { getRandomFloat } from "@src/shared/utility/MathHelpers";
 
 interface ProjectileWeaponOptions {
   projectile?: string;
@@ -17,6 +19,7 @@ interface ProjectileWeaponOptions {
   fireSFX?: string;
   burstLimit?: number;
   burstDelay?: number;
+  spread?: IVector2;
 }
 
 class ProjectileWeapon extends Weapon {
@@ -28,6 +31,7 @@ class ProjectileWeapon extends Weapon {
   public readonly damage: number;
   public readonly burstLimit: number;
   public readonly burstDelay: number;
+  public readonly spread: Vector2;
 
   protected _ammo: number;
 
@@ -37,7 +41,7 @@ class ProjectileWeapon extends Weapon {
 
   protected fireSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
+  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX, spread }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {
@@ -56,6 +60,7 @@ class ProjectileWeapon extends Weapon {
     this.maxAmmo = maxAmmo;
     this.minRange = minRange;
     this.maxRange = maxRange;
+    this.spread = Vector2.create(spread?.x ?? 0, spread?.y ?? 0);
 
     this._ammo = this.maxAmmo;
 
@@ -95,12 +100,12 @@ class ProjectileWeapon extends Weapon {
   public fire(world: World, owner: Entity): void {
     const now = window.performance.now();
 
-    if (now > this.nextTimeToBurst) {       
-      if (this.burstCounter > 0) {       
+    if (now > this.nextTimeToBurst) {
+      if (this.burstCounter > 0) {
         this.use(world, owner);
       }
 
-      if (this.burstCounter === 0) {  
+      if (this.burstCounter === 0) {
         this.nextTimeToBurst = now + this.burstDelay;
         this.burstCounter = this.burstLimit;
       }
@@ -113,12 +118,13 @@ class ProjectileWeapon extends Weapon {
     const rigidBody = owner.getComponent(RigidBody);
     const playerInput = owner.getComponent(PlayerInput);
 
+    const spread = Vector2.create(getRandomFloat(-1, 1), getRandomFloat(-1, 1)).multiply(this.spread);
     const target = position.clone().add(playerInput.aim);
-    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
+    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y).add(spread);
     const dir = origin.clone().sub(target).normalize().negate();
 
     const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
-    
+
     if (!projectile.hasComponent(Projectile.COMPONENT_TYPE)) {
       throw new Error("Improper projectile entity (must have a projectile component)");
     }
