@@ -26,7 +26,7 @@ export class HealthModifier extends Consummable {
     health.value += this.amount;
 
     // apply immunity if debuff
-    if (health.immunityDelay > 0) {
+    if (health.immunityDelay > 0 && this.amount < 0) {
       health.immunity = true;
 
       setTimeout(() => {
