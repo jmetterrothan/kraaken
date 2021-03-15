@@ -16,7 +16,7 @@ export class PlayerCombat implements Component {
     maxAmmo: 150,
     fireSFX: "laser",
     minRange: 16,
-    maxRange: 80,
+    maxRange: 72,
     spread: { x: 0, y: 1 },
   });
 

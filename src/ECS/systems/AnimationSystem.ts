@@ -42,8 +42,17 @@ export class AnimationSystem extends System {
 
       const animation = animator.animation;
 
-      animator.previousKey = animator.currentKey;
-      animator.currentKey = animator.update(this.world, entity);
+      const currentKey = animator.currentKey;
+      const nextKey = animator.update(this.world, entity);
+
+      if (nextKey !== currentKey) {
+        if (animation.loop || animation.playedOnce) {
+          if (!animation.loop) animation.reset();
+
+          animator.previousKey = currentKey;
+          animator.currentKey = nextKey;
+        }
+      }
 
       animation.update();
 

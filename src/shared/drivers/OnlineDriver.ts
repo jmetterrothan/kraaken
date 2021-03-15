@@ -2,7 +2,7 @@ import LocalDriver from "@shared/drivers/LocalDriver";
 
 import { wsSvc } from "@shared/services/WebSocketService";
 
-import { IPlaceData, ISpawnpoint, IWorldBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
 
 class OnlineDriver extends LocalDriver {
   public constructor() {
@@ -28,13 +28,13 @@ class OnlineDriver extends LocalDriver {
     await wsSvc.despawnEvent(this.currentLevelId, uuid, pushToStack);
   }
 
-  public async load(id: string): Promise<IWorldBlueprint> {
+  public async load(id: string): Promise<ILevelBlueprint> {
     await wsSvc.joinRoom(id);
 
     return super.load(id);
   }
 
-  public async save(id: string, data: IWorldBlueprint): Promise<void> {
+  public async save(id: string, data: ILevelBlueprint): Promise<void> {
     await super.save(id, data);
     await wsSvc.resetRoom(id);
   }

@@ -1,7 +1,7 @@
 import { Observable, Subject } from "rxjs";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-import { Component} from "@src/ECS";
+import { Component } from "@src/ECS";
 
 type ComponentConstructor<T extends Component> = new (...args: any[]) => T;
 
@@ -38,7 +38,7 @@ export class Entity {
 
   public getComponent<T extends Component = Component>(ComponentClass: ComponentConstructor<T>): T | undefined {
     const component = this._components.get((ComponentClass as any).COMPONENT_TYPE);
-  
+
     if (typeof component !== "undefined") {
       return component as T;
     }

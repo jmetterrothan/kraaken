@@ -1,6 +1,6 @@
 import { System, Entity } from "@src/ECS";
 
-import { BasicInput, Position, Camera } from "@src/ECS/components";
+import { BasicInput, Position, Camera, RigidBody } from "@src/ECS/components";
 
 export class BasicMovementSystem extends System {
   public constructor() {
@@ -29,14 +29,12 @@ export class BasicMovementSystem extends System {
 
       if (input.left) {
         vx = -input.speed * delta;
-      }
-      else if (input.right) {
+      } else if (input.right) {
         vx = input.speed * delta;
       }
       if (input.up) {
         vy = -input.speed * delta;
-      }
-      else if (input.down) {
+      } else if (input.down) {
         vy = input.speed * delta;
       }
 

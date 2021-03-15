@@ -14,13 +14,17 @@ interface IMovementMetadata {
 export class Movement implements Component {
   public static COMPONENT_TYPE = "movement";
 
-  public climbing = false;
+  public wallJumping = false;
+  public wallSliding = false;
   public falling = false;
   public jumping = false;
   public walking = false;
   public idle = true;
 
-  public isGrounded = false;
+  public isBlockedLeft = false;
+  public isBlockedRight = false;
+  public isBlockedUp = false;
+  public isBlockedDown = false;
 
   public readonly initialJumpBoost: number;
   public readonly jumpSpeed: number;
@@ -29,6 +33,7 @@ export class Movement implements Component {
   public readonly deceleration: number;
 
   public lastEffectTime: number;
+  public lastWallJumpTime: number;
 
   public jumpSFX: Howl | undefined;
 
@@ -39,7 +44,8 @@ export class Movement implements Component {
     this.acceleration = acceleration ?? 0;
     this.deceleration = deceleration ?? 0;
 
-    this.lastEffectTime = 0;
+    this.lastEffectTime = -1;
+    this.lastWallJumpTime = -1;
 
     if (jumpSFX) {
       this.jumpSFX = SoundManager.create(jumpSFX, {

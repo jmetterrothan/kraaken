@@ -34,6 +34,8 @@ export class RigidBody implements Component {
   public previousVelocity: Vector2 = new Vector2(0, 0);
   public velocityModifier: Vector2 = new Vector2(1, 1);
 
+  public isGrounded: boolean;
+
   public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
     this.velocity.x = velocity?.x ?? 0;
     this.velocity.y = velocity?.y ?? 0;
@@ -48,6 +50,8 @@ export class RigidBody implements Component {
     this.reflectAngle = reflectAngle ?? false;
     this.reflectVFX = reflectVFX;
     this.bounciness = bounciness ?? 1;
+
+    this.isGrounded = false;
   }
 
   public toString(): string {

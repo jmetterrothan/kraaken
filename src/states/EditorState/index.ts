@@ -15,7 +15,7 @@ import Grid from "@src/shared/Grid";
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
 import { EditorMode } from "@shared/models/editor.model";
-import { IWorldBlueprint } from "@shared/models/world.model";
+import { ILevelBlueprint } from "@shared/models/world.model";
 
 import Vector2 from "@shared/math/Vector2";
 
@@ -33,7 +33,7 @@ import editorStore, { IEditorStoreState } from "./editorStore";
 
 interface EditorStateOptions {
   id: string;
-  blueprint: Promise<IWorldBlueprint> | IWorldBlueprint;
+  blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
 }
 
 class EditorState extends State<EditorStateOptions> {
@@ -81,10 +81,12 @@ class EditorState extends State<EditorStateOptions> {
       [EditorMode.COLLISION]: new CollisionMode(this),
     };
 
+    const room = this.world.blueprint.rooms.find((room) => room.id === this.world.blueprint.defaultRoomId);
+
     this.grid = new Grid(
-      this.world.blueprint.level.tileMapCols, //
-      this.world.blueprint.level.tileMapRows,
-      this.world.blueprint.level.tileSize,
+      room.tileMapCols, //
+      room.tileMapRows,
+      room.tileSize,
       [0, 0, 0, 0.1]
     );
     this.grid.init();
@@ -105,7 +107,7 @@ class EditorState extends State<EditorStateOptions> {
     this.world.controlEntity(controllableObject);
 
     // focus on player if it exists
-    const playerSpawnPoint = data.level.spawnPoints.find((spawnpoint) => spawnpoint.type === "player");
+    const playerSpawnPoint = room.spawnPoints.find((spawnpoint) => spawnpoint.type === "player");
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;

@@ -1,7 +1,7 @@
-import { IPlaceData, ISpawnpoint, IWorldBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
 
 abstract class AbstractDriver {
-  public abstract load(id: string): Promise<IWorldBlueprint>;
+  public abstract load(id: string): Promise<ILevelBlueprint>;
 
   public abstract ping(): Promise<void>;
 
@@ -13,7 +13,7 @@ abstract class AbstractDriver {
 
   public abstract despawn(uuid: string, pushToStack: boolean): Promise<void>;
 
-  public abstract save(id: string, data: IWorldBlueprint): Promise<void>;
+  public abstract save(id: string, data: ILevelBlueprint): Promise<void>;
 
   public abstract getAssetUrl(path: string): string;
 }

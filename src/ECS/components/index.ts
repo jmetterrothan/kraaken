@@ -14,8 +14,8 @@ export * from "./PlayerAnimator";
 export * from "./PlayerCombat";
 export * from "./AmmoModifier";
 export * from "./BasicInput";
-export * from './Placeable';
+export * from "./Placeable";
 export * from "./Projectile";
 export * from "./FlyingAI";
 export * from "./Collider";
-
+export * from "./EventZone";

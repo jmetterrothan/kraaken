@@ -17,7 +17,7 @@ import Vector2 from "@shared/math/Vector2";
 
 import { IVector2 } from "@shared/models/event.model";
 import { IRGBAColorData } from "@shared/models/color.model";
-import { IWorldBlueprint, ISpawnpoint } from "@shared/models/world.model";
+import { ILevelBlueprint, ISpawnpoint, IEventZone } from "@shared/models/world.model";
 import { TileLayer } from "@shared/models/tilemap.model";
 
 import { configSvc } from "@shared/services/ConfigService";
@@ -25,7 +25,7 @@ import { configSvc } from "@shared/services/ConfigService";
 import config from "@src/config";
 
 class World {
-  public readonly blueprint: IWorldBlueprint;
+  public readonly blueprint: ILevelBlueprint;
 
   public projectionMatrix: mat3 = mat3.create();
 
@@ -45,18 +45,20 @@ class World {
   private _cameras: Entity[] = [];
   private _activeCameraIndex = 0;
 
-  constructor(blueprint: IWorldBlueprint) {
+  constructor(blueprint: ILevelBlueprint) {
     this.blueprint = blueprint;
   }
 
   public async init(): Promise<void> {
-    const { sounds, sprites, level } = this.blueprint;
+    const { resources, rooms, ...level } = this.blueprint;
 
-    for (const sound of sounds) {
+    console.log(this.blueprint);
+
+    for (const sound of resources.sounds) {
       SoundManager.register(sound.src, sound.name);
     }
 
-    for (const sprite of sprites) {
+    for (const sprite of resources.sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
@@ -73,7 +75,9 @@ class World {
 
     this.setClearColor(level.background);
 
-    level.spawnPoints.forEach(this.spawn.bind(this));
+    const room = rooms.find((room) => room.id === level.defaultRoomId);
+    room.spawnPoints.forEach(this.spawn.bind(this));
+    room.zones.forEach(this.createZone.bind(this));
 
     const cameraComponent = new Components.Camera({ mode: 1 });
     cameraComponent.boundaries = this.tileMap.getBoundaries();
@@ -124,7 +128,7 @@ class World {
     return entity;
   }
 
-  public placeEntity(entity: Entity, position: IVector2, direction: IVector2): void {
+  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug?: boolean): void {
     if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
       const positionComp = entity.getComponent(Components.Position);
       positionComp.x = position?.x ?? 0;
@@ -139,14 +143,29 @@ class World {
       rigidBodyComp.direction.x = direction?.x ?? 1;
       rigidBodyComp.direction.y = direction?.y ?? 1;
     }
+
+    if (entity.hasComponent(Components.BoundingBox.COMPONENT_TYPE)) {
+      const bboxComp = entity.getComponent(Components.BoundingBox);
+      bboxComp.debug = !!debug;
+    }
   }
 
-  public spawn({ type, uuid, position, direction }: ISpawnpoint): Entity {
+  public spawn({ type, uuid, position, direction, debug }: ISpawnpoint): Entity {
     const entity = this.createEntity(type, uuid);
-    this.placeEntity(entity, position, direction);
+    this.placeEntity(entity, position, direction, debug);
     this.addEntity(entity);
 
     return entity;
+  }
+
+  public createZone({ position, width, height, debug, ...rest }: IEventZone): void {
+    const zone = new Entity("event_zone");
+
+    zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
+    zone.addComponent(new Components.BoundingBox({ width, height, debug }));
+    zone.addComponent(new Components.EventZone(rest));
+
+    this.addEntity(zone);
   }
 
   public addSystem(system: System): World {
@@ -189,7 +208,10 @@ class World {
     return bundleId;
   }
 
-  public getEntityByUuid(uuid: string): Entity | undefined {
+  public getEntityByUuid(uuid: string | null | undefined): Entity | undefined {
+    if (typeof uuid !== "string") {
+      return;
+    }
     return this._entities.find((entity) => entity.uuid === uuid);
   }
 

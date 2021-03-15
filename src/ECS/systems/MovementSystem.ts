@@ -4,14 +4,7 @@ import { Movement, Health, PlayerInput, Position, BoundingBox, RigidBody } from 
 
 export class MovementSystem extends System {
   public constructor() {
-    super([
-      Position.COMPONENT_TYPE,
-      RigidBody.COMPONENT_TYPE,
-      Movement.COMPONENT_TYPE,
-      PlayerInput.COMPONENT_TYPE,
-      Health.COMPONENT_TYPE,
-      BoundingBox.COMPONENT_TYPE
-    ]);
+    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Movement.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, Health.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
   }
 
   execute(delta: number): void {
@@ -21,6 +14,8 @@ export class MovementSystem extends System {
     }
 
     entities.forEach((entity) => {
+      const now = window.performance.now();
+
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
       const movement = entity.getComponent(Movement);
@@ -31,7 +26,7 @@ export class MovementSystem extends System {
       if (health.isAlive) {
         // handle jumping
         if (input.up && !movement.falling) {
-          if (!movement.jumping && movement.isGrounded) {
+          if (!movement.jumping && rigidBody.isGrounded) {
             movement.jumping = true;
             rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
 
@@ -40,7 +35,7 @@ export class MovementSystem extends System {
             }
 
             this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
-            movement.lastEffectTime = window.performance.now() + 350;
+            movement.lastEffectTime = now + 350;
           } else {
             rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
           }
@@ -62,7 +57,47 @@ export class MovementSystem extends System {
             }
           }
         }
+
+        if (movement.wallSliding) {
+          rigidBody.velocity.y -= this.world.gravity * 0.5 * delta;
+
+          if (rigidBody.velocity.y > 0) {
+            rigidBody.velocity.y = 0;
+          }
+        }
+
+        // cancel wallJumping
+        if (movement.lastWallJumpTime + 350 < now) {
+          movement.wallJumping = false;
+        }
+
+        if (movement.wallSliding && input.up && movement.lastWallJumpTime + 750 < now) {
+          rigidBody.velocity.y = -movement.initialJumpBoost * 0.65;
+
+          movement.wallJumping = true;
+          movement.lastWallJumpTime = now;
+
+          if (!movement.jumping) {
+            if (movement.jumpSFX) {
+              movement.jumpSFX.play();
+            }
+
+            this.world.playEffectOnceAt("dust_hit_effect", { x: position.x + rigidBody.direction.x * (bbox.width / 2), y: position.y - bbox.height / 2 });
+            movement.lastEffectTime = now + 350;
+          }
+        }
       }
+
+      // apply movement trailing effects and update states
+      if (movement.falling && rigidBody.previousVelocity.y === 0 && rigidBody.velocity.y > 0) {
+        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
+        movement.lastEffectTime = now + 500;
+      }
+
+      movement.falling = rigidBody.velocity.y > 0;
+      movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
+      movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
+      movement.wallSliding = !rigidBody.isGrounded && ((input.right && movement.isBlockedRight) || (input.left && movement.isBlockedLeft));
 
       // register direction change
       if (input.left) {
@@ -78,21 +113,18 @@ export class MovementSystem extends System {
         rigidBody.orientation.x = 1;
       }
 
-      
-      // apply movement trailing effects and update states
-      const now = window.performance.now();
-      
-      if (movement.falling && rigidBody.previousVelocity.y === 0 && rigidBody.velocity.y > 0) {
-        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
-        movement.lastEffectTime = now + 500;
+      // lock direction/orientation when wallSliding
+      if (movement.wallSliding && input.right && movement.isBlockedRight) {
+        rigidBody.direction.x = 1;
+        rigidBody.orientation.x = 1;
       }
 
-      movement.falling = rigidBody.velocity.y > 0;
-      movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
-      movement.isGrounded = rigidBody.velocity.y === 0;
-      movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
+      if (movement.wallSliding && input.left && movement.isBlockedLeft) {
+        rigidBody.direction.x = -1;
+        rigidBody.orientation.x = -1;
+      }
 
-      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && movement.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && rigidBody.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
         movement.lastEffectTime = now + 250;
         this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
       }

@@ -11,7 +11,7 @@ import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode, EditorCollisionMode } from "@src/shared/models/editor.model";
-import { IWorldBlueprint } from "@src/shared/models/world.model";
+import { ILevelBlueprint } from "@src/shared/models/world.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
 
@@ -25,7 +25,7 @@ import editorStore from "./editorStore";
 
 interface EditorUiProps {
   levelId: string;
-  blueprint: IWorldBlueprint;
+  blueprint: ILevelBlueprint;
 }
 
 const useEditorActions = () => {
@@ -128,18 +128,20 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
 };
 
 const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
-  const { level, sprites } = blueprint;
+  const { resources, rooms, ...level } = blueprint;
 
   const actions = useEditorActions();
 
   const modal = useModal();
 
-  const tileSet = React.useMemo(() => sprites.find((sprite) => sprite.name === level.tileSet), []);
+  const room = rooms.find((room) => room.id === level.defaultRoomId);
+
+  const tileSet = React.useMemo(() => resources.sprites.find((sprite) => sprite.name === room.tileSet), []);
 
   const { tiles, nbCols, nbRows } = useTileset(driver.getAssetUrl(tileSet.src), tileSet.tileWidth);
 
   const mostFrequentlyUsedTiles = React.useMemo(() => {
-    const tileTypeIndexes = [...blueprint.level.layers[TileLayer.L1], ...blueprint.level.layers[TileLayer.L2]];
+    const tileTypeIndexes = [...room.layers[TileLayer.L1], ...room.layers[TileLayer.L2]];
 
     return tileTypeIndexes.reduce((acc, index) => {
       if (index !== 0) {

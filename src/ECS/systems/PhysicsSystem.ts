@@ -1,18 +1,15 @@
 import { Entity, System } from "@src/ECS";
-import { Collider, Position, BoundingBox, RigidBody } from "@src/ECS/components";
+import { Collider, Position, BoundingBox, RigidBody, Movement } from "@src/ECS/components";
 
-import { ITile } from '@shared/models/tilemap.model';
+import { ITile } from "@shared/models/tilemap.model";
 import Vector2 from "@shared/math/Vector2";
 
-import World from '@src/world/World';
+import World from "@src/world/World";
 import TileMap from "@src/world/TileMap";
 
 export class PhysicsSystem extends System {
   public constructor() {
-    super([
-      Position.COMPONENT_TYPE,
-      RigidBody.COMPONENT_TYPE
-    ]);
+    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE]);
   }
 
   public addedToWorld(world: World): void {
@@ -57,8 +54,10 @@ export class PhysicsSystem extends System {
       const step = rigidBody.velocity.clone().multiply(rigidBody.velocityModifier).multiply(rigidBody.direction).multiplyScalar(delta);
       position.add(step);
 
+      rigidBody.isGrounded = this.isOnSolidTile(entity);
+
       this.collideWithMap(entity, step, delta);
-      
+
       if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
         this.collideWithBoundingBox(entity, colliders, step, delta);
       }
@@ -179,7 +178,7 @@ export class PhysicsSystem extends System {
       const r = rigidBody.velocity.reflect(n);
       if (rigidBody.reflectAngle) {
         position.rotation = Math.atan2(r.y, r.x);
-      } 
+      }
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
       Vector2.destroy(n);
@@ -234,6 +233,7 @@ export class PhysicsSystem extends System {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
+    const movement = entity.getComponent(Movement);
 
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;
@@ -253,6 +253,9 @@ export class PhysicsSystem extends System {
           position.y = tile.position.y - h / 2 - 0.01;
           this.handleCollisionWithBottomSide(entity, tile, delta);
         }
+        if (movement) {
+          movement.isBlockedDown = !!tile;
+        }
       } else if (step.y < 0) {
         // bottom side collision
         const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + w / 2, y1 + step.y, x2, y1 + step.y);
@@ -260,6 +263,9 @@ export class PhysicsSystem extends System {
         if (tile) {
           position.y = tile.position.y + tileSize + h / 2 + 0.01;
           this.handleCollisionWithTopSide(entity, tile, delta);
+        }
+        if (movement) {
+          movement.isBlockedUp = !!tile;
         }
       }
 
@@ -277,13 +283,19 @@ export class PhysicsSystem extends System {
           position.x = tile.position.x - w / 2 - 0.01;
           this.handleCollisionWithLeftSide(entity, tile, delta);
         }
+        if (movement) {
+          movement.isBlockedRight = !!tile;
+        }
       } else if (step.x < 0) {
         // right side collision
         const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + h / 2, x1 + step.x, y2);
-        
+
         if (tile) {
           position.x = tile.position.x + tileSize + w / 2 + 0.01;
           this.handleCollisionWithRightSide(entity, tile, delta);
+        }
+        if (movement) {
+          movement.isBlockedLeft = !!tile;
         }
       }
     }

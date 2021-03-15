@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 
 import AbstractDriver from "@shared/drivers/AbstractDriver";
 
-import { IPlaceData, ISpawnpoint, IWorldBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -50,21 +50,20 @@ class LocalDriver extends AbstractDriver {
     dispatch(GameEvents.despawnEvent(uuid, pushToStack));
   }
 
-  public async load(id: string): Promise<IWorldBlueprint> {
+  public async load(id: string): Promise<ILevelBlueprint> {
     this.currentLevelId = id;
 
     const { data } = await this.http.get(`/api/levels/${this.currentLevelId}`);
-
-    return {
-      level: data.level,
-      entities: data.entities,
-      sprites: data.resources.sprites,
-      sounds: data.resources.sounds,
-    };
+    return data;
   }
 
-  public async save(id: string, data: IWorldBlueprint): Promise<void> {
-    await this.http.post(`/api/levels/${id}`, data.level);
+  public async save(id: string, data: ILevelBlueprint): Promise<void> {
+    const { resources, entities, rooms, ...level } = data;
+
+    await this.http.post(`/api/levels/${id}`, level);
+
+    const room = rooms.find((room) => room.id === level.defaultRoomId);
+    await this.http.post(`/api/levels/${id}/rooms/${room.id}`, room);
   }
 
   public getAssetUrl(path: string): string {

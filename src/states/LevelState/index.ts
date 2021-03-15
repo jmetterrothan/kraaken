@@ -10,14 +10,17 @@ import { Entity } from "@src/ECS";
 import State from "@src/states/State";
 import World from "@src/world/World";
 
-import { IWorldBlueprint } from "@shared/models/world.model";
+import { ILevelBlueprint } from "@shared/models/world.model";
+
+import * as GameEventTypes from "@shared/events/constants";
+import * as GameEvents from "@shared/events";
 
 import editorStore from "../EditorState/editorStore";
 import LevelUi from "./LevelUi";
 
 interface LevelStateOptions {
   id: string;
-  blueprint: Promise<IWorldBlueprint> | IWorldBlueprint;
+  blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
 }
 
 const SCALE = 6;
@@ -41,6 +44,7 @@ class LevelState extends State<LevelStateOptions> {
     this.world.addSystem(new Systems.ConsummableSystem());
     this.world.addSystem(new Systems.AISystem());
     this.world.addSystem(new Systems.FlickerOnImmuneSystem());
+    this.world.addSystem(new Systems.EventZoneSystem());
 
     await this.world.init();
 
@@ -65,6 +69,26 @@ class LevelState extends State<LevelStateOptions> {
 
   public mounted(): void {
     console.info("Level mounted");
+
+    this.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
+      const { spawnpoint: spawnPoint } = e.detail || {};
+
+      // if entity already exists in the world we update its position
+      const entity = this.world.getEntityByUuid(spawnPoint.uuid);
+      if (entity) {
+        if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
+          const position = entity.getComponent(Components.Position);
+          position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+        }
+
+        if (entity.hasComponent(Components.RigidBody.COMPONENT_TYPE)) {
+          const rigidBody = entity.getComponent(Components.RigidBody);
+          rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
+        }
+      } else {
+        this.world.spawn(spawnPoint);
+      }
+    });
 
     ReactDOM.render(React.createElement(LevelUi, { levelId: this.id }), this.$ui);
   }

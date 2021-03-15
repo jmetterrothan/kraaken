@@ -27,16 +27,17 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      const index = this.editor.world.blueprint.level.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
+      const room = this.editor.world.blueprint.rooms.find((room) => room.id === this.editor.world.blueprint.defaultRoomId);
+      const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
       try {
         if (index !== -1) {
-          this.editor.world.blueprint.level.spawnPoints[index] = spawnPoint;
+          room.spawnPoints[index] = spawnPoint;
 
           // TODO: push to event stack
         } else {
           this.editor.world.spawn(spawnPoint);
-          this.editor.world.blueprint.level.spawnPoints.push(spawnPoint);
+          room.spawnPoints.push(spawnPoint);
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
@@ -73,8 +74,10 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
       const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
 
-      const index = this.editor.world.blueprint.level.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
-      const spawnPoint = this.editor.world.blueprint.level.spawnPoints[index];
+      const room = this.editor.world.blueprint.rooms.find((room) => room.id === this.editor.world.blueprint.defaultRoomId);
+
+      const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
+      const spawnPoint = room.spawnPoints[index];
 
       try {
         if (!spawnPoint) {
@@ -82,7 +85,7 @@ class EntityMode {
         }
 
         this.editor.world.despawn(spawnPoint.uuid);
-        this.editor.world.blueprint.level.spawnPoints.splice(index, 1);
+        room.spawnPoints.splice(index, 1);
 
         if (pushToStack) {
           eventStackSvc.undoStack.push({

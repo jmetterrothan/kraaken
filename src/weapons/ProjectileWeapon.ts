@@ -8,7 +8,6 @@ import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@shared/math/Vector2";
 import { IVector2 } from "@shared/models/event.model";
-import { getRandomFloat } from "@src/shared/utility/MathHelpers";
 
 interface ProjectileWeaponOptions {
   projectile?: string;
@@ -31,7 +30,6 @@ class ProjectileWeapon extends Weapon {
   public readonly damage: number;
   public readonly burstLimit: number;
   public readonly burstDelay: number;
-  public readonly spread: Vector2;
 
   protected _ammo: number;
 
@@ -60,7 +58,6 @@ class ProjectileWeapon extends Weapon {
     this.maxAmmo = maxAmmo;
     this.minRange = minRange;
     this.maxRange = maxRange;
-    this.spread = Vector2.create(spread?.x ?? 0, spread?.y ?? 0);
 
     this._ammo = this.maxAmmo;
 
@@ -118,9 +115,8 @@ class ProjectileWeapon extends Weapon {
     const rigidBody = owner.getComponent(RigidBody);
     const playerInput = owner.getComponent(PlayerInput);
 
-    const spread = Vector2.create(getRandomFloat(-1, 1), getRandomFloat(-1, 1)).multiply(this.spread);
     const target = position.clone().add(playerInput.aim);
-    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y).add(spread);
+    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
     const dir = origin.clone().sub(target).normalize().negate();
 
     const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
@@ -219,7 +215,7 @@ class ProjectileWeapon extends Weapon {
       return false;
     }
 
-    return health.isAlive && movement.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
+    return health.isAlive && rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
   }
 
   public get ammo(): number {

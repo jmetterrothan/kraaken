@@ -9,6 +9,8 @@ export enum PlayerAnimationKeys {
   WALKING = "walking",
   FALLING = "falling",
   JUMPING = "jumping",
+  WALL_JUMPING = "wallJumping",
+  WALL_SLIDING = "wallSliding",
   USE_PRIMARY_WEAPON = "use_primary_weapon",
 }
 
@@ -25,6 +27,12 @@ export class PlayerAnimator extends Animator {
     // shooting
     if (input.usePrimary && combat.primaryWeapon.canBeUsed(world, entity)) {
       return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+    }
+    if (movement.wallJumping) {
+      return `${entity.type}:${PlayerAnimationKeys.WALL_JUMPING}`;
+    }
+    if (movement.wallSliding) {
+      return `${entity.type}:${PlayerAnimationKeys.WALL_SLIDING}`;
     }
     // vertical movement
     if (movement.falling) {
