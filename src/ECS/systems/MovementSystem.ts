@@ -1,10 +1,10 @@
 import { System } from "@src/ECS";
 
-import { Movement, Health, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
+import { Movement, PlayerInput, Position, BoundingBox, RigidBody } from "@src/ECS/components";
 
 export class MovementSystem extends System {
   public constructor() {
-    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Movement.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, Health.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
+    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Movement.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
   }
 
   execute(delta: number): void {
@@ -21,70 +21,67 @@ export class MovementSystem extends System {
       const movement = entity.getComponent(Movement);
       const rigidBody = entity.getComponent(RigidBody);
       const input = entity.getComponent(PlayerInput);
-      const health = entity.getComponent(Health);
 
-      if (health.isAlive) {
-        // handle jumping
-        if (input.up && !movement.falling) {
-          if (!movement.jumping && rigidBody.isGrounded) {
-            movement.jumping = true;
-            rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
+      // handle jumping
+      if (input.up && !movement.falling) {
+        if (!movement.jumping && rigidBody.isGrounded) {
+          movement.jumping = true;
+          rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
 
-            if (movement.jumpSFX) {
-              movement.jumpSFX.play();
-            }
-
-            this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
-            movement.lastEffectTime = now + 350;
-          } else {
-            rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
+          if (movement.jumpSFX) {
+            movement.jumpSFX.play();
           }
+
+          this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
+          movement.lastEffectTime = now + 350;
         } else {
-          movement.jumping = false;
+          rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
         }
+      } else {
+        movement.jumping = false;
+      }
 
-        // handle moving
-        if (input.right || input.left) {
-          rigidBody.velocity.x += movement.acceleration;
-          if (rigidBody.velocity.x > movement.speed) {
-            rigidBody.velocity.x = movement.speed;
-          }
-        } else {
-          if (rigidBody.velocity.x > 0) {
-            rigidBody.velocity.x -= movement.deceleration;
-            if (rigidBody.velocity.x < 0) {
-              rigidBody.velocity.x = 0;
-            }
-          }
+      // handle moving
+      if (input.right || input.left) {
+        rigidBody.velocity.x += movement.acceleration;
+        if (rigidBody.velocity.x > movement.speed) {
+          rigidBody.velocity.x = movement.speed;
         }
-
-        if (movement.wallSliding) {
-          rigidBody.velocity.y -= this.world.gravity * 0.5 * delta;
-
-          if (rigidBody.velocity.y > 0) {
-            rigidBody.velocity.y = 0;
+      } else {
+        if (rigidBody.velocity.x > 0) {
+          rigidBody.velocity.x -= movement.deceleration;
+          if (rigidBody.velocity.x < 0) {
+            rigidBody.velocity.x = 0;
           }
         }
+      }
 
-        // cancel wallJumping
-        if (movement.lastWallJumpTime + 350 < now) {
-          movement.wallJumping = false;
+      if (movement.wallSliding) {
+        rigidBody.velocity.y -= this.world.gravity * 0.5 * delta;
+
+        if (rigidBody.velocity.y > 0) {
+          rigidBody.velocity.y = 0;
         }
+      }
 
-        if (movement.wallSliding && input.up && movement.lastWallJumpTime + 750 < now) {
-          rigidBody.velocity.y = -movement.initialJumpBoost * 0.65;
+      // cancel wallJumping
+      if (movement.lastWallJumpTime + 350 < now) {
+        movement.wallJumping = false;
+      }
 
-          movement.wallJumping = true;
-          movement.lastWallJumpTime = now;
+      if (movement.wallSliding && input.up && movement.lastWallJumpTime + 750 < now) {
+        rigidBody.velocity.y = -movement.initialJumpBoost * 0.65;
 
-          if (!movement.jumping) {
-            if (movement.jumpSFX) {
-              movement.jumpSFX.play();
-            }
+        movement.wallJumping = true;
+        movement.lastWallJumpTime = now;
 
-            this.world.playEffectOnceAt("dust_hit_effect", { x: position.x + rigidBody.direction.x * (bbox.width / 2), y: position.y - bbox.height / 2 });
-            movement.lastEffectTime = now + 350;
+        if (!movement.jumping) {
+          if (movement.jumpSFX) {
+            movement.jumpSFX.play();
           }
+
+          this.world.playEffectOnceAt("dust_hit_effect", { x: position.x + rigidBody.direction.x * (bbox.width / 2), y: position.y - bbox.height / 2 });
+          movement.lastEffectTime = now + 350;
         }
       }
 

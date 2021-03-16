@@ -2,7 +2,7 @@ import { vec2 } from "gl-matrix";
 
 import { System, Entity } from "@src/ECS";
 
-import { PlayerInput, Position, PlayerCombat } from "@src/ECS/components";
+import { PlayerInput, Position, PlayerCombat, Health } from "@src/ECS/components";
 
 import { wrapper, canvas } from "@src/Game";
 
@@ -16,7 +16,7 @@ const gamepads = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
-    super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE]);
+    super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
 
     // Mouse events
     wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
@@ -32,6 +32,7 @@ export class PlayerInputSystem extends System {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
+
           this.handleMouseMove(getCoord(canvas, x, y));
         }
       },
@@ -79,11 +80,14 @@ export class PlayerInputSystem extends System {
 
     entities.forEach((entity) => {
       const position = entity.getComponent(Position);
+      const health = entity.getComponent(Health);
       const input = entity.getComponent(PlayerInput);
 
-      const c = Vector2.create(coords.x - position.x, coords.y - position.y);
-      input.aim.lerp(c, 0.2);
-      Vector2.destroy(c);
+      if (health.isAlive) {
+        const c = Vector2.create(coords.x - position.x, coords.y - position.y);
+        input.aim.lerp(c, 0.2);
+        Vector2.destroy(c);
+      }
     });
   }
 
@@ -96,9 +100,10 @@ export class PlayerInputSystem extends System {
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
         const input = entity.getComponent(PlayerInput);
+        const health = entity.getComponent(Health);
 
-        if (button === 2) {
-          input.usePrimary = active;
+        if (button === 0) {
+          input.usePrimary = active && health.isAlive;
         }
       }
     });
@@ -111,23 +116,25 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
+      const health = entity.getComponent(Health);
+
       if (this.world.controlledEntity === entity) {
         const input = entity.getComponent(PlayerInput);
         switch (key) {
           case "ArrowLeft":
-            input.left = active;
+            input.left = active && health.isAlive;
             break;
 
           case "ArrowRight":
-            input.right = active;
+            input.right = active && health.isAlive;
             break;
 
           case "ArrowUp":
-            input.up = active;
+            input.up = active && health.isAlive;
             break;
 
           case "ArrowDown":
-            input.down = active;
+            input.down = active && health.isAlive;
             break;
         }
       }
@@ -136,6 +143,7 @@ export class PlayerInputSystem extends System {
 
   handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
     const input = entity.getComponent(PlayerInput);
+    const health = entity.getComponent(Health);
 
     const controller = controllers[input.gamepadIndex];
 
@@ -143,7 +151,7 @@ export class PlayerInputSystem extends System {
       const x = controller.axes[0];
       const y = controller.axes[1];
 
-      if (!input.hold) {
+      if (!input.hold && health.isAlive) {
         if (x >= 0.5) {
           input.right = true;
         } else {
@@ -160,8 +168,8 @@ export class PlayerInputSystem extends System {
         input.right = false;
       }
 
-      input.aim.x += Math.abs(x) >= 0.15 ? x * 450 * delta : 0;
-      input.aim.y += Math.abs(y) >= 0.15 ? y * 450 * delta : 0;
+      input.aim.x += health.isAlive && Math.abs(x) >= 0.15 ? x * 450 * delta : 0;
+      input.aim.y += health.isAlive && Math.abs(y) >= 0.15 ? y * 450 * delta : 0;
 
       // handle buttons
       controller.buttons.forEach((button, index) => {
@@ -169,18 +177,18 @@ export class PlayerInputSystem extends System {
 
         switch (index) {
           case 0: // A
-            input.up = active;
+            input.up = active && health.isAlive;
             break;
 
           case 1: // B
             break;
 
           case 2: // X
-            input.usePrimary = active;
+            input.usePrimary = active && health.isAlive;
             break;
 
           case 3: // Y
-            input.useSecondary = active;
+            input.useSecondary = active && health.isAlive;
             break;
 
           case 4: // LB
@@ -190,7 +198,7 @@ export class PlayerInputSystem extends System {
             break;
 
           case 6: // LT
-            input.hold = active;
+            input.hold = active && health.isAlive;
             break;
 
           case 7: // RT
