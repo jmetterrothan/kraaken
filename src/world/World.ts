@@ -158,11 +158,11 @@ class World {
     return entity;
   }
 
-  public createZone({ position, width, height, debug, ...rest }: IEventZone): void {
+  public createZone({ position, width, height, color, debug, ...rest }: IEventZone): void {
     const zone = new Entity("event_zone");
 
     zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
-    zone.addComponent(new Components.BoundingBox({ width, height, debug }));
+    zone.addComponent(new Components.BoundingBox({ width, height, color, debug }));
     zone.addComponent(new Components.EventZone(rest));
 
     this.addEntity(zone);

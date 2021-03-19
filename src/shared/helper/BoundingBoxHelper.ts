@@ -2,7 +2,6 @@ import { mat3, vec4 } from "gl-matrix";
 
 import WebGL2H from "@shared/utility/WebGL2H";
 import Material from "@src/animation/Material";
-import Color from "@src/shared/helper/Color";
 
 import Box2 from "@shared/math/Box2";
 
@@ -23,9 +22,9 @@ class BoundingBoxHelper {
   public readonly bbox: Box2;
   public readonly color: vec4;
 
-  public constructor(bbox: Box2, color: Color) {
+  public constructor(bbox: Box2, color: vec4) {
     this.bbox = bbox;
-    this.color = color.toVec4();
+    this.color = color;
   }
 
   private attributes: IAttributes = {

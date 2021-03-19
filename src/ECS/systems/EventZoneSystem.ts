@@ -25,10 +25,14 @@ export class EventZoneSystem extends System {
       const zone = entity.getComponent(EventZone);
       const bbox = entity.getComponent(BoundingBox);
 
-      zone.active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
+      const active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
 
-      if (zone.canBeTriggered()) {
-        zone.trigger(this.world.player);
+      if (zone.active !== active) {
+        if (active) {
+          zone.onEnter(this.world.player);
+        } else {
+          zone.onLeave(this.world.player);
+        }
       }
     }
   }

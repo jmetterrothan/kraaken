@@ -1,3 +1,5 @@
+import { vec4 } from "gl-matrix";
+
 import { IVector2 } from "@src/shared/models/math.model";
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { IRGBAColorData } from "@src/shared/models/color.model";
@@ -37,6 +39,7 @@ export interface IEventZone {
   position: IVector2;
   width: number;
   height: number;
+  coolor: vec4;
   events: IGameEvent[];
   debug: boolean;
 }

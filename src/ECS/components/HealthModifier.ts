@@ -25,15 +25,6 @@ export class HealthModifier extends Consummable {
 
     health.value += this.amount;
 
-    // apply immunity if debuff
-    if (health.immunityDelay > 0 && this.amount < 0) {
-      health.immunity = true;
-
-      setTimeout(() => {
-        health.immunity = false;
-      }, health.immunityDelay);
-    }
-
     if (this.pickUpSFX) {
       this.pickUpSFX.play();
     }
@@ -43,9 +34,6 @@ export class HealthModifier extends Consummable {
 
       if (health.deathVFX) {
         world.playEffectOnceAt(health.deathVFX, position);
-      }
-      if (health.deathSFX) {
-        health.deathSFX.play();
       }
     }
   }
@@ -61,12 +49,8 @@ export class HealthModifier extends Consummable {
 
     const health = entity.getComponent(Health);
 
-    if (health.immunity) {
-      return false;
-    }
-
-    // health debuff should only be applied if the entity is alive
-    if (health.isDead) {
+    if (health.immunity || health.isDead) {
+      // health debuff should only be applied if the entity is alive
       return false;
     }
 

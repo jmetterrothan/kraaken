@@ -69,6 +69,15 @@ export class Health extends Component {
       } else if (this.hurtSFX) {
         this.hurtSFX.play();
       }
+
+      // apply immunity if debuff
+      if (this.immunityDelay > 0) {
+        this.immunity = true;
+
+        setTimeout(() => {
+          this.immunity = false;
+        }, this.immunityDelay);
+      }
     }
   }
 
