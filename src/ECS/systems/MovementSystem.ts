@@ -23,7 +23,7 @@ export class MovementSystem extends System {
       const input = entity.getComponent(PlayerInput);
 
       // handle jumping
-      if (input.up && !movement.falling) {
+      if (input.up && !movement.falling && !movement.wallSliding) {
         if (!movement.jumping && rigidBody.isGrounded) {
           movement.jumping = true;
           rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
@@ -70,7 +70,7 @@ export class MovementSystem extends System {
       }
 
       if (movement.wallSliding && input.up && movement.lastWallJumpTime + 750 < now) {
-        rigidBody.velocity.y = -movement.initialJumpBoost * 0.65;
+        rigidBody.velocity.y += -movement.initialJumpBoost * 0.8;
 
         movement.wallJumping = true;
         movement.lastWallJumpTime = now;
@@ -94,7 +94,7 @@ export class MovementSystem extends System {
       movement.falling = rigidBody.velocity.y > 0;
       movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
       movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
-      movement.wallSliding = !rigidBody.isGrounded && ((input.right && movement.isBlockedRight) || (input.left && movement.isBlockedLeft));
+      movement.wallSliding = !movement.jumping && !rigidBody.isGrounded && ((input.right && movement.isBlockedRight) || (input.left && movement.isBlockedLeft));
 
       // register direction change
       if (input.left) {

@@ -42,7 +42,7 @@ export class PlayerAnimator extends Animator {
       return `${entity.type}:${PlayerAnimationKeys.JUMPING}`;
     }
     // aiming
-    if (input.hold && !movement.falling && !movement.jumping && !movement.walking) {
+    if (input.hold && !movement.walking) {
       return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
     }
     // walk cycle
