@@ -1,9 +1,27 @@
 import * as GameEventTypes from "@src/shared/events/constants";
 
-import { TileLayer } from '@shared/models/tilemap.model';
+import { TileLayer } from "@shared/models/tilemap.model";
 import { IEventDetails } from "@shared/models/event.model";
 import { IVector2 } from "@shared/models/math.model";
 import { ISpawnpoint } from "@shared/models/world.model";
+
+interface IChangeRoomEventDetails {
+  roomId: string;
+  moveTo?: IVector2;
+  lookAt?: IVector2;
+}
+
+export type ChangeRoomEvent = CustomEvent<IChangeRoomEventDetails>;
+
+export const changeRoom = (roomId: string, moveTo?: IVector2, lookAt?: IVector2): ChangeRoomEvent => {
+  return new CustomEvent<IChangeRoomEventDetails>(GameEventTypes.CHANGE_ROOM, {
+    detail: {
+      roomId,
+      moveTo,
+      lookAt,
+    },
+  });
+};
 
 interface IPlaceEventDetails extends IEventDetails {
   coords: IVector2[];
@@ -32,13 +50,13 @@ interface ILevelStateSwitchEventDetails {
 
 export type LevelStateSwitchEvent = CustomEvent<ILevelStateSwitchEventDetails>;
 
-export const playEvent = (id: string): LevelStateSwitchEvent  => {
+export const playEvent = (id: string): LevelStateSwitchEvent => {
   return new CustomEvent<ILevelStateSwitchEventDetails>(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, {
     detail: {
       id,
-    }
-  })
-}
+    },
+  });
+};
 
 interface IEditorStateSwitchEventDetails {
   id: string;
@@ -46,13 +64,13 @@ interface IEditorStateSwitchEventDetails {
 
 export type EditorStateSwitchEvent = CustomEvent<IEditorStateSwitchEventDetails>;
 
-export const editEvent = (id: string): EditorStateSwitchEvent  => {
+export const editEvent = (id: string): EditorStateSwitchEvent => {
   return new CustomEvent<IEditorStateSwitchEventDetails>(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, {
     detail: {
       id,
-    }
-  })
-}
+    },
+  });
+};
 
 interface ISaveEventDetails {
   id: string;
@@ -60,13 +78,13 @@ interface ISaveEventDetails {
 
 export type SaveEvent = CustomEvent<ISaveEventDetails>;
 
-export const saveEvent = (id: string): SaveEvent  => {
+export const saveEvent = (id: string): SaveEvent => {
   return new CustomEvent<ISaveEventDetails>(GameEventTypes.SAVE_EVENT, {
     detail: {
       id,
-    }
-  })
-}
+    },
+  });
+};
 
 interface ISpawnEventDetails extends IEventDetails {
   spawnpoint: ISpawnpoint;
@@ -133,7 +151,7 @@ export const zoomEvent = (scale: number): ZoomEvent => {
       scale,
     },
   });
-}
+};
 
 interface IUserJoinedRoomEventDetails {
   uuid: string;
@@ -141,13 +159,13 @@ interface IUserJoinedRoomEventDetails {
 
 export type UserJoinedRoomEvent = CustomEvent<IUserJoinedRoomEventDetails>;
 
-export const userJoinedRoomEvent = (uuid: string): UserJoinedRoomEvent  => {
+export const userJoinedRoomEvent = (uuid: string): UserJoinedRoomEvent => {
   return new CustomEvent<IUserJoinedRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
     detail: {
       uuid,
-    }
+    },
   });
-}
+};
 
 interface IUserLeftRoomEventDetails {
   uuid: string;
@@ -155,13 +173,13 @@ interface IUserLeftRoomEventDetails {
 
 export type UserLeftRoomEvent = CustomEvent<IUserLeftRoomEventDetails>;
 
-export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent  => {
+export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent => {
   return new CustomEvent<IUserLeftRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
     detail: {
       uuid,
-    }
+    },
   });
-}
+};
 
 const dispatch = <T>(event: CustomEvent<T>): void => {
   console.info(`Dispatched "${event.type}"`);

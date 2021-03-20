@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
-import { mat3, vec2 } from "gl-matrix";
+import { v4 as uuidv4 } from "uuid";
+import { mat3, vec2, vec4 } from "gl-matrix";
 
 import { gl } from "@src/Game";
 
@@ -8,16 +9,13 @@ import { Entity, Bundle, System } from "@src/ECS";
 import * as Systems from "@src/ECS/systems";
 import * as Components from "@src/ECS/components";
 
-import SpriteManager from "@src/animation/SpriteManager";
-import SoundManager from "@src/animation/SoundManager";
-
 import TileMap from "@src/world/TileMap";
+import Grid from "@src/shared/Grid";
 
 import Vector2 from "@shared/math/Vector2";
 
 import { IVector2 } from "@shared/models/event.model";
-import { IRGBAColorData } from "@shared/models/color.model";
-import { ILevelBlueprint, ISpawnpoint, IEventZone } from "@shared/models/world.model";
+import { ILevelBlueprint, ISpawnpoint, IEventZone, IRoomBlueprint, IWorldOptions } from "@shared/models/world.model";
 import { TileLayer } from "@shared/models/tilemap.model";
 
 import { configSvc } from "@shared/services/ConfigService";
@@ -25,18 +23,22 @@ import { configSvc } from "@shared/services/ConfigService";
 import config from "@src/config";
 
 class World {
-  public readonly blueprint: ILevelBlueprint;
+  public readonly levelBlueprint: ILevelBlueprint;
+  public readonly roomBlueprint: IRoomBlueprint;
+
+  public readonly options: IWorldOptions;
 
   public projectionMatrix: mat3 = mat3.create();
 
+  public grid: Grid;
   public tileMap: TileMap;
   public gravity: number;
   public player: Entity;
   public aimEntity: Entity;
   public controlledEntity: Entity;
 
-  private _bundles: Map<string, Bundle> = new Map();
   // TODO: improve efficiency
+  private _bundles: Map<string, Bundle> = new Map();
   private _entities: Entity[] = [];
   private _systems: System[] = [];
 
@@ -45,22 +47,22 @@ class World {
   private _cameras: Entity[] = [];
   private _activeCameraIndex = 0;
 
-  constructor(blueprint: ILevelBlueprint) {
-    this.blueprint = blueprint;
+  constructor(roomId: string, levelBlueprint: ILevelBlueprint, options: Partial<IWorldOptions> = {}) {
+    this.levelBlueprint = levelBlueprint;
+    this.roomBlueprint = levelBlueprint.rooms.find((room) => room.id === roomId);
+
+    this.options = {
+      showGrid: options.showGrid === true,
+      showZones: options.showZones === true,
+    };
+
+    if (!this.roomBlueprint) {
+      throw new Error(`Could not find room "${roomId}" blueprint`);
+    }
   }
 
   public async init(): Promise<void> {
-    const { resources, rooms, ...level } = this.blueprint;
-
-    console.log(this.blueprint);
-
-    for (const sound of resources.sounds) {
-      SoundManager.register(sound.src, sound.name);
-    }
-
-    for (const sprite of resources.sprites) {
-      await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
-    }
+    const { resources, ...level } = this.levelBlueprint;
 
     this.addSystem(new Systems.CameraSystem());
     this.addSystem(new Systems.AnimationSystem());
@@ -68,16 +70,21 @@ class World {
     this.renderer = new Systems.RenderingSystem();
     this.renderer.addedToWorld(this);
 
-    this.tileMap = new TileMap(this.blueprint);
+    this.tileMap = new TileMap(this.roomBlueprint);
     this.tileMap.init();
+
+    this.grid = new Grid(
+      this.roomBlueprint.tileMapCols, //
+      this.roomBlueprint.tileMapRows,
+      this.roomBlueprint.tileSize,
+      [0, 0, 0, 0.1]
+    );
+    this.grid.init();
 
     this.gravity = level.gravity;
 
-    this.setClearColor(level.background);
-
-    const room = rooms.find((room) => room.id === level.defaultRoomId);
-    room.spawnPoints.forEach(this.spawn.bind(this));
-    room.zones.forEach(this.createZone.bind(this));
+    this.roomBlueprint.spawnPoints.forEach(this.spawn.bind(this));
+    this.roomBlueprint.zones.forEach(this.createZone.bind(this));
 
     const cameraComponent = new Components.Camera({ mode: 1 });
     cameraComponent.boundaries = this.tileMap.getBoundaries();
@@ -85,6 +92,8 @@ class World {
     const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
 
     this.addCamera(camera, true);
+
+    this.setClearColor(level.background);
 
     console.info("World initialized");
   }
@@ -112,10 +121,21 @@ class World {
     }
   }
 
+  public createCrosshair(uuid = uuidv4()): Entity {
+    const entity = new Entity("cursor", uuid);
+
+    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 0, align: "center" }));
+
+    this.addEntity(entity);
+
+    return entity;
+  }
+
   public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
-    this.blueprint.entities
+    this.levelBlueprint.entities
       .find((item) => item.type === type)
       .components.forEach(({ name, metadata = {} }) => {
         entity.addComponent(ComponentFactory.create(name, metadata));
@@ -162,7 +182,7 @@ class World {
     const zone = new Entity("event_zone");
 
     zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
-    zone.addComponent(new Components.BoundingBox({ width, height, color, debug }));
+    zone.addComponent(new Components.BoundingBox({ width, height, color, debug: debug || this.options.showZones }));
     zone.addComponent(new Components.EventZone(rest));
 
     this.addEntity(zone);
@@ -283,8 +303,8 @@ class World {
     throw Error(`Unable to perform remove event on components: ${componentTypes.join(", ")}`);
   }
 
-  public setClearColor(color: IRGBAColorData): void {
-    gl.clearColor(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
+  public setClearColor(color: vec4): void {
+    gl.clearColor(color[0], color[1], color[2], color[3]);
   }
 
   public update(delta: number): void {
@@ -316,6 +336,11 @@ class World {
 
     if (config.DEBUG) {
       this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+    }
+
+    if (this.options.showGrid) {
+      this.grid.use();
+      this.grid.render(this.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
     }
   }
 

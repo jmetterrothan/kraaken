@@ -2,7 +2,6 @@ import { vec4 } from "gl-matrix";
 
 import { IVector2 } from "@src/shared/models/math.model";
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { IRGBAColorData } from "@src/shared/models/color.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
 
@@ -19,7 +18,7 @@ export interface IEntityBlueprint {
 export interface ILevelBlueprint {
   id: string;
   title: string;
-  background: IRGBAColorData;
+  background: vec4;
   gravity: number;
   defaultRoomId: string;
   rooms: IRoomBlueprint[];
@@ -36,12 +35,16 @@ export type IGameEvent = {
 };
 
 export interface IEventZone {
+  mode: "contains" | "intersects";
+  debug: boolean;
   position: IVector2;
   width: number;
   height: number;
-  coolor: vec4;
+  color: vec4;
+  cooldownDelay: number;
+  maxTimesTriggered: number;
+  shouldTriggerWhileActive: boolean;
   events: IGameEvent[];
-  debug: boolean;
 }
 
 export interface IRoomBlueprint {
@@ -72,3 +75,8 @@ export interface IPlaceData {
   tileTypeId: number;
   coords: IVector2[];
 }
+
+export type IWorldOptions = {
+  showGrid: boolean;
+  showZones: boolean;
+};

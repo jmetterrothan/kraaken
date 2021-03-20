@@ -1,14 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
-import { v4 as uuidv4 } from "uuid";
 
 import * as Systems from "@src/ECS/systems";
 import * as Components from "@src/ECS/components";
-import { Entity } from "@src/ECS";
 
 import State from "@src/states/State";
 import World from "@src/world/World";
+
+import SoundManager from "@src/animation/SoundManager";
+import SpriteManager from "@src/animation/SpriteManager";
 
 import { ILevelBlueprint } from "@shared/models/world.model";
 
@@ -16,65 +17,92 @@ import * as GameEventTypes from "@shared/events/constants";
 import * as GameEvents from "@shared/events";
 
 import editorStore from "../EditorState/editorStore";
+
 import LevelUi from "./LevelUi";
 
 interface LevelStateOptions {
-  id: string;
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
 }
 
-const SCALE = 6;
-
 class LevelState extends State<LevelStateOptions> {
-  private id: string;
-  private world: World;
+  public levelBlueprint: ILevelBlueprint;
+  private currentRoomId: string;
 
-  public async init({ id, blueprint }: LevelStateOptions): Promise<void> {
+  private rooms: Map<string, World> = new Map<string, World>();
+
+  public async init({ blueprint }: LevelStateOptions): Promise<void> {
+    this.levelBlueprint = await Promise.resolve(blueprint);
+    this.currentRoomId = this.levelBlueprint.defaultRoomId;
+
+    for (const sound of this.levelBlueprint.resources.sounds) {
+      await SoundManager.register(sound.src, sound.name);
+    }
+
+    for (const sprite of this.levelBlueprint.resources.sprites) {
+      await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
+    }
+
+    await this.levelBlueprint.rooms.forEach(async ({ id }) => {
+      const world = new World(id, this.levelBlueprint);
+
+      world.addSystem(new Systems.PlayerInputSystem());
+      world.addSystem(new Systems.MovementSystem());
+      world.addSystem(new Systems.PhysicsSystem());
+      world.addSystem(new Systems.PlayerCombatSystem());
+      world.addSystem(new Systems.ConsummableSystem());
+      world.addSystem(new Systems.AISystem());
+      world.addSystem(new Systems.FlickerOnImmuneSystem());
+      world.addSystem(new Systems.EventZoneSystem());
+
+      await world.init();
+
+      world.followEntity(world.player);
+      world.controlEntity(world.player);
+
+      world.aimEntity = world.createCrosshair();
+
+      this.rooms.set(id, world);
+    });
+
+    editorStore.setScale(6);
+
     console.info("Level initialized");
-
-    this.id = id;
-
-    const data = await Promise.resolve(blueprint);
-    this.world = new World(data);
-
-    this.world.addSystem(new Systems.PlayerInputSystem());
-    this.world.addSystem(new Systems.MovementSystem());
-    this.world.addSystem(new Systems.PhysicsSystem());
-    this.world.addSystem(new Systems.PlayerCombatSystem());
-    this.world.addSystem(new Systems.ConsummableSystem());
-    this.world.addSystem(new Systems.AISystem());
-    this.world.addSystem(new Systems.FlickerOnImmuneSystem());
-    this.world.addSystem(new Systems.EventZoneSystem());
-
-    await this.world.init();
-
-    this.world.followEntity(this.world.player);
-    this.world.controlEntity(this.world.player);
-
-    this.world.aimEntity = this.createCrosshair();
-
-    editorStore.setScale(SCALE);
-  }
-
-  public createCrosshair(uuid = uuidv4()): Entity {
-    const entity = new Entity("cursor", uuid);
-
-    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 0, align: "center" }));
-
-    this.world.addEntity(entity);
-
-    return entity;
   }
 
   public mounted(): void {
     console.info("Level mounted");
 
+    this.registerEvent(GameEventTypes.CHANGE_ROOM, (e: GameEvents.ChangeRoomEvent) => {
+      const { roomId, moveTo, lookAt } = e.detail;
+
+      if (this.levelBlueprint.rooms.findIndex((room) => room.id === roomId) === -1) {
+        throw new Error(`Could not find room "${roomId}"`);
+      }
+
+      this.currentRoomId = roomId;
+
+      if (moveTo) {
+        const position = this.currentRoom.player.getComponent(Components.Position);
+        position.fromValues(moveTo.x, moveTo.y);
+
+        const cameraPos = this.currentRoom.camera.getComponent(Components.Position);
+        cameraPos.fromValues(moveTo.x, moveTo.y);
+      }
+
+      const rigidBody = this.currentRoom.player.getComponent(Components.RigidBody);
+      rigidBody.velocity.fromValues(0, 0);
+
+      if (lookAt) {
+        rigidBody.direction.fromValues(lookAt.x, lookAt.y);
+        rigidBody.orientation.fromValues(lookAt.x, lookAt.y);
+      }
+    });
+
     this.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint: spawnPoint } = e.detail || {};
 
       // if entity already exists in the world we update its position
-      const entity = this.world.getEntityByUuid(spawnPoint.uuid);
+      const entity = this.currentRoom.getEntityByUuid(spawnPoint.uuid);
       if (entity) {
         if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
           const position = entity.getComponent(Components.Position);
@@ -86,11 +114,11 @@ class LevelState extends State<LevelStateOptions> {
           rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
         }
       } else {
-        this.world.spawn(spawnPoint);
+        this.currentRoom.spawn(spawnPoint);
       }
     });
 
-    ReactDOM.render(React.createElement(LevelUi, { levelId: this.id }), this.$ui);
+    ReactDOM.render(React.createElement(LevelUi, { levelId: this.levelBlueprint.id }), this.$ui);
   }
 
   public unmounted(): void {
@@ -104,39 +132,43 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public update(delta: number): void {
-    this.world.update(delta);
+    this.currentRoom.update(delta);
   }
 
   public render(alpha: number): void {
-    this.world.render(alpha);
+    this.currentRoom.render(alpha);
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
-    this.world.handleKeyboardInput(key, active);
+    this.currentRoom.handleKeyboardInput(key, active);
   }
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
-    this.world.handleMouseLeftBtnPressed(active, position);
+    this.currentRoom.handleMouseLeftBtnPressed(active, position);
   }
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    this.world.handleMouseMiddleBtnPressed(active, position);
+    this.currentRoom.handleMouseMiddleBtnPressed(active, position);
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
-    this.world.handleMouseRightBtnPressed(active, position);
+    this.currentRoom.handleMouseRightBtnPressed(active, position);
   }
 
   public handleMouseMove(position: vec2): void {
-    this.world.handleMouseMove(position);
+    this.currentRoom.handleMouseMove(position);
   }
 
   public handleFullscreenChange(b: boolean): void {
-    this.world.handleFullscreenChange(b);
+    this.currentRoom.handleFullscreenChange(b);
   }
 
   public handleResize(): void {
-    this.world.handleResize();
+    this.currentRoom.handleResize();
+  }
+
+  public get currentRoom(): World {
+    return this.rooms.get(this.currentRoomId);
   }
 }
 

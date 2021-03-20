@@ -6,7 +6,7 @@ import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
-import { ILevelBlueprint } from "@shared/models/world.model";
+import { ILevelBlueprint, IRoomBlueprint } from "@shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
 import { TileLayer, ITile } from "@shared/models/tilemap.model";
 
@@ -56,13 +56,11 @@ class TileMap {
 
   private debugLayer: Map<number, number>;
 
-  constructor(blueprint: ILevelBlueprint) {
-    const room = blueprint.rooms.find((room) => room.id === blueprint.defaultRoomId);
-
-    this.nbCols = room.tileMapCols;
-    this.nbRows = room.tileMapRows;
-    this.tileSize = room.tileSize;
-    this.tileSet = room.tileSet;
+  constructor(blueprint: IRoomBlueprint) {
+    this.nbCols = blueprint.tileMapCols;
+    this.nbRows = blueprint.tileMapRows;
+    this.tileSize = blueprint.tileSize;
+    this.tileSet = blueprint.tileSet;
 
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;
@@ -79,12 +77,12 @@ class TileMap {
       for (let c = 0; c < this.nbCols; c++) {
         const getTileTypeId = (layer) => {
           const index = r * this.nbCols + c;
-          return room.layers[layer][index];
+          return blueprint.layers[layer][index];
         };
 
         const setTileTypeId = (layer, id) => {
           const index = r * this.nbCols + c;
-          room.layers[layer][index] = id;
+          blueprint.layers[layer][index] = id;
         };
 
         const tile: ITile = {

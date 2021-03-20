@@ -27,7 +27,7 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      const room = this.editor.world.blueprint.rooms.find((room) => room.id === this.editor.world.blueprint.defaultRoomId);
+      const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
       const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
       try {
@@ -36,7 +36,7 @@ class EntityMode {
 
           // TODO: push to event stack
         } else {
-          this.editor.world.spawn(spawnPoint);
+          this.editor.currentRoom.spawn(spawnPoint);
           room.spawnPoints.push(spawnPoint);
 
           if (pushToStack) {
@@ -48,7 +48,7 @@ class EntityMode {
         }
 
         // if entity already exists in the world we update its position
-        const entity = this.editor.world.getEntityByUuid(spawnPoint.uuid);
+        const entity = this.editor.currentRoom.getEntityByUuid(spawnPoint.uuid);
         if (entity) {
           if (entity.hasComponent(Position.COMPONENT_TYPE)) {
             const position = entity.getComponent(Position);
@@ -74,7 +74,7 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
       const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
 
-      const room = this.editor.world.blueprint.rooms.find((room) => room.id === this.editor.world.blueprint.defaultRoomId);
+      const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
 
       const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
       const spawnPoint = room.spawnPoints[index];
@@ -84,7 +84,7 @@ class EntityMode {
           throw new Error(`Unknown entity with uuid "${uuid}"`);
         }
 
-        this.editor.world.despawn(spawnPoint.uuid);
+        this.editor.currentRoom.despawn(spawnPoint.uuid);
         room.spawnPoints.splice(index, 1);
 
         if (pushToStack) {
@@ -118,9 +118,9 @@ class EntityMode {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      const coords = this.editor.world.screenToCameraCoords(position);
+      const coords = this.editor.currentRoom.screenToCameraCoords(position);
 
-      const tile = this.editor.world.tileMap.getTileAtCoords(coords.x, coords.y);
+      const tile = this.editor.currentRoom.tileMap.getTileAtCoords(coords.x, coords.y);
 
       const x = tile.position.x + tile.size / 2;
       const y = tile.position.y + tile.size / 2;
@@ -177,7 +177,7 @@ class EntityMode {
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
+    const entities = this.editor.currentRoom.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
 
     this.focusedEntity = undefined;
 

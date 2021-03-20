@@ -30,7 +30,7 @@ class CollisionMode {
 
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
-    const tile = this.editor.world.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
+    const tile = this.editor.currentRoom.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
 
     if (tile) {
       const x = tile.position.x + tile.size / 2;
@@ -45,7 +45,7 @@ class CollisionMode {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      const coords = this.editor.world.screenToCameraCoords(position);
+      const coords = this.editor.currentRoom.screenToCameraCoords(position);
 
       if (this.editor.state.collisionMode === EditorCollisionMode.PLACE) {
         driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);

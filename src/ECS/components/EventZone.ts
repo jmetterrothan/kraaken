@@ -85,7 +85,7 @@ export class EventZone implements Component {
     this.events.forEach(({ type, data }) => {
       switch (type) {
         case "change_room": {
-          // ...
+          dispatch(GameEvents.changeRoom(data.roomId, data.moveTo, data.lookAt));
           return;
         }
 
