@@ -6,18 +6,18 @@ import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
-import { ILevelBlueprint, IRoomBlueprint } from "@shared/models/world.model";
+import { IRoomBlueprint } from "@src/shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
-import { TileLayer, ITile } from "@shared/models/tilemap.model";
+import { TileLayer, ITile } from "@src/shared/models/tilemap.model";
 
-import Box2 from "@shared/math/Box2";
-import Color from "@shared/helper/Color";
-import Vector2 from "@shared/math/Vector2";
+import Box2 from "@src/shared/math/Box2";
+import Color from "@src/shared/helper/Color";
+import Vector2 from "@src/shared/math/Vector2";
 
-import { create2DArray } from "@shared/utility/Utility";
+import { create2DArray } from "@src/shared/utility/Utility";
 import PriorityQueue from "@src/shared/utility/PriorityQueue";
 
-import { configSvc } from "@shared/services/ConfigService";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 export const heuristics = {
   manhattan: (a: ITile, b: ITile): number => {
@@ -35,10 +35,10 @@ export const heuristics = {
 };
 
 class TileMap {
-  private startCol: number;
-  private startRow: number;
-  private endCol: number;
-  private endRow: number;
+  private startCol: number = 0;
+  private startRow: number = 0;
+  private endCol: number = 0;
+  private endRow: number = 0;
 
   public tiles: ITile[][];
   public atlas: SpriteAtlas;
@@ -75,12 +75,12 @@ class TileMap {
 
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
-        const getTileTypeId = (layer) => {
+        const getTileTypeId = (layer: TileLayer) => {
           const index = r * this.nbCols + c;
           return blueprint.layers[layer][index];
         };
 
-        const setTileTypeId = (layer, id) => {
+        const setTileTypeId = (layer: TileLayer, id: number) => {
           const index = r * this.nbCols + c;
           blueprint.layers[layer][index] = id;
         };
@@ -128,7 +128,7 @@ class TileMap {
 
   public init(): void {}
 
-  public update(world: World, delta: number): void {
+  public update(world: World, _delta: number): void {
     const center = world.camera.getComponent(Position);
 
     this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
@@ -150,7 +150,7 @@ class TileMap {
     }
   }
 
-  public renderLayer(layer: TileLayer, projectionMatrix: mat3, viewMatrix: mat3, alpha: number): void {
+  public renderLayer(layer: TileLayer, projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
     this.atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
@@ -165,22 +165,25 @@ class TileMap {
     }
   }
 
-  public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, alpha: number): void {
+  public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
     this.atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
         const tile = this.tiles[r][c];
 
-        if (this.debugLayer.has(tile.index) && this.debugLayer.get(tile.index) > 0) {
-          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, this.debugLayer.get(tile.index), tile.direction, tile.renderOptions);
+        if (this.debugLayer.has(tile.index)) {
+          const n = this.debugLayer.get(tile.index);
+          if (typeof n === "number" && n > 0) {
+            this.atlas.render(projectionMatrix, viewMatrix, tile.transform, n, tile.direction, tile.renderOptions);
+          }
         }
       }
     }
   }
 
   public floodFill(originRow: number, originCol: number, predicate: (tile?: ITile) => boolean): any[] {
-    const stack = [];
+    const stack: Array<{ row: number; col: number }> = [];
 
     const fn = (row: number, col: number) => {
       const index = col * this.nbRows + row;
@@ -232,7 +235,7 @@ class TileMap {
       }
     }
     //(-1, -1), (-1, +1), (+1, -1), (+1, +1), (+1, 0), (0, -1), (-1, 0), (0, +1)
-    return orders.reduce((acc, [r, c]) => {
+    return orders.reduce<ITile[]>((acc, [r, c]) => {
       const tile = this.getTileAt(currentTile.row + r, currentTile.col + c);
       if (tile) {
         acc.push(tile);
@@ -255,13 +258,15 @@ class TileMap {
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         const tile = this.getTileAt(r, c);
-        tile.f = 0;
-        tile.g = 0;
-        tile.h = 0;
-        tile.cost = 1;
-        tile.visited = false;
-        tile.closed = false;
-        tile.parent = null;
+        if (tile) {
+          tile.f = 0;
+          tile.g = 0;
+          tile.h = 0;
+          tile.cost = 1;
+          tile.visited = false;
+          tile.closed = false;
+          tile.parent = null;
+        }
       }
     }
 
@@ -399,6 +404,9 @@ class TileMap {
 
   public getTileTypeAt(layer: TileLayer, r: number, c: number): number {
     const tile = this.getTileAt(r, c);
+    if (!tile) {
+      throw new Error(`Out of bound tile @ r:${r}, c:${c} on layer ${layer}`);
+    }
     return tile.getTileTypeId(layer);
   }
 

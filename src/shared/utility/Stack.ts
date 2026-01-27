@@ -15,12 +15,12 @@ abstract class Stack<T> {
   /**
    * @return {T}
    */
-  public abstract pop(): T;
+  public abstract pop(): T | null;
 
   /**
    * @return {T}
    */
-  public abstract first(): Readonly<T> | undefined;
+  public abstract first(): Readonly<T> | null;
 
   /**
    * @return {boolean}

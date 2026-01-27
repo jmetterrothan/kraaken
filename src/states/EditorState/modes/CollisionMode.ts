@@ -6,7 +6,7 @@ import { Entity } from "@src/ECS";
 import EditorState from "@src/states/EditorState";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { EditorCollisionMode, EditorTerrainMode } from "@src/shared/models/editor.model";
+import { EditorCollisionMode } from "@src/shared/models/editor.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
 
@@ -24,7 +24,7 @@ class CollisionMode {
 
   public unmounted(): void {}
 
-  public update(delta: number): void {
+  public update(_delta: number): void {
     const cursorPosition = this.editor.cursor.getComponent(Position);
     const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
 
@@ -39,9 +39,9 @@ class CollisionMode {
     }
   }
 
-  public render(alpha: number): void {}
+  public render(_alpha: number): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {}
+  public handleKeyboardInput(_key: string, _active: boolean): void {}
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
@@ -55,9 +55,9 @@ class CollisionMode {
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
 
   public handleMouseMove(): void {}
 }

@@ -30,7 +30,7 @@ export class AnimationSystem extends System {
     });
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;

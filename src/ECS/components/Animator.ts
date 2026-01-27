@@ -17,14 +17,14 @@ export class Animator implements Component {
 
   public defaultKey: string;
   public currentKey: string;
-  public previousKey: string = undefined;
+  public previousKey: string | null = null;
 
-  public constructor({ list, defaultKey }: IAnimatorMetadata) {
+  public constructor({ list = {}, defaultKey }: IAnimatorMetadata) {
     this.defaultKey = defaultKey;
     this.currentKey = this.defaultKey;
 
     // convert animation parameters in Animation objects
-    for (const name of Object.keys(list ?? {})) {
+    for (const name of Object.keys(list)) {
       const animation = Animation.create({ name, ...list[name] });
 
       if (!animation) {
@@ -39,7 +39,7 @@ export class Animator implements Component {
     }
   }
 
-  public update(world: World, entity: Entity): string {
+  public update(_world: World, _entity: Entity): string {
     return this.currentKey;
   }
 
@@ -49,12 +49,11 @@ export class Animator implements Component {
 
   public get animation(): Animation {
     if (!this.hasAnimation(this.currentKey)) {
-      console.warn(`Missing animation "${this.currentKey}"`);
-      return this.list.get(this.defaultKey);
+      throw new Error(`Missing animation "${this.currentKey}"`);
     }
-    return this.list.get(this.currentKey);
+    return this.list.get(this.currentKey)!;
   }
-  
+
   public toString(): string {
     return Animator.COMPONENT_TYPE;
   }

@@ -1,6 +1,6 @@
 import { System, Entity } from "@src/ECS";
 
-import { BasicInput, Position, Camera, RigidBody } from "@src/ECS/components";
+import { BasicInput, Position, Camera } from "@src/ECS/components";
 
 export class BasicMovementSystem extends System {
   public constructor() {

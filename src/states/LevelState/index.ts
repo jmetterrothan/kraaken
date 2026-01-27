@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { vec2 } from "gl-matrix";
 
 import * as Systems from "@src/ECS/systems";
@@ -11,10 +10,10 @@ import World from "@src/world/World";
 import SoundManager from "@src/animation/SoundManager";
 import SpriteManager from "@src/animation/SpriteManager";
 
-import { ILevelBlueprint } from "@shared/models/world.model";
+import { ILevelBlueprint } from "@src/shared/models/world.model";
 
-import * as GameEventTypes from "@shared/events/constants";
-import * as GameEvents from "@shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
 
 import editorStore from "../EditorState/editorStore";
 
@@ -26,7 +25,7 @@ interface LevelStateOptions {
 
 class LevelState extends State<LevelStateOptions> {
   public levelBlueprint: ILevelBlueprint;
-  private currentRoomId: string;
+  private currentRoomId: string = "";
 
   private rooms: Map<string, World> = new Map<string, World>();
 
@@ -118,14 +117,14 @@ class LevelState extends State<LevelStateOptions> {
       }
     });
 
-    ReactDOM.render(React.createElement(LevelUi, { levelId: this.levelBlueprint.id }), this.$ui);
+    this.root.render(React.createElement(LevelUi, { levelId: this.levelBlueprint.id }));
   }
 
   public unmounted(): void {
     console.info("Level unmounted");
 
     // remove ui
-    ReactDOM.unmountComponentAtNode(this.$ui);
+    this.root.unmount();
 
     // remove event listeners
     this.flushEvents();
@@ -168,7 +167,7 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public get currentRoom(): World {
-    return this.rooms.get(this.currentRoomId);
+    return this.rooms.get(this.currentRoomId)!;
   }
 }
 

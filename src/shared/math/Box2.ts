@@ -1,4 +1,4 @@
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import { linesIntersection, linesIntersectionWithVector2 } from "@src/shared/utility/MathHelpers";
 

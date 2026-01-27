@@ -12,7 +12,7 @@
   background: transparent;
   color: #40506b;
   cursor: pointer;
-  font-family: $defaultFont;
+  font-family: var(--default-font);
 
   &__icon {
     font-size: 1.25rem;

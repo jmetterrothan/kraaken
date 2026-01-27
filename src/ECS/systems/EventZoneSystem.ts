@@ -7,7 +7,7 @@ export class EventZoneSystem extends System {
     super([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, EventZone.COMPONENT_TYPE]);
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
 
     if (entities.length === 0) {

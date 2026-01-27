@@ -1,6 +1,6 @@
 import { Howl } from "howler";
 
-import { driver } from '@shared/drivers/DriverFactory';
+import { driver } from "@src/shared/drivers/DriverFactory";
 
 interface ISoundProperties {
   volume?: number;
@@ -27,7 +27,7 @@ class SoundManager {
     }
 
     return new Howl({
-      src: SoundManager.MAPPING.get(name),
+      src: SoundManager.MAPPING.get(name)!,
       preload: true,
       autoplay: false,
       ...options,

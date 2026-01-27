@@ -50,7 +50,7 @@ export class Bundle {
     }
   }
 
-  public onComponentAdded(entity: Entity, component: Component): void {
+  public onComponentAdded(entity: Entity, _component: Component): void {
     this.addIfMatch(entity);
   }
 

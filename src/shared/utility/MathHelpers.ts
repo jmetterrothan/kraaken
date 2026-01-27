@@ -1,4 +1,4 @@
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 // the maximum is exclusive and the minimum is inclusive
 export const getRandomInt = (a: number, b: number): number => {

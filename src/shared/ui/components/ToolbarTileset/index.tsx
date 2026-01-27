@@ -1,14 +1,14 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import cx from "classnames";
 
-import * as GameEventTypes from "@shared/events/constants";
-import * as GameEvents from "@shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
 
-import { registerEvent } from "@shared/utility/Utility";
+import { registerEvent } from "@src/shared/utility/Utility";
 
 import ToolbarButton from "../ToolbarButton";
 import TileImage from "../TileImage";
-import useTileset, { IToolbarTilesetItem } from "./useTileset";
+import useTileset from "./useTileset";
 
 import "./ToolbarTileset.scss";
 
@@ -24,7 +24,7 @@ interface IToolbarTilesetProps {
   gapSize?: number;
 }
 
-const ToolbarTileset: React.FC<IToolbarTilesetProps> = ({ disabled, selected, onSelect, onClick, src, tileSize, mostFrequentlyUsedTiles = {} }) => {
+const ToolbarTileset = ({ disabled, selected, onSelect, onClick, src, tileSize, mostFrequentlyUsedTiles = {} }: PropsWithChildren<IToolbarTilesetProps>) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = React.useState(false);

@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-import ToolbarButton, { IToolbarButtonprops } from "../ToolbarButton";
+import ToolbarButton, { IToolbarButtonProps } from "../ToolbarButton";
 
 import "./ToolbarSelect.scss";
 
@@ -11,7 +11,7 @@ export interface IToolbarOption<T> {
   value: T;
 }
 
-interface IToolbarSelectProps<T> extends Omit<IToolbarButtonprops, "name" | "showCaret" | "onClick"> {
+interface IToolbarSelectProps<T> extends Omit<IToolbarButtonProps, "name" | "showCaret" | "onClick"> {
   onItemClick?: (option: IToolbarOption<T>) => void;
   displayedValue?: string;
   selected?: T;
@@ -38,7 +38,7 @@ function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick,
   }, [ref]);
 
   const selection = options.find((option) => option.value === selected);
-  const name = displayedValue ? displayedValue : selection ? selection.name : "Select";
+  const name = (displayedValue ? displayedValue : selection ? selection.name : "Select") ?? "";
 
   return (
     <div
@@ -51,12 +51,12 @@ function ToolbarSelect<T>({ displayedValue, selected, options = [], onItemClick,
       <ul className="toolbar-select__inner">
         {options.map((option, i) => {
           const handleItemClick = () => {
-            onItemClick(option);
+            onItemClick?.(option);
             setOpen(false);
           };
           return (
             <li key={i} className={cx("toolbar-select-item", selected === option.value && "selected")} onClick={handleItemClick}>
-              <span className="toolbar-select-item__name">{option.name || option.value}</span>
+              <span className="toolbar-select-item__name">{option.name || String(option.value)}</span>
               {option.description && <span className="toolbar-select-item__description">{option.description}</span>}
             </li>
           );

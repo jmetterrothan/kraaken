@@ -8,14 +8,12 @@ class StateManager {
 
   constructor() {
     this.states = new Map<number, State>();
-    this.currentIndex = -1;
+    this.currentIndex = 0;
   }
 
   public add(index: number, state: State): void {
     if (this.states.has(index)) {
-      throw new Error(
-        `State manager has already a State defined @ index "${index}"`
-      );
+      throw new Error(`State manager has already a State defined @ index "${index}"`);
     }
 
     this.states.set(index, state);
@@ -80,7 +78,7 @@ class StateManager {
 
     // unmount previous state
     const currentState = this.currentState;
-    if (typeof currentState !== 'undefined') {
+    if (typeof currentState !== "undefined") {
       currentState.unmounted();
     }
 
@@ -89,15 +87,15 @@ class StateManager {
     // mount new state
     const newState = this.getState(index);
     newState.ready = false;
-  
+
     await newState.init(options);
-  
+
     newState.ready = true;
     newState.mounted();
   }
 
-  public getState (index: number): State {
-    return this.states.get(index);
+  public getState(index: number): State {
+    return this.states.get(index)!;
   }
 
   get currentState(): State {

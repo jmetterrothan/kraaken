@@ -1,19 +1,27 @@
 import { vec2 } from "gl-matrix";
 
-import { registerEvent } from '@shared/utility/Utility';
+import { registerEvent } from "@src/shared/utility/Utility";
+import { createRoot, Root } from "react-dom/client";
 
 abstract class State<O = any> {
   public ready = false;
 
-  protected $ui: HTMLElement;
+  protected root: Root;
 
-  private eventCallbackStack = [];
+  private eventCallbackStack: Array<() => void> = [];
 
   constructor() {
-    this.$ui = document.createElement("div");
-    this.$ui.classList.add("kraaken-ui");
+    const $kraaken = document.querySelector(".kraaken");
 
-    document.getElementById("game").querySelector(".kraaken").appendChild(this.$ui);
+    if (!$kraaken) {
+      throw new Error("Could not find game instance root node");
+    }
+
+    const $ui = document.createElement("div");
+    $ui.classList.add("kraaken-ui");
+    $kraaken.appendChild($ui);
+
+    this.root = createRoot($ui);
   }
 
   public abstract init(options: O): Promise<void>;

@@ -4,11 +4,11 @@ import { BasicInput, Position } from "@src/ECS/components";
 
 import { wrapper } from "@src/Game";
 
-import { buttonPressed } from "@shared/utility/Utility";
+import { buttonPressed } from "@src/shared/utility/Utility";
 
 import config from "@src/config";
 
-const gamepads = {};
+const gamepads: Record<number, Gamepad> = {};
 
 // TODO: refactor code to make it easier to build alternative controls
 export class BasicInputSystem extends System {
@@ -24,6 +24,7 @@ export class BasicInputSystem extends System {
       "gamepadconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, true);
+        console.log("Gamepad connected");
       },
       false
     );
@@ -32,6 +33,7 @@ export class BasicInputSystem extends System {
       "gamepaddisconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, false);
+        console.log("Gamepad disconnected");
       },
       false
     );
@@ -79,7 +81,7 @@ export class BasicInputSystem extends System {
     });
   }
 
-  handleGamepadInput(entity: Entity, controllers: Gamepad[], delta: number): void {
+  handleGamepadInput(entity: Entity, controllers: Gamepad[], _delta: number): void {
     const input = entity.getComponent(BasicInput);
 
     const controller = controllers[input.gamepadIndex];
@@ -170,7 +172,7 @@ export class BasicInputSystem extends System {
   }
 
   execute(delta: number): void {
-    const controllers = "getGamepads" in navigator ? navigator.getGamepads() : [];
+    const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {

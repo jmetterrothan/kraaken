@@ -3,7 +3,7 @@ import World from "@src/world/World";
 export abstract class System {
   public readonly componentTypes: ReadonlyArray<string>;
 
-  private _world: World | undefined;
+  private _world: World | null = null;
 
   public constructor(componentTypes: ReadonlyArray<string>) {
     this.componentTypes = componentTypes;
@@ -15,8 +15,8 @@ export abstract class System {
     this._world = world;
   }
 
-  public removedFromWorld(world: World): void {
-    this._world = undefined;
+  public removedFromWorld(_world: World): void {
+    this._world = null;
   }
 
   public get world(): World {

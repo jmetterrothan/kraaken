@@ -1,8 +1,8 @@
-import LocalDriver from "@shared/drivers/LocalDriver";
+import LocalDriver from "@src/shared/drivers/LocalDriver";
 
-import { wsSvc } from "@shared/services/WebSocketService";
+import { wsSvc } from "@src/shared/services/WebSocketService";
 
-import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@src/shared/models/world.model";
 
 class OnlineDriver extends LocalDriver {
   public constructor() {

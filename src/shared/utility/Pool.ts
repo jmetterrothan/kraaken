@@ -3,7 +3,7 @@ import Fifo from "@src/shared/utility/Fifo";
 class Pool<T> {
   private objects: Fifo<T> = new Fifo();
 
-  borrow(): T {
+  borrow(): T | null {
     return this.objects.pop();
   }
 

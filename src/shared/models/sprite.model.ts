@@ -5,7 +5,7 @@ export interface IAttributes {
 export interface IUniform {
   type: string;
   value: any;
-  location?: WebGLUniformLocation;
+  location: WebGLUniformLocation | null;
 }
 
 export interface IUniforms {

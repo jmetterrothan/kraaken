@@ -1,15 +1,12 @@
-import { System }  from "@src/ECS";
+import { System } from "@src/ECS";
 import { PlayerInput, PlayerCombat } from "@src/ECS/components";
 
 export class PlayerCombatSystem extends System {
   public constructor() {
-    super([
-      PlayerInput.COMPONENT_TYPE,
-      PlayerCombat.COMPONENT_TYPE
-    ]);
+    super([PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE]);
   }
 
-  public execute(delta: number): void {
+  public execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;

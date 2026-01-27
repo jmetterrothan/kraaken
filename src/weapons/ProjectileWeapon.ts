@@ -6,8 +6,8 @@ import Weapon from "@src/weapons/Weapon";
 
 import SoundManager from "@src/animation/SoundManager";
 
-import Vector2 from "@shared/math/Vector2";
-import { IVector2 } from "@shared/models/event.model";
+import Vector2 from "@src/shared/math/Vector2";
+import { IVector2 } from "@src/shared/models/event.model";
 
 interface ProjectileWeaponOptions {
   projectile?: string;
@@ -27,7 +27,6 @@ class ProjectileWeapon extends Weapon {
   public readonly rate: number;
   public readonly minRange: number;
   public readonly maxRange: number;
-  public readonly damage: number;
   public readonly burstLimit: number;
   public readonly burstDelay: number;
 
@@ -39,7 +38,7 @@ class ProjectileWeapon extends Weapon {
 
   protected fireSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX, spread }: ProjectileWeaponOptions) {
+  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {

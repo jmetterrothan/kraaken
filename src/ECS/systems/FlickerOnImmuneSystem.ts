@@ -10,13 +10,13 @@ export class FlickerOnImmuneSystem extends System {
     super([Sprite.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
   }
 
-  public execute(delta: number): void {
+  public execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
     }
 
-    entities.forEach((entity) => {    
+    entities.forEach((entity) => {
       const sprite = entity.getComponent(Sprite);
       const health = entity.getComponent(Health);
 

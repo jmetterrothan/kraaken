@@ -7,7 +7,7 @@ export class PlaceableSystem extends System {
     super([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE]);
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;

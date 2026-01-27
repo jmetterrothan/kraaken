@@ -6,13 +6,13 @@ import { PlayerInput, Position, PlayerCombat, Health } from "@src/ECS/components
 
 import { wrapper, canvas } from "@src/Game";
 
-import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@shared/utility/Utility";
+import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@src/shared/utility/Utility";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import config from "@src/config";
 
-const gamepads = {};
+const gamepads: Record<number, Gamepad> = {};
 
 export class PlayerInputSystem extends System {
   public constructor() {
@@ -32,7 +32,6 @@ export class PlayerInputSystem extends System {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-
           this.handleMouseMove(getCoord(canvas, x, y));
         }
       },
@@ -254,7 +253,7 @@ export class PlayerInputSystem extends System {
   }
 
   execute(delta: number): void {
-    const controllers = "getGamepads" in navigator ? navigator.getGamepads() : [];
+    const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {

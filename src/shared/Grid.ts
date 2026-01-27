@@ -6,12 +6,12 @@ import Material from "@src/animation/Material";
 
 import { gl } from "@src/Game";
 
-import WebGL2H from "@shared/utility/WebGL2H";
+import WebGL2H from "@src/shared/utility/WebGL2H";
 
-import { IAttributes, IUniforms } from "@shared/models/sprite.model";
+import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 
-import vsObject from "@assets/shaders/grid.vs.glsl";
-import fsSprite from "@assets/shaders/grid.fs.glsl";
+import vsObject from "@src/assets/shaders/grid.vs.glsl?raw";
+import fsSprite from "@src/assets/shaders/grid.fs.glsl?raw";
 
 class Grid {
   private material: Material = new Material(vsObject, fsSprite);
@@ -34,13 +34,13 @@ class Grid {
   };
 
   private uniforms: IUniforms = {
-    u_projection: { type: "Matrix3fv", value: undefined },
-    u_view: { type: "Matrix3fv", value: undefined },
-    u_model: { type: "Matrix3fv", value: undefined },
-    u_color: { type: "4fv", value: undefined },
-    u_scale: { type: "1f", value: undefined },
-    u_tilesize: { type: "2fv", value: undefined },
-    u_offset: { type: "2fv", value: undefined },
+    u_projection: { type: "Matrix3fv", value: undefined, location: null },
+    u_view: { type: "Matrix3fv", value: undefined, location: null },
+    u_model: { type: "Matrix3fv", value: undefined, location: null },
+    u_color: { type: "4fv", value: undefined, location: null },
+    u_scale: { type: "1f", value: undefined, location: null },
+    u_tilesize: { type: "2fv", value: undefined, location: null },
+    u_offset: { type: "2fv", value: undefined, location: null },
   };
 
   private loaded = false;

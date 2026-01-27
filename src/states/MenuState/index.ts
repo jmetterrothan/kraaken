@@ -13,21 +13,21 @@ class MenuState extends State<void> {
 
   public unmounted(): void {}
 
-  public update(delta: number): void {}
+  public update(_delta: number): void {}
 
-  public render(alpha: number): void {}
+  public render(_alpha: number): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {}
+  public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseLeftBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseMove(position: vec2): void {}
+  public handleMouseMove(_position: vec2): void {}
 
-  public handleFullscreenChange(b: boolean): void {}
+  public handleFullscreenChange(_b: boolean): void {}
 
   public handleResize(): void {}
 }

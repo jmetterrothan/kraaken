@@ -6,11 +6,7 @@ import Vector2 from "@src/shared/math/Vector2";
 
 export class ConsummableSystem extends System {
   public constructor() {
-    super([
-      Position.COMPONENT_TYPE,
-      BoundingBox.COMPONENT_TYPE,
-      Consummable.COMPONENT_TYPE
-    ]);
+    super([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Consummable.COMPONENT_TYPE]);
   }
 
   tryConsummate(entity: Entity, targets: ReadonlyArray<Entity>): void {
@@ -21,7 +17,7 @@ export class ConsummableSystem extends System {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
-      
+
       const targetBbox = target.getComponent(BoundingBox);
 
       if (targetBbox.intersectBox(bbox)) {
@@ -66,7 +62,7 @@ export class ConsummableSystem extends System {
     }
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
 
     if (entities.length === 0) {

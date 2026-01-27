@@ -1,9 +1,9 @@
 import { Subject, Subscription } from "rxjs";
 
-import { TileLayer } from "@shared/models/tilemap.model";
+import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode, EditorCollisionMode } from "@src/shared/models/editor.model";
 
-import dispatch, * as GameEvents from "@shared/events";
+import dispatch, * as GameEvents from "@src/shared/events";
 
 export interface IEditorStoreState {
   scale: number;
@@ -15,7 +15,7 @@ export interface IEditorStoreState {
   entityType: string;
 }
 
-const subject = new Subject();
+const subject = new Subject<IEditorStoreState>();
 
 const initialState: IEditorStoreState = {
   scale: 5,
@@ -27,7 +27,7 @@ const initialState: IEditorStoreState = {
   entityType: "alien_bat",
 };
 
-let state;
+let state: IEditorStoreState;
 
 const editorStore = {
   initialState,

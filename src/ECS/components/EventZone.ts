@@ -24,7 +24,7 @@ export class EventZone implements Component {
   public maxTimesTriggered: number;
   public shouldTriggerWhileActive: boolean; // if false, entity needs to leave the zone for it to be triggerable again
   public mode: IEventZoneMode;
-  public debug: boolean;
+  public debug: boolean = false;
 
   public nbTimesTriggered: number;
   public lastTimeTriggered: number;
@@ -58,7 +58,7 @@ export class EventZone implements Component {
     this.active = true;
   }
 
-  public onLeave(subject: Entity): void {
+  public onLeave(_subject: Entity): void {
     console.log("leave");
 
     this.active = false;

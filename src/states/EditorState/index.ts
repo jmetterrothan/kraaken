@@ -1,7 +1,5 @@
-import { configSvc } from "./../../shared/services/ConfigService";
-import ReactDOM from "react-dom";
 import React from "react";
-import { mat3, vec2 } from "gl-matrix";
+import { vec2 } from "gl-matrix";
 import { v4 as uuidv4 } from "uuid";
 
 import { Entity } from "@src/ECS";
@@ -13,20 +11,20 @@ import World from "@src/world/World";
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
-import { EditorMode } from "@shared/models/editor.model";
-import { ILevelBlueprint } from "@shared/models/world.model";
+import { EditorMode } from "@src/shared/models/editor.model";
+import { ILevelBlueprint } from "@src/shared/models/world.model";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import SoundManager from "@src/animation/SoundManager";
 import SpriteManager from "@src/animation/SpriteManager";
 
 import * as GameEventTypes from "@src/shared/events/constants";
 
-import { driver } from "@shared/drivers/DriverFactory";
-import eventStackSvc from "@shared/services/EventStackService";
+import { driver } from "@src/shared/drivers/DriverFactory";
+import eventStackSvc from "@src/shared/services/EventStackService";
 
-import * as GameEvents from "@shared/events";
+import * as GameEvents from "@src/shared/events";
 
 import TerrainMode from "./modes/TerrainMode";
 import EntityMode from "./modes/EntityMode";
@@ -41,11 +39,11 @@ interface EditorStateOptions {
 
 class EditorState extends State<EditorStateOptions> {
   public levelBlueprint: ILevelBlueprint;
-  public currentRoomId: string;
+  public currentRoomId: string = "";
 
   private rooms: Map<string, World> = new Map<string, World>();
 
-  public mouse: Vector2;
+  public mouse: Vector2 = new Vector2();
   public cursor: Entity;
   public gridCursor: Entity;
   public cursors: Entity[];
@@ -72,6 +70,10 @@ class EditorState extends State<EditorStateOptions> {
 
     await this.levelBlueprint.rooms.forEach(async ({ id }) => {
       const room = this.levelBlueprint.rooms.find((room) => room.id === id);
+
+      if (!room) {
+        throw new Error(`Could not find room with id = ${id}`);
+      }
 
       const world = new World(id, this.levelBlueprint, {
         showGrid: true,
@@ -163,8 +165,10 @@ class EditorState extends State<EditorStateOptions> {
       if (!eventStackSvc.undoStack.isEmpty) {
         const action = eventStackSvc.undoStack.pop();
 
-        eventStackSvc.redoStack.push(action);
-        action.undo();
+        if (action) {
+          eventStackSvc.redoStack.push(action);
+          action.undo();
+        }
       }
     });
 
@@ -172,8 +176,10 @@ class EditorState extends State<EditorStateOptions> {
       if (!eventStackSvc.redoStack.isEmpty) {
         const action = eventStackSvc.redoStack.pop();
 
-        eventStackSvc.undoStack.push(action);
-        action.redo();
+        if (action) {
+          eventStackSvc.undoStack.push(action);
+          action.redo();
+        }
       }
     });
 
@@ -181,7 +187,7 @@ class EditorState extends State<EditorStateOptions> {
       driver.save(e.detail.id, this.levelBlueprint);
     });
 
-    this.registerEvent(GameEventTypes.USER_JOINED_ROOM_EVENT, (e: GameEvents.UserJoinedRoomEvent) => {
+    this.registerEvent(GameEventTypes.USER_JOINED_ROOM_EVENT, (_e: GameEvents.UserJoinedRoomEvent) => {
       /*
       const cursor = this.createCursor(e.detail.uuid);
       this.world.addEntity(cursor);
@@ -189,7 +195,7 @@ class EditorState extends State<EditorStateOptions> {
       */
     });
 
-    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (e: GameEvents.UserLeftRoomEvent) => {});
+    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (_e: GameEvents.UserLeftRoomEvent) => {});
 
     this.modes[EditorMode.ENTITY].mounted();
     this.modes[EditorMode.TERRAIN].mounted();
@@ -197,12 +203,11 @@ class EditorState extends State<EditorStateOptions> {
     driver.sync(this.levelBlueprint.id);
 
     // init ui
-    ReactDOM.render(
+    this.root.render(
       React.createElement(LevelEditorUi, {
         levelId: this.levelBlueprint.id,
         blueprint: this.levelBlueprint,
-      }),
-      this.$ui
+      })
     );
   }
 
@@ -219,7 +224,7 @@ class EditorState extends State<EditorStateOptions> {
     this.modes[EditorMode.TERRAIN].unmounted();
 
     // remove ui
-    ReactDOM.unmountComponentAtNode(this.$ui);
+    this.root.unmount();
   }
 
   public update(delta: number): void {
@@ -272,7 +277,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public get currentRoom(): World {
-    return this.rooms.get(this.currentRoomId);
+    return this.rooms.get(this.currentRoomId)!;
   }
 }
 

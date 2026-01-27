@@ -1,16 +1,16 @@
 import { mat3, vec4 } from "gl-matrix";
 
-import WebGL2H from "@shared/utility/WebGL2H";
+import WebGL2H from "@src/shared/utility/WebGL2H";
 import Material from "@src/animation/Material";
 
-import Box2 from "@shared/math/Box2";
+import Box2 from "@src/shared/math/Box2";
 
 import { gl } from "@src/Game";
 
-import { IAttributes, IUniforms } from "@shared/models/sprite.model";
+import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 
-import fsColor from "@assets/shaders/color.fs.glsl";
-import vsObject from "@assets/shaders/color.vs.glsl";
+import fsColor from "@src/assets/shaders/color.fs.glsl?raw";
+import vsObject from "@src/assets/shaders/color.vs.glsl?raw";
 
 class BoundingBoxHelper {
   private colorMaterial: Material = new Material(vsObject, fsColor);
@@ -32,10 +32,10 @@ class BoundingBoxHelper {
   };
 
   private uniforms: IUniforms = {
-    u_projection: { type: "Matrix3fv", value: undefined },
-    u_view: { type: "Matrix3fv", value: undefined },
-    u_model: { type: "Matrix3fv", value: undefined },
-    u_color: { type: "4fv", value: undefined },
+    u_projection: { type: "Matrix3fv", value: undefined, location: null },
+    u_view: { type: "Matrix3fv", value: undefined, location: null },
+    u_model: { type: "Matrix3fv", value: undefined, location: null },
+    u_color: { type: "4fv", value: undefined, location: null },
   };
 
   public async init(): Promise<void> {

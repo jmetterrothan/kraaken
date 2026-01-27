@@ -1,9 +1,9 @@
 import * as GameEventTypes from "@src/shared/events/constants";
 
-import { TileLayer } from "@shared/models/tilemap.model";
-import { IEventDetails } from "@shared/models/event.model";
-import { IVector2 } from "@shared/models/math.model";
-import { ISpawnpoint } from "@shared/models/world.model";
+import { TileLayer } from "@src/shared/models/tilemap.model";
+import { IEventDetails } from "@src/shared/models/event.model";
+import { IVector2 } from "@src/shared/models/math.model";
+import { ISpawnpoint } from "@src/shared/models/world.model";
 
 interface IChangeRoomEventDetails {
   roomId: string;

@@ -6,7 +6,6 @@ export class PlayerCombat implements Component {
   public static COMPONENT_TYPE = "player_combat";
 
   public usingPrimaryWeapon = false;
-  public primary;
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
     projectile: "energy_bolt", //

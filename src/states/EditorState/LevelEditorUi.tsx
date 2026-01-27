@@ -40,7 +40,16 @@ const useEditorActions = () => {
   );
 };
 
-const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsedTiles }) => {
+// TODO: add props
+type ToolbarModeProps = {
+  editorState: any;
+  entities: any;
+  modal: any;
+  tileSet: any;
+  mostFrequentlyUsedTiles: any;
+};
+
+const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsedTiles }: ToolbarModeProps) => {
   switch (editorState.mode) {
     case EditorMode.ENTITY:
       return (
@@ -136,14 +145,23 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   const room = rooms.find((room) => room.id === level.defaultRoomId);
 
-  const tileSet = React.useMemo(() => resources.sprites.find((sprite) => sprite.name === room.tileSet), []);
+  const tileSet = React.useMemo(
+    () =>
+      resources.sprites.find((sprite) => sprite.name === room?.tileSet) ?? {
+        src: "",
+        name: "",
+        tileHeight: 0,
+        tileWidth: 0,
+      },
+    []
+  );
 
-  const { tiles, nbCols, nbRows } = useTileset(driver.getAssetUrl(tileSet.src), tileSet.tileWidth);
+  const { tiles, nbCols, nbRows } = useTileset(driver.getAssetUrl(tileSet.src), tileSet.tileWidth, tileSet.tileHeight);
 
   const mostFrequentlyUsedTiles = React.useMemo(() => {
-    const tileTypeIndexes = [...room.layers[TileLayer.L1], ...room.layers[TileLayer.L2]];
+    const tileTypeIndexes = [...(room?.layers[TileLayer.L1] ?? []), ...(room?.layers[TileLayer.L2] ?? [])];
 
-    return tileTypeIndexes.reduce((acc, index) => {
+    return tileTypeIndexes.reduce<Record<number, number>>((acc, index) => {
       if (index !== 0) {
         if (typeof acc[index] === "undefined") {
           acc[index] = 0;

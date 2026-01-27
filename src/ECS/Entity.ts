@@ -36,13 +36,10 @@ export class Entity {
     return this;
   }
 
-  public getComponent<T extends Component = Component>(ComponentClass: ComponentConstructor<T>): T | undefined {
-    const component = this._components.get((ComponentClass as any).COMPONENT_TYPE);
+  public getComponent<T extends Component = Component>(ComponentClass: ComponentConstructor<T>): T {
+    const component = this._components.get((ComponentClass as any).COMPONENT_TYPE)!;
 
-    if (typeof component !== "undefined") {
-      return component as T;
-    }
-    return undefined;
+    return component as T;
   }
 
   public hasComponent(type: string): boolean {

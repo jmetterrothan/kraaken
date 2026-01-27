@@ -12,13 +12,13 @@ import * as Components from "@src/ECS/components";
 import TileMap from "@src/world/TileMap";
 import Grid from "@src/shared/Grid";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
-import { IVector2 } from "@shared/models/event.model";
-import { ILevelBlueprint, ISpawnpoint, IEventZone, IRoomBlueprint, IWorldOptions } from "@shared/models/world.model";
-import { TileLayer } from "@shared/models/tilemap.model";
+import { IVector2 } from "@src/shared/models/event.model";
+import { ILevelBlueprint, ISpawnpoint, IEventZone, IRoomBlueprint, IWorldOptions } from "@src/shared/models/world.model";
+import { TileLayer } from "@src/shared/models/tilemap.model";
 
-import { configSvc } from "@shared/services/ConfigService";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 import config from "@src/config";
 
@@ -35,7 +35,7 @@ class World {
   public gravity: number;
   public player: Entity;
   public aimEntity: Entity;
-  public controlledEntity: Entity;
+  public controlledEntity: Entity | null;
 
   // TODO: improve efficiency
   private _bundles: Map<string, Bundle> = new Map();
@@ -49,16 +49,18 @@ class World {
 
   constructor(roomId: string, levelBlueprint: ILevelBlueprint, options: Partial<IWorldOptions> = {}) {
     this.levelBlueprint = levelBlueprint;
-    this.roomBlueprint = levelBlueprint.rooms.find((room) => room.id === roomId);
+
+    const roomBlueprint = levelBlueprint.rooms.find((room) => room.id === roomId);
+    if (!roomBlueprint) {
+      throw new Error(`Could not find room "${roomId}" blueprint`);
+    }
+
+    this.roomBlueprint = roomBlueprint;
 
     this.options = {
       showGrid: options.showGrid === true,
       showZones: options.showZones === true,
     };
-
-    if (!this.roomBlueprint) {
-      throw new Error(`Could not find room "${roomId}" blueprint`);
-    }
   }
 
   public async init(): Promise<void> {
@@ -113,8 +115,6 @@ class World {
   }
 
   public despawn(uuid: string): void {
-    // TODO: remove entity
-
     const entity = this._entities.find((temp) => temp.uuid === uuid);
     if (entity) {
       this.removeEntity(entity);
@@ -135,15 +135,17 @@ class World {
   public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
-    this.levelBlueprint.entities
-      .find((item) => item.type === type)
-      .components.forEach(({ name, metadata = {} }) => {
-        entity.addComponent(ComponentFactory.create(name, metadata));
-      });
+    const components = this.levelBlueprint.entities.find((item) => item.type === type)?.components ?? [];
+
+    components.forEach(({ name, metadata = {} }) => {
+      entity.addComponent(ComponentFactory.create(name, metadata));
+    });
 
     if (type === "player") {
       this.player = entity;
     }
+
+    console.log(entity);
 
     return entity;
   }
@@ -170,7 +172,7 @@ class World {
     }
   }
 
-  public spawn({ type, uuid, position, direction, debug }: ISpawnpoint): Entity {
+  public spawn({ type, uuid = uuidv4(), position = { x: 0, y: 0 }, direction = { x: 1, y: 1 }, debug }: Partial<Omit<ISpawnpoint, "type">> & Pick<ISpawnpoint, "type">): Entity {
     const entity = this.createEntity(type, uuid);
     this.placeEntity(entity, position, direction, debug);
     this.addEntity(entity);
@@ -344,13 +346,13 @@ class World {
     }
   }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
+  public handleKeyboardInput(_key: string, active: boolean): void {
     if (active) {
       //
     }
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseLeftBtnPressed(active: boolean, _position: vec2): void {
     if (active) {
       // console.log("left click");
     }
@@ -368,21 +370,23 @@ class World {
       const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
       const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
 
-      this.tileMap.aStar(startTile, goalTile);
+      if (startTile && goalTile) {
+        this.tileMap.aStar(startTile, goalTile);
+      }
     }
   }
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseRightBtnPressed(active: boolean, _position: vec2): void {
     if (active) {
       // console.log("right click");
     }
   }
 
-  public handleMouseMove(position: vec2): void {
+  public handleMouseMove(_position: vec2): void {
     // const coords = this.screenToCameraCoords(position);
   }
 
-  public handleFullscreenChange(b: boolean): void {
+  public handleFullscreenChange(_b: boolean): void {
     // ...
   }
 
@@ -390,7 +394,7 @@ class World {
     this.recenterCamera(this.camera);
   }
 
-  public controlEntity(entity?: Entity): void {
+  public controlEntity(entity: Entity | null): void {
     this.controlledEntity = entity;
   }
 

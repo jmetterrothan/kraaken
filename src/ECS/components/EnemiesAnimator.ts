@@ -11,7 +11,7 @@ export enum EnemyAnimationKeys {
 }
 
 export class EnemyAnimator extends Animator {
-  public update(world: World, entity: Entity): string {
+  public update(_world: World, entity: Entity): string {
     const movement = entity.getComponent(Movement);
     const health = entity.getComponent(Health);
 

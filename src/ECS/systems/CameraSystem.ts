@@ -3,7 +3,7 @@ import { mat3, vec2 } from "gl-matrix";
 import { Entity, System } from "@src/ECS";
 import { Position, Camera, CameraMode } from "@src/ECS/components";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import { configSvc } from "@src/shared/services/ConfigService";
 
@@ -20,7 +20,7 @@ export class CameraSystem extends System {
   public updateViewBox(entity: Entity): void {
     const camera = entity.getComponent(Camera);
 
-    camera.viewMatrixInverse = mat3.invert(mat3.create(), camera.viewMatrix);
+    camera.viewMatrixInverse = mat3.invert(mat3.create(), camera.viewMatrix) ?? mat3.create();
 
     const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), camera.viewMatrixInverse);
     const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), camera.viewMatrixInverse);
@@ -34,7 +34,7 @@ export class CameraSystem extends System {
     camera.viewBox.setMax(max[0], max[1]);
   }
 
-  public updatePosition(entity: Entity, delta: number): void {
+  public updatePosition(entity: Entity, _delta: number): void {
     const camera = entity.getComponent(Camera);
     const position = entity.getComponent(Position);
 

@@ -1,8 +1,11 @@
-import {  Subject, Subscription } from 'rxjs';
+import { Subject, Subscription } from "rxjs";
 
 import Fifo from "@src/shared/utility/Fifo";
 
-interface EventStackItem { undo: () => void; redo: () => void; }
+interface EventStackItem {
+  undo: () => void;
+  redo: () => void;
+}
 
 /**
  * Fifo list you can subscribe to changes
@@ -21,7 +24,7 @@ class EventStack<T> extends Fifo<T> {
     this.subject.next(this.length);
   }
 
-  public pop(): T {
+  public pop(): T | null {
     const item = super.pop();
     this.subject.next(this.length);
     return item;
@@ -29,7 +32,7 @@ class EventStack<T> extends Fifo<T> {
 
   public subscribe(callback: (n: number) => void): Subscription {
     return this.subject.subscribe({
-      next: callback
+      next: callback,
     });
   }
 }

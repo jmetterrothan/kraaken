@@ -1,9 +1,11 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import cx from "classnames";
 
 import TileImage from "../TileImage";
 
 import "./Modal.scss";
+
+import { IToolbarTilesetItem } from "../ToolbarTileset/useTileset";
 
 interface Modal {
   isOpen?: boolean;
@@ -22,7 +24,7 @@ export const useModal = (): Modal => {
 };
 
 interface IModalProps {
-  tiles: any;
+  tiles: IToolbarTilesetItem[];
   selected: number;
   nbCols: number;
   nbRows: number;
@@ -33,7 +35,7 @@ interface IModalProps {
   onClose?: () => void;
 }
 
-const Modal: React.FC<IModalProps> = ({ tiles, selected, nbCols, nbRows, tileWidth, tileHeight, isOpen, onSelect, onClose }) => {
+const Modal = ({ tiles, selected, nbCols, nbRows, tileWidth, tileHeight, isOpen, onSelect, onClose }: PropsWithChildren<IModalProps>) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const scale = 4;
@@ -41,7 +43,7 @@ const Modal: React.FC<IModalProps> = ({ tiles, selected, nbCols, nbRows, tileWid
   React.useLayoutEffect(() => {
     const fn = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
+        onClose?.();
       }
     };
 
@@ -66,8 +68,8 @@ const Modal: React.FC<IModalProps> = ({ tiles, selected, nbCols, nbRows, tileWid
         >
           {tiles.map(({ index, row, col, subImage }) => {
             const onClick = () => {
-              onSelect(index);
-              onClose();
+              onSelect?.(index);
+              onClose?.();
             };
 
             return (

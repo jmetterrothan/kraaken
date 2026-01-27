@@ -1,4 +1,4 @@
-import { Component, Entity } from '@src/ECS';
+import { Component, Entity } from "@src/ECS";
 
 import World from "@src/world/World";
 
@@ -18,10 +18,10 @@ export class Consummable extends Component {
   public readonly applyToEntityTypes?: string[];
   public readonly radius: number;
   public readonly limit: number;
-  public readonly pickUpVFX: string;
+  public readonly pickUpVFX: string | null = null;
   public readonly pickUpSFX?: Howl;
 
-  public target: Entity;
+  public target: Entity | null = null;
 
   public consummated = false;
   public nbOfTimesConsummated = 0;
@@ -33,7 +33,7 @@ export class Consummable extends Component {
     this.limit = metadata.limit ?? 1;
     this.applyToEntityTypes = metadata.applyToEntityTypes;
 
-    this.pickUpVFX = metadata.pickUpVFX;
+    this.pickUpVFX = metadata.pickUpVFX ?? null;
 
     if (metadata.pickUpSFX) {
       this.pickUpSFX = SoundManager.create(metadata.pickUpSFX, {
@@ -42,7 +42,7 @@ export class Consummable extends Component {
     }
   }
 
-  public consummatedBy(world: World, entity: Entity): void {
+  public consummatedBy(_world: World, _entity: Entity): void {
     this.nbOfTimesConsummated += 1;
   }
 

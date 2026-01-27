@@ -1,18 +1,20 @@
-import * as firebase from 'firebase';
+import * as firebase from "firebase";
 
-import 'firebase/firestore';
+import "firebase/firestore";
 
-import config from '@src/config';
+import config from "@src/config";
 
 const instanceSym = Symbol("firebase-connector");
 
 class FirebaseConnector {
+  public static [instanceSym]: FirebaseConnector;
+
   public app: firebase.app.App;
   public db: firebase.firestore.Firestore;
 
-  private constructor(sym) {
+  private constructor(sym: Symbol) {
     if (sym !== instanceSym) {
-      throw new Error('Could not instanciate FirebaseConnector');
+      throw new Error("Could not instanciate FirebaseConnector");
     }
 
     this.app = firebase.initializeApp({

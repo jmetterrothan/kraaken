@@ -5,14 +5,14 @@ import SpriteManager from "@src/animation/SpriteManager";
 
 import { gl } from "@src/Game";
 
-import Vector2 from "@shared/math/Vector2";
-import WebGL2H from "@shared/utility/WebGL2H";
+import Vector2 from "@src/shared/math/Vector2";
+import WebGL2H from "@src/shared/utility/WebGL2H";
 
-import { ISpriteRenderRenderOptions } from "@shared/models/animation.model";
-import { IAttributes, IUniforms } from "@shared/models/sprite.model";
+import { ISpriteRenderRenderOptions } from "@src/shared/models/animation.model";
+import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 
-import vsObject from "@assets/shaders/sprite.vs.glsl";
-import fsSprite from "@assets/shaders/sprite.fs.glsl";
+import vsObject from "@src/assets/shaders/sprite.vs.glsl?raw";
+import fsSprite from "@src/assets/shaders/sprite.fs.glsl?raw";
 
 class SpriteAtlas {
   private textureMaterial: Material = new Material(vsObject, fsSprite);
@@ -40,17 +40,17 @@ class SpriteAtlas {
   };
 
   private uniforms: IUniforms = {
-    u_projection: { type: "Matrix3fv", value: undefined },
-    u_view: { type: "Matrix3fv", value: undefined },
-    u_model: { type: "Matrix3fv", value: undefined },
-    u_frame: { type: "2fv", value: undefined },
-    u_grayscale: { type: "1i", value: false },
-    u_outline: { type: "1i", value: false },
-    u_outline_color: { type: "4fv", value: undefined },
-    u_size: { type: "2fv", value: undefined },
-    u_image: { type: "1i", value: undefined },
-    u_tint_color: { type: "4fv", value: undefined },
-    u_tint_effect: { type: "1i", value: undefined }
+    u_projection: { type: "Matrix3fv", value: undefined, location: null },
+    u_view: { type: "Matrix3fv", value: undefined, location: null },
+    u_model: { type: "Matrix3fv", value: undefined, location: null },
+    u_frame: { type: "2fv", value: undefined, location: null },
+    u_grayscale: { type: "1i", value: false, location: null },
+    u_outline: { type: "1i", value: false, location: null },
+    u_outline_color: { type: "4fv", value: undefined, location: null },
+    u_size: { type: "2fv", value: undefined, location: null },
+    u_image: { type: "1i", value: undefined, location: null },
+    u_tint_color: { type: "4fv", value: undefined, location: null },
+    u_tint_effect: { type: "1i", value: undefined, location: null },
   };
 
   constructor(src: string, alias: string, tw: number, th: number) {
@@ -85,8 +85,8 @@ class SpriteAtlas {
   }
 
   public computeTileCoord(row: number, col: number, dx = 1, dy = 1, reflect = false): vec2 {
-    const rdx = (reflect && dx) < 0 ? -1 : 1;
-    const rdy = (reflect && dy) < 0 ? -1 : 1;
+    const rdx = reflect && dx < 0 ? -1 : 1;
+    const rdy = reflect && dy < 0 ? -1 : 1;
 
     // calculate frame woords in a 0 - 1 range
     const x = (((col + (rdx === -1 ? 1 : 0)) * this.tileWidth) / this.width) * rdx;
@@ -97,21 +97,21 @@ class SpriteAtlas {
 
   public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, index: number, direction: Vector2 | undefined, renderOptions: ISpriteRenderRenderOptions): void {
     // flickering effect - skip frames
-    if (renderOptions.flickering && Math.floor(window.performance.now() / renderOptions.flickerSpeed) % 2) {
+    if (renderOptions.flickering && Math.floor(window.performance.now() / (renderOptions.flickerSpeed ?? 1)) % 2) {
       return;
     }
-    
+
     if (this.loaded) {
       this.setUniform("u_grayscale", renderOptions.grayscale);
       this.setUniform("u_tint_effect", renderOptions.tintEffect);
       this.setUniform("u_tint_color", renderOptions.tintColor);
       this.setUniform("u_outline", renderOptions.outline);
       this.setUniform("u_outline_color", renderOptions.outlineColor);
-      
+
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", modelMatrix);
-      
+
       this.setUniform("u_size", [this.width, this.height]);
       this.setUniform("u_frame", this.computeTileCoord(this.getRow(index), this.getCol(index), direction?.x, direction?.y, renderOptions.reflect));
 
@@ -180,7 +180,7 @@ class SpriteAtlas {
     return Math.trunc(index % this.nbCols);
   }
 
-  public getCoords(index: number): { row: number; col: number; } {
+  public getCoords(index: number): { row: number; col: number } {
     return { row: this.getRow(index), col: this.getCol(index) };
   }
 }

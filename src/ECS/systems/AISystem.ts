@@ -1,7 +1,7 @@
 import { System } from "@src/ECS";
 import { RigidBody, FlyingAI, Position } from "@src/ECS/components";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 const maxSpeed = 54;
 
@@ -10,7 +10,7 @@ export class AISystem extends System {
     super([FlyingAI.COMPONENT_TYPE]);
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -21,6 +21,7 @@ export class AISystem extends System {
 
       if (!ai.target) {
         ai.follow(this.world.player);
+        return;
       }
 
       // TODO: optimize / should update only a few times per second

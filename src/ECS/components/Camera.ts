@@ -4,7 +4,7 @@ import { Entity, Component } from "@src/ECS";
 import { Position } from "@src/ECS/components";
 
 import Box2 from "@src/shared/math/Box2";
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import { configSvc } from "@src/shared/services/ConfigService";
 
@@ -32,8 +32,8 @@ export class Camera implements Component {
   public mode: CameraMode = CameraMode.LERP_SMOOTHING;
   public smoothing: number;
 
-  public target: Entity;
-  public boundaries: Box2;
+  public target: Entity | null = null;
+  public boundaries: Box2 | null = null;
 
   public zoom: number = configSvc.scale;
 
@@ -79,7 +79,7 @@ export class Camera implements Component {
   }
 
   public unfollow(): void {
-    this.target = undefined;
+    this.target = null;
   }
 
   public toString(): string {

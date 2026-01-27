@@ -1,4 +1,4 @@
-import { Component } from '@src/ECS';
+import { Component } from "@src/ECS";
 import * as Components from "@src/ECS/components";
 
 class ComponentFactory {
@@ -37,14 +37,14 @@ class ComponentFactory {
         return new Components.BasicInput();
       case "placeable":
         return new Components.Placeable();
-      case "projectile": 
+      case "projectile":
         return new Components.Projectile(metadata);
-      case "flying_ai": 
+      case "flying_ai":
         return new Components.FlyingAI();
-      case "collider": 
+      case "collider":
         return new Components.Collider();
       default:
-        throw new Error(`Unknown component name "${type}"`);
+        throw new Error(`Unknown component name "${name}"`);
     }
   }
 }

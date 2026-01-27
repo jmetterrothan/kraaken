@@ -4,15 +4,15 @@ import { Position } from "@src/ECS/components";
 
 import EditorState from "@src/states/EditorState";
 
-import * as GameEventTypes from "@shared/events/constants";
-import dispatch, * as GameEvents from "@shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
 
-import eventStackSvc from "@shared/services/EventStackService";
+import eventStackSvc from "@src/shared/services/EventStackService";
 
-import { driver } from "@shared/drivers/DriverFactory";
+import { driver } from "@src/shared/drivers/DriverFactory";
 
-import { EditorTerrainMode } from "@shared/models/editor.model";
-import { ITile, TileLayer } from "@shared/models/tilemap.model";
+import { EditorTerrainMode } from "@src/shared/models/editor.model";
+import { ITile, TileLayer } from "@src/shared/models/tilemap.model";
 
 import editorStore from "../editorStore";
 
@@ -31,7 +31,7 @@ class TerrainMode {
         throw new Error("Undefined tile type index");
       }
 
-      let oldTileTypeId: number;
+      let oldTileTypeId: number = tileTypeId;
 
       try {
         const tileMap = this.editor.currentRoom.tileMap;
@@ -74,7 +74,7 @@ class TerrainMode {
 
   public unmounted(): void {}
 
-  public update(delta: number): void {
+  public update(_delta: number): void {
     const cursorPosition = this.editor.cursor.getComponent(Position);
     const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
 
@@ -89,9 +89,9 @@ class TerrainMode {
     }
   }
 
-  public render(alpha: number): void {}
+  public render(_alpha: number): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {}
+  public handleKeyboardInput(_key: string, _active: boolean): void {}
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
@@ -116,7 +116,7 @@ class TerrainMode {
 
         if (targetTile) {
           const targetId = targetTile.getTileTypeId(layerId);
-          const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile) => tile && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
+          const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
           driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
         }
@@ -124,11 +124,11 @@ class TerrainMode {
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseMove(position: vec2): void {}
+  public handleMouseMove(_position: vec2): void {}
 }
 
 export default TerrainMode;

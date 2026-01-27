@@ -1,14 +1,14 @@
-import { mat3, vec2 } from "gl-matrix";
+import { mat3 } from "gl-matrix";
 
 import { Component } from "@src/ECS";
 
 import SpriteManager from "@src/animation/SpriteManager";
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 
-import { TintEffect } from '@shared/models/animation.model';
-import { ISpriteRenderRenderOptions } from "@shared/models/animation.model";
+import { TintEffect } from "@src/shared/models/animation.model";
+import { ISpriteRenderRenderOptions } from "@src/shared/models/animation.model";
 
-import Vector2 from '@shared/math/Vector2';
+import Vector2 from "@src/shared/math/Vector2";
 import Color from "@src/shared/helper/Color";
 
 interface ISpriteMetadata {

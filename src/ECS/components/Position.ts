@@ -2,7 +2,7 @@ import { mat3 } from "gl-matrix";
 
 import { Component } from "@src/ECS";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 export interface IPositionMetadata {
   x?: number;

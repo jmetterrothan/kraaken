@@ -1,4 +1,4 @@
-import WebGL2H from "@shared/utility/WebGL2H";
+import WebGL2H from "@src/shared/utility/WebGL2H";
 
 import { gl } from "@src/Game";
 

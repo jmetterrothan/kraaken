@@ -1,9 +1,10 @@
-@import "reset-css";
-@import "~@sass/abstracts/_fonts.scss";
-@import "~@fonts/fontawesome-pro/css/all.css";
+@use "reset-css";
+@use "./abstracts/_fonts.scss";
+@use "./abstracts/_variables.scss";
+@use "../fonts/fontawesome-pro/css/all.css";
 
 html {
-  font-family: $defaultFont;
+  font-family: var(--default-font);
   font-size: 14px;
   background: #f1f1f1;
 }
@@ -25,7 +26,7 @@ html {
   }
 
   &-ui {
-    font-family: $defaultFont;
+    font-family: var(--default-font);
     position: absolute;
     top: 0;
     left: 0;

@@ -1,6 +1,6 @@
-import React from "react";
+import { PropsWithChildren } from "react";
 
-const Ui: React.FC = ({ children }) => {
+const Ui = ({ children }: PropsWithChildren) => {
   return <div className="ui">{children}</div>;
 };
 

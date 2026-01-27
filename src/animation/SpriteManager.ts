@@ -13,7 +13,7 @@ class SpriteManager {
       const hash: string = md5(src);
 
       if (SpriteManager.LOADED_FILES.has(hash) === true) {
-        resolve(SpriteManager.LOADED_FILES.get(hash));
+        resolve(SpriteManager.LOADED_FILES.get(hash)!);
       }
 
       const image: HTMLImageElement = new Image();
@@ -36,7 +36,7 @@ class SpriteManager {
 
   public static async create(src: string, alias: string, tw: number, th: number): Promise<SpriteAtlas> {
     if (SpriteManager.LOADED_SPRITES.has(alias) === true) {
-      return SpriteManager.LOADED_SPRITES.get(alias);
+      return SpriteManager.LOADED_SPRITES.get(alias)!;
     }
 
     const url = driver.getAssetUrl(src);
@@ -52,7 +52,7 @@ class SpriteManager {
     if (!SpriteManager.LOADED_SPRITES.has(alias)) {
       throw new Error(`Sprite referenced by alias "${alias}" is missing`);
     }
-    return SpriteManager.LOADED_SPRITES.get(alias);
+    return SpriteManager.LOADED_SPRITES.get(alias)!;
   }
 }
 

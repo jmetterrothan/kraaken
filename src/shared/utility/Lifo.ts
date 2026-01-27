@@ -1,4 +1,4 @@
-import Stack from "@shared/utility/Stack";
+import Stack from "@src/shared/utility/Stack";
 
 class Lifo<T> extends Stack<T> {
   public push(item: T): void {
@@ -6,19 +6,19 @@ class Lifo<T> extends Stack<T> {
     this.list.push(item);
   }
 
-  public pop(): T | undefined {
-    const temp: T = this.list.shift();
+  public pop(): T | null {
+    const temp = this.list.shift() ?? null;
     if (temp) {
       this.size--;
     }
     return temp;
   }
 
-  public first(): Readonly<T> | undefined {
+  public first(): Readonly<T> | null {
     if (this.size >= 1) {
       return this.list[0];
     }
-    return undefined;
+    return null;
   }
 }
 

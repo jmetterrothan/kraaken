@@ -8,7 +8,7 @@ export class RenderingSystem extends System {
     super([Position.COMPONENT_TYPE]);
   }
 
-  execute(alpha: number): void {
+  execute(_alpha: number): void {
     const cameraComponent = this.world.camera.getComponent(Camera);
 
     const entities = this.world.getEntities(this.componentTypes);

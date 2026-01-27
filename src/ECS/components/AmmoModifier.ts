@@ -1,11 +1,11 @@
-import { Entity } from '@src/ECS';
+import { Entity } from "@src/ECS";
 
 import { Consummable, PlayerCombat, BoundingBox } from "@src/ECS/components";
 
 import World from "@src/world/World";
 
 export class AmmoModifier extends Consummable {
-  public readonly amount: number;
+  public readonly amount: number = 0;
 
   public constructor(metadata = {}) {
     super(metadata);
@@ -27,7 +27,7 @@ export class AmmoModifier extends Consummable {
     if (!super.canBeConsummatedBy(entity)) {
       return false;
     }
-    
+
     if (!entity.hasComponent(PlayerCombat.COMPONENT_TYPE)) {
       return false;
     }

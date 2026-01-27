@@ -1,8 +1,8 @@
 import { Entity, System } from "@src/ECS";
 import { Collider, Position, BoundingBox, RigidBody, Movement } from "@src/ECS/components";
 
-import { ITile } from "@shared/models/tilemap.model";
-import Vector2 from "@shared/math/Vector2";
+import { ITile } from "@src/shared/models/tilemap.model";
+import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 import TileMap from "@src/world/TileMap";
@@ -169,7 +169,7 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public handleCollisionWithLeftSide(entity: Entity, bbox: BoundingBox | ITile, delta: number): void {
+  public handleCollisionWithLeftSide(entity: Entity, bbox: BoundingBox | ITile, _delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
 
@@ -191,7 +191,7 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public handleCollisionWithRightSide(entity: Entity, bbox: BoundingBox | ITile, delta: number): void {
+  public handleCollisionWithRightSide(entity: Entity, bbox: BoundingBox | ITile, _delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
 
@@ -213,7 +213,7 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], step: Vector2, delta: number): void {
+  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], _step: Vector2, _delta: number): void {
     const bbox = entity.getComponent(BoundingBox);
     // const rigidBody = entity.getComponent(RigidBody);
 

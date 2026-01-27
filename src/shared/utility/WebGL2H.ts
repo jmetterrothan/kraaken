@@ -1,41 +1,28 @@
-import { IAttributes, IUniform, IUniforms } from "@shared/models/sprite.model";
+import { IUniform, IUniforms } from "@src/shared/models/sprite.model";
 
-const createShader = (
-  gl: WebGL2RenderingContext,
-  type: number,
-  source: string
-): WebGLShader => {
-  const shader: WebGLShader = gl.createShader(type);
+const createShader = (gl: WebGL2RenderingContext, type: number, source: string): WebGLShader => {
+  const shader = gl.createShader(type);
+
+  if (!shader) {
+    throw new Error("Could not initialize shader");
+  }
 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.warn(gl.getShaderInfoLog(shader), source);
-
     gl.deleteShader(shader);
-    return null;
+
+    console.warn(gl.getShaderInfoLog(shader), source);
+    throw new Error("Could not initialize shader");
   }
 
   return shader;
 };
 
-const createProgram = (
-  gl: WebGL2RenderingContext,
-  vsSource: string,
-  fsSource: string,
-  validate = false
-): WebGLProgram => {
-  const vertexShader: WebGLShader = createShader(
-    gl,
-    gl.VERTEX_SHADER,
-    vsSource
-  );
-  const fragmentShader: WebGLShader = createShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    fsSource
-  );
+const createProgram = (gl: WebGL2RenderingContext, vsSource: string, fsSource: string, validate = false): WebGLProgram => {
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
   if (!vertexShader || !fragmentShader) {
     throw new Error("Could not continue program initialization");
@@ -48,20 +35,20 @@ const createProgram = (
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error(gl.getProgramInfoLog(program));
-
     gl.deleteProgram(program);
-    return null;
+
+    console.error(gl.getProgramInfoLog(program));
+    throw new Error("Could not continue program initialization");
   }
 
   if (validate) {
     gl.validateProgram(program);
 
     if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
-      console.error(gl.getProgramInfoLog(program));
-
       gl.deleteProgram(program);
-      return null;
+
+      console.error(gl.getProgramInfoLog(program));
+      throw new Error("Could not continue program initialization");
     }
   }
 
@@ -93,21 +80,10 @@ const setUniform = (gl: WebGL2RenderingContext, uniform: IUniform): void => {
       gl.uniform2f(uniform.location, uniform.value[0], uniform.value[1]);
       break;
     case "3f":
-      gl.uniform3f(
-        uniform.location,
-        uniform.value[0],
-        uniform.value[1],
-        uniform.value[2]
-      );
+      gl.uniform3f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2]);
       break;
     case "4f":
-      gl.uniform4f(
-        uniform.location,
-        uniform.value[0],
-        uniform.value[1],
-        uniform.value[2],
-        uniform.value[3]
-      );
+      gl.uniform4f(uniform.location, uniform.value[0], uniform.value[1], uniform.value[2], uniform.value[3]);
       break;
     case "1iv":
       gl.uniform1iv(uniform.location, uniform.value);
@@ -136,12 +112,7 @@ const setUniform = (gl: WebGL2RenderingContext, uniform: IUniform): void => {
   }
 };
 
-const createQuadVertices = (
-  x: number,
-  y: number,
-  w: number,
-  h: number
-): Float32Array => {
+const createQuadVertices = (x: number, y: number, w: number, h: number): Float32Array => {
   return new Float32Array([x, y + h, x, y, x + w, y, x + w, y + h]);
 };
 

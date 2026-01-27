@@ -1,9 +1,9 @@
-import React from "react";
+import { PropsWithChildren } from "react";
 import cx from "classnames";
 
 import "./ToolbarButton.scss";
 
-export interface IToolbarButtonprops {
+export interface IToolbarButtonProps {
   active: boolean;
   disabled?: boolean;
   theme?: "blue" | "red";
@@ -13,7 +13,7 @@ export interface IToolbarButtonprops {
   onClick?: () => void;
 }
 
-const ToolbarButton: React.FC<IToolbarButtonprops> = ({ theme = "blue", name, icon, active, disabled, showCaret, children, onClick }) => {
+const ToolbarButton = ({ theme = "blue", name, icon, active, disabled, showCaret, children, onClick }: PropsWithChildren<IToolbarButtonProps>) => {
   return (
     <button
       type="button" //

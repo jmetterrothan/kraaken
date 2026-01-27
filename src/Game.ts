@@ -7,19 +7,19 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 import editorStore from "@src/states/EditorState/editorStore";
 
-import { GameStates, IGameOptions } from "@shared/models/game.model";
+import { GameStates, IGameOptions } from "@src/shared/models/game.model";
 
-import * as GameEventTypes from "@shared/events/constants";
-import * as GameEvents from "@shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
 
-import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@shared/utility/Utility";
+import { getMouseOffsetX, getMouseOffsetY, getCoord } from "@src/shared/utility/Utility";
 
-import { driver } from "@shared/drivers/DriverFactory";
-import { configSvc } from "@shared/services/ConfigService";
+import { driver } from "@src/shared/drivers/DriverFactory";
+import { configSvc } from "@src/shared/services/ConfigService";
 
 import config from "@src/config";
 
-import "@sass/kraaken.scss";
+import "@src/assets/sass/kraaken.scss";
 
 const instanceSym = Symbol("instance");
 
@@ -50,15 +50,15 @@ class Game {
     return document.fullscreenElement !== null;
   }
 
+  public static [instanceSym]: Game;
+
   public static readonly TARGET_UPS: number = config.TARGET_UPS;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
 
-  public static create(options?: Partial<IGameOptions>): Game {
+  public static create({ levelId = "", ...options }: Partial<IGameOptions>): Game {
     if (!(Game[instanceSym] instanceof Game)) {
-      const mergedOptions = Object.assign({}, Game.DEFAULT_OPTIONS, options);
-
-      Game[instanceSym] = new Game(mergedOptions);
-      Game[instanceSym].init(options.levelId);
+      Game[instanceSym] = new Game({ ...Game.DEFAULT_OPTIONS, ...options });
+      Game[instanceSym].init(levelId);
     }
     return Game[instanceSym];
   }
@@ -177,19 +177,19 @@ class Game {
     let width = this.options.width === "auto" ? window.innerWidth : this.options.width;
     let height = this.options.height === "auto" ? window.innerHeight : this.options.height;
 
-    if (width > this.options.maxWidth) {
+    if (typeof this.options.maxWidth === "number" && width > this.options.maxWidth) {
       width = this.options.maxWidth;
     }
 
-    if (width < this.options.minWidth) {
+    if (typeof this.options.minWidth === "number" && width < this.options.minWidth) {
       width = this.options.minWidth;
     }
 
-    if (height > this.options.maxHeight) {
+    if (typeof this.options.maxHeight === "number" && height > this.options.maxHeight) {
       height = this.options.maxHeight;
     }
 
-    if (height < this.options.minHeight) {
+    if (typeof this.options.minHeight === "number" && height < this.options.minHeight) {
       height = this.options.minHeight;
     }
 
@@ -265,7 +265,7 @@ class Game {
     // Driver
     driver
       .ping()
-      .catch((e) => {
+      .catch(() => {
         alert("Failed to establish a connexion with the server, some features may not work properly...");
       })
       .finally(() => {

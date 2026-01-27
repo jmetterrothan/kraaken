@@ -6,12 +6,12 @@ import { RigidBody, BoundingBox, Position, Sprite, Placeable } from "@src/ECS/co
 
 import EditorState from "@src/states/EditorState";
 
-import { driver } from "@shared/drivers/DriverFactory";
+import { driver } from "@src/shared/drivers/DriverFactory";
 
-import * as GameEventTypes from "@shared/events/constants";
-import * as GameEvents from "@shared/events";
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
 
-import eventStackSvc from "@shared/services/EventStackService";
+import eventStackSvc from "@src/shared/services/EventStackService";
 
 class EntityMode {
   public focusedEntity: Entity | undefined;
@@ -28,6 +28,11 @@ class EntityMode {
       const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
       const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
+
+      if (!room) {
+        throw new Error(`Unknown room`);
+      }
+
       const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
       try {
@@ -76,12 +81,19 @@ class EntityMode {
 
       const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
 
+      if (!room) {
+        throw new Error(`Unknown room "${this.editor.currentRoom.levelBlueprint.defaultRoomId}"`);
+      }
+
       const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
       const spawnPoint = room.spawnPoints[index];
 
       try {
         if (!spawnPoint) {
           throw new Error(`Unknown entity with uuid "${uuid}"`);
+        }
+        if (!spawnPoint.uuid) {
+          throw new Error(`Spawnpoint w/o uuid`);
         }
 
         this.editor.currentRoom.despawn(spawnPoint.uuid);
@@ -107,14 +119,14 @@ class EntityMode {
 
   public unmounted(): void {}
 
-  public update(delta: number): void {
+  public update(_delta: number): void {
     const position = this.editor.cursor.getComponent(Position);
     position.fromValues(this.editor.mouse.x, this.editor.mouse.y);
   }
 
-  public render(alpha: number): void {}
+  public render(_alpha: number): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {}
+  public handleKeyboardInput(_key: string, _active: boolean): void {}
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
@@ -122,53 +134,55 @@ class EntityMode {
 
       const tile = this.editor.currentRoom.tileMap.getTileAtCoords(coords.x, coords.y);
 
-      const x = tile.position.x + tile.size / 2;
-      const y = tile.position.y + tile.size / 2;
+      if (tile) {
+        const x = tile.position.x + tile.size / 2;
+        const y = tile.position.y + tile.size / 2;
 
-      if (this.selectedEntity) {
-        const selectedEntityPos = this.selectedEntity.getComponent(Position);
-        const placeable = this.selectedEntity.getComponent(Placeable);
+        if (this.selectedEntity) {
+          const selectedEntityPos = this.selectedEntity.getComponent(Position);
+          const placeable = this.selectedEntity.getComponent(Placeable);
 
-        placeable.unfollow();
-        selectedEntityPos.fromValues(x, y);
+          placeable.unfollow();
+          selectedEntityPos.fromValues(x, y);
 
-        driver.spawn(
-          {
-            uuid: this.selectedEntity.uuid,
-            type: this.selectedEntity.type,
-            position: { x, y },
-            direction: { x: 1, y: 1 },
-          },
-          true
-        );
-
-        this.selectedEntity = undefined;
-      } else {
-        if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
-          const focusedEntityPos = this.focusedEntity.getComponent(Position);
-          const placeable = this.focusedEntity.getComponent(Placeable);
-
-          placeable.follow(this.editor.cursor, focusedEntityPos);
-
-          this.selectedEntity = this.focusedEntity;
-        } else {
           driver.spawn(
             {
-              uuid: uuidv4(),
-              type: this.editor.state.entityType,
+              uuid: this.selectedEntity.uuid,
+              type: this.selectedEntity.type,
               position: { x, y },
               direction: { x: 1, y: 1 },
             },
             true
           );
+
+          this.selectedEntity = undefined;
+        } else {
+          if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
+            const focusedEntityPos = this.focusedEntity.getComponent(Position);
+            const placeable = this.focusedEntity.getComponent(Placeable);
+
+            placeable.follow(this.editor.cursor, focusedEntityPos);
+
+            this.selectedEntity = this.focusedEntity;
+          } else {
+            driver.spawn(
+              {
+                uuid: uuidv4(),
+                type: this.editor.state.entityType,
+                position: { x, y },
+                direction: { x: 1, y: 1 },
+              },
+              true
+            );
+          }
         }
       }
     }
   }
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {}
+  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
 
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseRightBtnPressed(active: boolean, _position: vec2): void {
     if (active) {
       if (this.focusedEntity) {
         driver.despawn(this.focusedEntity.uuid, true);

@@ -1,4 +1,4 @@
-import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@src/shared/models/world.model";
 
 abstract class AbstractDriver {
   public abstract load(id: string): Promise<ILevelBlueprint>;

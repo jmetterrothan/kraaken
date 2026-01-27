@@ -10,7 +10,7 @@ export interface ICollectibleMetadata extends IConsummableMetadata {
 }
 
 export class Collectible extends Consummable {
-  public static DATA = {};
+  public static DATA: Record<string, Record<string, number>> = {};
 
   public readonly id: string;
   public readonly amount: number;
@@ -18,7 +18,7 @@ export class Collectible extends Consummable {
   public constructor(metadata: ICollectibleMetadata = {}) {
     super(metadata);
 
-    this.id = metadata.id;
+    this.id = metadata.id ?? "";
     this.amount = metadata.amount ?? 1;
   }
 

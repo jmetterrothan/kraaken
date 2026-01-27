@@ -1,7 +1,7 @@
 import { vec2 } from "gl-matrix";
 
-import Lifo from "@shared/utility/Lifo";
-import { lerp, lerp2 } from "@shared/utility/MathHelpers";
+import Lifo from "@src/shared/utility/Lifo";
+import { lerp, lerp2 } from "@src/shared/utility/MathHelpers";
 
 class Vector2 {
   public static instances: Lifo<Vector2> = new Lifo();
@@ -11,9 +11,10 @@ class Vector2 {
 
   public static create(x?: number, y?: number): Vector2 {
     const v = Vector2.instances.pop();
-    if (typeof v !== "undefined") {
-      v.x = x;
-      v.y = y;
+    if (typeof v !== "undefined" && v !== null) {
+      v.x = x ?? 0;
+      v.y = y ?? 0;
+
       return v;
     }
     return new Vector2(x, y);
@@ -24,8 +25,8 @@ class Vector2 {
   }
 
   constructor(x?: number, y?: number) {
-    this.x = x || 0;
-    this.y = y || 0;
+    this.x = x ?? 0;
+    this.y = y ?? 0;
   }
 
   public add(v: Vector2): Vector2 {

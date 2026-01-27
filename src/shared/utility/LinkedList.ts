@@ -1,6 +1,6 @@
 export class Node<T> {
   public data: T;
-  public next: Node<T>;
+  public next: Node<T> | null;
 
   constructor(data: T) {
     this.data = data;
@@ -13,7 +13,7 @@ export class Node<T> {
 }
 
 class LinkedList<T> {
-  public head: Node<T>;
+  public head: Node<T> | null;
 
   constructor(node: Node<T>) {
     this.head = node;
@@ -24,7 +24,7 @@ class LinkedList<T> {
    */
   unshift(data: T): void {
     const node = new Node(data);
-  
+
     node.next = this.head;
     this.head = node;
   }
@@ -34,7 +34,7 @@ class LinkedList<T> {
    */
   shift(): void {
     const node = this.head;
-    this.head = node.next;
+    this.head = node?.next ?? null;
   }
 
   /**
@@ -64,7 +64,7 @@ class LinkedList<T> {
       return;
     }
 
-    let currentNode: Node<T> = this.head;
+    let currentNode: Node<T> | null = this.head;
     while (currentNode !== null) {
       const next = currentNode.next;
 
@@ -93,7 +93,7 @@ class LinkedList<T> {
     let prevNode = this.head;
     let currentNode = this.head.next;
 
-    while(currentNode !== null) {
+    while (currentNode !== null) {
       if (predicate(currentNode)) {
         if (prevNode !== null) {
           prevNode.next = currentNode.next;
@@ -117,16 +117,17 @@ class LinkedList<T> {
     node.next = tmpNode;
   }
 
-  find(predicate: (node: Node<T>) => boolean, currentNode: Node<T> = this.head): Node<T> | null {
+  find(predicate: (node: Node<T>) => boolean, currentNode: Node<T> | null = this.head): Node<T> | null {
     while (currentNode !== null) {
       if (predicate(currentNode) === true) {
         return currentNode;
       }
       currentNode = currentNode.next;
     }
+    return null;
   }
 
-  each(callback: (node: Node<T>) => void, currentNode: Node<T> = this.head): void {
+  each(callback: (node: Node<T>) => void, currentNode: Node<T> | null = this.head): void {
     while (currentNode !== null) {
       callback(currentNode);
       currentNode = currentNode.next;
@@ -137,17 +138,17 @@ class LinkedList<T> {
     this.head = null;
   }
 
-  public toString(currentNode: Node<T> = this.head): string {
-    let out = '';
-   
+  public toString(currentNode: Node<T> | null = this.head): string {
+    let out = "";
+
     this.each((node) => {
       out += node.toString();
 
       if (node.next !== null) {
-        out += ' -> ';
+        out += " -> ";
       }
     }, currentNode);
-    
+
     return out;
   }
 }

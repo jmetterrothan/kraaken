@@ -1,6 +1,6 @@
 import Pool from "@src/shared/utility/Pool";
 
-import { IKeyFrame } from "@shared/models/animation.model";
+import { IKeyFrame } from "@src/shared/models/animation.model";
 
 interface IAnimationMetadata {
   sprite: string;
@@ -23,7 +23,7 @@ class Animation {
 
       const pool = Animation.pools.get(metadata.name);
 
-      const animation = pool.borrow();
+      const animation = pool?.borrow();
       if (animation) {
         return animation;
       }
@@ -34,7 +34,7 @@ class Animation {
         Animation.instances.set(metadata.name, new Animation(metadata));
       }
 
-      return Animation.instances.get(metadata.name);
+      return Animation.instances.get(metadata.name)!;
     }
   }
 
@@ -46,7 +46,10 @@ class Animation {
         animation.reset();
 
         const pool = Animation.pools.get(animation.name);
-        pool.release(animation);
+
+        if (pool) {
+          pool.release(animation);
+        }
       }
     }
   }

@@ -1,9 +1,9 @@
 // Code adapted from https://stackoverflow.com/questions/42919469/efficient-way-to-implement-priority-queue-in-javascript#:~:text=Priority%20Queues%20have%20a%20priority,the%20element%20with%20highest%20priority.
 
 const top = 0;
-const parent = i => ((i + 1) >>> 1) - 1;
-const left = i => (i << 1) + 1;
-const right = i => (i + 1) << 1;
+const parent = (i: number) => ((i + 1) >>> 1) - 1;
+const left = (i: number) => (i << 1) + 1;
+const right = (i: number) => (i + 1) << 1;
 
 class PriorityQueue<T> {
   private heap: T[];
@@ -27,7 +27,7 @@ class PriorityQueue<T> {
   }
 
   public push(...values: T[]): number {
-    values.forEach(value => {
+    values.forEach((value) => {
       this.heap.push(value);
       this.siftUp();
     });
@@ -82,11 +82,8 @@ class PriorityQueue<T> {
   private siftDown(): void {
     let node = top;
 
-    while (
-      (left(node) < this.size() && this.greater(left(node), node)) ||
-      (right(node) < this.size() && this.greater(right(node), node))
-    ) {
-      const maxChild = (right(node) < this.size() && this.greater(right(node), left(node))) ? right(node) : left(node);
+    while ((left(node) < this.size() && this.greater(left(node), node)) || (right(node) < this.size() && this.greater(right(node), node))) {
+      const maxChild = right(node) < this.size() && this.greater(right(node), left(node)) ? right(node) : left(node);
 
       this.swap(node, maxChild);
       node = maxChild;

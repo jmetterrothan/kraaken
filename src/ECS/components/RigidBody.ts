@@ -1,6 +1,6 @@
 import { Component } from "@src/ECS";
 
-import Vector2 from "@shared/math/Vector2";
+import Vector2 from "@src/shared/math/Vector2";
 
 import { IVector2 } from "@src/shared/models/event.model";
 
@@ -25,7 +25,7 @@ export class RigidBody implements Component {
   public readonly clamToMap: boolean;
   public readonly reflect: boolean;
   public readonly reflectAngle: boolean;
-  public readonly reflectVFX: string;
+  public readonly reflectVFX: string | null;
   public readonly bounciness: number;
 
   public orientation: Vector2 = new Vector2(1, 1);
@@ -48,7 +48,7 @@ export class RigidBody implements Component {
     this.clamToMap = clamToMap ?? false;
     this.reflect = reflect ?? false;
     this.reflectAngle = reflectAngle ?? false;
-    this.reflectVFX = reflectVFX;
+    this.reflectVFX = reflectVFX ?? null;
     this.bounciness = bounciness ?? 1;
 
     this.isGrounded = false;

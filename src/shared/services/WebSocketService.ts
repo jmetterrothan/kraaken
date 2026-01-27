@@ -1,8 +1,8 @@
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
-import { IPlaceData, ISpawnpoint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint } from "@src/shared/models/world.model";
 
 import config from "@src/config";
 
@@ -14,12 +14,10 @@ const WS_USER_JOINED_ROOM = "user_joined_room";
 const WS_USER_LEFT_ROOM = "user_left_room";
 
 class WebSocketService {
-  private socket;
+  private socket: Socket = io(config.WEBSOCKET_API);
 
   connect(): Promise<void> {
     return new Promise((resolve) => {
-      this.socket = io(config.WEBSOCKET_API);
-
       this.socket.on("connect", () => {
         if (config.DEBUG) console.info(`Connected`);
 
@@ -63,7 +61,7 @@ class WebSocketService {
     });
   }
 
-  sync(roomId): Promise<void> {
+  sync(roomId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
@@ -74,7 +72,7 @@ class WebSocketService {
     });
   }
 
-  joinRoom(roomId): Promise<void> {
+  joinRoom(roomId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
@@ -85,7 +83,7 @@ class WebSocketService {
     });
   }
 
-  resetRoom(roomId): Promise<void> {
+  resetRoom(roomId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();

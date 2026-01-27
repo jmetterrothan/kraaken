@@ -1,8 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 
-import AbstractDriver from "@shared/drivers/AbstractDriver";
+import AbstractDriver from "@src/shared/drivers/AbstractDriver";
 
-import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@shared/models/world.model";
+import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@src/shared/models/world.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -10,7 +10,7 @@ import config from "@src/config";
 
 class LocalDriver extends AbstractDriver {
   protected http: AxiosInstance;
-  protected currentLevelId: string;
+  protected currentLevelId: string = "";
 
   public constructor() {
     super();
@@ -27,7 +27,7 @@ class LocalDriver extends AbstractDriver {
     await this.http.get(`/api`);
   }
 
-  public async sync(id: string): Promise<void> {}
+  public async sync(_id: string): Promise<void> {}
 
   public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, pushToStack));
@@ -63,6 +63,11 @@ class LocalDriver extends AbstractDriver {
     await this.http.post(`/api/levels/${id}`, level);
 
     const room = rooms.find((room) => room.id === level.defaultRoomId);
+
+    if (!room) {
+      throw new Error(`Could not find level room "${level.defaultRoomId}"`);
+    }
+
     await this.http.post(`/api/levels/${id}/rooms/${room.id}`, room);
   }
 
