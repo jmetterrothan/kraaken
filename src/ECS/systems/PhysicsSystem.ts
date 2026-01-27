@@ -51,10 +51,8 @@ export class PhysicsSystem extends System {
       }
 
       // we move one step
-      const step = rigidBody.velocity.clone().multiply(rigidBody.velocityModifier).multiply(rigidBody.direction).multiplyScalar(delta);
+      const step = rigidBody.velocity.clone().multiply(rigidBody.velocityModifier).multiplyScalar(delta);
       position.add(step);
-
-      rigidBody.isGrounded = this.isOnSolidTile(entity);
 
       this.collideWithMap(entity, step, delta);
 
@@ -70,6 +68,8 @@ export class PhysicsSystem extends System {
       if (bbox) {
         bbox.setPositionFromVector2(position);
       }
+
+      rigidBody.isGrounded = this.isOnSolidTile(entity);
     });
   }
 
@@ -223,8 +223,7 @@ export class PhysicsSystem extends System {
       }
 
       if (bbox.intersectBox(collider.getComponent(BoundingBox))) {
-        // console.log('colliding', entity.type, collider.type);
-        // rigidBody.velocityModifier.multiplyScalar(0);
+        console.log("colliding", entity.type, collider.type);
       }
     });
   }
@@ -234,6 +233,13 @@ export class PhysicsSystem extends System {
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
     const movement = entity.getComponent(Movement);
+
+    if (movement) {
+      movement.isBlockedLeft = false;
+      movement.isBlockedRight = false;
+      movement.isBlockedUp = false;
+      movement.isBlockedDown = false;
+    }
 
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;

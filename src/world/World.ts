@@ -145,8 +145,6 @@ class World {
       this.player = entity;
     }
 
-    console.log(entity);
-
     return entity;
   }
 

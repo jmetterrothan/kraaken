@@ -13,16 +13,23 @@ export class MovementSystem extends System {
       return;
     }
 
-    entities.forEach((entity) => {
-      const now = window.performance.now();
+    const now = window.performance.now();
 
+    entities.forEach((entity) => {
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
       const movement = entity.getComponent(Movement);
       const rigidBody = entity.getComponent(RigidBody);
       const input = entity.getComponent(PlayerInput);
 
-      // handle jumping
+      const grounded = rigidBody.isGrounded;
+
+      const pressingIntoLeftWall = input.left && movement.isBlockedLeft;
+      const pressingIntoRightWall = input.right && movement.isBlockedRight;
+
+      const pressingIntoWall = pressingIntoLeftWall || pressingIntoRightWall;
+
+      // --- JUMPING ---
       if (input.up && !movement.falling && !movement.wallSliding) {
         if (!movement.jumping && rigidBody.isGrounded) {
           movement.jumping = true;
@@ -41,83 +48,72 @@ export class MovementSystem extends System {
         movement.jumping = false;
       }
 
-      // handle moving
+      // --- BASIC MOVEMENTS ---
       if (input.right || input.left) {
-        rigidBody.velocity.x += movement.acceleration;
-        if (rigidBody.velocity.x > movement.speed) {
-          rigidBody.velocity.x = movement.speed;
-        }
+        const axis = (input.right ? 1 : 0) + (input.left ? -1 : 0);
+
+        rigidBody.velocity.x += axis * movement.acceleration * delta;
+        rigidBody.velocity.x = Math.max(-movement.speed, Math.min(movement.speed, rigidBody.velocity.x));
       } else {
-        if (rigidBody.velocity.x > 0) {
-          rigidBody.velocity.x -= movement.deceleration;
-          if (rigidBody.velocity.x < 0) {
-            rigidBody.velocity.x = 0;
-          }
-        }
+        const decel = movement.deceleration * delta;
+        if (rigidBody.velocity.x > 0) rigidBody.velocity.x = Math.max(0, rigidBody.velocity.x - decel);
+        if (rigidBody.velocity.x < 0) rigidBody.velocity.x = Math.min(0, rigidBody.velocity.x + decel);
       }
+
+      // --- WALL SLIDING ---
+      movement.wallSliding = !grounded && !movement.jumping && pressingIntoWall;
 
       if (movement.wallSliding) {
-        rigidBody.velocity.y -= this.world.gravity * 0.5 * delta;
-
-        if (rigidBody.velocity.y > 0) {
-          rigidBody.velocity.y = 0;
+        if (rigidBody.velocity.y > movement.wallSlideMaxFallSpeed) {
+          rigidBody.velocity.y = movement.wallSlideMaxFallSpeed;
         }
       }
 
-      // cancel wallJumping
-      if (movement.lastWallJumpTime + 350 < now) {
-        movement.wallJumping = false;
-      }
+      // --- WALL CLIMBING ---
+      movement.wallClimbing = !grounded && input.up && !movement.jumping && pressingIntoWall;
 
-      if (movement.wallSliding && input.up && movement.lastWallJumpTime + 750 < now) {
-        rigidBody.velocity.y += -movement.initialJumpBoost * 0.8;
+      if (movement.wallClimbing) {
+        const targetVy = -movement.wallClimbSpeed;
+        const maxStep = movement.wallClimbAcceleration * delta;
 
-        movement.wallJumping = true;
-        movement.lastWallJumpTime = now;
+        const diff = targetVy - rigidBody.velocity.y;
+        const step = Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
+        rigidBody.velocity.y += step;
 
-        if (!movement.jumping) {
-          if (movement.jumpSFX) {
-            movement.jumpSFX.play();
-          }
+        // optional: prevent any downward velocity while climbing
+        if (rigidBody.velocity.y > 0) rigidBody.velocity.y = 0;
 
-          this.world.playEffectOnceAt("dust_hit_effect", { x: position.x + rigidBody.direction.x * (bbox.width / 2), y: position.y - bbox.height / 2 });
-          movement.lastEffectTime = now + 350;
-        }
-      }
-
-      // apply movement trailing effects and update states
-      if (movement.falling && rigidBody.previousVelocity.y > 0 && rigidBody.velocity.y === 0) {
-        const airTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
-
-        const isHardLanding = airTime >= 1000; // free fall > 1s
-        const isSoftLanding = airTime >= 400; // free fall > 400ms
-
-        if (isHardLanding) {
-          this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
-        } else if (isSoftLanding) {
-          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
-        }
-        movement.lastEffectTime = now + 500;
-      }
-
-      movement.falling = rigidBody.velocity.y > 0;
-      movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
-      movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
-      movement.wallSliding = !movement.jumping && !rigidBody.isGrounded && ((input.right && movement.isBlockedRight) || (input.left && movement.isBlockedLeft));
-
-      // ladding detection
-      const grounded = rigidBody.velocity.y === 0;
-
-      if (!grounded && movement.wasGrounded) {
         movement.airborneSince = now;
       }
 
-      if (grounded && !movement.wasGrounded) {
+      movement.falling = !grounded && rigidBody.velocity.y > 0;
+      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > 0.001;
+      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= 0.001;
+
+      // --- AIR TIME - LANDING DETECTION ---
+      const justLeftGround = !grounded && movement.wasGrounded;
+      const justLanded = grounded && !movement.wasGrounded;
+
+      if (justLeftGround) {
+        movement.airborneSince = now;
+      }
+
+      if (justLanded) {
+        const airTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
+
+        if (airTime >= 1000) {
+          this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        } else if (airTime >= 400) {
+          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        }
+
         movement.airborneSince = null;
+        movement.lastEffectTime = now + 500;
       }
 
       movement.wasGrounded = grounded;
 
+      // --- DIRECTION ADJUSTEMENTS ---
       // register direction change
       if (input.left) {
         rigidBody.direction.x = -1;
@@ -133,16 +129,17 @@ export class MovementSystem extends System {
       }
 
       // lock direction/orientation when wallSliding
-      if (movement.wallSliding && input.right && movement.isBlockedRight) {
+      if (movement.wallSliding && pressingIntoRightWall) {
         rigidBody.direction.x = 1;
         rigidBody.orientation.x = 1;
       }
 
-      if (movement.wallSliding && input.left && movement.isBlockedLeft) {
+      if (movement.wallSliding && pressingIntoLeftWall) {
         rigidBody.direction.x = -1;
         rigidBody.orientation.x = -1;
       }
 
+      // --- RUN DUST ---
       if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && rigidBody.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
         movement.lastEffectTime = now + 250;
         this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });

@@ -8,6 +8,9 @@ interface IMovementMetadata {
   speed?: number;
   acceleration?: number;
   deceleration?: number;
+  wallSlideMaxFallSpeed?: number;
+  wallClimbSpeed?: number;
+  wallClimbAcceleration?: number;
   jumpSFX?: string;
 }
 
@@ -16,6 +19,7 @@ export class Movement implements Component {
 
   public wallJumping = false;
   public wallSliding = false;
+  public wallClimbing = false;
   public falling = false;
   public jumping = false;
   public walking = false;
@@ -34,18 +38,24 @@ export class Movement implements Component {
   public readonly speed: number;
   public readonly acceleration: number;
   public readonly deceleration: number;
+  public readonly wallSlideMaxFallSpeed: number;
+  public readonly wallClimbSpeed: number;
+  public readonly wallClimbAcceleration: number;
 
   public lastEffectTime: number;
   public lastWallJumpTime: number;
 
   public jumpSFX: Howl | undefined;
 
-  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, jumpSFX }: IMovementMetadata) {
+  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallClimbSpeed, wallClimbAcceleration, jumpSFX }: IMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.speed = speed ?? 0;
     this.acceleration = acceleration ?? 0;
     this.deceleration = deceleration ?? 0;
+    this.wallSlideMaxFallSpeed = wallSlideMaxFallSpeed ?? 0;
+    this.wallClimbSpeed = wallClimbSpeed ?? 0;
+    this.wallClimbAcceleration = wallClimbAcceleration ?? 0;
 
     this.lastEffectTime = -1;
     this.lastWallJumpTime = -1;
