@@ -7,6 +7,9 @@ import SoundManager from "@src/animation/SoundManager";
 export interface IConsummableMetadata {
   radius?: number;
   limit?: number;
+  acceleration?: number;
+  speed?: number;
+  snappiness?: number;
   applyToEntityTypes?: string[];
   pickUpVFX?: string;
   pickUpSFX?: string;
@@ -18,6 +21,9 @@ export class Consummable extends Component {
   public readonly applyToEntityTypes?: string[];
   public readonly radius: number;
   public readonly limit: number;
+  public readonly acceleration: number;
+  public readonly speed: number;
+  public readonly snappiness: number;
   public readonly pickUpVFX: string | null = null;
   public readonly pickUpSFX?: Howl;
 
@@ -31,6 +37,9 @@ export class Consummable extends Component {
 
     this.radius = metadata.radius ?? 0;
     this.limit = metadata.limit ?? 1;
+    this.acceleration = metadata.acceleration ?? 0;
+    this.speed = metadata.speed ?? 0;
+    this.snappiness = metadata.snappiness ?? 0;
     this.applyToEntityTypes = metadata.applyToEntityTypes;
 
     this.pickUpVFX = metadata.pickUpVFX ?? null;

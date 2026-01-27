@@ -94,20 +94,16 @@ export class ConsummableSystem extends System {
 
         const targetPos = consummable.target.getComponent(Position);
 
-        const acceleration = 400;
-        const speed = 160;
-        const snappiness = 6;
-
         const toTarget = targetPos.clone().sub(position);
         const dist = toTarget.length();
         const dir = toTarget.normalize();
 
-        const maxSpeed = Math.min(speed, dist * snappiness); // 6 is tuning: bigger = snappier
+        const maxSpeed = Math.min(consummable.speed, dist * consummable.snappiness); // 6 is tuning: bigger = snappier
         // steer velocity toward desired velocity
         const desiredVx = dir.x * maxSpeed;
         const desiredVy = dir.y * maxSpeed;
 
-        const maxDv = acceleration * delta;
+        const maxDv = consummable.acceleration * delta;
         const dvx = desiredVx - rigidBody.velocity.x;
         const dvy = desiredVy - rigidBody.velocity.y;
         const dv = Math.hypot(dvx, dvy);
