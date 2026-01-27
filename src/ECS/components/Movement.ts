@@ -21,6 +21,9 @@ export class Movement implements Component {
   public walking = false;
   public idle = true;
 
+  public airborneSince: number | null = null;
+  public wasGrounded: boolean = true;
+
   public isBlockedLeft = false;
   public isBlockedRight = false;
   public isBlockedUp = false;

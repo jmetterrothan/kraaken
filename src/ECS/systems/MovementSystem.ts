@@ -86,8 +86,17 @@ export class MovementSystem extends System {
       }
 
       // apply movement trailing effects and update states
-      if (movement.falling && rigidBody.previousVelocity.y === 0 && rigidBody.velocity.y > 0) {
-        this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
+      if (movement.falling && rigidBody.previousVelocity.y > 0 && rigidBody.velocity.y === 0) {
+        const airTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
+
+        const isHardLanding = airTime >= 1000; // free fall > 1s
+        const isSoftLanding = airTime >= 400; // free fall > 400ms
+
+        if (isHardLanding) {
+          this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
+        } else if (isSoftLanding) {
+          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 });
+        }
         movement.lastEffectTime = now + 500;
       }
 
@@ -95,6 +104,19 @@ export class MovementSystem extends System {
       movement.walking = rigidBody.velocity.y === 0 && Math.abs(rigidBody.velocity.x) > 0;
       movement.idle = rigidBody.velocity.y === 0 && rigidBody.velocity.x === 0;
       movement.wallSliding = !movement.jumping && !rigidBody.isGrounded && ((input.right && movement.isBlockedRight) || (input.left && movement.isBlockedLeft));
+
+      // ladding detection
+      const grounded = rigidBody.velocity.y === 0;
+
+      if (!grounded && movement.wasGrounded) {
+        movement.airborneSince = now;
+      }
+
+      if (grounded && !movement.wasGrounded) {
+        movement.airborneSince = null;
+      }
+
+      movement.wasGrounded = grounded;
 
       // register direction change
       if (input.left) {
