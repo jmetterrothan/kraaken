@@ -41,7 +41,7 @@ export class MovementSystem extends System {
 
           this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
           movement.lastEffectTime = now + 350;
-        } else {
+        } else if (!movement.wallClimbing) {
           rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
         }
       } else {
@@ -61,7 +61,7 @@ export class MovementSystem extends System {
       }
 
       // --- WALL SLIDING ---
-      movement.wallSliding = !grounded && !movement.jumping && pressingIntoWall;
+      movement.wallSliding = !grounded && !movement.jumping && pressingIntoWall && rigidBody.velocity.y > 0;
 
       if (movement.wallSliding) {
         if (rigidBody.velocity.y > movement.wallSlideMaxFallSpeed) {
@@ -83,7 +83,7 @@ export class MovementSystem extends System {
         // optional: prevent any downward velocity while climbing
         if (rigidBody.velocity.y > 0) rigidBody.velocity.y = 0;
 
-        movement.airborneSince = now;
+        movement.climbedDuringAirborne = true;
       }
 
       movement.falling = !grounded && rigidBody.velocity.y > 0;
@@ -96,18 +96,22 @@ export class MovementSystem extends System {
 
       if (justLeftGround) {
         movement.airborneSince = now;
+        movement.climbedDuringAirborne = false;
       }
 
       if (justLanded) {
-        const airTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
+        const fallingAirTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
 
-        if (airTime >= 1000) {
-          this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + bbox.height / 2 });
-        } else if (airTime >= 400) {
-          this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        if (!movement.climbedDuringAirborne) {
+          if (fallingAirTime >= 1000) {
+            this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + bbox.height / 2 });
+          } else if (fallingAirTime >= 400) {
+            this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+          }
         }
 
         movement.airborneSince = null;
+        movement.climbedDuringAirborne = false;
         movement.lastEffectTime = now + 500;
       }
 
@@ -129,12 +133,12 @@ export class MovementSystem extends System {
       }
 
       // lock direction/orientation when wallSliding
-      if (movement.wallSliding && pressingIntoRightWall) {
+      if ((movement.wallSliding || movement.wallClimbing) && pressingIntoRightWall) {
         rigidBody.direction.x = 1;
         rigidBody.orientation.x = 1;
       }
 
-      if (movement.wallSliding && pressingIntoLeftWall) {
+      if ((movement.wallSliding || movement.wallClimbing) && pressingIntoLeftWall) {
         rigidBody.direction.x = -1;
         rigidBody.orientation.x = -1;
       }

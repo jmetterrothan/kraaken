@@ -17,13 +17,13 @@ interface IMovementMetadata {
 export class Movement implements Component {
   public static COMPONENT_TYPE = "movement";
 
-  public wallJumping = false;
   public wallSliding = false;
   public wallClimbing = false;
   public falling = false;
   public jumping = false;
   public walking = false;
   public idle = true;
+  public climbedDuringAirborne = false;
 
   public airborneSince: number | null = null;
   public wasGrounded: boolean = true;
