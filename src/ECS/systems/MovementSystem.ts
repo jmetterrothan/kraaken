@@ -127,8 +127,10 @@ export class MovementSystem extends System {
 
       // register orientation change
       if (input.aim.x < 0) {
+        rigidBody.direction.x = -1; // sync aim and facing dir
         rigidBody.orientation.x = -1;
       } else if (input.aim.x > 0) {
+        rigidBody.direction.x = 1; // sync aim and facing dir
         rigidBody.orientation.x = 1;
       }
 

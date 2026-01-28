@@ -40,7 +40,7 @@ class ComponentFactory {
       case "projectile":
         return new Components.Projectile(metadata);
       case "flying_ai":
-        return new Components.FlyingAI();
+        return new Components.FlyingAI(metadata);
       case "collider":
         return new Components.Collider();
       default:

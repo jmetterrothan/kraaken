@@ -16,6 +16,7 @@ interface ProjectileWeaponOptions {
   minRange?: number;
   maxRange?: number;
   fireSFX?: string;
+  fireFailSFX?: string;
   burstLimit?: number;
   burstDelay?: number;
   spread?: IVector2;
@@ -37,8 +38,11 @@ class ProjectileWeapon extends Weapon {
   protected burstCounter: number;
 
   protected fireSFX: Howl | undefined;
+  protected fireFailSFX: Howl | undefined;
 
-  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX }: ProjectileWeaponOptions) {
+  protected lastFireFailAt: number = 0;
+
+  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX, fireFailSFX }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {
@@ -70,10 +74,22 @@ class ProjectileWeapon extends Weapon {
         volume: 0.1,
       });
     }
+
+    if (fireFailSFX) {
+      this.fireFailSFX = SoundManager.create(fireFailSFX, {
+        autoplay: false,
+        volume: 0.1,
+      });
+    }
   }
 
   public update(world: World, owner: Entity): void {
-    if (!this.canBeUsed(world, owner)) {
+    const canBeUsed = this.canBeUsed(world, owner);
+
+    // calculate delay in ms based on fire rate
+    const delay = 60000 / this.rate;
+
+    if (!canBeUsed) {
       return;
     }
 
@@ -84,12 +100,27 @@ class ProjectileWeapon extends Weapon {
     }
 
     if (this.rate === 0) {
-      this.fire(world, owner);
+      if (this.hasAmmo()) {
+        this.fire(world, owner);
+      } else {
+        if (this.fireFailSFX && now - this.lastFireFailAt > 250) {
+          this.fireFailSFX.play();
+
+          this.lastFireFailAt = now;
+        }
+      }
     } else if (now > this.nextTimeToFire && this.rate > 0) {
-      // calculate delay in ms based on fire rate
-      const delay = 60000 / this.rate;
+      if (this.hasAmmo()) {
+        this.fire(world, owner);
+      } else {
+        if (this.fireFailSFX && now - this.lastFireFailAt > 250) {
+          this.fireFailSFX.play();
+
+          this.lastFireFailAt = now;
+        }
+      }
+
       this.nextTimeToFire = now + delay;
-      this.fire(world, owner);
     }
   }
 
@@ -183,11 +214,11 @@ class ProjectileWeapon extends Weapon {
     Vector2.destroy(dir);
   }
 
-  public canBeUsed(world: World, owner: Entity): boolean {
-    if (this.ammo === 0 && this.maxAmmo !== -1) {
-      return false;
-    }
+  public hasAmmo() {
+    return this.ammo > 0 || this.maxAmmo === -1;
+  }
 
+  public canBeUsed(world: World, owner: Entity): boolean {
     const position = owner.getComponent(Position);
     const bbox = owner.getComponent(BoundingBox);
     const health = owner.getComponent(Health);
