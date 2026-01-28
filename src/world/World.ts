@@ -182,7 +182,7 @@ class World {
     const zone = new Entity("event_zone");
 
     zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
-    zone.addComponent(new Components.BoundingBox({ width, height, color, debug: debug || this.options.showZones }));
+    zone.addComponent(new Components.BoundingBox({ width, height, color, debug: debug ?? this.options.showZones }));
     zone.addComponent(new Components.EventZone(rest));
 
     this.addEntity(zone);
@@ -205,7 +205,7 @@ class World {
   }
 
   public removeAllSystems(): World {
-    for (let i = 0, n = this._systems.length; i < n; i++) {
+    for (let i = this._systems.length - 1; i >= 0; i--) {
       this.removeSystem(this._systems[i]);
     }
     return this;
@@ -308,6 +308,8 @@ class World {
   }
 
   public update(delta: number): void {
+    if (!this.tileMap) return;
+
     mat3.projection(this.projectionMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 
     this.tileMap.update(this, delta);
@@ -326,6 +328,8 @@ class World {
   }
 
   public render(alpha: number): void {
+    if (!this.tileMap) return;
+
     const camera = this.camera.getComponent(Components.Camera);
 
     this.tileMap.renderLayer(TileLayer.L1, this.projectionMatrix, camera.viewMatrix, alpha);
@@ -461,6 +465,19 @@ class World {
 
   public get camera(): Entity {
     return this._cameras[this._activeCameraIndex];
+  }
+
+  public destroy() {
+    this.removeAllEntities();
+    this.removeAllSystems();
+
+    if (this.renderer) {
+      this.renderer.removedFromWorld(this);
+    }
+
+    this._bundles.clear();
+    this._cameras = [];
+    this._activeCameraIndex = 0;
   }
 }
 

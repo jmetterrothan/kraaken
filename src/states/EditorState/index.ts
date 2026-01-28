@@ -224,6 +224,12 @@ class EditorState extends State<EditorStateOptions> {
     this.modes[EditorMode.ENTITY].unmounted();
     this.modes[EditorMode.TERRAIN].unmounted();
 
+    this.rooms.forEach((room) => {
+      room.world.destroy();
+    });
+
+    this.rooms = new Map();
+
     // remove ui
     this.root.unmount();
   }

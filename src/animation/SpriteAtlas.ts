@@ -29,7 +29,7 @@ class SpriteAtlas {
 
   private texture: WebGLTexture = gl.createTexture();
 
-  private vao: WebGLVertexArrayObject = gl.createVertexArray();
+  private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
   private vbo: WebGLBuffer = gl.createBuffer();
   private ibo: WebGLBuffer = gl.createBuffer();
   private tbo: WebGLBuffer = gl.createBuffer();

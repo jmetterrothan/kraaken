@@ -57,7 +57,7 @@ abstract class State<O = any> {
   /**
    * Register an event listener to the state that can be later flushed
    */
-  public registerEvent(type: string, listener: EventListenerOrEventListenerObject): void {
+  public registerEvent(type: keyof WindowEventMap, listener: any): void {
     this.eventCallbackStack.push(registerEvent(type, listener));
   }
 

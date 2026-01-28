@@ -16,7 +16,7 @@ import fsSprite from "@src/assets/shaders/grid.fs.glsl?raw";
 class Grid {
   private material: Material = new Material(vsObject, fsSprite);
 
-  private vao: WebGLVertexArrayObject = gl.createVertexArray();
+  private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
   private vbo: WebGLBuffer = gl.createBuffer();
   private ibo: WebGLBuffer = gl.createBuffer();
 

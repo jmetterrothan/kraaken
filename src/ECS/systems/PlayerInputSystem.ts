@@ -39,7 +39,7 @@ export class PlayerInputSystem extends System {
     );
 
     // Gamepad events
-    wrapper.addEventListener(
+    window.addEventListener(
       "gamepadconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, true);
@@ -47,7 +47,7 @@ export class PlayerInputSystem extends System {
       false
     );
 
-    wrapper.addEventListener(
+    window.addEventListener(
       "gamepaddisconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, false);

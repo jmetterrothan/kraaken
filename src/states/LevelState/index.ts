@@ -126,6 +126,12 @@ class LevelState extends State<LevelStateOptions> {
     // remove ui
     this.root.unmount();
 
+    this.rooms.forEach((room) => {
+      room.destroy();
+    });
+
+    this.rooms = new Map();
+
     // remove event listeners
     this.flushEvents();
   }

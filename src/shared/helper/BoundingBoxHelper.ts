@@ -15,7 +15,7 @@ import vsObject from "@src/assets/shaders/color.vs.glsl?raw";
 class BoundingBoxHelper {
   private colorMaterial: Material = new Material(vsObject, fsColor);
 
-  private vao: WebGLVertexArrayObject = gl.createVertexArray();
+  private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
   private vbo: WebGLBuffer = gl.createBuffer();
   private ibo: WebGLBuffer = gl.createBuffer();
 

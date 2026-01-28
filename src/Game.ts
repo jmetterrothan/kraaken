@@ -81,8 +81,8 @@ class Game {
   private nextTime: number;
   private lastTime: number;
 
-  private stats: Stats;
-  private upsPanel: Stats.Panel;
+  private stats: any;
+  private upsPanel: any;
 
   private targetScale: number;
 

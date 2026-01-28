@@ -2,11 +2,10 @@ import { System, Entity } from "@src/ECS";
 
 import { BasicInput, Position } from "@src/ECS/components";
 
-import { wrapper } from "@src/Game";
-
 import { buttonPressed } from "@src/shared/utility/Utility";
 
 import config from "@src/config";
+import { wrapper } from "@src/Game";
 
 const gamepads: Record<number, Gamepad> = {};
 
@@ -16,11 +15,11 @@ export class BasicInputSystem extends System {
     super([Position.COMPONENT_TYPE, BasicInput.COMPONENT_TYPE]);
 
     // Keyboard events
-    window.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
-    window.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
+    wrapper.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
+    wrapper.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
 
     // Gamepad events
-    wrapper.addEventListener(
+    window.addEventListener(
       "gamepadconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, true);
@@ -29,7 +28,7 @@ export class BasicInputSystem extends System {
       false
     );
 
-    wrapper.addEventListener(
+    window.addEventListener(
       "gamepaddisconnected",
       (e: GamepadEvent) => {
         this.handleGamepad(e, false);

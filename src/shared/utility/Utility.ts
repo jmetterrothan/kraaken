@@ -19,7 +19,7 @@ export const getCoord = (canvas: HTMLCanvasElement, x: number, y: number): vec2 
   return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
 };
 
-export const getMouseOffsetX = (canvas: HTMLCanvasElement, e: MouseEvent) : number=> {
+export const getMouseOffsetX = (canvas: HTMLCanvasElement, e: MouseEvent): number => {
   return e.clientX - document.body.scrollLeft + canvas.scrollLeft;
 };
 
@@ -34,10 +34,10 @@ export const buttonPressed = (b: GamepadButton): boolean => {
   return b === 1.0;
 };
 
-export const registerEvent = (type: string, listener: EventListenerOrEventListenerObject, target: Window = window): () => void => {
+export const registerEvent = (type: string, listener: any, target: Window = window): (() => void) => {
   target.addEventListener(type, listener);
 
   return () => {
     target.removeEventListener(type, listener);
   };
-}
+};
