@@ -27,7 +27,7 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
       const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
+      const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
 
       if (!room) {
         throw new Error(`Unknown room`);
@@ -41,7 +41,7 @@ class EntityMode {
 
           // TODO: push to event stack
         } else {
-          this.editor.currentRoom.spawn(spawnPoint);
+          this.editor.currentRoom.world.spawn(spawnPoint);
           room.spawnPoints.push(spawnPoint);
 
           if (pushToStack) {
@@ -53,7 +53,7 @@ class EntityMode {
         }
 
         // if entity already exists in the world we update its position
-        const entity = this.editor.currentRoom.getEntityByUuid(spawnPoint.uuid);
+        const entity = this.editor.currentRoom.world.getEntityByUuid(spawnPoint.uuid);
         if (entity) {
           if (entity.hasComponent(Position.COMPONENT_TYPE)) {
             const position = entity.getComponent(Position);
@@ -79,10 +79,10 @@ class EntityMode {
     this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
       const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
 
-      const room = this.editor.currentRoom.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.levelBlueprint.defaultRoomId);
+      const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
 
       if (!room) {
-        throw new Error(`Unknown room "${this.editor.currentRoom.levelBlueprint.defaultRoomId}"`);
+        throw new Error(`Unknown room "${this.editor.currentRoom.world.levelBlueprint.defaultRoomId}"`);
       }
 
       const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
@@ -96,7 +96,7 @@ class EntityMode {
           throw new Error(`Spawnpoint w/o uuid`);
         }
 
-        this.editor.currentRoom.despawn(spawnPoint.uuid);
+        this.editor.currentRoom.world.despawn(spawnPoint.uuid);
         room.spawnPoints.splice(index, 1);
 
         if (pushToStack) {
@@ -120,7 +120,7 @@ class EntityMode {
   public unmounted(): void {}
 
   public update(_delta: number): void {
-    const position = this.editor.cursor.getComponent(Position);
+    const position = this.editor.currentRoom.cursor.getComponent(Position);
     position.fromValues(this.editor.mouse.x, this.editor.mouse.y);
   }
 
@@ -130,9 +130,9 @@ class EntityMode {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      const coords = this.editor.currentRoom.screenToCameraCoords(position);
+      const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
-      const tile = this.editor.currentRoom.tileMap.getTileAtCoords(coords.x, coords.y);
+      const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
 
       if (tile) {
         const x = tile.position.x + tile.size / 2;
@@ -161,7 +161,7 @@ class EntityMode {
             const focusedEntityPos = this.focusedEntity.getComponent(Position);
             const placeable = this.focusedEntity.getComponent(Placeable);
 
-            placeable.follow(this.editor.cursor, focusedEntityPos);
+            placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
 
             this.selectedEntity = this.focusedEntity;
           } else {
@@ -191,7 +191,7 @@ class EntityMode {
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.currentRoom.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
+    const entities = this.editor.currentRoom.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
 
     this.focusedEntity = undefined;
 

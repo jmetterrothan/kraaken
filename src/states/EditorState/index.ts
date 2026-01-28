@@ -37,16 +37,19 @@ interface EditorStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
 }
 
+type RoomData = {
+  world: World;
+  cursor: Entity;
+  gridCursor: Entity;
+};
+
 class EditorState extends State<EditorStateOptions> {
   public levelBlueprint: ILevelBlueprint;
   public currentRoomId: string = "";
 
-  private rooms: Map<string, World> = new Map<string, World>();
+  private rooms: Map<string, RoomData> = new Map<string, RoomData>();
 
   public mouse: Vector2 = new Vector2();
-  public cursor: Entity;
-  public gridCursor: Entity;
-  public cursors: Entity[];
 
   public state: IEditorStoreState;
 
@@ -87,13 +90,11 @@ class EditorState extends State<EditorStateOptions> {
       await world.init();
 
       // show a cursor following the mouse
-      this.cursors = [];
+      const gridCursor = this.createGridCursor();
+      world.addEntity(gridCursor);
 
-      this.gridCursor = this.createGridCursor();
-      world.addEntity(this.gridCursor);
-
-      this.cursor = this.createCursor();
-      world.addEntity(this.cursor);
+      const cursor = this.createCursor();
+      world.addEntity(cursor);
 
       // add controllable object with the arrow keys to move the camera around
       const controllableObject = this.createControllableEntity();
@@ -111,7 +112,7 @@ class EditorState extends State<EditorStateOptions> {
         position.fromValues(x, y);
       }
 
-      this.rooms.set(id, world);
+      this.rooms.set(id, { world, gridCursor, cursor });
     });
 
     this.state = editorStore.initialState;
@@ -228,55 +229,55 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public update(delta: number): void {
-    this.currentRoom.update(delta);
+    this.currentRoom.world.update(delta);
     this.currentMode.update(delta);
   }
 
   public render(alpha: number): void {
-    this.currentRoom.render(alpha);
+    this.currentRoom.world.render(alpha);
     this.currentMode.render(alpha);
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
-    this.currentRoom.handleKeyboardInput(key, active);
+    this.currentRoom.world.handleKeyboardInput(key, active);
     this.currentMode.handleKeyboardInput(key, active);
   }
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseLeftBtnPressed(active, position);
+    this.currentRoom.world.handleMouseLeftBtnPressed(active, position);
     this.currentMode.handleMouseLeftBtnPressed(active, position);
   }
 
   public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseMiddleBtnPressed(active, position);
+    this.currentRoom.world.handleMouseMiddleBtnPressed(active, position);
     this.currentMode.handleMouseMiddleBtnPressed(active, position);
   }
 
   public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseRightBtnPressed(active, position);
+    this.currentRoom.world.handleMouseRightBtnPressed(active, position);
     this.currentMode.handleMouseRightBtnPressed(active, position);
   }
 
   public handleMouseMove(position: vec2): void {
-    this.mouse = this.currentRoom.screenToCameraCoords(position);
+    this.mouse = this.currentRoom.world.screenToCameraCoords(position);
 
-    this.currentRoom.handleMouseMove(position);
+    this.currentRoom.world.handleMouseMove(position);
     this.currentMode.handleMouseMove(position);
   }
 
   public handleFullscreenChange(b: boolean): void {
-    this.currentRoom.handleFullscreenChange(b);
+    this.currentRoom.world.handleFullscreenChange(b);
   }
 
   public handleResize(): void {
-    this.currentRoom.handleResize();
+    this.currentRoom.world.handleResize();
   }
 
   public get currentMode(): any {
     return this.modes[this.state.mode];
   }
 
-  public get currentRoom(): World {
+  public get currentRoom(): RoomData {
     return this.rooms.get(this.currentRoomId)!;
   }
 }

@@ -34,7 +34,7 @@ class TerrainMode {
       let oldTileTypeId: number = tileTypeId;
 
       try {
-        const tileMap = this.editor.currentRoom.tileMap;
+        const tileMap = this.editor.currentRoom.world.tileMap;
 
         // compute layer transforms
         coords.forEach((coord) => {
@@ -75,12 +75,12 @@ class TerrainMode {
   public unmounted(): void {}
 
   public update(_delta: number): void {
-    const cursorPosition = this.editor.cursor.getComponent(Position);
-    const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
+    const cursorPosition = this.editor.currentRoom.cursor.getComponent(Position);
+    const gridCursorPosition = this.editor.currentRoom.gridCursor.getComponent(Position);
 
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
-    const tile = this.editor.currentRoom.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
+    const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
 
     if (tile) {
       const x = tile.position.x + tile.size / 2;
@@ -95,8 +95,8 @@ class TerrainMode {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      const tileMap = this.editor.currentRoom.tileMap;
-      const coords = this.editor.currentRoom.screenToCameraCoords(position);
+      const tileMap = this.editor.currentRoom.world.tileMap;
+      const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
       const { layerId, tileTypeId, terrainMode } = this.editor.state;
 

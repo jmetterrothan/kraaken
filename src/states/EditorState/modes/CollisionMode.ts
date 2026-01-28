@@ -25,12 +25,12 @@ class CollisionMode {
   public unmounted(): void {}
 
   public update(_delta: number): void {
-    const cursorPosition = this.editor.cursor.getComponent(Position);
-    const gridCursorPosition = this.editor.gridCursor.getComponent(Position);
+    const cursorPosition = this.editor.currentRoom.cursor.getComponent(Position);
+    const gridCursorPosition = this.editor.currentRoom.gridCursor.getComponent(Position);
 
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
-    const tile = this.editor.currentRoom.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
+    const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
 
     if (tile) {
       const x = tile.position.x + tile.size / 2;
@@ -45,7 +45,7 @@ class CollisionMode {
 
   public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
     if (active) {
-      const coords = this.editor.currentRoom.screenToCameraCoords(position);
+      const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
       if (this.editor.state.collisionMode === EditorCollisionMode.PLACE) {
         driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);
