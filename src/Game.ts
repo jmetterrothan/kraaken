@@ -117,7 +117,7 @@ class Game {
 
   public resize(targetWidth: number, targetHeight: number): void {
     const ratio: number = window.devicePixelRatio || 1;
-    const scale = Math.round(this.targetScale * ratio);
+    const scale = Math.max(1, Math.floor(this.targetScale * ratio));
 
     // fix for tearing issues
     const w: number = Math.round(targetWidth / 8) * 8;
@@ -226,7 +226,7 @@ class Game {
 
         this.lag -= Game.MS_PER_UPDATE;
 
-        if (++nbOfSteps >= 240) {
+        if (++nbOfSteps >= 10) {
           this.lag = 0;
         }
       }
@@ -237,8 +237,10 @@ class Game {
       this.stats.end();
     }
 
-    window.requestAnimationFrame(this.run.bind(this));
+    window.requestAnimationFrame(this.loop);
   }
+
+  private readonly loop = () => this.run();
 
   private init(levelId: string) {
     this.initCanvas();
@@ -381,12 +383,18 @@ class Game {
       false
     );
 
-    wrapper.addEventListener("mousewheel", (e: WheelEvent) => {
-      if (canvas.contains(e.target as Node)) {
-        const scale = this.targetScale + (e.deltaY > 0 ? -1 : 1);
-        editorStore.setScale(scale);
-      }
-    });
+    wrapper.addEventListener(
+      "wheel",
+      (e: WheelEvent) => {
+        e.preventDefault();
+
+        if (canvas.contains(e.target as Node)) {
+          const scale = Math.max(1, Math.min(20, this.targetScale + (e.deltaY > 0 ? -1 : 1)));
+          editorStore.setScale(scale);
+        }
+      },
+      { passive: false }
+    );
 
     // Fullscreen events
     document.addEventListener("webkitfullscreenchange", this.fullscreenChange, false);
@@ -446,7 +454,7 @@ class Game {
 
   private refreshScreenSize = () => {
     if (this.fullscreen) {
-      this.resize(window.screen.width, window.screen.height);
+      this.resize(window.innerWidth, window.innerHeight);
     } else {
       const { width, height } = this.computeDimensions();
       this.resize(width, height);

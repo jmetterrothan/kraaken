@@ -86,9 +86,9 @@ export class CameraSystem extends System {
       mat3.scale(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(camera.zoom, camera.zoom));
       mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(-position.x, -position.y));
 
-      camera.fixBleedingEdges();
-
       this.updateViewBox(entity);
+
+      camera.fixBleedingEdges();
 
       camera.shouldUpdateProjectionMatrix = false;
     }

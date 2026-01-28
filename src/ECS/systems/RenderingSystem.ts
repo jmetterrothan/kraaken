@@ -37,9 +37,8 @@ export class RenderingSystem extends System {
         const bboxHeight = bbox?.height ?? 0;
 
         if (position.shouldUpdateTransform) {
-          position.transform = mat3.create();
-
-          mat3.fromTranslation(position.transform, position.clone().toGlArray());
+          mat3.identity(position.transform);
+          mat3.fromTranslation(position.transform, position.toGlArray());
 
           if (position.rotation !== 0) {
             const r = mat3.fromRotation(mat3.create(), position.rotation);
@@ -72,14 +71,6 @@ export class RenderingSystem extends System {
           const moveOriginMatrix2 = mat3.fromTranslation(mat3.create(), [offsetX, offsetY]);
 
           mat3.multiply(position.transform, position.transform, moveOriginMatrix2);
-
-          /**
-           * fix for texture bleeding by rounding the x, y components
-           */
-          cameraComponent.viewMatrix[6] = Math.round(cameraComponent.viewMatrix[6]);
-          cameraComponent.viewMatrix[7] = Math.round(cameraComponent.viewMatrix[7]);
-          // position.transform[6] = Math.round(position.transform[6]);
-          // position.transform[7] = Math.round(position.transform[7]);
 
           position.shouldUpdateTransform = false;
         }

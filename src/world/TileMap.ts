@@ -72,6 +72,8 @@ class TileMap {
     this.debugLayer = new Map<number, number>();
 
     const direction = new Vector2(1, 1);
+    const outlineColor = new Color(1.0, 1.0, 1.0, 1.0).toVec4();
+    const tintColor = new Color(1.0, 1.0, 1.0, 1.0).toVec4();
 
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
@@ -101,8 +103,8 @@ class TileMap {
             grayscale: false,
             flickering: false,
             flickerSpeed: 250,
-            outlineColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
-            tintColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
+            outlineColor,
+            tintColor,
             tintEffect: TintEffect.NONE,
             reflect: false,
           },
@@ -160,7 +162,7 @@ class TileMap {
         const tile = this.tiles[r][c];
         const layerIndex = tile.getTileTypeId(layer);
 
-        if (layerIndex > 0 || (layerIndex === 0 && tile.hasCollision())) {
+        if (layerIndex > 0) {
           this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layerIndex, tile.direction, tile.renderOptions);
         }
       }
@@ -188,7 +190,7 @@ class TileMap {
     const stack: Array<{ row: number; col: number }> = [];
 
     const fn = (row: number, col: number) => {
-      const index = col * this.nbRows + row;
+      const index = row * this.nbCols + col;
 
       if (col < 0 || row < 0 || col >= this.nbCols || row >= this.nbRows) {
         return;
