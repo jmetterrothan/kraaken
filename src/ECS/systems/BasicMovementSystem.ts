@@ -10,7 +10,9 @@ export class BasicMovementSystem extends System {
   public clamp(entity: Entity): void {
     if (this.world.camera) {
       const camera = this.world.camera.getComponent(Camera);
-      camera.clamp(entity);
+      const position = entity.getComponent(Position);
+
+      camera.clamp(position);
     }
   }
 

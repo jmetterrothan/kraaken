@@ -9,13 +9,13 @@ import TileMap from "@src/world/TileMap";
 
 export class PhysicsSystem extends System {
   public constructor() {
-    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE]);
+    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
   }
 
   public addedToWorld(world: World): void {
     super.addedToWorld(world);
 
-    world.entityAdded$([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]).subscribe((entity) => {
+    world.entityAdded$([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]).subscribe((entity) => {
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
 
@@ -45,13 +45,13 @@ export class PhysicsSystem extends System {
       if (rigidBody.gravity) {
         rigidBody.velocity.y += this.world.gravity * delta;
 
-        if (rigidBody.velocity.y > this.world.gravity) {
-          rigidBody.velocity.y = this.world.gravity;
+        if (rigidBody.velocity.y > rigidBody.maxFallSpeed) {
+          rigidBody.velocity.y = rigidBody.maxFallSpeed;
         }
       }
 
       // we move one step
-      const step = rigidBody.velocity.clone().multiply(rigidBody.velocityModifier).multiplyScalar(delta);
+      const step = Vector2.create(rigidBody.velocity.x, rigidBody.velocity.y).multiply(rigidBody.velocityModifier).multiplyScalar(delta);
       position.add(step);
 
       this.collideWithMap(entity, step, delta);
@@ -60,7 +60,7 @@ export class PhysicsSystem extends System {
         this.collideWithBoundingBox(entity, colliders, step, delta);
       }
 
-      if (rigidBody.clamToMap) {
+      if (rigidBody.clampToMap) {
         this.clampToMap(entity);
       }
 
@@ -70,6 +70,8 @@ export class PhysicsSystem extends System {
       }
 
       rigidBody.isGrounded = this.isOnSolidTile(entity);
+
+      Vector2.destroy(step);
     });
   }
 
@@ -82,11 +84,13 @@ export class PhysicsSystem extends System {
 
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;
+    const halfW = w / 2;
+    const halfH = h / 2;
 
-    const x1 = boundaries.x1 + w;
-    const x2 = boundaries.x2 - w;
-    const y1 = boundaries.y1 + h;
-    const y2 = boundaries.y2 - h;
+    const x1 = boundaries.x1 + halfW;
+    const x2 = boundaries.x2 - halfW;
+    const y1 = boundaries.y1 + halfH;
+    const y2 = boundaries.y2 - halfH;
 
     let x = position.x;
     let y = position.y;
@@ -243,20 +247,22 @@ export class PhysicsSystem extends System {
 
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;
+    const halfW = w / 2;
+    const halfH = h / 2;
 
-    const x1 = position.previousValue.x - w / 2;
-    const x2 = position.previousValue.x + w / 2;
-    let y1 = position.previousValue.y - h / 2;
-    let y2 = position.previousValue.y + h / 2;
+    const x1 = position.previousValue.x - halfW;
+    const x2 = position.previousValue.x + halfW;
+    let y1 = position.previousValue.y - halfH;
+    let y2 = position.previousValue.y + halfH;
 
     const tileSize = this.world.tileMap.getTileSize();
 
     if (rigidBody.collide) {
       if (step.y > 0) {
         // top side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y2 + step.y, x1 + w / 2, y2 + step.y, x2, y2 + step.y);
+        const tile = this.testForCollision(this.world.tileMap, x1, y2 + step.y, x1 + halfW, y2 + step.y, x2, y2 + step.y);
         if (tile) {
-          position.y = tile.position.y - h / 2 - 0.01;
+          position.y = tile.position.y - halfH - 0.01;
           this.handleCollisionWithBottomSide(entity, tile, delta);
         }
         if (movement) {
@@ -264,10 +270,10 @@ export class PhysicsSystem extends System {
         }
       } else if (step.y < 0) {
         // bottom side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + w / 2, y1 + step.y, x2, y1 + step.y);
+        const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + halfW, y1 + step.y, x2, y1 + step.y);
 
         if (tile) {
-          position.y = tile.position.y + tileSize + h / 2 + 0.01;
+          position.y = tile.position.y + tileSize + halfH + 0.01;
           this.handleCollisionWithTopSide(entity, tile, delta);
         }
         if (movement) {
@@ -278,15 +284,15 @@ export class PhysicsSystem extends System {
       /**
        * Fix corner collision bug when you get stuck - use newly computed y position to better estimate left/right side collisions
        */
-      y1 = position.y - h / 2;
-      y2 = position.y + h / 2;
+      y1 = position.y - halfH;
+      y2 = position.y + halfH;
 
       if (step.x > 0) {
         // left side collision
-        const tile = this.testForCollision(this.world.tileMap, x2 + step.x, y1, x2 + step.x, y1 + h / 2, x2 + step.x, y2);
+        const tile = this.testForCollision(this.world.tileMap, x2 + step.x, y1, x2 + step.x, y1 + halfH, x2 + step.x, y2);
 
         if (tile) {
-          position.x = tile.position.x - w / 2 - 0.01;
+          position.x = tile.position.x - halfW - 0.01;
           this.handleCollisionWithLeftSide(entity, tile, delta);
         }
         if (movement) {
@@ -294,10 +300,10 @@ export class PhysicsSystem extends System {
         }
       } else if (step.x < 0) {
         // right side collision
-        const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + h / 2, x1 + step.x, y2);
+        const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + halfH, x1 + step.x, y2);
 
         if (tile) {
-          position.x = tile.position.x + tileSize + w / 2 + 0.01;
+          position.x = tile.position.x + tileSize + halfW + 0.01;
           this.handleCollisionWithRightSide(entity, tile, delta);
         }
         if (movement) {
@@ -312,9 +318,10 @@ export class PhysicsSystem extends System {
     const bbox = entity.getComponent(BoundingBox);
 
     const w = bbox?.width ?? 0;
+    const halfW = w / 2;
 
     const x1 = bbox?.x1 ?? position.x;
-    const x2 = x1 + w / 2;
+    const x2 = x1 + halfW;
     const x3 = bbox?.x2 ?? position.x;
     const y = (bbox?.y2 ?? position.y) + 0.01;
 

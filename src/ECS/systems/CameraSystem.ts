@@ -22,18 +22,17 @@ export class CameraSystem extends System {
   public updateViewBox(entity: Entity): void {
     const camera = entity.getComponent(Camera);
 
-    const inverse = mat3.invert(mat3.create(), camera.viewMatrix);
-
-    if (!inverse) {
+    if (!mat3.invert(camera.viewMatrixInverse, camera.viewMatrix)) {
       throw new Error(`Inverse is null`);
     }
 
-    camera.viewMatrixInverse = inverse;
+    const w = configSvc.frameSize.w;
+    const h = configSvc.frameSize.h;
 
     const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), camera.viewMatrixInverse);
-    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), camera.viewMatrixInverse);
-    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, configSvc.frameSize.h), camera.viewMatrixInverse);
-    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, configSvc.frameSize.h), camera.viewMatrixInverse);
+    const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(w, 0), camera.viewMatrixInverse);
+    const bl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, h), camera.viewMatrixInverse);
+    const br = vec2.transformMat3(vec2.create(), vec2.fromValues(w, h), camera.viewMatrixInverse);
 
     const min = vec2.fromValues(Math.min(tl[0], Math.min(tr[0], Math.min(bl[0], br[0]))), Math.min(tl[1], Math.min(tr[1], Math.min(bl[1], br[1]))));
     const max = vec2.fromValues(Math.max(tl[0], Math.max(tr[0], Math.max(bl[0], br[0]))), Math.max(tl[1], Math.max(tr[1], Math.max(bl[1], br[1]))));
@@ -79,23 +78,13 @@ export class CameraSystem extends System {
       // update zoom level
       camera.zoom = configSvc.scale;
 
-      const positionMatrix = mat3.create();
-      const offsetMatrix = mat3.create();
-      const scaleMatrix = mat3.create();
+      const halfW = configSvc.frameSize.w / 2;
+      const halfH = configSvc.frameSize.h / 2;
 
-      const halfW = configSvc.innerSize.w / 2;
-      const halfH = configSvc.innerSize.h / 2;
-
-      const translation = position.clone().negate();
-      mat3.fromTranslation(offsetMatrix, vec2.fromValues(halfW, halfH));
-      mat3.fromTranslation(positionMatrix, translation.toGlArray());
-      Vector2.destroy(translation);
-
-      mat3.fromScaling(scaleMatrix, [camera.zoom, camera.zoom]);
-
-      mat3.multiply(camera.viewMatrix, mat3.create(), scaleMatrix);
-      mat3.multiply(camera.viewMatrix, camera.viewMatrix, positionMatrix);
-      mat3.multiply(camera.viewMatrix, camera.viewMatrix, offsetMatrix);
+      mat3.identity(camera.viewMatrix);
+      mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(halfW, halfH));
+      mat3.scale(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(camera.zoom, camera.zoom));
+      mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(-position.x, -position.y));
 
       camera.fixBleedingEdges();
 

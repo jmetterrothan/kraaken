@@ -25,6 +25,7 @@ class Animation {
 
       const animation = pool?.borrow();
       if (animation) {
+        animation.reset();
         return animation;
       }
 
@@ -65,12 +66,14 @@ class Animation {
   public freezeTime: number;
   public played: number;
   public index: number;
+  public readonly duration: number = 0;
 
   public constructor({ sprite, name, loop, keyframes }: IAnimationMetadata) {
     this.sprite = sprite;
     this.name = name;
     this.loop = loop;
     this.keyframes = keyframes;
+    this.duration = this.keyframes.reduce((value, current) => value + current.duration, 0);
 
     this.paused = false;
 
@@ -81,19 +84,25 @@ class Animation {
   }
 
   public pause(): void {
-    this.paused = true;
-    this.freezeTime = window.performance.now();
-  }
-
-  public resume(): void {
-    this.paused = false;
-
-    if (this.freezeTime !== -1) {
-      this.time += this.freezeTime - this.time;
+    if (!this.paused) {
+      this.paused = true;
+      this.freezeTime = window.performance.now();
     }
   }
 
-  public update(): void {
+  public resume(): void {
+    if (this.paused) {
+      this.paused = false;
+
+      if (this.freezeTime !== -1) {
+        const pausedFor = window.performance.now() - this.freezeTime;
+        this.time += pausedFor;
+        this.freezeTime = -1;
+      }
+    }
+  }
+
+  public update(_delta: number): void {
     const now = window.performance.now();
 
     if (this.time === -1) {
@@ -109,8 +118,12 @@ class Animation {
         this.index++;
 
         if (this.index >= this.keyframes.length) {
-          this.index = 0;
           this.played++;
+          if (this.loop) {
+            this.index = 0;
+          } else {
+            this.index = this.keyframes.length - 1;
+          }
         }
 
         this.time = now + this.keyframes[this.index].duration;
@@ -131,10 +144,6 @@ class Animation {
 
   public get playedOnce(): boolean {
     return this.played > 0;
-  }
-
-  public get duration(): number {
-    return this.keyframes.reduce((value, current) => value + current.duration, 0);
   }
 
   public get frame(): IKeyFrame {

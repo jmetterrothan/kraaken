@@ -10,7 +10,8 @@ export interface IRigidBodyMetadata {
   orientation?: IVector2;
   collide?: boolean;
   gravity?: boolean;
-  clamToMap?: boolean;
+  maxFallSpeed?: number;
+  clampToMap?: boolean;
   bounciness?: number;
   reflect?: boolean;
   reflectAngle?: boolean;
@@ -22,7 +23,8 @@ export class RigidBody implements Component {
 
   public readonly collide: boolean;
   public readonly gravity: boolean;
-  public readonly clamToMap: boolean;
+  public readonly maxFallSpeed: number;
+  public readonly clampToMap: boolean;
   public readonly reflect: boolean;
   public readonly reflectAngle: boolean;
   public readonly reflectVFX: string | null;
@@ -36,7 +38,7 @@ export class RigidBody implements Component {
 
   public isGrounded: boolean;
 
-  public constructor({ velocity, direction, collide, gravity, clamToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
+  public constructor({ velocity, direction, collide, gravity, maxFallSpeed, clampToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
     this.velocity.x = velocity?.x ?? 0;
     this.velocity.y = velocity?.y ?? 0;
 
@@ -45,7 +47,8 @@ export class RigidBody implements Component {
 
     this.collide = collide ?? true;
     this.gravity = gravity ?? true;
-    this.clamToMap = clamToMap ?? false;
+    this.maxFallSpeed = maxFallSpeed ?? 900;
+    this.clampToMap = clampToMap ?? false;
     this.reflect = reflect ?? false;
     this.reflectAngle = reflectAngle ?? false;
     this.reflectVFX = reflectVFX ?? null;

@@ -47,10 +47,13 @@ export class Camera implements Component {
       return;
     }
 
-    const x1 = this.boundaries.x1 + configSvc.innerSize.w / 2;
-    const x2 = this.boundaries.x2 - configSvc.innerSize.w / 2;
-    const y1 = this.boundaries.y1 + configSvc.innerSize.h / 2;
-    const y2 = this.boundaries.y2 - configSvc.innerSize.h / 2;
+    const halfW = configSvc.innerSize.w / 2;
+    const halfH = configSvc.innerSize.h / 2;
+
+    const x1 = this.boundaries.x1 + halfW;
+    const x2 = this.boundaries.x2 - halfW;
+    const y1 = this.boundaries.y1 + halfH;
+    const y2 = this.boundaries.y2 - halfH;
 
     if (position.x < x1) {
       position.x = x1;

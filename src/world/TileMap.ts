@@ -1,6 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 
-import { Position } from "@src/ECS/components";
+import { Camera } from "@src/ECS/components";
 
 import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
@@ -16,8 +16,6 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import { create2DArray } from "@src/shared/utility/Utility";
 import PriorityQueue from "@src/shared/utility/PriorityQueue";
-
-import { configSvc } from "@src/shared/services/ConfigService";
 
 export const heuristics = {
   manhattan: (a: ITile, b: ITile): number => {
@@ -73,6 +71,8 @@ class TileMap {
 
     this.debugLayer = new Map<number, number>();
 
+    const direction = new Vector2(1, 1);
+
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
         const getTileTypeId = (layer: TileLayer) => {
@@ -96,7 +96,7 @@ class TileMap {
           transform: mat3.fromTranslation(mat3.create(), vec2.fromValues(c * this.tileSize, r * this.tileSize)),
           position: new Vector2(c * this.tileSize, r * this.tileSize),
           size: this.tileSize,
-          direction: new Vector2(1, 1),
+          direction,
           renderOptions: {
             grayscale: false,
             flickering: false,
@@ -129,12 +129,14 @@ class TileMap {
   public init(): void {}
 
   public update(world: World, _delta: number): void {
-    const center = world.camera.getComponent(Position);
+    const cam = world.camera.getComponent(Camera);
 
-    this.startCol = Math.floor((center.x - configSvc.innerSize.w / 2) / this.tileSize);
-    this.startRow = Math.floor((center.y - configSvc.innerSize.h / 2) / this.tileSize);
-    this.endCol = Math.ceil((center.x + configSvc.innerSize.w / 2) / this.tileSize);
-    this.endRow = Math.ceil((center.y + configSvc.innerSize.h / 2) / this.tileSize);
+    const vb = cam.viewBox; // world-space bounds of the viewport
+
+    this.startCol = Math.floor(vb.x1 / this.tileSize);
+    this.startRow = Math.floor(vb.y1 / this.tileSize);
+    this.endCol = Math.ceil(vb.x2 / this.tileSize);
+    this.endRow = Math.ceil(vb.y2 / this.tileSize);
 
     if (this.startCol < 0) {
       this.startCol = 0;
@@ -333,7 +335,7 @@ class TileMap {
               [1, 0],
               [-1, 0],
               [0, -1],
-            ]).findIndex((tile) => tile.hasCollision(), true) !== -1
+            ]).some((tile) => tile.hasCollision())
           ) {
             heuristicValue += 8;
           }

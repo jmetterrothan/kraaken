@@ -28,7 +28,7 @@ export class Animator implements Component {
       const animation = Animation.create({ name, ...list[name] });
 
       if (!animation) {
-        throw new Error("Could not instanciate animation");
+        throw new Error(`Could not instantiate animation "${name}"`);
       }
 
       this.list.set(name, animation);

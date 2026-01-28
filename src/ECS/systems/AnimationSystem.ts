@@ -30,7 +30,7 @@ export class AnimationSystem extends System {
     });
   }
 
-  execute(_delta: number): void {
+  execute(delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -40,23 +40,21 @@ export class AnimationSystem extends System {
       const animator = entity.getComponent(Animator);
       const sprite = entity.getComponent(Sprite);
 
-      const animation = animator.animation;
-
       const currentKey = animator.currentKey;
       const nextKey = animator.update(this.world, entity);
 
       if (nextKey !== currentKey) {
-        if (animation.loop || animation.playedOnce) {
-          if (!animation.loop) animation.reset();
+        if (animator.animation.loop || animator.animation.playedOnce) {
+          if (!animator.animation.loop) animator.animation.reset();
 
           animator.previousKey = currentKey;
           animator.currentKey = nextKey;
         }
       }
 
-      animation.update();
+      animator.animation.update(delta);
 
-      sprite.index = sprite.atlas.getIndex(animation.frame.row, animation.frame.col);
+      sprite.index = sprite.atlas.getIndex(animator.animation.frame.row, animator.animation.frame.col);
     });
   }
 }

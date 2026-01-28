@@ -63,7 +63,7 @@ class LevelState extends State<LevelStateOptions> {
       this.rooms.set(id, world);
     });
 
-    editorStore.setScale(6);
+    editorStore.setScale(5);
 
     console.info("Level initialized");
   }
