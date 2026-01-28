@@ -13,14 +13,22 @@ export class CameraSystem extends System {
   }
 
   public clamp(entity: Entity): void {
+    const position = entity.getComponent(Position);
     const camera = entity.getComponent(Camera);
-    camera.clamp(entity);
+
+    camera.clamp(position);
   }
 
   public updateViewBox(entity: Entity): void {
     const camera = entity.getComponent(Camera);
 
-    camera.viewMatrixInverse = mat3.invert(mat3.create(), camera.viewMatrix) ?? mat3.create();
+    const inverse = mat3.invert(mat3.create(), camera.viewMatrix);
+
+    if (!inverse) {
+      throw new Error(`Inverse is null`);
+    }
+
+    camera.viewMatrixInverse = inverse;
 
     const tl = vec2.transformMat3(vec2.create(), vec2.fromValues(0, 0), camera.viewMatrixInverse);
     const tr = vec2.transformMat3(vec2.create(), vec2.fromValues(configSvc.frameSize.w, 0), camera.viewMatrixInverse);
@@ -34,11 +42,9 @@ export class CameraSystem extends System {
     camera.viewBox.setMax(max[0], max[1]);
   }
 
-  public updatePosition(entity: Entity, _delta: number): void {
+  public updatePosition(entity: Entity, delta: number): void {
     const camera = entity.getComponent(Camera);
     const position = entity.getComponent(Position);
-
-    camera.previousPosition.copy(position);
 
     // Follow target
     if (camera.target) {
@@ -47,7 +53,10 @@ export class CameraSystem extends System {
       if (targetPos) {
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
           const center = targetPos.clone();
-          position.lerp(center, camera.smoothing);
+
+          const t = 1 - Math.pow(1 - camera.smoothing, delta * 60);
+          position.lerp(center, t);
+
           Vector2.destroy(center);
         } else {
           position.copy(targetPos);
@@ -56,13 +65,17 @@ export class CameraSystem extends System {
     }
 
     this.clamp(entity);
+
+    this.computeProjectionMatrix(entity);
+
+    camera.previousPosition.copy(position);
   }
 
   computeProjectionMatrix(entity: Entity): void {
     const position = entity.getComponent(Position);
     const camera = entity.getComponent(Camera);
 
-    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || camera.zoom !== configSvc.scale) {
+    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || Math.abs(camera.zoom - configSvc.scale) > 1e-6) {
       // update zoom level
       camera.zoom = configSvc.scale;
 
@@ -70,8 +83,11 @@ export class CameraSystem extends System {
       const offsetMatrix = mat3.create();
       const scaleMatrix = mat3.create();
 
+      const halfW = configSvc.innerSize.w / 2;
+      const halfH = configSvc.innerSize.h / 2;
+
       const translation = position.clone().negate();
-      mat3.fromTranslation(offsetMatrix, vec2.fromValues(configSvc.innerSize.w / 2, configSvc.innerSize.h / 2));
+      mat3.fromTranslation(offsetMatrix, vec2.fromValues(halfW, halfH));
       mat3.fromTranslation(positionMatrix, translation.toGlArray());
       Vector2.destroy(translation);
 
@@ -97,7 +113,6 @@ export class CameraSystem extends System {
 
     entities.forEach((entity) => {
       this.updatePosition(entity, delta);
-      this.computeProjectionMatrix(entity);
     });
   }
 }

@@ -37,17 +37,15 @@ export class Camera implements Component {
 
   public zoom: number = configSvc.scale;
 
-  public constructor({ mode }: ICameraMetadata) {
+  public constructor({ mode, smoothing }: ICameraMetadata) {
     this.mode = mode ?? CameraMode.LERP_SMOOTHING;
-    this.smoothing = 0.2;
+    this.smoothing = smoothing ?? 0.06;
   }
 
-  public clamp(entity: Entity): void {
+  public clamp(position: Position): void {
     if (!this.boundaries) {
       return;
     }
-
-    const position = entity.getComponent(Position);
 
     const x1 = this.boundaries.x1 + configSvc.innerSize.w / 2;
     const x2 = this.boundaries.x2 - configSvc.innerSize.w / 2;
@@ -70,8 +68,8 @@ export class Camera implements Component {
 
   public fixBleedingEdges(): void {
     // fix for texture bleeding by rounding the x, y components
-    this.viewMatrix[6] = Math.floor(this.viewMatrix[6]);
-    this.viewMatrix[7] = Math.floor(this.viewMatrix[7]);
+    // this.viewMatrix[6] = Math.floor(this.viewMatrix[6]);
+    // this.viewMatrix[7] = Math.floor(this.viewMatrix[7]);
   }
 
   public follow(target: Entity): void {
