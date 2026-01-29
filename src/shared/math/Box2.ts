@@ -1,6 +1,6 @@
 import Vector2 from "@src/shared/math/Vector2";
 
-import { linesIntersection, linesIntersectionWithVector2 } from "@src/shared/utility/MathHelpers";
+import { linesIntersection } from "@src/shared/utility/MathHelpers";
 
 class Box2 {
   private _min: Vector2;
@@ -53,28 +53,7 @@ class Box2 {
   }
 
   public intersectSegmentWithVector2(v1: Vector2, v2: Vector2): Vector2 | undefined {
-    const p1 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._min.y), Vector2.create(this._min.x, this._max.y));
-    if (p1 !== undefined) {
-      // console.log("intersected box left side");
-      return p1;
-    }
-    const p2 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._max.x, this._min.y), Vector2.create(this._max.x, this._max.y));
-    if (p2 !== undefined) {
-      // console.log("intersected box right side");
-      return p2;
-    }
-    const p3 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._min.y), Vector2.create(this._max.x, this._min.y));
-    if (p3 !== undefined) {
-      // console.log("intersected box top side");
-      return p3;
-    }
-    const p4 = linesIntersectionWithVector2(v1, v2, Vector2.create(this._min.x, this._max.y), Vector2.create(this._max.x, this._max.y));
-    if (p4 !== undefined) {
-      // console.log("intersected box bottom side");
-      return p4;
-    }
-
-    return;
+    return this.intersectSegment(v1.x, v1.y, v2.x, v2.y);
   }
 
   public setPosition(x: number, y: number): void {

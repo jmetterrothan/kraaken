@@ -4,7 +4,7 @@ const createShader = (gl: WebGL2RenderingContext, type: number, source: string):
   const shader = gl.createShader(type);
 
   if (!shader) {
-    throw new Error("Could not initialize shader");
+    throw new Error("Could not create shader");
   }
 
   gl.shaderSource(shader, source);
@@ -14,7 +14,7 @@ const createShader = (gl: WebGL2RenderingContext, type: number, source: string):
     gl.deleteShader(shader);
 
     console.warn(gl.getShaderInfoLog(shader), source);
-    throw new Error("Could not initialize shader");
+    throw new Error(`Could not compile shader : ${type === gl.VERTEX_SHADER ? "VERTEX" : "FRAGMENT"}`);
   }
 
   return shader;
@@ -29,6 +29,10 @@ const createProgram = (gl: WebGL2RenderingContext, vsSource: string, fsSource: s
   }
 
   const program: WebGLProgram = gl.createProgram();
+
+  if (!program) {
+    throw new Error("Could not initialize program");
+  }
 
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
@@ -109,6 +113,8 @@ const setUniform = (gl: WebGL2RenderingContext, uniform: IUniform): void => {
     case "Matrix4fv":
       gl.uniformMatrix4fv(uniform.location, false, uniform.value);
       break;
+    default:
+      throw new Error(`Unknown uniform type: ${uniform.type}`);
   }
 };
 
