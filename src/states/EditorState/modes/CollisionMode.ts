@@ -1,5 +1,3 @@
-import { vec2 } from "gl-matrix";
-
 import { Position } from "@src/ECS/components";
 import { Entity } from "@src/ECS";
 
@@ -9,6 +7,9 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorCollisionMode } from "@src/shared/models/editor.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
+import MouseButton from "@src/enums/MouseButton";
+
+import { vec2 } from "gl-matrix";
 
 class CollisionMode {
   public focusedEntity: Entity | undefined;
@@ -43,21 +44,21 @@ class CollisionMode {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
-      if (this.editor.state.collisionMode === EditorCollisionMode.PLACE) {
-        driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);
-      } else {
-        driver.place({ layerId: TileLayer.L0, tileTypeId: 0, coords: [coords] }, true);
+      switch (button) {
+        case MouseButton.LEFT: {
+          if (this.editor.state.collisionMode === EditorCollisionMode.PLACE) {
+            driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);
+          } else {
+            driver.place({ layerId: TileLayer.L0, tileTypeId: 0, coords: [coords] }, true);
+          }
+        }
       }
     }
   }
-
-  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
-
-  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
 
   public handleMouseMove(): void {}
 }

@@ -1,3 +1,4 @@
+import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
 
 export abstract class System {
@@ -10,6 +11,12 @@ export abstract class System {
   }
 
   public abstract execute(delta: number): void;
+
+  public handleMouseMove(_coords: Vector2): void {}
+
+  public handleMouseInput(_button: number, _active: boolean): void {}
+
+  public handleKeyboardInput(_key: string, _active: boolean): void {}
 
   public addedToWorld(world: World): void {
     this._world = world;

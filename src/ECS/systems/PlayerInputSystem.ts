@@ -1,42 +1,20 @@
-import { vec2 } from "gl-matrix";
-
 import { System, Entity } from "@src/ECS";
 
 import { PlayerInput, Position, PlayerCombat, Health } from "@src/ECS/components";
 
-import { wrapper, canvas } from "@src/Game";
-
-import { getMouseOffsetX, getMouseOffsetY, getCoord, buttonPressed } from "@src/shared/utility/Utility";
+import { buttonPressed } from "@src/shared/utility/Utility";
 
 import Vector2 from "@src/shared/math/Vector2";
 
 import config from "@src/config";
-
-const gamepads: Record<number, Gamepad> = {};
+import World from "@src/world/World";
+import MouseButton from "@src/enums/MouseButton";
 
 export class PlayerInputSystem extends System {
+  protected gamepads: Record<number, Gamepad> = {};
+
   public constructor() {
     super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
-
-    // Mouse events
-    wrapper.addEventListener("mouseup", (e: MouseEvent) => this.handleMouseInput(e.button, false), false);
-    wrapper.addEventListener("mousedown", (e: MouseEvent) => this.handleMouseInput(e.button, true), false);
-
-    // Keyboard events
-    window.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
-    window.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
-
-    wrapper.addEventListener(
-      "mousemove",
-      (e: MouseEvent) => {
-        if (canvas.contains(e.target as Node)) {
-          const x = getMouseOffsetX(canvas, e);
-          const y = getMouseOffsetY(canvas, e);
-          this.handleMouseMove(getCoord(canvas, x, y));
-        }
-      },
-      false
-    );
 
     // Gamepad events
     window.addEventListener(
@@ -62,20 +40,18 @@ export class PlayerInputSystem extends System {
     if (connecting) {
       if (config.DEBUG) console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
 
-      gamepads[gamepad.index] = gamepad;
+      this.gamepads[gamepad.index] = gamepad;
     } else {
-      delete gamepads[gamepad.index];
+      delete this.gamepads[gamepad.index];
     }
   }
 
-  public handleMouseMove(pos: vec2): void {
+  public handleMouseMove(coords: Vector2): void {
     const entities = this.world.getEntities(this.componentTypes);
 
     if (entities.length === 0) {
       return;
     }
-
-    const coords = this.world.screenToCameraCoords(pos);
 
     entities.forEach((entity) => {
       const position = entity.getComponent(Position);
@@ -90,7 +66,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleMouseInput(button: number, active: boolean): void {
+  public handleMouseInput(button: MouseButton, active: boolean): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -101,8 +77,10 @@ export class PlayerInputSystem extends System {
         const input = entity.getComponent(PlayerInput);
         const health = entity.getComponent(Health);
 
-        if (button === 0) {
-          input.usePrimary = active && health.isAlive;
+        switch (button) {
+          case MouseButton.LEFT: {
+            input.usePrimary = active && health.isAlive;
+          }
         }
       }
     });
@@ -242,17 +220,19 @@ export class PlayerInputSystem extends System {
         Vector2.destroy(v);
       }
 
-      /*
       if (dist < combat.primaryWeapon.minRange) {
         const v = input.aim.clone().multiplyScalar((combat.primaryWeapon.minRange + 0.01) / dist);
         input.aim.fromValues(v.x, v.y);
         Vector2.destroy(v);
       }
-      */
     }
   }
 
   execute(delta: number): void {
+    if (!this.world) {
+      return;
+    }
+
     const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
     const entities = this.world.getEntities(this.componentTypes);
@@ -267,5 +247,9 @@ export class PlayerInputSystem extends System {
 
       this.enforceWeaponRangeLimit(entity);
     });
+  }
+
+  public removedFromWorld(world: World): void {
+    super.removedFromWorld(world);
   }
 }

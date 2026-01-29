@@ -2,13 +2,14 @@ import { vec2 } from "gl-matrix";
 
 import { registerEvent } from "@src/shared/utility/Utility";
 import { createRoot, Root } from "react-dom/client";
+import MouseButton from "@src/enums/MouseButton";
 
 abstract class State<O = any> {
   public ready = false;
 
   protected root: Root;
 
-  private eventCallbackStack: Array<() => void> = [];
+  private controller: AbortController;
 
   constructor() {
     const $kraaken = document.querySelector(".kraaken");
@@ -20,6 +21,8 @@ abstract class State<O = any> {
     const $ui = document.createElement("div");
     $ui.classList.add("kraaken-ui");
     $kraaken.appendChild($ui);
+
+    this.controller = new AbortController();
 
     this.root = createRoot($ui);
   }
@@ -42,11 +45,7 @@ abstract class State<O = any> {
 
   public abstract handleKeyboardInput(key: string, active: boolean): void;
 
-  public abstract handleMouseLeftBtnPressed(active: boolean, position: vec2): void;
-
-  public abstract handleMouseMiddleBtnPressed(active: boolean, position: vec2): void;
-
-  public abstract handleMouseRightBtnPressed(active: boolean, position: vec2): void;
+  public abstract handleMouseInput(button: MouseButton, active: boolean, position: vec2): void;
 
   public abstract handleMouseMove(position: vec2): void;
 
@@ -58,16 +57,14 @@ abstract class State<O = any> {
    * Register an event listener to the state that can be later flushed
    */
   public registerEvent(type: keyof WindowEventMap, listener: any): void {
-    this.eventCallbackStack.push(registerEvent(type, listener));
+    registerEvent(type, listener, { signal: this.controller.signal });
   }
 
   /**
    * Remove all event listeners registered in the state
    */
   public flushEvents(): void {
-    this.eventCallbackStack.forEach((callback) => {
-      callback();
-    });
+    this.controller.abort();
   }
 }
 

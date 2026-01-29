@@ -346,6 +346,23 @@ class Game {
       false
     );
 
+    // Gamepad events
+    window.addEventListener(
+      "gamepadconnected",
+      (e: GamepadEvent) => {
+        console.log("Gamepad connected (index = %d, id = $s): %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+      },
+      false
+    );
+
+    window.addEventListener(
+      "gamepaddisconnected",
+      (e: GamepadEvent) => {
+        console.info("Gamepad disconnected (index = %d, id = $s)", e.gamepad.index, e.gamepad.id);
+      },
+      false
+    );
+
     // Click events
     wrapper.addEventListener(
       "mouseup",
@@ -353,7 +370,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMousePressed(e.button, false, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e.button, false, getCoord(canvas, x, y));
         }
       },
       false
@@ -365,7 +382,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMousePressed(e.button, true, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e.button, true, getCoord(canvas, x, y));
         }
       },
       false

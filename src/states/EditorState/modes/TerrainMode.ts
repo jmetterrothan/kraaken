@@ -16,6 +16,8 @@ import { ITile, TileLayer } from "@src/shared/models/tilemap.model";
 
 import editorStore from "../editorStore";
 
+import MouseButton from "@src/enums/MouseButton";
+
 class TerrainMode {
   private editor: EditorState;
 
@@ -93,40 +95,41 @@ class TerrainMode {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
     if (active) {
-      const tileMap = this.editor.currentRoom.world.tileMap;
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
-      const { layerId, tileTypeId, terrainMode } = this.editor.state;
+      switch (button) {
+        case MouseButton.LEFT: {
+          const tileMap = this.editor.currentRoom.world.tileMap;
 
-      if (terrainMode === EditorTerrainMode.PICK) {
-        const tile = tileMap.getTileAtCoords(coords.x, coords.y);
-        if (tile) {
-          const tileTypeId = tile.getTileTypeId(layerId);
-          editorStore.setSelectedTileTypeId(tileTypeId);
-        }
-      } else if (this.editor.state.terrainMode === EditorTerrainMode.PLACE) {
-        driver.place({ layerId, tileTypeId, coords: [coords] }, true);
-      } else if (this.editor.state.terrainMode === EditorTerrainMode.ERASE) {
-        driver.place({ layerId, tileTypeId: 0, coords: [coords] }, true);
-      } else if (this.editor.state.terrainMode === EditorTerrainMode.FILL) {
-        const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
-        const tileSize = tileMap.getTileSize();
+          const { layerId, tileTypeId, terrainMode } = this.editor.state;
 
-        if (targetTile) {
-          const targetId = targetTile.getTileTypeId(layerId);
-          const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
+          if (terrainMode === EditorTerrainMode.PICK) {
+            const tile = tileMap.getTileAtCoords(coords.x, coords.y);
+            if (tile) {
+              const tileTypeId = tile.getTileTypeId(layerId);
+              editorStore.setSelectedTileTypeId(tileTypeId);
+            }
+          } else if (this.editor.state.terrainMode === EditorTerrainMode.PLACE) {
+            driver.place({ layerId, tileTypeId, coords: [coords] }, true);
+          } else if (this.editor.state.terrainMode === EditorTerrainMode.ERASE) {
+            driver.place({ layerId, tileTypeId: 0, coords: [coords] }, true);
+          } else if (this.editor.state.terrainMode === EditorTerrainMode.FILL) {
+            const targetTile = tileMap.getTileAtCoords(coords.x, coords.y);
+            const tileSize = tileMap.getTileSize();
 
-          driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
+            if (targetTile) {
+              const targetId = targetTile.getTileTypeId(layerId);
+              const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
+
+              driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
+            }
+          }
         }
       }
     }
   }
-
-  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
-
-  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
 
   public handleMouseMove(_position: vec2): void {}
 }

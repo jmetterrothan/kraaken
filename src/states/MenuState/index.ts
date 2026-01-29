@@ -1,6 +1,7 @@
 import { vec2 } from "gl-matrix";
 
 import State from "@src/states/State";
+import MouseButton from "@src/enums/MouseButton";
 
 class MenuState extends State<void> {
   constructor() {
@@ -17,13 +18,11 @@ class MenuState extends State<void> {
 
   public render(_alpha: number): void {}
 
+  public handleGamepadInput(): void {}
+
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseLeftBtnPressed(_active: boolean, _position: vec2): void {}
-
-  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
-
-  public handleMouseRightBtnPressed(_active: boolean, _position: vec2): void {}
+  public handleMouseInput(_button: MouseButton, _active: boolean, _position: vec2): void {}
 
   public handleMouseMove(_position: vec2): void {}
 

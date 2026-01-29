@@ -4,50 +4,9 @@ import { BasicInput, Position } from "@src/ECS/components";
 
 import { buttonPressed } from "@src/shared/utility/Utility";
 
-import config from "@src/config";
-import { wrapper } from "@src/Game";
-
-const gamepads: Record<number, Gamepad> = {};
-
-// TODO: refactor code to make it easier to build alternative controls
 export class BasicInputSystem extends System {
   public constructor() {
     super([Position.COMPONENT_TYPE, BasicInput.COMPONENT_TYPE]);
-
-    // Keyboard events
-    wrapper.addEventListener("keyup", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, false), false);
-    wrapper.addEventListener("keydown", (e: KeyboardEvent) => this.handleKeyboardInput(e.key, true), false);
-
-    // Gamepad events
-    window.addEventListener(
-      "gamepadconnected",
-      (e: GamepadEvent) => {
-        this.handleGamepad(e, true);
-        console.log("Gamepad connected");
-      },
-      false
-    );
-
-    window.addEventListener(
-      "gamepaddisconnected",
-      (e: GamepadEvent) => {
-        this.handleGamepad(e, false);
-        console.log("Gamepad disconnected");
-      },
-      false
-    );
-  }
-
-  public handleGamepad(e: GamepadEvent, connecting: boolean): void {
-    const gamepad = e.gamepad;
-
-    if (connecting) {
-      if (config.DEBUG) console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
-
-      gamepads[gamepad.index] = gamepad;
-    } else {
-      delete gamepads[gamepad.index];
-    }
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {
@@ -80,7 +39,7 @@ export class BasicInputSystem extends System {
     });
   }
 
-  handleGamepadInput(entity: Entity, controllers: Gamepad[], _delta: number): void {
+  handleGamepadInput(entity: Entity, controllers: Gamepad[]): void {
     const input = entity.getComponent(BasicInput);
 
     const controller = controllers[input.gamepadIndex];
@@ -170,7 +129,7 @@ export class BasicInputSystem extends System {
     }
   }
 
-  execute(delta: number): void {
+  execute(_delta: number): void {
     const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
     const entities = this.world.getEntities(this.componentTypes);
@@ -180,7 +139,7 @@ export class BasicInputSystem extends System {
 
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
-        this.handleGamepadInput(entity, controllers, delta);
+        this.handleGamepadInput(entity, controllers);
       }
     });
   }

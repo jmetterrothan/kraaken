@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import { vec2 } from "gl-matrix";
 
 import { Entity } from "@src/ECS";
 import { RigidBody, BoundingBox, Position, Sprite, Placeable } from "@src/ECS/components";
@@ -12,6 +11,9 @@ import * as GameEventTypes from "@src/shared/events/constants";
 import * as GameEvents from "@src/shared/events";
 
 import eventStackSvc from "@src/shared/services/EventStackService";
+import MouseButton from "@src/enums/MouseButton";
+
+import { vec2 } from "gl-matrix";
 
 class EntityMode {
   public focusedEntity: Entity | undefined;
@@ -128,64 +130,66 @@ class EntityMode {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
+  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
-      const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
+      switch (button) {
+        case MouseButton.LEFT: {
+          const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
 
-      if (tile) {
-        const x = tile.position.x + tile.size / 2;
-        const y = tile.position.y + tile.size / 2;
+          if (tile) {
+            const x = tile.position.x + tile.size / 2;
+            const y = tile.position.y + tile.size / 2;
 
-        if (this.selectedEntity) {
-          const selectedEntityPos = this.selectedEntity.getComponent(Position);
-          const placeable = this.selectedEntity.getComponent(Placeable);
+            if (this.selectedEntity) {
+              const selectedEntityPos = this.selectedEntity.getComponent(Position);
+              const placeable = this.selectedEntity.getComponent(Placeable);
 
-          placeable.unfollow();
-          selectedEntityPos.fromValues(x, y);
+              placeable.unfollow();
+              selectedEntityPos.fromValues(x, y);
 
-          driver.spawn(
-            {
-              uuid: this.selectedEntity.uuid,
-              type: this.selectedEntity.type,
-              position: { x, y },
-              direction: { x: 1, y: 1 },
-            },
-            true
-          );
+              driver.spawn(
+                {
+                  uuid: this.selectedEntity.uuid,
+                  type: this.selectedEntity.type,
+                  position: { x, y },
+                  direction: { x: 1, y: 1 },
+                },
+                true
+              );
 
-          this.selectedEntity = undefined;
-        } else {
-          if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
-            const focusedEntityPos = this.focusedEntity.getComponent(Position);
-            const placeable = this.focusedEntity.getComponent(Placeable);
+              this.selectedEntity = undefined;
+            } else {
+              if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
+                const focusedEntityPos = this.focusedEntity.getComponent(Position);
+                const placeable = this.focusedEntity.getComponent(Placeable);
 
-            placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
+                placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
 
-            this.selectedEntity = this.focusedEntity;
-          } else {
-            driver.spawn(
-              {
-                uuid: uuidv4(),
-                type: this.editor.state.entityType,
-                position: { x, y },
-                direction: { x: 1, y: 1 },
-              },
-              true
-            );
+                this.selectedEntity = this.focusedEntity;
+              } else {
+                driver.spawn(
+                  {
+                    uuid: uuidv4(),
+                    type: this.editor.state.entityType,
+                    position: { x, y },
+                    direction: { x: 1, y: 1 },
+                  },
+                  true
+                );
+              }
+            }
           }
+          break;
         }
-      }
-    }
-  }
 
-  public handleMouseMiddleBtnPressed(_active: boolean, _position: vec2): void {}
-
-  public handleMouseRightBtnPressed(active: boolean, _position: vec2): void {
-    if (active) {
-      if (this.focusedEntity) {
-        driver.despawn(this.focusedEntity.uuid, true);
+        case MouseButton.RIGHT: {
+          if (this.focusedEntity) {
+            driver.despawn(this.focusedEntity.uuid, true);
+          }
+          break;
+        }
       }
     }
   }

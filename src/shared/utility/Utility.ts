@@ -34,8 +34,15 @@ export const buttonPressed = (b: GamepadButton): boolean => {
   return b === 1.0;
 };
 
-export const registerEvent = (type: string, listener: any, target: Window = window): (() => void) => {
-  target.addEventListener(type, listener);
+type Options = {
+  target?: Window;
+  signal?: AbortSignal;
+  passive?: boolean;
+};
+
+export const registerEvent = (type: string, listener: any, options: Options = {}): (() => void) => {
+  const { passive = false, signal, target = window } = options;
+  target.addEventListener(type, listener, { passive, signal });
 
   return () => {
     target.removeEventListener(type, listener);

@@ -18,6 +18,7 @@ import * as GameEvents from "@src/shared/events";
 import editorStore from "../EditorState/editorStore";
 
 import LevelUi from "./LevelUi";
+import MouseButton from "@src/enums/MouseButton";
 
 interface LevelStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
@@ -144,20 +145,14 @@ class LevelState extends State<LevelStateOptions> {
     this.currentRoom.render(alpha);
   }
 
+  public handleGamepadInput(): void {}
+
   public handleKeyboardInput(key: string, active: boolean): void {
     this.currentRoom.handleKeyboardInput(key, active);
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseLeftBtnPressed(active, position);
-  }
-
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseMiddleBtnPressed(active, position);
-  }
-
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseRightBtnPressed(active, position);
+  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
+    this.currentRoom.handleMouseInput(button, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

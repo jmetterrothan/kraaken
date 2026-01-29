@@ -37,15 +37,9 @@ class StateManager {
     }
   }
 
-  public handleMousePressed(button: number, active: boolean, position: vec2): void {
+  public handleMouseInput(button: number, active: boolean, position: vec2): void {
     if (this.isReady) {
-      if (button === 0) {
-        this.currentState.handleMouseLeftBtnPressed(active, position);
-      } else if (button === 1) {
-        this.currentState.handleMouseMiddleBtnPressed(active, position);
-      } else if (button === 2) {
-        this.currentState.handleMouseRightBtnPressed(active, position);
-      }
+      this.currentState.handleMouseInput(button, active, position);
     }
   }
 

@@ -31,6 +31,7 @@ import EntityMode from "./modes/EntityMode";
 import CollisionMode from "./modes/CollisionMode";
 
 import editorStore, { IEditorStoreState } from "./editorStore";
+import MouseButton from "@src/enums/MouseButton";
 
 interface EditorStateOptions {
   levelId: string;
@@ -127,7 +128,7 @@ class EditorState extends State<EditorStateOptions> {
       [EditorMode.COLLISION]: new CollisionMode(this),
     };
 
-    editorStore.setScale(4);
+    editorStore.setScale(3);
 
     console.info("Editor initialized");
   }
@@ -244,24 +245,16 @@ class EditorState extends State<EditorStateOptions> {
     this.currentMode.render(alpha);
   }
 
+  public handleGamepadInput(): void {}
+
   public handleKeyboardInput(key: string, active: boolean): void {
     this.currentRoom.world.handleKeyboardInput(key, active);
     this.currentMode.handleKeyboardInput(key, active);
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseLeftBtnPressed(active, position);
-    this.currentMode.handleMouseLeftBtnPressed(active, position);
-  }
-
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseMiddleBtnPressed(active, position);
-    this.currentMode.handleMouseMiddleBtnPressed(active, position);
-  }
-
-  public handleMouseRightBtnPressed(active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseRightBtnPressed(active, position);
-    this.currentMode.handleMouseRightBtnPressed(active, position);
+  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
+    this.currentRoom.world.handleMouseInput(button, active, position);
+    this.currentMode.handleMouseInput(button, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

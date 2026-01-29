@@ -21,6 +21,7 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 import { configSvc } from "@src/shared/services/ConfigService";
 
 import config from "@src/config";
+import MouseButton from "@src/enums/MouseButton";
 
 class World {
   public readonly levelBlueprint: ILevelBlueprint;
@@ -348,44 +349,44 @@ class World {
     }
   }
 
-  public handleKeyboardInput(_key: string, active: boolean): void {
-    if (active) {
-      //
+  public handleKeyboardInput(key: string, active: boolean): void {
+    for (let i = 0, n = this._systems.length; i < n; i++) {
+      this._systems[i].handleKeyboardInput(key, active);
     }
   }
 
-  public handleMouseLeftBtnPressed(active: boolean, _position: vec2): void {
+  public handleMouseInput(button: number, active: boolean, position: vec2): void {
     if (active) {
-      // console.log("left click");
-    }
-  }
+      switch (button) {
+        case MouseButton.MIDDLE: {
+          // console.log("middle click");
+          // this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
 
-  public handleMouseMiddleBtnPressed(active: boolean, position: vec2): void {
-    if (active) {
-      // console.log("middle click");
-      // this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
+          const coords = this.screenToCameraCoords(position);
 
-      const coords = this.screenToCameraCoords(position);
+          const playerPosition = this.player.getComponent(Components.Position);
 
-      const playerPosition = this.player.getComponent(Components.Position);
+          const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
+          const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
 
-      const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
-      const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
-
-      if (startTile && goalTile) {
-        this.tileMap.aStar(startTile, goalTile);
+          if (startTile && goalTile) {
+            this.tileMap.aStar(startTile, goalTile);
+          }
+        }
       }
     }
-  }
 
-  public handleMouseRightBtnPressed(active: boolean, _position: vec2): void {
-    if (active) {
-      // console.log("right click");
+    for (let i = 0, n = this._systems.length; i < n; i++) {
+      this._systems[i].handleMouseInput(button, active);
     }
   }
 
-  public handleMouseMove(_position: vec2): void {
-    // const coords = this.screenToCameraCoords(position);
+  public handleMouseMove(position: vec2): void {
+    const coords = this.screenToCameraCoords(position);
+
+    for (let i = 0, n = this._systems.length; i < n; i++) {
+      this._systems[i].handleMouseMove(coords);
+    }
   }
 
   public handleFullscreenChange(_b: boolean): void {
