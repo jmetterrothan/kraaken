@@ -35,7 +35,7 @@ class CollisionMode {
 
     if (tile) {
       const x = tile.position.x + tile.size / 2;
-      const y = tile.position.y + tile.size / 2 + 1;
+      const y = tile.position.y + tile.size / 2;
       gridCursorPosition.fromValues(x, y);
     }
   }
