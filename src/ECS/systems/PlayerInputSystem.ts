@@ -11,8 +11,6 @@ import World from "@src/world/World";
 import MouseButton from "@src/enums/MouseButton";
 
 export class PlayerInputSystem extends System {
-  protected gamepads: Record<number, Gamepad> = {};
-
   public constructor() {
     super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
   }
@@ -25,11 +23,12 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const position = entity.getComponent(Position);
       const health = entity.getComponent(Health);
-      const input = entity.getComponent(PlayerInput);
 
       if (health.isAlive) {
+        const position = entity.getComponent(Position);
+        const input = entity.getComponent(PlayerInput);
+
         const c = Vector2.create(coords.x - position.x, coords.y - position.y);
         input.aim.lerp(c, 0.2);
         Vector2.destroy(c);
@@ -64,10 +63,10 @@ export class PlayerInputSystem extends System {
     }
 
     entities.forEach((entity) => {
-      const health = entity.getComponent(Health);
-
       if (this.world.controlledEntity === entity) {
+        const health = entity.getComponent(Health);
         const input = entity.getComponent(PlayerInput);
+
         switch (key) {
           case "ArrowLeft":
             input.left = active && health.isAlive;

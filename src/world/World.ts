@@ -476,8 +476,12 @@ class World {
       this.renderer.removedFromWorld(this);
     }
 
+    this.grid.dispose();
+
     this._bundles.clear();
+
     this._cameras = [];
+
     this._activeCameraIndex = 0;
   }
 }
