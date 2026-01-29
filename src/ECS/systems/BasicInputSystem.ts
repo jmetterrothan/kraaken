@@ -1,3 +1,4 @@
+import config from "@src/config";
 import { System, Entity } from "@src/ECS";
 
 import { BasicInput, Position } from "@src/ECS/components";
@@ -18,6 +19,7 @@ export class BasicInputSystem extends System {
     entities.forEach((entity) => {
       if (this.world.controlledEntity === entity) {
         const input = entity.getComponent(BasicInput);
+
         switch (key) {
           case "ArrowLeft":
             input.left = active;
@@ -48,29 +50,12 @@ export class BasicInputSystem extends System {
       const x = controller.axes[0];
       const y = controller.axes[1];
 
-      if (x >= 0.5) {
-        input.right = true;
-      } else {
-        input.right = false;
-      }
+      const deadzone = 0.5;
 
-      if (x <= -0.5) {
-        input.left = true;
-      } else {
-        input.left = false;
-      }
-
-      if (y >= 0.5) {
-        input.up = true;
-      } else {
-        input.up = false;
-      }
-
-      if (y <= -0.5) {
-        input.down = true;
-      } else {
-        input.down = false;
-      }
+      input.right = x >= deadzone;
+      input.left = x <= -deadzone;
+      input.down = y >= deadzone;
+      input.up = y <= -deadzone;
 
       // handle buttons
       controller.buttons.forEach((button, index) => {
@@ -105,23 +90,23 @@ export class BasicInputSystem extends System {
             break;
 
           case 12: // up arrow
-            input.up = active;
+            input.up = input.up || active;
             break;
 
           case 13: // down arrow
-            input.down = active;
+            input.down = input.down || active;
             break;
 
           case 14: // left arrow
-            input.left = active;
+            input.left = input.left || active;
             break;
 
           case 15: // right arrow
-            input.right = active;
+            input.right = input.right || active;
             break;
 
           default:
-            if (active) {
+            if (active && config.DEBUG) {
               console.log(`Unmapped index: ${index}`);
             }
         }
@@ -132,15 +117,8 @@ export class BasicInputSystem extends System {
   execute(_delta: number): void {
     const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
-    const entities = this.world.getEntities(this.componentTypes);
-    if (entities.length === 0) {
-      return;
+    if (this.world.controlledEntity) {
+      this.handleGamepadInput(this.world.controlledEntity, controllers);
     }
-
-    entities.forEach((entity) => {
-      if (this.world.controlledEntity === entity) {
-        this.handleGamepadInput(entity, controllers);
-      }
-    });
   }
 }

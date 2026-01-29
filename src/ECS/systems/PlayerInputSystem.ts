@@ -205,18 +205,10 @@ export class PlayerInputSystem extends System {
 
     const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
-    const entities = this.world.getEntities(this.componentTypes);
-    if (entities.length === 0) {
-      return;
+    if (this.world.controlledEntity) {
+      this.handleGamepadInput(this.world.controlledEntity, controllers, delta);
+      this.enforceWeaponRangeLimit(this.world.controlledEntity);
     }
-
-    entities.forEach((entity) => {
-      if (this.world.controlledEntity === entity) {
-        this.handleGamepadInput(entity, controllers, delta);
-      }
-
-      this.enforceWeaponRangeLimit(entity);
-    });
   }
 
   public removedFromWorld(world: World): void {

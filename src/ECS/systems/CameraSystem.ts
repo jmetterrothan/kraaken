@@ -3,8 +3,6 @@ import { mat3, vec2 } from "gl-matrix";
 import { Entity, System } from "@src/ECS";
 import { Position, Camera, CameraMode } from "@src/ECS/components";
 
-import Vector2 from "@src/shared/math/Vector2";
-
 import { configSvc } from "@src/shared/services/ConfigService";
 
 export class CameraSystem extends System {
@@ -51,12 +49,8 @@ export class CameraSystem extends System {
 
       if (targetPos) {
         if (camera.mode === CameraMode.LERP_SMOOTHING) {
-          const center = targetPos.clone();
-
           const t = 1 - Math.pow(1 - camera.smoothing, delta * 60);
-          position.lerp(center, t);
-
-          Vector2.destroy(center);
+          position.lerp(targetPos, t);
         } else {
           position.copy(targetPos);
         }

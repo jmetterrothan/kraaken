@@ -11,13 +11,13 @@ export class PlayerCombat implements Component {
     projectile: "energy_bolt", //
     rate: 375,
     burstLimit: 1,
-    burstDelay: 0,
-    maxAmmo: 8,
+    burstDelay: 200,
+    maxAmmo: 12,
     fireSFX: "laser",
     fireFailSFX: "laser_fail",
     minRange: 16,
     maxRange: 72,
-    spread: { x: 0, y: 1 },
+    spread: { x: 0, y: 0.01 },
   });
 
   public get primaryWeapon(): ProjectileWeapon {

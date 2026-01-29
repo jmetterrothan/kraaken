@@ -39,7 +39,7 @@ export class Camera implements Component {
 
   public constructor({ mode, smoothing }: ICameraMetadata) {
     this.mode = mode ?? CameraMode.LERP_SMOOTHING;
-    this.smoothing = smoothing ?? 0.06;
+    this.smoothing = smoothing ?? 0.1;
   }
 
   public clamp(position: Position): void {
@@ -69,10 +69,10 @@ export class Camera implements Component {
     }
   }
 
+  /**
+   * fix for texture bleeding by rounding the x, y components
+   */
   public fixBleedingEdges(): void {
-    /**
-     * fix for texture bleeding by rounding the x, y components
-     */
     this.viewMatrix[6] = Math.round(this.viewMatrix[6]);
     this.viewMatrix[7] = Math.round(this.viewMatrix[7]);
   }

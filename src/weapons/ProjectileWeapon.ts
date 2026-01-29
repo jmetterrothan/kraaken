@@ -30,19 +30,20 @@ class ProjectileWeapon extends Weapon {
   public readonly maxRange: number;
   public readonly burstLimit: number;
   public readonly burstDelay: number;
+  public readonly spread: Vector2;
 
   protected _ammo: number;
 
-  protected nextTimeToFire: number;
-  protected nextTimeToBurst: number;
-  protected burstCounter: number;
+  protected nextShotAt = 0;
+  protected nextBurstAt = 0;
+  protected shotsLeftInBurst: number;
 
   protected fireSFX: Howl | undefined;
   protected fireFailSFX: Howl | undefined;
 
   protected lastFireFailAt: number = 0;
 
-  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, fireSFX, fireFailSFX }: ProjectileWeaponOptions) {
+  constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, spread, fireSFX, fireFailSFX }: ProjectileWeaponOptions) {
     super();
 
     if (!projectile) {
@@ -61,12 +62,11 @@ class ProjectileWeapon extends Weapon {
     this.maxAmmo = maxAmmo;
     this.minRange = minRange;
     this.maxRange = maxRange;
+    this.spread = Vector2.create(spread?.x ?? 0, spread?.y ?? 0);
 
     this._ammo = this.maxAmmo;
 
-    this.nextTimeToFire = 0;
-    this.nextTimeToBurst = 0;
-    this.burstCounter = this.burstLimit;
+    this.shotsLeftInBurst = this.burstLimit;
 
     if (fireSFX) {
       this.fireSFX = SoundManager.create(fireSFX, {
@@ -84,58 +84,41 @@ class ProjectileWeapon extends Weapon {
   }
 
   public update(world: World, owner: Entity): void {
-    const canBeUsed = this.canBeUsed(world, owner);
+    const now = window.performance.now();
 
-    // calculate delay in ms based on fire rate
-    const delay = 60000 / this.rate;
-
-    if (!canBeUsed) {
+    if (!this.canBeUsed(world, owner)) {
       return;
     }
 
-    const now = window.performance.now();
+    const shotIntervalMs = this.rate > 0 ? 60000 / this.rate : 0;
 
-    if (now <= this.nextTimeToFire) {
+    if (now < this.nextBurstAt || (shotIntervalMs > 0 && now < this.nextShotAt)) {
       return;
     }
 
-    if (this.rate === 0) {
-      if (this.hasAmmo()) {
-        this.fire(world, owner);
-      } else {
-        if (this.fireFailSFX && now - this.lastFireFailAt > 250) {
-          this.fireFailSFX.play();
+    if (!this.hasAmmo()) {
+      this.shotsLeftInBurst = this.burstLimit;
 
-          this.lastFireFailAt = now;
-        }
+      if (this.fireFailSFX && now - this.lastFireFailAt > 250) {
+        this.fireFailSFX.play();
+
+        this.lastFireFailAt = now;
       }
-    } else if (now > this.nextTimeToFire && this.rate > 0) {
-      if (this.hasAmmo()) {
-        this.fire(world, owner);
-      } else {
-        if (this.fireFailSFX && now - this.lastFireFailAt > 250) {
-          this.fireFailSFX.play();
-
-          this.lastFireFailAt = now;
-        }
-      }
-
-      this.nextTimeToFire = now + delay;
+      return;
     }
-  }
 
-  public fire(world: World, owner: Entity): void {
-    const now = window.performance.now();
+    this.use(world, owner);
 
-    if (now > this.nextTimeToBurst) {
-      if (this.burstCounter > 0) {
-        this.use(world, owner);
-      }
+    if (shotIntervalMs > 0) {
+      this.nextShotAt = now + shotIntervalMs;
+    }
 
-      if (this.burstCounter === 0) {
-        this.nextTimeToBurst = now + this.burstDelay;
-        this.burstCounter = this.burstLimit;
-      }
+    this.shotsLeftInBurst -= 1;
+
+    if (this.shotsLeftInBurst <= 0) {
+      this.nextBurstAt = now + this.burstDelay;
+      this.nextShotAt = this.nextBurstAt;
+      this.shotsLeftInBurst = this.burstLimit;
     }
   }
 
@@ -148,6 +131,13 @@ class ProjectileWeapon extends Weapon {
     const target = position.clone().add(playerInput.aim);
     const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
     const dir = origin.clone().sub(target).normalize().negate();
+
+    // apply spread
+    if (this.spread.x !== 0 || this.spread.y !== 0) {
+      dir.x += (Math.random() * 2 - 1) * this.spread.x;
+      dir.y += (Math.random() * 2 - 1) * this.spread.y;
+      dir.normalize();
+    }
 
     const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
 
@@ -178,8 +168,7 @@ class ProjectileWeapon extends Weapon {
 
     projectileRigidBody.velocity.fromValues(vx, vy);
 
-    this.ammo -= 1;
-    this.burstCounter -= 1;
+    if (this.maxAmmo !== -1) this.ammo -= 1;
 
     if (this.fireSFX) {
       this.fireSFX.play();
@@ -205,7 +194,9 @@ class ProjectileWeapon extends Weapon {
 
     if (ttl !== -1) {
       setTimeout(() => {
-        world.removeEntity(projectile);
+        if (world) {
+          world.removeEntity(projectile);
+        }
       }, ttl);
     }
 
@@ -258,7 +249,8 @@ class ProjectileWeapon extends Weapon {
     if (this._ammo < 0) {
       this._ammo = 0;
     }
-    if (this._ammo > this.maxAmmo) {
+
+    if (this.maxAmmo !== -1 && this._ammo > this.maxAmmo) {
       this._ammo = this.maxAmmo;
     }
   }
