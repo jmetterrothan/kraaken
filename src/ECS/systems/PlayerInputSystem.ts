@@ -15,35 +15,6 @@ export class PlayerInputSystem extends System {
 
   public constructor() {
     super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
-
-    // Gamepad events
-    window.addEventListener(
-      "gamepadconnected",
-      (e: GamepadEvent) => {
-        this.handleGamepad(e, true);
-      },
-      false
-    );
-
-    window.addEventListener(
-      "gamepaddisconnected",
-      (e: GamepadEvent) => {
-        this.handleGamepad(e, false);
-      },
-      false
-    );
-  }
-
-  public handleGamepad(e: GamepadEvent, connecting: boolean): void {
-    const gamepad = e.gamepad;
-
-    if (connecting) {
-      if (config.DEBUG) console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
-
-      this.gamepads[gamepad.index] = gamepad;
-    } else {
-      delete this.gamepads[gamepad.index];
-    }
   }
 
   public handleMouseMove(coords: Vector2): void {
