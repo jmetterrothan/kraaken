@@ -92,6 +92,7 @@ export class EventZone implements Component {
         case "damage": {
           if (subject.hasComponent(Health.COMPONENT_TYPE)) {
             const health = subject.getComponent(Health);
+
             health.value += data.amount;
           }
           return;

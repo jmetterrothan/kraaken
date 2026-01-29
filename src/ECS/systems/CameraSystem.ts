@@ -59,26 +59,32 @@ export class CameraSystem extends System {
 
     this.clamp(entity);
 
-    this.computeProjectionMatrix(entity);
+    this.computeProjectionMatrix(entity, delta);
 
     camera.previousPosition.copy(position);
   }
 
-  computeProjectionMatrix(entity: Entity): void {
+  computeProjectionMatrix(entity: Entity, delta: number): void {
     const position = entity.getComponent(Position);
     const camera = entity.getComponent(Camera);
 
-    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || Math.abs(camera.zoom - configSvc.scale) > 1e-6) {
+    const { xPx, yPx } = camera.shake.update(delta);
+
+    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || Math.abs(camera.zoom - configSvc.scale) > 1e-6 || xPx > 0 || yPx > 0) {
       // update zoom level
       camera.zoom = configSvc.scale;
 
       const halfW = configSvc.frameSize.w / 2;
       const halfH = configSvc.frameSize.h / 2;
 
+      // get shake in pixels, convert to world units
+      const shakeWorldX = xPx / camera.zoom;
+      const shakeWorldY = yPx / camera.zoom;
+
       mat3.identity(camera.viewMatrix);
       mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(halfW, halfH));
       mat3.scale(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(camera.zoom, camera.zoom));
-      mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(-position.x, -position.y));
+      mat3.translate(camera.viewMatrix, camera.viewMatrix, vec2.fromValues(-(position.x + shakeWorldX), -(position.y + shakeWorldY)));
 
       this.updateViewBox(entity);
 

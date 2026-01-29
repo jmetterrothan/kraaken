@@ -2,12 +2,15 @@ import { Component } from "@src/ECS";
 
 import SoundManager from "@src/animation/SoundManager";
 
+import dispatch, { shakeCameraEvent } from "@src/shared/events";
+
 interface IHealthMetadata {
   maxHealth?: number;
   immunityDelay?: number;
   deathVFX?: string;
   deathSFX?: string;
   hurtSFX?: string;
+  shakeScreenOnHurt?: boolean;
 }
 
 export class Health extends Component {
@@ -16,6 +19,7 @@ export class Health extends Component {
   public readonly deathVFX?: string;
   public readonly deathSFX?: Howl;
   public readonly hurtSFX?: Howl;
+  public readonly shakeScreenOnHurt?: boolean;
 
   // maximum health cap
   public readonly maxHealth: number;
@@ -26,12 +30,13 @@ export class Health extends Component {
 
   private _value: number;
 
-  public constructor({ maxHealth, immunityDelay, deathVFX, deathSFX, hurtSFX }: IHealthMetadata) {
+  public constructor({ maxHealth, immunityDelay, deathVFX, deathSFX, hurtSFX, shakeScreenOnHurt }: IHealthMetadata) {
     super();
 
     this.maxHealth = maxHealth ?? 0;
     this.immunityDelay = immunityDelay ?? 0;
     this.deathVFX = deathVFX;
+    this.shakeScreenOnHurt = shakeScreenOnHurt ?? false;
 
     if (deathSFX) {
       this.deathSFX = SoundManager.create(deathSFX, {
@@ -68,6 +73,10 @@ export class Health extends Component {
         this.deathSFX.play();
       } else if (this.hurtSFX) {
         this.hurtSFX.play();
+      }
+
+      if (this.shakeScreenOnHurt) {
+        dispatch(shakeCameraEvent({ px: 8, ms: 400 }));
       }
 
       // apply immunity if debuff

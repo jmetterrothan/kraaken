@@ -118,6 +118,10 @@ class LevelState extends State<LevelStateOptions> {
       }
     });
 
+    this.registerEvent(GameEventTypes.SHAKE_CAMERA_EVENT, (e: GameEvents.ShakeCameraEvent) => {
+      this.currentRoom.camera.getComponent(Components.Camera).shakeOnce(e.detail.px, e.detail.ms, e.detail.freqHz);
+    });
+
     this.root.render(React.createElement(LevelUi, { levelId: this.levelBlueprint.id }));
   }
 

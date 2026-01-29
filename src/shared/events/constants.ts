@@ -22,3 +22,5 @@ export const USER_JOINED_ROOM_EVENT = "user_joined_room";
 export const USER_LEFT_ROOM_EVENT = "user_left_room";
 
 export const CHANGE_ROOM = "change_room";
+
+export const SHAKE_CAMERA_EVENT = "shake_camera";

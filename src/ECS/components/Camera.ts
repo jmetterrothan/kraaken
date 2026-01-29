@@ -17,6 +17,60 @@ export enum CameraMode {
   POSITION_LOCKING = 0,
   LERP_SMOOTHING = 1,
 }
+export class CameraShake {
+  private t = 0;
+
+  private durationLeft = 0;
+  private durationTotal = 0;
+
+  private maxPx = 0;
+  private freqHz = 35;
+
+  private phaseX = 0;
+  private phaseY = 0;
+
+  /** Start a micro shake: px = peak amplitude in pixels, ms = duration */
+  shakeOnce(px: number, ms: number, freqHz: number): void {
+    const dur = Math.max(1, ms) / 1000;
+
+    // If you call shakeOnce repeatedly (e.g., rapid shots), keep the strongest/longest.
+    this.maxPx = Math.max(this.maxPx, px);
+    this.freqHz = freqHz;
+
+    this.durationTotal = Math.max(this.durationTotal, dur);
+    this.durationLeft = Math.max(this.durationLeft, dur);
+
+    // Reset time + randomize phases (starts at 0 offset to avoid a "snap")
+    this.t = 0;
+    this.phaseX = Math.random() * Math.PI * 2;
+    this.phaseY = Math.random() * Math.PI * 2;
+  }
+
+  /** Returns camera offset in PIXELS */
+  update(deltaSeconds: number): { xPx: number; yPx: number } {
+    if (this.durationLeft <= 0) return { xPx: 0, yPx: 0 };
+
+    this.durationLeft = Math.max(0, this.durationLeft - deltaSeconds);
+    this.t += deltaSeconds;
+
+    // nice micro feel: quadratic falloff
+    const p = this.durationTotal > 0 ? this.durationLeft / this.durationTotal : 0;
+    const amp = this.maxPx * p * p;
+
+    const w = this.freqHz * Math.PI * 2;
+
+    const xPx = Math.sin(this.t * w + this.phaseX) * amp;
+    const yPx = Math.sin(this.t * w + this.phaseY) * amp;
+
+    // when finished, clear amplitude so next shakeOnce can set it
+    if (this.durationLeft <= 0) {
+      this.maxPx = 0;
+      this.durationTotal = 0;
+    }
+
+    return { xPx, yPx };
+  }
+}
 
 export class Camera implements Component {
   public static COMPONENT_TYPE = "camera";
@@ -37,9 +91,13 @@ export class Camera implements Component {
 
   public zoom: number = configSvc.scale;
 
+  public shake: CameraShake;
+
   public constructor({ mode, smoothing }: ICameraMetadata) {
     this.mode = mode ?? CameraMode.LERP_SMOOTHING;
     this.smoothing = smoothing ?? 0.1;
+
+    this.shake = new CameraShake();
   }
 
   public clamp(position: Position): void {
@@ -83,6 +141,10 @@ export class Camera implements Component {
 
   public unfollow(): void {
     this.target = null;
+  }
+
+  public shakeOnce(px = 8, ms = 200, freqHz = 35): void {
+    this.shake.shakeOnce(px, ms, freqHz);
   }
 
   public toString(): string {
