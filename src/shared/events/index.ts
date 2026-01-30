@@ -185,6 +185,7 @@ interface IShakeCameraEventDetails {
   px?: number;
   ms?: number;
   freqHz?: number;
+  hitstop?: number;
 }
 
 export type ShakeCameraEvent = CustomEvent<IShakeCameraEventDetails>;

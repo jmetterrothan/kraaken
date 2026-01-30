@@ -22,11 +22,7 @@ export class ConsummableSystem extends System {
 
       if (targetBbox.intersectBox(bbox)) {
         const position = entity.getComponent(Position);
-        consummable.consummatedBy(this.world, target);
-
-        if (consummable.pickUpVFX) {
-          this.world.playEffectOnceAt(consummable.pickUpVFX, { x: position.x, y: position.y });
-        }
+        consummable.consummatedBy(this.world, target, position);
 
         if (consummable.limit !== -1 && consummable.nbOfTimesConsummated >= consummable.limit) {
           consummable.consummated = true;

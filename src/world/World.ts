@@ -31,6 +31,9 @@ class World {
 
   public projectionMatrix: mat3 = mat3.create();
 
+  public hitstopRemaining = 0; // seconds
+  public last = window.performance.now();
+
   public grid: Grid;
   public tileMap: TileMap;
   public gravity: number;
@@ -62,6 +65,11 @@ class World {
       showGrid: options.showGrid === true,
       showZones: options.showZones === true,
     };
+  }
+
+  public hitstop(ms: number): void {
+    const s = Math.max(0, ms) / 1000;
+    this.hitstopRemaining = Math.max(this.hitstopRemaining, s); // stack by max
   }
 
   public async init(): Promise<void> {
@@ -310,6 +318,17 @@ class World {
 
   public update(delta: number): void {
     if (!this.tileMap) return;
+
+    const now = window.performance.now();
+
+    const dt = (now - this.last) / 1000; // seconds
+    this.last = now;
+
+    if (this.hitstopRemaining > 0) {
+      this.hitstopRemaining = Math.max(0, this.hitstopRemaining - dt);
+
+      return;
+    }
 
     mat3.projection(this.projectionMatrix, configSvc.frameSize.w, configSvc.frameSize.h);
 

@@ -1,6 +1,7 @@
 import { Entity } from "@src/ECS";
 
-import { Consummable, Health, IConsummableMetadata, PlayerInput, BoundingBox, Position } from "@src/ECS/components";
+import { Consummable, Health, IConsummableMetadata, BoundingBox, DamageEvent } from "@src/ECS/components";
+import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 
@@ -17,24 +18,15 @@ export class HealthModifier extends Consummable {
     this.amount = metadata.amount ?? 1;
   }
 
-  public consummatedBy(world: World, entity: Entity): void {
-    super.consummatedBy(world, entity);
+  public consummatedBy(world: World, entity: Entity, at: Vector2 | null = null): void {
+    super.consummatedBy(world, entity, at);
 
-    const position = entity.getComponent(Position);
     const health = entity.getComponent(Health);
 
     health.value += this.amount;
 
-    if (this.pickUpSFX) {
-      this.pickUpSFX.play();
-    }
-
-    if (health.isDead && !entity.hasComponent(PlayerInput.COMPONENT_TYPE)) {
-      world.removeEntity(entity);
-
-      if (health.deathVFX) {
-        world.playEffectOnceAt(health.deathVFX, position);
-      }
+    if (this.amount < 0) {
+      entity.addComponent(new DamageEvent(Math.abs(this.amount), health.isDead));
     }
   }
 

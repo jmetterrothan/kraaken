@@ -43,6 +43,8 @@ class ComponentFactory {
         return new Components.FlyingAI(metadata);
       case "collider":
         return new Components.Collider();
+      case "damage_event":
+        return new Components.DamageEvent(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

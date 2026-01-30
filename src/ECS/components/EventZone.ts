@@ -5,6 +5,7 @@ import dispatch, * as GameEvents from "@src/shared/events";
 import { IGameEvent } from "@src/shared/models/world.model";
 
 import { Health } from "./Health";
+import { DamageEvent } from "./DamageEvent";
 
 export type IEventZoneMode = "contains" | "intersects";
 
@@ -90,6 +91,17 @@ export class EventZone implements Component {
         }
 
         case "damage": {
+          if (subject.hasComponent(Health.COMPONENT_TYPE)) {
+            const health = subject.getComponent(Health);
+
+            health.value += data.amount;
+
+            subject.addComponent(new DamageEvent(Math.abs(data.amount), health.isDead));
+          }
+          return;
+        }
+
+        case "heal": {
           if (subject.hasComponent(Health.COMPONENT_TYPE)) {
             const health = subject.getComponent(Health);
 

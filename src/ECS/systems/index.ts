@@ -12,3 +12,4 @@ export * from "./PlaceableSystem";
 export * from "./AISystem";
 export * from "./FlickerOnImmuneSystem";
 export * from "./EventZoneSystem";
+export * from "./DamageFxSystem";

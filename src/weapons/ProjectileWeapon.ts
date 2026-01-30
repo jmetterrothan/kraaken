@@ -177,7 +177,7 @@ class ProjectileWeapon extends Weapon {
       this.fireSFX.play();
     }
 
-    dispatch(shakeCameraEvent({ px: 4, ms: 100 }));
+    dispatch(shakeCameraEvent({ px: 4, ms: 100, hitstop: 0 }));
 
     if (playerInput && "vibrate" in navigator) {
       const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];

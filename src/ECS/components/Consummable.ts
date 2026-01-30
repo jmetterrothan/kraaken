@@ -3,6 +3,8 @@ import { Component, Entity } from "@src/ECS";
 import World from "@src/world/World";
 
 import SoundManager from "@src/animation/SoundManager";
+import { Position } from "./Position";
+import Vector2 from "@src/shared/math/Vector2";
 
 export interface IConsummableMetadata {
   radius?: number;
@@ -51,8 +53,17 @@ export class Consummable extends Component {
     }
   }
 
-  public consummatedBy(_world: World, _entity: Entity): void {
+  public consummatedBy(world: World, entity: Entity, at: Vector2 | null = null): void {
     this.nbOfTimesConsummated += 1;
+
+    if (this.pickUpSFX) {
+      this.pickUpSFX.play();
+    }
+
+    if (this.pickUpVFX) {
+      const position = entity.getComponent(Position);
+      world.playEffectOnceAt(this.pickUpVFX, { x: at?.x ?? position.x, y: at?.y ?? position.y });
+    }
   }
 
   public canBeConsummatedBy(entity: Entity): boolean {

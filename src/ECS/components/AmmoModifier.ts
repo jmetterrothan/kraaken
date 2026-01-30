@@ -1,6 +1,7 @@
 import { Entity } from "@src/ECS";
 
 import { Consummable, PlayerCombat, BoundingBox } from "@src/ECS/components";
+import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 
@@ -11,8 +12,8 @@ export class AmmoModifier extends Consummable {
     super(metadata);
   }
 
-  public consummatedBy(world: World, entity: Entity): void {
-    super.consummatedBy(world, entity);
+  public consummatedBy(world: World, entity: Entity, at: Vector2 | null = null): void {
+    super.consummatedBy(world, entity, at);
 
     const combat = entity.getComponent(PlayerCombat);
 
