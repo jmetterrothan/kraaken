@@ -83,7 +83,7 @@ class World {
       this.roomBlueprint.tileMapCols, //
       this.roomBlueprint.tileMapRows,
       this.roomBlueprint.tileSize,
-      [0, 0, 0, 0.1]
+      [0.05, 0.05, 0.05, 0]
     );
     this.grid.init();
 

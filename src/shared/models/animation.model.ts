@@ -1,4 +1,4 @@
-import { vec4 } from 'gl-matrix';
+import { vec4 } from "gl-matrix";
 
 export interface IKeyFrame {
   row: number;
@@ -29,4 +29,5 @@ export interface ISpriteRenderRenderOptions {
   tintEffect: TintEffect;
   tintColor: vec4;
   reflect?: boolean;
+  alpha?: number;
 }

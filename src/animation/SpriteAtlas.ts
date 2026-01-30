@@ -51,6 +51,7 @@ class SpriteAtlas {
     u_image: { type: "1i", value: undefined, location: null },
     u_tint_color: { type: "4fv", value: undefined, location: null },
     u_tint_effect: { type: "1i", value: undefined, location: null },
+    u_alpha: { type: "1f", value: undefined, location: null },
   };
 
   constructor(src: string, alias: string, tw: number, th: number) {
@@ -107,6 +108,7 @@ class SpriteAtlas {
       this.setUniform("u_tint_color", renderOptions.tintColor);
       this.setUniform("u_outline", renderOptions.outline);
       this.setUniform("u_outline_color", renderOptions.outlineColor);
+      this.setUniform("u_alpha", renderOptions.alpha);
 
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);

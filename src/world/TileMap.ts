@@ -107,6 +107,7 @@ class TileMap {
             tintColor,
             tintEffect: TintEffect.NONE,
             reflect: false,
+            alpha: 1,
           },
           f: 0,
           g: 0,
