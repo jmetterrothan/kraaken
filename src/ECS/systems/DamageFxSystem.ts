@@ -19,8 +19,10 @@ export class DamageFxSystem extends System {
 
       const isPlayer = this.world.player === entity;
 
-      if (dmg.isKill && health.deathSFX) {
-        health.deathSFX.play();
+      if (dmg.isKill) {
+        if (health.deathSFX) {
+          health.deathSFX.play();
+        }
 
         if (health.deathVFX) {
           this.world.playEffectOnceAt(health.deathVFX, pos);
