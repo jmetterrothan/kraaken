@@ -240,7 +240,7 @@ class ProjectileWeapon extends Weapon {
       return false;
     }
 
-    return health.isAlive && rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed;
+    return health.isAlive && rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) < movement.speed && !movement.jumping;
   }
 
   public get ammo(): number {

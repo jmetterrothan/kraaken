@@ -65,8 +65,8 @@ class Game {
 
   private static DEFAULT_OPTIONS: IGameOptions = {
     allowFullscreen: true,
-    height: 600,
-    width: 800,
+    height: 900,
+    width: 1280,
     root: document.body,
     levelId: "",
   };
@@ -120,8 +120,8 @@ class Game {
     const scale = Math.max(1, Math.floor(this.targetScale * ratio));
 
     // fix for tearing issues
-    const w: number = Math.round(targetWidth / 8) * 8;
-    const h: number = Math.round(targetHeight / 8) * 8;
+    const w: number = Math.floor(targetWidth / 8) * 8;
+    const h: number = Math.floor(targetHeight / 8) * 8;
 
     const hdpiW: number = Math.trunc(w * ratio);
     const hdpiH: number = Math.trunc(h * ratio);
