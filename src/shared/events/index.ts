@@ -181,21 +181,6 @@ export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent => {
   });
 };
 
-interface IShakeCameraEventDetails {
-  px?: number;
-  ms?: number;
-  freqHz?: number;
-  hitstop?: number;
-}
-
-export type ShakeCameraEvent = CustomEvent<IShakeCameraEventDetails>;
-
-export const shakeCameraEvent = (detail: IShakeCameraEventDetails): ShakeCameraEvent => {
-  return new CustomEvent<IShakeCameraEventDetails>(GameEventTypes.SHAKE_CAMERA_EVENT, {
-    detail,
-  });
-};
-
 const dispatch = <T>(event: CustomEvent<T>): void => {
   console.info(`Dispatched "${event.type}"`);
   window.dispatchEvent(event);

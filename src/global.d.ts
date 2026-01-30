@@ -14,7 +14,6 @@ declare global {
     user_left_room: GameEvents.UserLeftRoomEvent;
     ui_undo: void;
     ui_redo: void;
-    shake_camera: GameEvents.ShakeCameraEvent;
   }
 }
 export {};

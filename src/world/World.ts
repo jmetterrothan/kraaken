@@ -67,11 +67,6 @@ class World {
     };
   }
 
-  public hitstop(ms: number): void {
-    const s = Math.max(0, ms) / 1000;
-    this.hitstopRemaining = Math.max(this.hitstopRemaining, s); // stack by max
-  }
-
   public async init(): Promise<void> {
     const { resources, ...level } = this.levelBlueprint;
 
@@ -366,6 +361,11 @@ class World {
       this.grid.use();
       this.grid.render(this.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
     }
+  }
+
+  public hitstop(ms: number): void {
+    const s = Math.max(0, ms) / 1000;
+    this.hitstopRemaining = Math.max(this.hitstopRemaining, s); // stack by max
   }
 
   public handleKeyboardInput(key: string, active: boolean): void {

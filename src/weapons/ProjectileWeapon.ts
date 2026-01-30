@@ -1,5 +1,5 @@
 import { Entity } from "@src/ECS";
-import { Projectile, Health, RigidBody, Movement, Position, PlayerInput, BoundingBox } from "@src/ECS/components";
+import { Projectile, Health, RigidBody, Movement, Position, PlayerInput, BoundingBox, Camera } from "@src/ECS/components";
 
 import World from "@src/world/World";
 import Weapon from "@src/weapons/Weapon";
@@ -8,7 +8,6 @@ import SoundManager from "@src/animation/SoundManager";
 
 import Vector2 from "@src/shared/math/Vector2";
 import { IVector2 } from "@src/shared/models/event.model";
-import dispatch, { shakeCameraEvent } from "@src/shared/events";
 
 interface ProjectileWeaponOptions {
   projectile?: string;
@@ -177,7 +176,7 @@ class ProjectileWeapon extends Weapon {
       this.fireSFX.play();
     }
 
-    dispatch(shakeCameraEvent({ px: 4, ms: 100, hitstop: 0 }));
+    world.camera.getComponent(Camera).shakeOnce(4, 100);
 
     if (playerInput && "vibrate" in navigator) {
       const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];
