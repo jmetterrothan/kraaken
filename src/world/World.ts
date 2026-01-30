@@ -92,13 +92,6 @@ class World {
     this.roomBlueprint.spawnPoints.forEach(this.spawn.bind(this));
     this.roomBlueprint.zones.forEach(this.createZone.bind(this));
 
-    const cameraComponent = new Components.Camera({ mode: 1 });
-    cameraComponent.boundaries = this.tileMap.getBoundaries();
-
-    const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
-
-    this.addCamera(camera, true);
-
     this.setClearColor(level.background);
 
     console.info("World initialized");

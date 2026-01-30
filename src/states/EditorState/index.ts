@@ -90,6 +90,16 @@ class EditorState extends State<EditorStateOptions> {
 
       await world.init();
 
+      const cameraComponent = new Components.Camera({
+        smoothing: 0.1,
+      });
+
+      cameraComponent.boundaries = world.tileMap.getBoundaries();
+
+      const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
+
+      world.addCamera(camera, true);
+
       // show a cursor following the mouse
       const gridCursor = this.createGridCursor();
       world.addEntity(gridCursor);

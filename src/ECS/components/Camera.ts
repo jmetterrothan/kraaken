@@ -9,14 +9,15 @@ import Vector2 from "@src/shared/math/Vector2";
 import { configSvc } from "@src/shared/services/ConfigService";
 
 interface ICameraMetadata {
-  mode?: CameraMode;
   smoothing?: number;
+  lookAheadMaxPx?: number;
+  lookAheadVelToPx?: number;
+  lookAheadSmoothing?: number;
+  clampSmoothing?: number;
+  deadzoneWFrac?: number;
+  deadzoneHFrac?: number;
 }
 
-export enum CameraMode {
-  POSITION_LOCKING = 0,
-  LERP_SMOOTHING = 1,
-}
 export class CameraShake {
   private t = 0;
 
@@ -83,9 +84,6 @@ export class Camera implements Component {
 
   public viewBox: Box2 = new Box2();
 
-  public mode: CameraMode = CameraMode.LERP_SMOOTHING;
-  public smoothing: number;
-
   public target: Entity | null = null;
   public boundaries: Box2 | null = null;
 
@@ -93,9 +91,27 @@ export class Camera implements Component {
 
   public shake: CameraShake;
 
-  public constructor({ mode, smoothing }: ICameraMetadata) {
-    this.mode = mode ?? CameraMode.LERP_SMOOTHING;
+  public readonly smoothing: number;
+
+  public readonly lookAheadMaxPx; // max look-ahead in screen pixels
+  public readonly lookAheadVelToPx; // velocity -> pixels multiplier (tune)
+  public readonly lookAheadSmoothing; // 0..1 (like your smoothing)
+
+  public readonly deadzoneWFrac; // % of screen width
+  public readonly deadzoneHFrac; // % of screen height
+
+  public readonly clampSmoothing; // 0..1, how softly we stick to bounds
+
+  public lookAhead = Vector2.create(0, 0);
+
+  public constructor({ smoothing, lookAheadMaxPx, lookAheadVelToPx, lookAheadSmoothing, clampSmoothing, deadzoneWFrac, deadzoneHFrac }: ICameraMetadata) {
     this.smoothing = smoothing ?? 0.1;
+    this.lookAheadMaxPx = lookAheadMaxPx ?? 0;
+    this.lookAheadVelToPx = lookAheadVelToPx ?? 0;
+    this.lookAheadSmoothing = lookAheadSmoothing ?? 0;
+    this.clampSmoothing = clampSmoothing ?? 0;
+    this.deadzoneWFrac = deadzoneWFrac ?? 0;
+    this.deadzoneHFrac = deadzoneHFrac ?? 0;
 
     this.shake = new CameraShake();
   }

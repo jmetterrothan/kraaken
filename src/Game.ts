@@ -350,7 +350,7 @@ class Game {
     window.addEventListener(
       "gamepadconnected",
       (e: GamepadEvent) => {
-        console.log("Gamepad connected (index = %d, id = $s): %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+        console.log('Gamepad connected (index = %d, id = "%s"): %d buttons, %d axes.', e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
       },
       false
     );

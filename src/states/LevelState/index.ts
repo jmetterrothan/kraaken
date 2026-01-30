@@ -19,6 +19,7 @@ import editorStore from "../EditorState/editorStore";
 
 import LevelUi from "./LevelUi";
 import MouseButton from "@src/enums/MouseButton";
+import { Entity } from "@src/ECS/Entity";
 
 interface LevelStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
@@ -56,6 +57,22 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.DamageFxSystem());
 
       await world.init();
+
+      const cameraComponent = new Components.Camera({
+        smoothing: 0.1,
+        lookAheadMaxPx: 80,
+        lookAheadVelToPx: 0.12,
+        lookAheadSmoothing: 0.18,
+        deadzoneWFrac: 0.2,
+        deadzoneHFrac: 0.2,
+        clampSmoothing: 0.2,
+      });
+
+      cameraComponent.boundaries = world.tileMap.getBoundaries();
+
+      const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
+
+      world.addCamera(camera, true);
 
       world.followEntity(world.player);
       world.controlEntity(world.player);

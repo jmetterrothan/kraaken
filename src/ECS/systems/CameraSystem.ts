@@ -1,9 +1,26 @@
 import { mat3, vec2 } from "gl-matrix";
 
 import { Entity, System } from "@src/ECS";
-import { Position, Camera, CameraMode } from "@src/ECS/components";
+import { Position, Camera, RigidBody } from "@src/ECS/components";
 
 import { configSvc } from "@src/shared/services/ConfigService";
+import { clamp, expLerpT } from "@src/shared/utility/MathHelpers";
+
+const applyDeadzone = (camX: number, camY: number, focusX: number, focusY: number, dzHalfW: number, dzHalfH: number) => {
+  let x = camX;
+  let y = camY;
+
+  const dx = focusX - camX;
+  const dy = focusY - camY;
+
+  if (dx > dzHalfW) x = focusX - dzHalfW;
+  else if (dx < -dzHalfW) x = focusX + dzHalfW;
+
+  if (dy > dzHalfH) y = focusY - dzHalfH;
+  else if (dy < -dzHalfH) y = focusY + dzHalfH;
+
+  return { x, y };
+};
 
 export class CameraSystem extends System {
   public constructor() {
@@ -43,18 +60,62 @@ export class CameraSystem extends System {
     const camera = entity.getComponent(Camera);
     const position = entity.getComponent(Position);
 
-    // Follow target
-    if (camera.target) {
-      const targetPos = camera.target.getComponent(Position);
+    if (!camera.target) return;
 
-      if (targetPos) {
-        if (camera.mode === CameraMode.LERP_SMOOTHING) {
-          const t = 1 - Math.pow(1 - camera.smoothing, delta * 60);
-          position.lerp(targetPos, t);
-        } else {
-          position.copy(targetPos);
-        }
-      }
+    const targetPos = camera.target.getComponent(Position);
+
+    if (!targetPos) return;
+
+    // --- LOOK-AHEAD (from velocity if available) ---
+    let desiredLookPxX = 0;
+    let desiredLookPxY = 0;
+
+    if (camera.target.hasComponent("rigid_body")) {
+      const rb = camera.target.getComponent(RigidBody);
+      desiredLookPxX = clamp(rb.velocity.x * camera.lookAheadVelToPx, -camera.lookAheadMaxPx, camera.lookAheadMaxPx);
+      desiredLookPxY = clamp(rb.velocity.y * camera.lookAheadVelToPx * 0.35, -camera.lookAheadMaxPx, camera.lookAheadMaxPx); // usually less vertical
+    }
+
+    const zoom = configSvc.scale;
+    const desiredLookWorldX = desiredLookPxX / zoom;
+    const desiredLookWorldY = desiredLookPxY / zoom;
+
+    const tLook = expLerpT(camera.lookAheadSmoothing, delta);
+    camera.lookAhead.x += (desiredLookWorldX - camera.lookAhead.x) * tLook;
+    camera.lookAhead.y += (desiredLookWorldY - camera.lookAhead.y) * tLook;
+
+    const focusX = targetPos.x + camera.lookAhead.x;
+    const focusY = targetPos.y + camera.lookAhead.y;
+
+    // --- DEADZONE (in world units; deadzone defined as screen fraction) ---
+    const dzHalfW = (configSvc.frameSize.w * camera.deadzoneWFrac) / (2 * zoom);
+    const dzHalfH = (configSvc.frameSize.h * camera.deadzoneHFrac) / (2 * zoom);
+
+    const desired = applyDeadzone(position.x, position.y, focusX, focusY, dzHalfW, dzHalfH);
+
+    // --- FOLLOW SMOOTHING ---
+    const tFollow = expLerpT(camera.smoothing, delta);
+    position.x += (desired.x - position.x) * tFollow;
+    position.y += (desired.y - position.y) * tFollow;
+
+    // --- SOFT CLAMP to boundaries ---
+    // Compute camera min/max center positions based on world bounds + half viewport in world units
+    if (camera.boundaries) {
+      const halfViewW = configSvc.frameSize.w / (2 * zoom);
+      const halfViewH = configSvc.frameSize.h / (2 * zoom);
+
+      const minX = camera.boundaries.x1 + halfViewW;
+      const maxX = camera.boundaries.x2 - halfViewW;
+      const minY = camera.boundaries.y1 + halfViewH;
+      const maxY = camera.boundaries.y2 - halfViewH;
+
+      const clampedX = clamp(position.x, minX, maxX);
+      const clampedY = clamp(position.y, minY, maxY);
+
+      // Softly ease into the clamp (no snap)
+      const tClamp = expLerpT(camera.clampSmoothing, delta);
+      position.x += (clampedX - position.x) * tClamp;
+      position.y += (clampedY - position.y) * tClamp;
     }
 
     this.clamp(entity);
