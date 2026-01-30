@@ -180,7 +180,7 @@ class TileMap {
         if (this.debugLayer.has(tile.index)) {
           const n = this.debugLayer.get(tile.index);
           if (typeof n === "number" && n > 0) {
-            this.atlas.render(projectionMatrix, viewMatrix, tile.transform, n, tile.direction, tile.renderOptions);
+            this.atlas.render(projectionMatrix, viewMatrix, tile.transform, n, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
           }
         }
       }

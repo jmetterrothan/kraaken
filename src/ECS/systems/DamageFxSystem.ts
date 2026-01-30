@@ -1,5 +1,6 @@
 import { System } from "@src/ECS";
 import { Health, DamageEvent, Camera, Position } from "@src/ECS/components";
+import { clamp, lerp } from "@src/shared/utility/MathHelpers";
 
 export class DamageFxSystem extends System {
   constructor() {
@@ -28,14 +29,12 @@ export class DamageFxSystem extends System {
         health.hurtSFX.play();
       }
 
-      if (isPlayer) {
-        // receiving damage
-        this.world.hitstop(dmg.isKill ? 100 : 40);
-        camera.shakeOnce(dmg.isKill ? 4 : 2, dmg.isKill ? 140 : 90);
-      } else {
-        this.world.hitstop(60);
-        camera.shakeOnce(2, 90);
+      const impact = Math.sqrt(clamp(dmg.amount / health.maxHealth, 0, 1));
 
+      this.world.hitstop(dmg.isKill ? 100 : lerp(40, 80, impact));
+      camera.shakeOnce(dmg.isKill ? 4 : lerp(2, 4, impact), dmg.isKill ? 120 : lerp(60, 120, impact));
+
+      if (!isPlayer) {
         // remove dead entities from world
         if (dmg.isKill) {
           this.world.removeEntity(entity);

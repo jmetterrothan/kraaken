@@ -9,10 +9,10 @@ export class PlayerCombat implements Component {
 
   private _weapon: ProjectileWeapon = new ProjectileWeapon({
     projectile: "energy_bolt", //
-    rate: 375,
+    rate: 600,
     burstLimit: 1,
     burstDelay: 200,
-    maxAmmo: 12,
+    maxAmmo: 32,
     fireSFX: "laser",
     fireFailSFX: "laser_fail",
     minRange: 16,

@@ -143,6 +143,22 @@ class EntityMode {
 
       const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
       switch (button) {
+        case MouseButton.MIDDLE: {
+          const player = this.editor.currentRoom.world.player;
+
+          if (player) {
+            const playerPosition = player.getComponent(Position);
+
+            const startTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
+            const goalTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
+
+            if (startTile && goalTile) {
+              this.editor.currentRoom.world.tileMap.aStar(startTile, goalTile);
+            }
+          }
+          break;
+        }
+
         case MouseButton.LEFT: {
           const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
           const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);

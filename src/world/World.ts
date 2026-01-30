@@ -21,7 +21,6 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 import { configSvc } from "@src/shared/services/ConfigService";
 
 import config from "@src/config";
-import MouseButton from "@src/enums/MouseButton";
 
 class World {
   public readonly levelBlueprint: ILevelBlueprint;
@@ -367,28 +366,9 @@ class World {
     }
   }
 
-  public handleMouseInput(button: number, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
-    if (active) {
-      switch (button) {
-        case MouseButton.MIDDLE: {
-          // this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
-
-          const coords = this.screenToCameraCoords(position);
-
-          const playerPosition = this.player.getComponent(Components.Position);
-
-          const startTile = this.tileMap.getTileAtCoords(coords.x, coords.y);
-          const goalTile = this.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
-
-          if (startTile && goalTile) {
-            this.tileMap.aStar(startTile, goalTile);
-          }
-        }
-      }
-    }
-
+  public handleMouseInput(button: number, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
     for (let i = 0, n = this._systems.length; i < n; i++) {
-      this._systems[i].handleMouseInput(button, active);
+      this._systems[i].handleMouseInput(button, shiftKey, ctrlKey, active, position);
     }
   }
 
