@@ -99,12 +99,26 @@ class TerrainMode {
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
+      const tileMap = this.editor.currentRoom.world.tileMap;
+
+      const { layerId, tileTypeId, terrainMode } = this.editor.state;
+
       switch (button) {
+        case MouseButton.RIGHT: {
+          driver.place({ layerId, tileTypeId: 0, coords: [coords] }, true);
+          break;
+        }
+
+        case MouseButton.MIDDLE: {
+          const tile = tileMap.getTileAtCoords(coords.x, coords.y);
+          if (tile) {
+            const tileTypeId = tile.getTileTypeId(layerId);
+            editorStore.setSelectedTileTypeId(tileTypeId);
+          }
+          break;
+        }
+
         case MouseButton.LEFT: {
-          const tileMap = this.editor.currentRoom.world.tileMap;
-
-          const { layerId, tileTypeId, terrainMode } = this.editor.state;
-
           if (terrainMode === EditorTerrainMode.PICK) {
             const tile = tileMap.getTileAtCoords(coords.x, coords.y);
             if (tile) {
@@ -126,6 +140,7 @@ class TerrainMode {
               driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
             }
           }
+          break;
         }
       }
     }
