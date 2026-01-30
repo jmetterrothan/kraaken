@@ -45,7 +45,7 @@ abstract class State<O = any> {
 
   public abstract handleKeyboardInput(key: string, active: boolean): void;
 
-  public abstract handleMouseInput(button: MouseButton, active: boolean, position: vec2): void;
+  public abstract handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void;
 
   public abstract handleMouseMove(position: vec2): void;
 

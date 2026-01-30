@@ -370,7 +370,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMouseInput(e.button, false, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e.button, e.shiftKey, e.ctrlKey, false, getCoord(canvas, x, y));
         }
       },
       false
@@ -382,7 +382,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMouseInput(e.button, true, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e.button, e.shiftKey, e.ctrlKey, true, getCoord(canvas, x, y));
         }
       },
       false

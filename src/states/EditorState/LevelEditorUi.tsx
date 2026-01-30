@@ -22,6 +22,7 @@ import RedoToolbarButton from "./RedoToolbarButton";
 import ZoomToolbarSelect from "./ZoomToolbarSelect";
 
 import editorStore from "./editorStore";
+import { Placeable } from "@src/ECS/components";
 
 interface EditorUiProps {
   levelId: string;
@@ -174,7 +175,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   const entities = React.useMemo(() => {
     return blueprint.entities
-      .filter((entity) => entity.components.find((component) => component.name === "placeable")) //
+      .filter((entity) => entity.components.find((component) => component.name === Placeable.COMPONENT_TYPE)) //
       .map((entity) => ({ name: entity.type, value: entity.type }));
   }, [blueprint]);
 

@@ -374,11 +374,10 @@ class World {
     }
   }
 
-  public handleMouseInput(button: number, active: boolean, position: vec2): void {
+  public handleMouseInput(button: number, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
     if (active) {
       switch (button) {
         case MouseButton.MIDDLE: {
-          // console.log("middle click");
           // this.selectCamera((this._activeCameraIndex + 1) % this._cameras.length);
 
           const coords = this.screenToCameraCoords(position);

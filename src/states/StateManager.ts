@@ -37,9 +37,9 @@ class StateManager {
     }
   }
 
-  public handleMouseInput(button: number, active: boolean, position: vec2): void {
+  public handleMouseInput(button: number, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
     if (this.isReady) {
-      this.currentState.handleMouseInput(button, active, position);
+      this.currentState.handleMouseInput(button, shiftKey, ctrlKey, active, position);
     }
   }
 

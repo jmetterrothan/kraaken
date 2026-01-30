@@ -152,8 +152,8 @@ class LevelState extends State<LevelStateOptions> {
     this.currentRoom.handleKeyboardInput(key, active);
   }
 
-  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseInput(button, active, position);
+  public handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
+    this.currentRoom.handleMouseInput(button, shiftKey, ctrlKey, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

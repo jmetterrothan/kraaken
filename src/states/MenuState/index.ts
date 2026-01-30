@@ -22,7 +22,7 @@ class MenuState extends State<void> {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseInput(_button: MouseButton, _active: boolean, _position: vec2): void {}
+  public handleMouseInput(_button: MouseButton, _shiftKey: boolean, _ctrlKey: boolean, _active: boolean, _position: vec2): void {}
 
   public handleMouseMove(_position: vec2): void {}
 
