@@ -15,6 +15,10 @@ import MouseButton from "@src/enums/MouseButton";
 
 import { vec2 } from "gl-matrix";
 
+const snapToTileCenter = (value: number, tileSize: number) => {
+  return Math.floor(value / tileSize) * tileSize + tileSize / 2;
+};
+
 class EntityMode {
   public focusedEntity: Entity | undefined;
   public selectedEntity: Entity | undefined;
@@ -130,57 +134,58 @@ class EntityMode {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
+  public handleMouseInput(button: MouseButton, shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
+    const snapToGrid = shiftKey;
+
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
+      const tileSize = this.editor.currentRoom.world.tileMap.getTileSize();
 
+      const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
       switch (button) {
         case MouseButton.LEFT: {
-          const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
+          const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
+          const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);
 
-          if (tile) {
-            const x = tile.position.x + tile.size / 2;
-            const y = tile.position.y + tile.size / 2;
+          if (this.selectedEntity) {
+            const selectedEntityPos = this.selectedEntity.getComponent(Position);
+            const placeable = this.selectedEntity.getComponent(Placeable);
 
-            if (this.selectedEntity) {
-              const selectedEntityPos = this.selectedEntity.getComponent(Position);
-              const placeable = this.selectedEntity.getComponent(Placeable);
+            placeable.unfollow();
+            selectedEntityPos.fromValues(x, y);
 
-              placeable.unfollow();
-              selectedEntityPos.fromValues(x, y);
+            driver.spawn(
+              {
+                uuid: this.selectedEntity.uuid,
+                type: this.selectedEntity.type,
+                position: { x, y },
+                direction: { x: 1, y: 1 },
+              },
+              true
+            );
 
+            this.selectedEntity = undefined;
+          } else {
+            if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
+              const focusedEntityPos = this.focusedEntity.getComponent(Position);
+              const placeable = this.focusedEntity.getComponent(Placeable);
+
+              placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
+
+              this.selectedEntity = this.focusedEntity;
+            } else {
               driver.spawn(
                 {
-                  uuid: this.selectedEntity.uuid,
-                  type: this.selectedEntity.type,
+                  uuid: uuidv4(),
+                  type: this.editor.state.entityType,
                   position: { x, y },
                   direction: { x: 1, y: 1 },
                 },
                 true
               );
-
-              this.selectedEntity = undefined;
-            } else {
-              if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
-                const focusedEntityPos = this.focusedEntity.getComponent(Position);
-                const placeable = this.focusedEntity.getComponent(Placeable);
-
-                placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
-
-                this.selectedEntity = this.focusedEntity;
-              } else {
-                driver.spawn(
-                  {
-                    uuid: uuidv4(),
-                    type: this.editor.state.entityType,
-                    position: { x, y },
-                    direction: { x: 1, y: 1 },
-                  },
-                  true
-                );
-              }
             }
           }
+
           break;
         }
 

@@ -5,6 +5,7 @@ import SoundManager from "@src/animation/SoundManager";
 interface IMovementMetadata {
   initialJumpBoost?: number;
   jumpSpeed?: number;
+  coyoteTimeMs?: number;
   speed?: number;
   acceleration?: number;
   deceleration?: number;
@@ -26,7 +27,7 @@ export class Movement implements Component {
   public climbedDuringAirborne = false;
 
   public airborneSince: number | null = null;
-  public wasGrounded: boolean = true;
+  public wasGrounded: boolean;
 
   public isBlockedLeft = false;
   public isBlockedRight = false;
@@ -35,6 +36,7 @@ export class Movement implements Component {
 
   public readonly initialJumpBoost: number;
   public readonly jumpSpeed: number;
+  public readonly coyoteTimeMs: number;
   public readonly speed: number;
   public readonly acceleration: number;
   public readonly deceleration: number;
@@ -44,12 +46,17 @@ export class Movement implements Component {
 
   public lastEffectTime: number;
   public lastWallJumpTime: number;
+  public jumpBufferMs: number;
+  public jumpBufferRemainingMs: number;
+  public coyoteRemainingMs: number;
+  public prevJumpDown: boolean;
 
   public jumpSFX: Howl | undefined;
 
-  public constructor({ initialJumpBoost, jumpSpeed, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallClimbSpeed, wallClimbAcceleration, jumpSFX }: IMovementMetadata) {
+  public constructor({ initialJumpBoost, jumpSpeed, coyoteTimeMs, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallClimbSpeed, wallClimbAcceleration, jumpSFX }: IMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
+    this.coyoteTimeMs = coyoteTimeMs ?? 0;
     this.speed = speed ?? 0;
     this.acceleration = acceleration ?? 0;
     this.deceleration = deceleration ?? 0;
@@ -59,6 +66,11 @@ export class Movement implements Component {
 
     this.lastEffectTime = -1;
     this.lastWallJumpTime = -1;
+    this.jumpBufferMs = 100;
+    this.jumpBufferRemainingMs = 0;
+    this.coyoteRemainingMs = 0;
+    this.prevJumpDown = false;
+    this.wasGrounded = true;
 
     if (jumpSFX) {
       this.jumpSFX = SoundManager.create(jumpSFX, {

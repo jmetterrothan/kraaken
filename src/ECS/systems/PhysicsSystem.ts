@@ -227,7 +227,7 @@ export class PhysicsSystem extends System {
       }
 
       if (bbox.intersectBox(collider.getComponent(BoundingBox))) {
-        console.log("colliding", entity.type, collider.type);
+        // console.log("colliding", entity.type, collider.type);
       }
     });
   }

@@ -22,7 +22,7 @@ export class BoundingBox extends Box2 implements Component {
   public constructor({ width, height, debug, color = [1.0, 0.5, 0.25, 1.0] }: IBoundingBoxMetadata) {
     super(0, 0, width ?? 1, height ?? 1);
 
-    this.debug = debug === true;
+    this.debug = debug ?? false;
 
     this.helper = new BoundingBoxHelper(this, color);
     this.helper.init();

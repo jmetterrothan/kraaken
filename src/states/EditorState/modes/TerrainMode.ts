@@ -95,7 +95,7 @@ class TerrainMode {
 
   public handleKeyboardInput(_key: string, _active: boolean): void {}
 
-  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
+  public handleMouseInput(button: MouseButton, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 

@@ -29,23 +29,60 @@ export class MovementSystem extends System {
 
       const pressingIntoWall = pressingIntoLeftWall || pressingIntoRightWall;
 
-      // --- JUMPING ---
-      if (input.up && !movement.falling && !movement.wallSliding) {
-        if (!movement.jumping && rigidBody.isGrounded) {
-          movement.jumping = true;
-          rigidBody.velocity.y = -movement.initialJumpBoost; // initial boost
+      const dtMs = delta * 1000;
 
-          if (movement.jumpSFX) {
-            movement.jumpSFX.play();
-          }
+      const jumpDown = input.up;
+      const jumpPressed = jumpDown && !movement.prevJumpDown;
+      movement.prevJumpDown = jumpDown;
 
-          this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
-          movement.lastEffectTime = now + 350;
-        } else if (!movement.wallClimbing) {
-          rigidBody.velocity.y += -movement.jumpSpeed * delta; // maintain momentum
-        }
+      // --- COYOTE TIME ---
+      if (grounded) {
+        movement.coyoteRemainingMs = movement.coyoteTimeMs;
       } else {
-        movement.jumping = false;
+        movement.coyoteRemainingMs = Math.max(0, movement.coyoteRemainingMs - dtMs);
+      }
+
+      // --- JUMP BUFFER ---
+      if (jumpPressed) {
+        movement.jumpBufferRemainingMs = movement.jumpBufferMs;
+      } else {
+        movement.jumpBufferRemainingMs = Math.max(0, movement.jumpBufferRemainingMs - dtMs);
+      }
+
+      // --- CONSUME BUFFER IF WE CAN JUMP ---
+      const canConsumeJump = movement.jumpBufferRemainingMs > 0 && movement.coyoteRemainingMs > 0 && !movement.wallSliding && !movement.wallClimbing; // optional: decide priority with wall climb
+
+      if (canConsumeJump) {
+        movement.jumpBufferRemainingMs = 0;
+        movement.coyoteRemainingMs = 0;
+
+        movement.jumping = true;
+        rigidBody.isGrounded = false;
+
+        rigidBody.velocity.y = -movement.initialJumpBoost;
+
+        if (movement.jumpSFX) movement.jumpSFX.play();
+
+        if (movement.wasGrounded) this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
+        movement.lastEffectTime = now + 200;
+      }
+
+      // --- VARIABLE JUMP (hold to go higher) ---
+      if (movement.jumping) {
+        if (jumpDown && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
+          rigidBody.velocity.y += -movement.jumpSpeed * delta; // your existing “maintain momentum”
+        }
+
+        // release-to-cut jump (optional but feels great)
+        if (!jumpDown && rigidBody.velocity.y < 0) {
+          rigidBody.velocity.y *= 0.5;
+          movement.jumping = false;
+        }
+
+        // stop “jumping” state once you start falling
+        if (rigidBody.velocity.y >= 0) {
+          movement.jumping = false;
+        }
       }
 
       // --- BASIC MOVEMENTS ---
@@ -70,7 +107,7 @@ export class MovementSystem extends System {
       }
 
       // --- WALL CLIMBING ---
-      movement.wallClimbing = !grounded && input.up && !movement.jumping && pressingIntoWall;
+      movement.wallClimbing = !grounded && jumpDown && !movement.jumping && pressingIntoWall;
 
       if (movement.wallClimbing) {
         const targetVy = -movement.wallClimbSpeed;
@@ -146,7 +183,7 @@ export class MovementSystem extends System {
       }
 
       // --- RUN DUST ---
-      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && rigidBody.isGrounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && grounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
         movement.lastEffectTime = now + 250;
         this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
       }

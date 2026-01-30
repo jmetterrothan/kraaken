@@ -252,9 +252,9 @@ class EditorState extends State<EditorStateOptions> {
     this.currentMode.handleKeyboardInput(key, active);
   }
 
-  public handleMouseInput(button: MouseButton, active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseInput(button, active, position);
-    this.currentMode.handleMouseInput(button, active, position);
+  public handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
+    this.currentRoom.world.handleMouseInput(button, shiftKey, ctrlKey, active, position);
+    this.currentMode.handleMouseInput(button, shiftKey, ctrlKey, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

@@ -79,21 +79,16 @@ export class RenderingSystem extends System {
       }
 
       // show bounding box helper
-      if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
-        if (bbox.debug) {
-          const modelMatrix = mat3.create();
+      if (entity.hasComponent(BoundingBox.COMPONENT_TYPE) && bbox.debug) {
+        const modelMatrix = mat3.create();
 
-          mat3.fromTranslation(modelMatrix, position.clone().toGlArray());
+        mat3.fromTranslation(modelMatrix, position.toGlArray());
 
-          const moveOriginMatrix = mat3.fromTranslation(mat3.create(), [-bbox.width / 2, -bbox.height / 2]);
+        const moveOriginMatrix = mat3.fromTranslation(mat3.create(), [-bbox.width / 2, -bbox.height / 2]);
 
-          mat3.multiply(modelMatrix, modelMatrix, moveOriginMatrix);
+        mat3.multiply(modelMatrix, modelMatrix, moveOriginMatrix);
 
-          modelMatrix[6] = Math.round(modelMatrix[6]);
-          modelMatrix[7] = Math.round(modelMatrix[7]);
-
-          bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
-        }
+        bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
       }
     });
   }
