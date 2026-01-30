@@ -53,6 +53,7 @@ export class Sprite implements Component {
       tintColor: new Color(1.0, 1.0, 1.0, 1.0).toVec4(),
       tintEffect: TintEffect.NONE,
       reflect,
+      alpha: 1,
     };
   }
 
