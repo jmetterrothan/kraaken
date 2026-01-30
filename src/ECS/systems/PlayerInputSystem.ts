@@ -9,6 +9,7 @@ import Vector2 from "@src/shared/math/Vector2";
 import config from "@src/config";
 import World from "@src/world/World";
 import MouseButton from "@src/enums/MouseButton";
+import { vec2 } from "gl-matrix";
 
 export class PlayerInputSystem extends System {
   public constructor() {
@@ -36,7 +37,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleMouseInput(button: MouseButton, active: boolean): void {
+  public handleMouseInput(button: MouseButton, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, _position: vec2): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
