@@ -9,14 +9,22 @@ interface IAnimationMetadata {
   keyframes: IKeyFrame[];
 }
 
+export type AnimationOptimization = "singleton" | "pool" | "none";
+
 class Animation {
   public static pools: Map<string, Pool<Animation>> = new Map();
   public static instances: Map<string, Animation> = new Map();
 
-  public static create(metadata: IAnimationMetadata): Animation {
-    const usePool = !metadata.name.startsWith("coin");
+  public static create(optimization: AnimationOptimization, metadata: IAnimationMetadata): Animation {
+    if (optimization === "singleton") {
+      if (!Animation.instances.has(metadata.name)) {
+        Animation.instances.set(metadata.name, new Animation(metadata));
+      }
 
-    if (usePool) {
+      return Animation.instances.get(metadata.name)!;
+    }
+
+    if (optimization === "pool") {
       if (!Animation.pools.has(metadata.name)) {
         Animation.pools.set(metadata.name, new Pool<Animation>());
       }
@@ -28,19 +36,13 @@ class Animation {
         animation.reset();
         return animation;
       }
-
-      return new Animation(metadata);
-    } else {
-      if (!Animation.instances.has(metadata.name)) {
-        Animation.instances.set(metadata.name, new Animation(metadata));
-      }
-
-      return Animation.instances.get(metadata.name)!;
     }
+
+    return new Animation(metadata);
   }
 
   public static destroy(animation: Animation): void {
-    const usePool = !animation.name.startsWith("coin");
+    const usePool = Animation.shouldUsePool(animation.name);
 
     if (usePool) {
       if (Animation.pools.has(animation.name)) {
@@ -53,6 +55,10 @@ class Animation {
         }
       }
     }
+  }
+
+  public static shouldUsePool(name: string): boolean {
+    return !name.startsWith("coin");
   }
 
   public readonly sprite: string;
@@ -132,6 +138,8 @@ class Animation {
   }
 
   public reset(): void {
+    this.paused = false;
+
     this.time = -1;
     this.freezeTime = -1;
     this.played = 0;

@@ -1,11 +1,12 @@
 import { Entity, Component } from "@src/ECS";
 
-import Animation from "@src/animation/Animation";
+import Animation, { AnimationOptimization } from "@src/animation/Animation";
 import World from "@src/world/World";
 
 import { IAnimation } from "@src/shared/models/animation.model";
 
 export interface IAnimatorMetadata {
+  optimization: AnimationOptimization;
   defaultKey: string;
   list?: Record<string, IAnimation>;
 }
@@ -19,13 +20,13 @@ export class Animator implements Component {
   public currentKey: string;
   public previousKey: string | null = null;
 
-  public constructor({ list = {}, defaultKey }: IAnimatorMetadata) {
+  public constructor({ optimization = "pool", list = {}, defaultKey }: IAnimatorMetadata) {
     this.defaultKey = defaultKey;
     this.currentKey = this.defaultKey;
 
     // convert animation parameters in Animation objects
-    for (const name of Object.keys(list)) {
-      const animation = Animation.create({ name, ...list[name] });
+    for (const [name, metadata] of Object.entries(list)) {
+      const animation = Animation.create(optimization, { name, ...metadata });
 
       if (!animation) {
         throw new Error(`Could not instantiate animation "${name}"`);
