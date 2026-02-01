@@ -47,7 +47,7 @@ export class RigidBody implements Component {
 
     this.collide = collide ?? true;
     this.gravity = gravity ?? true;
-    this.maxFallSpeed = maxFallSpeed ?? 900;
+    this.maxFallSpeed = maxFallSpeed ?? 0;
     this.clampToMap = clampToMap ?? false;
     this.reflect = reflect ?? false;
     this.reflectAngle = reflectAngle ?? false;

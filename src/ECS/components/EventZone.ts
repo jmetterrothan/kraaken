@@ -96,7 +96,7 @@ export class EventZone implements Component {
 
             health.value += data.amount;
 
-            subject.addComponent(new DamageEvent(Math.abs(data.amount), health.isDead));
+            subject.addComponent(new DamageEvent({ amount: Math.abs(data.amount), isKill: health.isDead, hitstop: false, cameraShake: false }));
           }
           return;
         }

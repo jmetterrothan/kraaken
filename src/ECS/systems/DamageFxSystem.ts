@@ -33,8 +33,8 @@ export class DamageFxSystem extends System {
 
       const impact = Math.sqrt(clamp(dmg.amount / health.maxHealth, 0, 1));
 
-      this.world.hitstop(dmg.isKill ? 100 : lerp(40, 80, impact));
-      camera.shakeOnce(dmg.isKill ? 4 : lerp(2, 4, impact), dmg.isKill ? 120 : lerp(60, 120, impact));
+      if (dmg.hitstop) this.world.hitstop(dmg.isKill ? 100 : lerp(40, 80, impact));
+      if (dmg.cameraShake) camera.shakeOnce(dmg.isKill ? 4 : lerp(2, 4, impact), dmg.isKill ? 120 : lerp(60, 120, impact));
 
       if (!isPlayer) {
         // remove dead entities from world

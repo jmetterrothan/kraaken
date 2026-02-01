@@ -30,8 +30,13 @@ export class AISystem extends System {
 
     entities.forEach((entity) => {
       const ai = entity.getComponent(FlyingAI);
+      const health = entity.getComponent(Health);
 
       const position = entity.getComponent(Position);
+
+      if (health && health.isDead) {
+        return;
+      }
 
       if (ai.homePos === null) {
         ai.homePos = position.clone();

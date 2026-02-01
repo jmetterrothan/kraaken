@@ -1,6 +1,6 @@
 import { System, Entity } from "@src/ECS";
 
-import { BoundingBox, Position, Consummable, RigidBody } from "@src/ECS/components";
+import { BoundingBox, Position, Consummable, RigidBody, Animator } from "@src/ECS/components";
 
 import Vector2 from "@src/shared/math/Vector2";
 
@@ -26,7 +26,16 @@ export class ConsummableSystem extends System {
 
         if (consummable.limit !== -1 && consummable.nbOfTimesConsummated >= consummable.limit) {
           consummable.consummated = true;
-          this.world.removeEntity(entity);
+
+          const animator = entity.getComponent(Animator);
+
+          if (!animator || !animator.animation || animator.animation.loop) {
+            this.world.removeEntity(entity);
+          } else {
+            window.setTimeout(() => {
+              this.world.removeEntity(entity);
+            }, animator.animation.duration);
+          }
         }
 
         break;

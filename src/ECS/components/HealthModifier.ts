@@ -26,7 +26,14 @@ export class HealthModifier extends Consummable {
     health.value += this.amount;
 
     if (this.amount < 0) {
-      entity.addComponent(new DamageEvent(Math.abs(this.amount), health.isDead));
+      entity.addComponent(
+        new DamageEvent({
+          amount: Math.abs(this.amount),
+          isKill: health.isDead,
+          hitstop: false,
+          cameraShake: false,
+        })
+      );
     }
   }
 
