@@ -20,3 +20,4 @@ export * from "./FlyingAI";
 export * from "./Collider";
 export * from "./EventZone";
 export * from "./DamageEvent";
+export * from "./Explosion";

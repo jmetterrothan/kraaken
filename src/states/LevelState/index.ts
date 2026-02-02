@@ -52,9 +52,11 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.PlayerCombatSystem());
       world.addSystem(new Systems.ConsummableSystem());
       world.addSystem(new Systems.AISystem());
-      world.addSystem(new Systems.FlickerOnImmuneSystem());
       world.addSystem(new Systems.EventZoneSystem());
+      world.addSystem(new Systems.ExplosionSystem());
+      world.addSystem(new Systems.KnockbackSystem());
       world.addSystem(new Systems.DamageFxSystem());
+      world.addSystem(new Systems.FlickerOnImmuneSystem());
 
       await world.init();
 

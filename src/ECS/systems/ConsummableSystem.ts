@@ -19,15 +19,9 @@ export class ConsummableSystem extends System {
         continue;
       }
 
-      if (consummable.hasCollided(target)) {
-        console.log("already hit target " + target.toString());
-        continue;
-      }
-
       if (this.isColliding(entity, target)) {
         const position = entity.getComponent(Position);
 
-        consummable.markCollided(target);
         consummable.consummatedBy(this.world, target, position);
 
         if (consummable.limit !== -1 && consummable.nbOfTimesConsummated >= consummable.limit) {

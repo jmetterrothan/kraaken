@@ -27,6 +27,42 @@ class Box2 {
     return box._max.x < this._min.x || box._min.x > this._max.x || box._max.y < this._min.y || box._min.y > this._max.y ? false : true;
   }
 
+  public distFromEdgeToPoint(position: Vector2) {
+    // take closest points
+    const cx = Math.max(this.x1, Math.min(position.x, this.x2));
+    const cy = Math.max(this.y1, Math.min(position.y, this.y2));
+
+    const distX = position.x - cx;
+    const distY = position.y - cy;
+
+    return Math.hypot(distX, distY);
+  }
+
+  public intersectCircle(position: Vector2, radius: number) {
+    const distX = Math.abs(position.x - this.x);
+    const distY = Math.abs(position.y - this.y);
+
+    if (distX > this.width / 2 + radius) {
+      return false;
+    }
+    if (distY > this.height / 2 + radius) {
+      return false;
+    }
+
+    if (distX <= this.width / 2) {
+      return true;
+    }
+    if (distY <= this.height / 2) {
+      return true;
+    }
+
+    // also test for corner collisions
+    const dx = distX - this.width / 2;
+    const dy = distY - this.height / 2;
+
+    return dx * dx + dy * dy <= radius * radius;
+  }
+
   public intersectSegment(x1: number, y1: number, x2: number, y2: number): Vector2 | undefined {
     const p1 = linesIntersection(x1, y1, x2, y2, this._min.x, this._min.y, this._min.x, this._max.y);
     if (p1 !== undefined) {

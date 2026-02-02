@@ -131,7 +131,7 @@ export class CameraSystem extends System {
 
     const { xPx, yPx } = camera.shake.update(delta);
 
-    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || Math.abs(camera.zoom - configSvc.scale) > 1e-6 || xPx > 0 || yPx > 0) {
+    if (camera.shouldUpdateProjectionMatrix || position.notEquals(camera.previousPosition) || Math.abs(camera.zoom - configSvc.scale) > Number.EPSILON || Math.abs(xPx) > Number.EPSILON || Math.abs(yPx) > Number.EPSILON) {
       // update zoom level
       camera.zoom = configSvc.scale;
 

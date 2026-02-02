@@ -279,15 +279,17 @@ class Vector2 {
   }
 
   reflect(n: Vector2): Vector2 {
-    // vector - 2 * Vector2.Dot(vector, normal) * normal;
-    const dotProduct = this.dot(n);
+    const nn = n.x * n.x + n.y * n.y;
+    if (nn === 0) return this.clone();
 
-    const temp = n.clone().multiplyScalar(dotProduct * 2);
-    const output = this.clone().sub(temp);
+    const dot = this.x * n.x + this.y * n.y;
+    const scale = (2 * dot) / nn;
+
+    const temp = n.clone().multiplyScalar(scale);
+    const out = this.clone().sub(temp);
 
     Vector2.destroy(temp);
-
-    return output;
+    return out;
   }
 
   public toFixed(precision: number): Vector2 {

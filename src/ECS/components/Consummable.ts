@@ -29,8 +29,6 @@ export class Consummable extends Component {
   public readonly pickUpVFX: string | null = null;
   public readonly pickUpSFX?: Howl;
 
-  private collisions = new Set<string>();
-
   public lockedInNearestEntity: Entity | null = null;
 
   public consummated = false;
@@ -78,14 +76,6 @@ export class Consummable extends Component {
       return false;
     }
     return true;
-  }
-
-  public hasCollided(entity: Entity) {
-    return this.collisions.has(entity.uuid);
-  }
-
-  public markCollided(entity: Entity) {
-    this.collisions.add(entity.uuid);
   }
 
   public getComponentTypes(): string[] {

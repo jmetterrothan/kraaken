@@ -69,6 +69,17 @@ export class PhysicsSystem extends System {
         bbox.setPositionFromVector2(position);
       }
 
+      if (rigidBody.reflectAngle) {
+        const vx = rigidBody.velocity.x * rigidBody.velocityModifier.x;
+        const vy = rigidBody.velocity.y * rigidBody.velocityModifier.y;
+
+        // avoid noisy rotation when almost stopped
+        const speed = Math.hypot(vx, vy);
+        if (speed > Number.EPSILON) {
+          position.rotation = Math.atan2(vy, vx);
+        }
+      }
+
       rigidBody.isGrounded = this.isOnSolidTile(entity);
 
       Vector2.destroy(step);

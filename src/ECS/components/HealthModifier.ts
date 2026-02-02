@@ -1,21 +1,24 @@
 import { Entity } from "@src/ECS";
 
-import { Consummable, Health, IConsummableMetadata, BoundingBox, DamageEvent } from "@src/ECS/components";
+import { Consummable, Health, IConsummableMetadata, BoundingBox, DamageEvent, PlayerInput } from "@src/ECS/components";
 import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 
 interface IHealthModifierMetadata extends IConsummableMetadata {
   amount?: number;
+  knockback?: number;
 }
 
 export class HealthModifier extends Consummable {
   public readonly amount: number;
+  public readonly knockback: number;
 
   public constructor(metadata: IHealthModifierMetadata = {}) {
     super(metadata);
 
     this.amount = metadata.amount ?? 1;
+    this.knockback = metadata.knockback ?? 0;
   }
 
   public consummatedBy(world: World, entity: Entity, at: Vector2 | null = null): void {
@@ -30,8 +33,10 @@ export class HealthModifier extends Consummable {
         new DamageEvent({
           amount: Math.abs(this.amount),
           isKill: health.isDead,
-          hitstop: false,
-          cameraShake: false,
+          hitstop: !entity.hasComponent(PlayerInput.COMPONENT_TYPE),
+          cameraShake: true,
+          knockback: this.knockback,
+          source: at ?? undefined,
         })
       );
     }

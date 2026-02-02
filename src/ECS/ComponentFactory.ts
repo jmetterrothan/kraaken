@@ -45,6 +45,8 @@ class ComponentFactory {
         return new Components.Collider();
       case "damage_event":
         return new Components.DamageEvent(metadata);
+      case "explosion":
+        return new Components.Explosion(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

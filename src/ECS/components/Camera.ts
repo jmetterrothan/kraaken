@@ -18,58 +18,50 @@ interface ICameraMetadata {
   deadzoneHFrac?: number;
 }
 
+type IShake = { t: number; dur: number; amp: number; freq: number; px: number; phx: number; phy: number };
+
 export class CameraShake {
-  private t = 0;
-
-  private durationLeft = 0;
-  private durationTotal = 0;
-
-  private maxPx = 0;
-  private freqHz = 35;
-
-  private phaseX = 0;
-  private phaseY = 0;
+  private shakes: IShake[] = [];
 
   /** Start a micro shake: px = peak amplitude in pixels, ms = duration */
-  shakeOnce(px: number, ms: number, freqHz: number): void {
+  shakeOnce(px: number, ms: number, freqHz = 35) {
     const dur = Math.max(1, ms) / 1000;
-
-    // If you call shakeOnce repeatedly (e.g., rapid shots), keep the strongest/longest.
-    this.maxPx = Math.max(this.maxPx, px);
-    this.freqHz = freqHz;
-
-    this.durationTotal = Math.max(this.durationTotal, dur);
-    this.durationLeft = Math.max(this.durationLeft, dur);
-
-    // Reset time + randomize phases (starts at 0 offset to avoid a "snap")
-    this.t = 0;
-    this.phaseX = Math.random() * Math.PI * 2;
-    this.phaseY = Math.random() * Math.PI * 2;
+    this.shakes.push({
+      t: 0,
+      dur,
+      amp: px,
+      freq: freqHz,
+      px,
+      phx: Math.random() * Math.PI * 2,
+      phy: Math.random() * Math.PI * 2,
+    });
   }
 
-  /** Returns camera offset in PIXELS */
-  update(deltaSeconds: number): { xPx: number; yPx: number } {
-    if (this.durationLeft <= 0) return { xPx: 0, yPx: 0 };
+  update(dt: number) {
+    let x = 0,
+      y = 0;
 
-    this.durationLeft = Math.max(0, this.durationLeft - deltaSeconds);
-    this.t += deltaSeconds;
+    for (let i = this.shakes.length - 1; i >= 0; i--) {
+      const shake = this.shakes[i];
+      shake.t += dt;
 
-    // nice micro feel: quadratic falloff
-    const p = this.durationTotal > 0 ? this.durationLeft / this.durationTotal : 0;
-    const amp = this.maxPx * p * p;
+      const left = Math.max(0, shake.dur - shake.t);
+      if (left <= 0) {
+        this.shakes.splice(i, 1);
+        continue;
+      }
 
-    const w = this.freqHz * Math.PI * 2;
+      const p = left / shake.dur;
+      const amp = shake.amp * p * p;
+      const w = shake.freq * Math.PI * 2;
 
-    const xPx = Math.sin(this.t * w + this.phaseX) * amp;
-    const yPx = Math.sin(this.t * w + this.phaseY) * amp;
-
-    // when finished, clear amplitude so next shakeOnce can set it
-    if (this.durationLeft <= 0) {
-      this.maxPx = 0;
-      this.durationTotal = 0;
+      x += Math.sin(shake.t * w + shake.phx) * amp;
+      y += Math.sin(shake.t * w + shake.phy) * amp;
     }
 
-    return { xPx, yPx };
+    const max = 10;
+
+    return { xPx: Math.max(-max, Math.min(x, max)), yPx: Math.max(-max, Math.min(y, max)) };
   }
 }
 
