@@ -144,7 +144,7 @@ class World {
     return entity;
   }
 
-  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug?: boolean): void {
+  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug: boolean = false): void {
     if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
       const positionComp = entity.getComponent(Components.Position);
       positionComp.x = position?.x ?? 0;
@@ -162,7 +162,7 @@ class World {
 
     if (entity.hasComponent(Components.BoundingBox.COMPONENT_TYPE)) {
       const bboxComp = entity.getComponent(Components.BoundingBox);
-      bboxComp.debug = !!debug;
+      bboxComp.debug = bboxComp.debug || debug;
     }
   }
 

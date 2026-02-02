@@ -17,12 +17,13 @@ export class BoundingBox extends Box2 implements Component {
   public static COMPONENT_TYPE = "bounding_box";
 
   public helper: BoundingBoxHelper;
+
   public debug: boolean;
 
-  public constructor({ width, height, debug, color = [1.0, 0.5, 0.25, 1.0] }: IBoundingBoxMetadata) {
+  public constructor({ width, height, debug = false, color = [1.0, 0.5, 0.25, 1.0] }: IBoundingBoxMetadata) {
     super(0, 0, width ?? 1, height ?? 1);
 
-    this.debug = debug ?? false;
+    this.debug = debug;
 
     this.helper = new BoundingBoxHelper(this, color);
     this.helper.init();

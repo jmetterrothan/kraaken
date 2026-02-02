@@ -6,64 +6,80 @@ import Vector2 from "@src/shared/math/Vector2";
 
 export class ConsummableSystem extends System {
   public constructor() {
-    super([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Consummable.COMPONENT_TYPE]);
+    super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Consummable.COMPONENT_TYPE]);
   }
 
   tryConsummate(entity: Entity, targets: ReadonlyArray<Entity>): void {
     const consummable = entity.getComponent(Consummable);
-    const bbox = entity.getComponent(BoundingBox);
+
+    let consummated = false;
 
     for (const target of targets) {
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
 
-      const targetBbox = target.getComponent(BoundingBox);
+      if (consummable.hasCollided(target)) {
+        console.log("already hit target " + target.toString());
+        continue;
+      }
 
-      if (targetBbox.intersectBox(bbox)) {
+      if (this.isColliding(entity, target)) {
         const position = entity.getComponent(Position);
+
+        consummable.markCollided(target);
         consummable.consummatedBy(this.world, target, position);
 
         if (consummable.limit !== -1 && consummable.nbOfTimesConsummated >= consummable.limit) {
-          consummable.consummated = true;
-
-          const animator = entity.getComponent(Animator);
-
-          if (!animator || !animator.animation || animator.animation.loop) {
-            this.world.removeEntity(entity);
-          } else {
-            window.setTimeout(() => {
-              this.world.removeEntity(entity);
-            }, animator.animation.duration);
-          }
+          consummated = true;
         }
+      }
+    }
 
-        break;
+    if (consummated) {
+      const animator = entity.getComponent(Animator);
+
+      if (!animator || !animator.animation || animator.animation.loop) {
+        this.world.removeEntity(entity);
+      } else {
+        window.setTimeout(() => {
+          this.world.removeEntity(entity);
+        }, animator.animation.duration);
       }
     }
   }
 
-  findTarget(entity: Entity, targets: ReadonlyArray<Entity>): void {
-    const consummable = entity.getComponent(Consummable);
+  public isColliding(entity: Entity, target: Entity) {
+    if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
+      const targetBbox = target.getComponent(BoundingBox);
+      const bbox = entity.getComponent(BoundingBox);
 
-    if (consummable.target) {
-      return;
+      return targetBbox.intersectBox(bbox);
     }
 
-    const position = entity.getComponent(Position);
+    return false;
+  }
 
-    for (const target of targets) {
-      if (!consummable.canBeConsummatedBy(target)) {
-        continue;
-      }
+  findNearestEntity(entity: Entity, targets: ReadonlyArray<Entity>): void {
+    const consummable = entity.getComponent(Consummable);
 
-      const targetPos = target.getComponent(Position);
+    if (!consummable.lockedInNearestEntity) {
+      const position = entity.getComponent(Position);
 
-      if (consummable.radius > 0 && !consummable.target) {
-        const dist = targetPos.distanceTo(position);
+      for (const target of targets) {
+        if (!consummable.canBeConsummatedBy(target)) {
+          continue;
+        }
 
-        if (dist < consummable.radius) {
-          consummable.target = target;
+        const targetPos = target.getComponent(Position);
+
+        if (consummable.attractionRadius > 0) {
+          const dist = targetPos.distanceTo(position);
+
+          if (dist < consummable.attractionRadius) {
+            consummable.lockedInNearestEntity = target;
+            break;
+          }
         }
       }
     }
@@ -89,42 +105,42 @@ export class ConsummableSystem extends System {
         continue;
       }
 
-      if (consummable.radius > 0) {
-        this.findTarget(entity, targets);
-      }
+      if (consummable.attractionRadius > 0) {
+        this.findNearestEntity(entity, targets);
 
-      if (consummable.target) {
-        const position = entity.getComponent(Position);
-        const rigidBody = entity.getComponent(RigidBody);
+        if (consummable.lockedInNearestEntity) {
+          const position = entity.getComponent(Position);
+          const rigidBody = entity.getComponent(RigidBody);
 
-        const targetPos = consummable.target.getComponent(Position);
+          const targetPos = consummable.lockedInNearestEntity.getComponent(Position);
 
-        const toTarget = targetPos.clone().sub(position);
-        const dist = toTarget.length();
-        const dir = toTarget.normalize();
+          const toTarget = targetPos.clone().sub(position);
+          const dist = toTarget.length();
+          const dir = toTarget.normalize();
 
-        const maxSpeed = Math.min(consummable.speed, dist * consummable.snappiness); // 6 is tuning: bigger = snappier
-        // steer velocity toward desired velocity
-        const desiredVx = dir.x * maxSpeed;
-        const desiredVy = dir.y * maxSpeed;
+          const maxSpeed = Math.min(consummable.speed, dist * consummable.snappiness); // 6 is tuning: bigger = snappier
+          // steer velocity toward desired velocity
+          const desiredVx = dir.x * maxSpeed;
+          const desiredVy = dir.y * maxSpeed;
 
-        const maxDv = consummable.acceleration * delta;
-        const dvx = desiredVx - rigidBody.velocity.x;
-        const dvy = desiredVy - rigidBody.velocity.y;
-        const dv = Math.hypot(dvx, dvy);
+          const maxDv = consummable.acceleration * delta;
+          const dvx = desiredVx - rigidBody.velocity.x;
+          const dvy = desiredVy - rigidBody.velocity.y;
+          const dv = Math.hypot(dvx, dvy);
 
-        if (dv > maxDv) {
-          // take only a small step toward wanted velocity
-          const s = maxDv / dv;
-          rigidBody.velocity.x += dvx * s;
-          rigidBody.velocity.y += dvy * s;
-        } else {
-          // close enough: snap to wanted velocity
-          rigidBody.velocity.x = desiredVx;
-          rigidBody.velocity.y = desiredVy;
+          if (dv > maxDv) {
+            // take only a small step toward wanted velocity
+            const s = maxDv / dv;
+            rigidBody.velocity.x += dvx * s;
+            rigidBody.velocity.y += dvy * s;
+          } else {
+            // close enough: snap to wanted velocity
+            rigidBody.velocity.x = desiredVx;
+            rigidBody.velocity.y = desiredVy;
+          }
+
+          Vector2.destroy(toTarget);
         }
-
-        Vector2.destroy(toTarget);
       }
 
       this.tryConsummate(entity, targets);

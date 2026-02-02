@@ -7,7 +7,7 @@ import { Position } from "./Position";
 import Vector2 from "@src/shared/math/Vector2";
 
 export interface IConsummableMetadata {
-  radius?: number;
+  attractionRadius?: number;
   limit?: number;
   acceleration?: number;
   speed?: number;
@@ -21,7 +21,7 @@ export class Consummable extends Component {
   public static COMPONENT_TYPE = "consummable";
 
   public readonly applyToEntityTypes?: string[];
-  public readonly radius: number;
+  public readonly attractionRadius: number;
   public readonly limit: number;
   public readonly acceleration: number;
   public readonly speed: number;
@@ -29,7 +29,9 @@ export class Consummable extends Component {
   public readonly pickUpVFX: string | null = null;
   public readonly pickUpSFX?: Howl;
 
-  public target: Entity | null = null;
+  private collisions = new Set<string>();
+
+  public lockedInNearestEntity: Entity | null = null;
 
   public consummated = false;
   public nbOfTimesConsummated = 0;
@@ -37,7 +39,7 @@ export class Consummable extends Component {
   public constructor(metadata: IConsummableMetadata = {}) {
     super();
 
-    this.radius = metadata.radius ?? 0;
+    this.attractionRadius = metadata.attractionRadius ?? 0;
     this.limit = metadata.limit ?? 1;
     this.acceleration = metadata.acceleration ?? 0;
     this.speed = metadata.speed ?? 0;
@@ -76,6 +78,14 @@ export class Consummable extends Component {
       return false;
     }
     return true;
+  }
+
+  public hasCollided(entity: Entity) {
+    return this.collisions.has(entity.uuid);
+  }
+
+  public markCollided(entity: Entity) {
+    this.collisions.add(entity.uuid);
   }
 
   public getComponentTypes(): string[] {

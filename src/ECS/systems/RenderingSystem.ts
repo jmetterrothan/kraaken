@@ -79,7 +79,7 @@ export class RenderingSystem extends System {
       }
 
       // show bounding box helper
-      if (entity.hasComponent(BoundingBox.COMPONENT_TYPE) && bbox.debug) {
+      if (bbox && bbox.debug) {
         const modelMatrix = mat3.create();
 
         mat3.fromTranslation(modelMatrix, position.toGlArray());
