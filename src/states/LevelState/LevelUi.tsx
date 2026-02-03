@@ -5,6 +5,7 @@ import Toolbar from "@src/shared/ui/components/Toolbar";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
 import dispatch, * as GameEvents from "@src/shared/events";
+import keyBindings from "@src/keyBindings";
 
 const useLevelActions = () => {
   return React.useMemo(
@@ -28,6 +29,7 @@ const LevelUi: React.FC<ILevelUiProps> = ({ levelId }) => {
         <ToolbarButton
           icon="edit" //
           name="Edit level"
+          kbd={keyBindings.level.edit.toString()}
           active={false}
           onClick={() => actions.edit(levelId)}
         />

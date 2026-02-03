@@ -20,6 +20,7 @@ import { configSvc } from "@src/shared/services/ConfigService";
 import config from "@src/config";
 
 import "@src/assets/sass/kraaken.scss";
+import { clamp } from "./shared/utility/MathHelpers";
 
 const instanceSym = Symbol("instance");
 
@@ -324,24 +325,22 @@ class Game {
     window.addEventListener(
       "keyup",
       (e) => {
-        this.stateManager.handleKeyboardInput(e.key, false);
+        this.stateManager.handleKeyboardInput(e, false);
       },
       false
     );
     window.addEventListener(
       "keydown",
       (e) => {
-        switch (e.key) {
+        switch (e.code) {
           case "F11":
             e.preventDefault();
-            break;
-
-          case "f":
+            e.stopPropagation();
             this.fullscreen = !this.fullscreen;
             break;
         }
 
-        this.stateManager.handleKeyboardInput(e.key, true);
+        this.stateManager.handleKeyboardInput(e, true);
       },
       false
     );
@@ -370,7 +369,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMouseInput(e.button, e.shiftKey, e.ctrlKey, false, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e, false, getCoord(canvas, x, y));
         }
       },
       false
@@ -382,7 +381,7 @@ class Game {
         if (canvas.contains(e.target as Node)) {
           const x = getMouseOffsetX(canvas, e);
           const y = getMouseOffsetY(canvas, e);
-          this.stateManager.handleMouseInput(e.button, e.shiftKey, e.ctrlKey, true, getCoord(canvas, x, y));
+          this.stateManager.handleMouseInput(e, true, getCoord(canvas, x, y));
         }
       },
       false
@@ -453,20 +452,21 @@ class Game {
     });
 
     window.addEventListener(GameEventTypes.ZOOM_EVENT, (e: GameEvents.ZoomEvent) => {
-      let scale = e.detail.scale;
-
-      if (scale < 1) {
-        scale = 1;
-      }
-      if (scale > 20) {
-        scale = 20;
-      }
-
-      if (scale !== this.targetScale) {
-        this.targetScale = scale;
-        this.refreshScreenSize();
-      }
+      this.setTargetScale(e.detail.scale);
     });
+
+    window.addEventListener(GameEventTypes.ZOOM_OUT_EVENT, () => {
+      this.setTargetScale(this.targetScale - 1);
+    });
+
+    window.addEventListener(GameEventTypes.ZOOM_IN_EVENT, () => {
+      this.setTargetScale(this.targetScale + 1);
+    });
+  }
+
+  private setTargetScale(scale: number) {
+    this.targetScale = clamp(scale, 1, 20);
+    this.refreshScreenSize();
   }
 
   private refreshScreenSize = () => {

@@ -7,9 +7,11 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorCollisionMode } from "@src/shared/models/editor.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
-import MouseButton from "@src/enums/MouseButton";
 
 import { vec2 } from "gl-matrix";
+import editorStore from "../editorStore";
+import keyBindings, { matchKeyBinding } from "@src/keyBindings";
+import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 
 class CollisionMode {
   public focusedEntity: Entity | undefined;
@@ -42,20 +44,24 @@ class CollisionMode {
 
   public render(_alpha: number): void {}
 
-  public handleKeyboardInput(_key: string, _active: boolean): void {}
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
+    if (active) {
+      if (matchKeyBinding(keyBindings.editor.place, e)) {
+        editorStore.setCollisionMode(EditorCollisionMode.PLACE);
+      } else if (matchKeyBinding(keyBindings.editor.erase, e)) {
+        editorStore.setCollisionMode(EditorCollisionMode.ERASE);
+      }
+    }
+  }
 
-  public handleMouseInput(button: MouseButton, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
 
-      switch (button) {
-        case MouseButton.LEFT: {
-          if (this.editor.state.collisionMode === EditorCollisionMode.PLACE) {
-            driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);
-          } else {
-            driver.place({ layerId: TileLayer.L0, tileTypeId: 0, coords: [coords] }, true);
-          }
-        }
+      if (matchMouseBinding(mouseBindings.editor.collisionMode.place, e)) {
+        driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords: [coords] }, true);
+      } else if (matchMouseBinding(mouseBindings.editor.collisionMode.erase, e)) {
+        driver.place({ layerId: TileLayer.L0, tileTypeId: 0, coords: [coords] }, true);
       }
     }
   }

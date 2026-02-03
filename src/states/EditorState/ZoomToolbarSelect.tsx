@@ -1,6 +1,7 @@
 import React from "react";
 
 import ToolbarSelect, { IToolbarOption } from "@src/shared/ui/components/ToolbarSelect";
+import keyBindings from "@src/keyBindings";
 
 interface IZoomToolbarSelectProps {
   value: number;
@@ -13,6 +14,7 @@ const ZoomToolbarSelect: React.FC<IZoomToolbarSelectProps> = ({ value, onClick }
       icon="search-plus" //
       selected={value}
       active={false}
+      kbd={`${keyBindings.editor.zoomOut.toString()} / ${keyBindings.editor.zoomIn.toString()}`}
       displayedValue={`x${value}`}
       onItemClick={onClick}
       options={[

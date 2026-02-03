@@ -11,10 +11,10 @@ import * as GameEventTypes from "@src/shared/events/constants";
 import * as GameEvents from "@src/shared/events";
 
 import eventStackSvc from "@src/shared/services/EventStackService";
-import MouseButton from "@src/enums/MouseButton";
 
 import { vec2 } from "gl-matrix";
 import editorStore from "../editorStore";
+import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 
 const snapToTileCenter = (value: number, tileSize: number) => {
   return Math.floor(value / tileSize) * tileSize + tileSize / 2;
@@ -133,85 +133,76 @@ class EntityMode {
 
   public render(_alpha: number): void {}
 
-  public handleKeyboardInput(_key: string, _active: boolean): void {}
+  public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 
-  public handleMouseInput(button: MouseButton, shiftKey: boolean, _ctrlKey: boolean, active: boolean, position: vec2): void {
-    const snapToGrid = shiftKey;
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
+    const snapToGrid = e.shiftKey;
 
     if (active) {
       const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
       const tileSize = this.editor.currentRoom.world.tileMap.getTileSize();
 
       const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
-      switch (button) {
-        case MouseButton.MIDDLE: {
-          const player = this.editor.currentRoom.world.player;
 
-          if (player) {
-            const playerPosition = player.getComponent(Position);
+      if (matchMouseBinding(mouseBindings.editor.entityMode.spawn, e)) {
+        const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
+        const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);
 
-            const startTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
-            const goalTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
+        if (this.selectedEntity) {
+          const selectedEntityPos = this.selectedEntity.getComponent(Position);
+          const placeable = this.selectedEntity.getComponent(Placeable);
 
-            if (startTile && goalTile) {
-              this.editor.currentRoom.world.tileMap.aStar(startTile, goalTile);
-            }
-          }
-          break;
-        }
+          placeable.unfollow();
+          selectedEntityPos.fromValues(x, y);
 
-        case MouseButton.LEFT: {
-          const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
-          const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);
+          driver.spawn(
+            {
+              uuid: this.selectedEntity.uuid,
+              type: this.selectedEntity.type,
+              position: { x, y },
+              direction: { x: 1, y: 1 },
+            },
+            true
+          );
 
-          if (this.selectedEntity) {
-            const selectedEntityPos = this.selectedEntity.getComponent(Position);
-            const placeable = this.selectedEntity.getComponent(Placeable);
+          this.selectedEntity = undefined;
+        } else {
+          if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
+            const focusedEntityPos = this.focusedEntity.getComponent(Position);
+            const placeable = this.focusedEntity.getComponent(Placeable);
 
-            placeable.unfollow();
-            selectedEntityPos.fromValues(x, y);
+            placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
 
+            this.selectedEntity = this.focusedEntity;
+            editorStore.setSelectedEntityType(this.selectedEntity.type);
+          } else {
             driver.spawn(
               {
-                uuid: this.selectedEntity.uuid,
-                type: this.selectedEntity.type,
+                uuid: uuidv4(),
+                type: this.editor.state.entityType,
                 position: { x, y },
                 direction: { x: 1, y: 1 },
               },
               true
             );
-
-            this.selectedEntity = undefined;
-          } else {
-            if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
-              const focusedEntityPos = this.focusedEntity.getComponent(Position);
-              const placeable = this.focusedEntity.getComponent(Placeable);
-
-              placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
-
-              this.selectedEntity = this.focusedEntity;
-              editorStore.setSelectedEntityType(this.selectedEntity.type);
-            } else {
-              driver.spawn(
-                {
-                  uuid: uuidv4(),
-                  type: this.editor.state.entityType,
-                  position: { x, y },
-                  direction: { x: 1, y: 1 },
-                },
-                true
-              );
-            }
           }
-
-          break;
         }
+      } else if (matchMouseBinding(mouseBindings.editor.entityMode.despawn, e)) {
+        if (this.focusedEntity) {
+          driver.despawn(this.focusedEntity.uuid, true);
+        }
+      } else if (matchMouseBinding(mouseBindings.editor.entityMode.test, e)) {
+        const player = this.editor.currentRoom.world.player;
 
-        case MouseButton.RIGHT: {
-          if (this.focusedEntity) {
-            driver.despawn(this.focusedEntity.uuid, true);
+        if (player) {
+          const playerPosition = player.getComponent(Position);
+
+          const startTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
+          const goalTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
+
+          if (startTile && goalTile) {
+            this.editor.currentRoom.world.tileMap.aStar(startTile, goalTile);
           }
-          break;
         }
       }
     }

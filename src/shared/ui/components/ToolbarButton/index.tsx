@@ -8,12 +8,13 @@ export interface IToolbarButtonProps {
   disabled?: boolean;
   theme?: "blue" | "red";
   name: string;
+  kbd?: string;
   icon?: string;
   showCaret?: boolean;
   onClick?: () => void;
 }
 
-const ToolbarButton = ({ theme = "blue", name, icon, active, disabled, showCaret, children, onClick }: PropsWithChildren<IToolbarButtonProps>) => {
+const ToolbarButton = ({ theme = "blue", name, icon, active, disabled, kbd, showCaret, children, onClick }: PropsWithChildren<IToolbarButtonProps>) => {
   return (
     <button
       type="button" //
@@ -28,6 +29,7 @@ const ToolbarButton = ({ theme = "blue", name, icon, active, disabled, showCaret
         )}
         <span className="toolbar-button__name">
           {name}
+          {kbd && <span className="toolbar-button__kbd">{kbd}</span>}
           {showCaret && <i className={cx("fas", "fa-caret-down", "caret")} />}
         </span>
       </div>

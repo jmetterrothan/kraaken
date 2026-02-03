@@ -5,7 +5,7 @@ $fullWidth: $width + $spacing * 2;
 .toolbar-tileset {
   position: relative;
   min-width: 64px;
-  height: 60px;
+  height: var(--toolbar-height);
 
   &:hover {
     background: #d0d6e0;

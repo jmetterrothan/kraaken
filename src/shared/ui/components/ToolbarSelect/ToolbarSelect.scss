@@ -1,7 +1,7 @@
 .toolbar-select {
   position: relative;
   min-width: 64px;
-  height: 60px;
+  height: var(--toolbar-height);
 
   &:hover {
     background: #d0d6e0;

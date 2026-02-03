@@ -13,14 +13,15 @@ import SpriteManager from "@src/animation/SpriteManager";
 import { ILevelBlueprint } from "@src/shared/models/world.model";
 
 import * as GameEventTypes from "@src/shared/events/constants";
-import * as GameEvents from "@src/shared/events";
+import dispatch, * as GameEvents from "@src/shared/events";
 
 import editorStore from "../EditorState/editorStore";
 
 import LevelUi from "./LevelUi";
-import MouseButton from "@src/enums/MouseButton";
+
 import { Entity } from "@src/ECS/Entity";
 import config from "@src/config";
+import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 interface LevelStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
@@ -168,12 +169,16 @@ class LevelState extends State<LevelStateOptions> {
 
   public handleGamepadInput(): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {
-    this.currentRoom.handleKeyboardInput(key, active);
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
+    if (matchKeyBinding(keyBindings.level.edit, e)) {
+      dispatch(GameEvents.editEvent(this.levelBlueprint.id));
+    } else {
+      this.currentRoom.handleKeyboardInput(e, active);
+    }
   }
 
-  public handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
-    this.currentRoom.handleMouseInput(button, shiftKey, ctrlKey, active, position);
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
+    this.currentRoom.handleMouseInput(e, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

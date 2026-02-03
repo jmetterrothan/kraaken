@@ -62,7 +62,7 @@ class Box2Helper {
 
     this.setUniform("u_color", this.color);
 
-    gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_SHORT, 0);
+    gl.drawArrays(gl.LINE_LOOP, 0, 4);
   }
 
   private setUniform(key: string, value: any) {
@@ -78,16 +78,15 @@ class Box2Helper {
   private setup() {
     gl.useProgram(this.colorMaterial.program);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.bbox.width, this.bbox.height), gl.STATIC_DRAW);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 3]), gl.STATIC_DRAW);
-
     gl.bindVertexArray(this.vao);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.bbox.width, this.bbox.height), gl.DYNAMIC_DRAW);
 
     gl.enableVertexAttribArray(this.attributes.a_position);
     gl.vertexAttribPointer(this.attributes.a_position, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindVertexArray(null);
   }
 }
 

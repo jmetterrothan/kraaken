@@ -15,9 +15,9 @@ export abstract class System {
 
   public handleMouseMove(_coords: Vector2): void {}
 
-  public handleMouseInput(_button: number, _shiftKey: boolean, _ctrlKey: boolean, _active: boolean, _position: vec2): void {}
+  public handleMouseInput(_e: MouseEvent, _active: boolean, _position: vec2): void {}
 
-  public handleKeyboardInput(_key: string, _active: boolean): void {}
+  public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 
   public addedToWorld(world: World): void {
     this._world = world;

@@ -361,15 +361,15 @@ class World {
     this.hitstopRemaining = Math.max(this.hitstopRemaining, s); // stack by max
   }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
     for (let i = 0, n = this._systems.length; i < n; i++) {
-      this._systems[i].handleKeyboardInput(key, active);
+      this._systems[i].handleKeyboardInput(e, active);
     }
   }
 
-  public handleMouseInput(button: number, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
     for (let i = 0, n = this._systems.length; i < n; i++) {
-      this._systems[i].handleMouseInput(button, shiftKey, ctrlKey, active, position);
+      this._systems[i].handleMouseInput(e, active, position);
     }
   }
 

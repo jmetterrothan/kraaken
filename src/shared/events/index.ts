@@ -153,6 +153,14 @@ export const zoomEvent = (scale: number): ZoomEvent => {
   });
 };
 
+export const zoomInEvent = (): ZoomEvent => {
+  return new CustomEvent(GameEventTypes.ZOOM_IN_EVENT, {});
+};
+
+export const zoomOutEvent = (): ZoomEvent => {
+  return new CustomEvent(GameEventTypes.ZOOM_OUT_EVENT, {});
+};
+
 interface IUserJoinedRoomEventDetails {
   uuid: string;
 }

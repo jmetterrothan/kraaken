@@ -24,14 +24,15 @@ import * as GameEventTypes from "@src/shared/events/constants";
 import { driver } from "@src/shared/drivers/DriverFactory";
 import eventStackSvc from "@src/shared/services/EventStackService";
 
-import * as GameEvents from "@src/shared/events";
+import dispatch, * as GameEvents from "@src/shared/events";
 
 import TerrainMode from "./modes/TerrainMode";
 import EntityMode from "./modes/EntityMode";
 import CollisionMode from "./modes/CollisionMode";
 
 import editorStore, { IEditorStoreState } from "./editorStore";
-import MouseButton from "@src/enums/MouseButton";
+
+import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 interface EditorStateOptions {
   levelId: string;
@@ -93,8 +94,6 @@ class EditorState extends State<EditorStateOptions> {
       const cameraComponent = new Components.Camera({
         smoothing: 0.1,
       });
-
-      cameraComponent.boundaries = world.tileMap.getBoundaries();
 
       const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
 
@@ -257,14 +256,35 @@ class EditorState extends State<EditorStateOptions> {
 
   public handleGamepadInput(): void {}
 
-  public handleKeyboardInput(key: string, active: boolean): void {
-    this.currentRoom.world.handleKeyboardInput(key, active);
-    this.currentMode.handleKeyboardInput(key, active);
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
+    this.currentRoom.world.handleKeyboardInput(e, active);
+
+    if (active) {
+      if (matchKeyBinding(keyBindings.editor.undo, e)) {
+        dispatch(GameEvents.undoEvent());
+      } else if (matchKeyBinding(keyBindings.editor.redo, e)) {
+        dispatch(GameEvents.redoEvent());
+      } else if (matchKeyBinding(keyBindings.editor.undo, e)) {
+        dispatch(GameEvents.undoEvent());
+      } else if (matchKeyBinding(keyBindings.editor.zoomOut, e)) {
+        dispatch(GameEvents.zoomOutEvent());
+      } else if (matchKeyBinding(keyBindings.editor.zoomIn, e)) {
+        dispatch(GameEvents.zoomInEvent());
+      } else if (matchKeyBinding(keyBindings.editor.save, e)) {
+        dispatch(GameEvents.saveEvent(this.levelBlueprint.id));
+      } else if (matchKeyBinding(keyBindings.editor.play, e)) {
+        dispatch(GameEvents.playEvent(this.levelBlueprint.id));
+      } else {
+        this.currentMode.handleKeyboardInput(e, active);
+      }
+    } else {
+      this.currentMode.handleKeyboardInput(e, active);
+    }
   }
 
-  public handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseInput(button, shiftKey, ctrlKey, active, position);
-    this.currentMode.handleMouseInput(button, shiftKey, ctrlKey, active, position);
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
+    this.currentRoom.world.handleMouseInput(e, active, position);
+    this.currentMode.handleMouseInput(e, active, position);
   }
 
   public handleMouseMove(position: vec2): void {

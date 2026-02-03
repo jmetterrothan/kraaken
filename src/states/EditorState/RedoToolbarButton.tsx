@@ -3,6 +3,7 @@ import React from "react";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
 import eventStackSvc from "@src/shared/services/EventStackService";
+import keyBindings from "@src/keyBindings";
 
 interface IRedoToolbarButtonProps {
   onClick: () => void;
@@ -29,6 +30,7 @@ const RedoToolbarButton: React.FC<IRedoToolbarButtonProps> = ({ onClick }) => {
     <ToolbarButton
       icon="redo" //
       name="Redo"
+      kbd={keyBindings.editor.redo.toString()}
       active={false}
       disabled={size === 0}
       onClick={onClick}

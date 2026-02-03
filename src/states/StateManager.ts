@@ -31,15 +31,15 @@ class StateManager {
     }
   }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
     if (this.isReady) {
-      this.currentState.handleKeyboardInput(key, active);
+      this.currentState.handleKeyboardInput(e, active);
     }
   }
 
-  public handleMouseInput(button: number, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void {
+  public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
     if (this.isReady) {
-      this.currentState.handleMouseInput(button, shiftKey, ctrlKey, active, position);
+      this.currentState.handleMouseInput(e, active, position);
     }
   }
 

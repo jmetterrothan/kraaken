@@ -2,7 +2,6 @@ import { vec2 } from "gl-matrix";
 
 import { registerEvent } from "@src/shared/utility/Utility";
 import { createRoot, Root } from "react-dom/client";
-import MouseButton from "@src/enums/MouseButton";
 
 abstract class State<O = any> {
   public ready = false;
@@ -43,9 +42,9 @@ abstract class State<O = any> {
 
   public abstract render(alpha: number): void;
 
-  public abstract handleKeyboardInput(key: string, active: boolean): void;
+  public abstract handleKeyboardInput(e: KeyboardEvent, active: boolean): void;
 
-  public abstract handleMouseInput(button: MouseButton, shiftKey: boolean, ctrlKey: boolean, active: boolean, position: vec2): void;
+  public abstract handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void;
 
   public abstract handleMouseMove(position: vec2): void;
 

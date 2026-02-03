@@ -23,6 +23,7 @@ import ZoomToolbarSelect from "./ZoomToolbarSelect";
 
 import editorStore from "./editorStore";
 import { Placeable } from "@src/ECS/components";
+import keyBindings from "@src/keyBindings";
 
 interface EditorUiProps {
   levelId: string;
@@ -64,12 +65,14 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
           />
         </>
       );
+
     case EditorMode.COLLISION:
       return (
         <>
           <ToolbarButton
             icon="brush" //
             name="Place"
+            kbd={keyBindings.editor.place.toString()}
             active={editorState.collisionMode === EditorCollisionMode.PLACE}
             onClick={() => editorStore.setCollisionMode(EditorCollisionMode.PLACE)}
           />
@@ -77,23 +80,27 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
             icon="eraser" //
             name="Erase"
             theme="red"
+            kbd={keyBindings.editor.erase.toString()}
             active={editorState.collisionMode === EditorCollisionMode.ERASE}
             onClick={() => editorStore.setCollisionMode(EditorCollisionMode.ERASE)}
           />
         </>
       );
+
     case EditorMode.TERRAIN:
       return (
         <>
           <ToolbarButton
             icon="brush" //
             name="Place"
+            kbd={keyBindings.editor.place.toString()}
             active={editorState.terrainMode === EditorTerrainMode.PLACE}
             onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PLACE)}
           />
           <ToolbarButton
             icon="fill" //
             name="Fill"
+            kbd={keyBindings.editor.fill.toString()}
             active={editorState.terrainMode === EditorTerrainMode.FILL}
             onClick={() => editorStore.setTerrainMode(EditorTerrainMode.FILL)}
           />
@@ -101,12 +108,14 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
             icon="eraser" //
             name="Erase"
             theme="red"
+            kbd={keyBindings.editor.erase.toString()}
             active={editorState.terrainMode === EditorTerrainMode.ERASE}
             onClick={() => editorStore.setTerrainMode(EditorTerrainMode.ERASE)}
           />
           <ToolbarButton
             icon="eye-dropper" //
             name="Pick"
+            kbd={keyBindings.editor.pick.toString()}
             active={editorState.terrainMode === EditorTerrainMode.PICK}
             onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PICK)}
           />
@@ -132,6 +141,7 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
           />
         </>
       );
+
     default:
       return null;
   }
@@ -235,12 +245,14 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
           <ToolbarButton
             icon="save" //
             name="Save"
+            kbd={keyBindings.editor.save.toString()}
             active={false}
             onClick={() => actions.save(levelId)}
           />
           <ToolbarButton
             icon="play" //
-            name="Play level"
+            name="Play"
+            kbd={keyBindings.editor.play.toString()}
             active={false}
             onClick={() => actions.play(levelId)}
           />

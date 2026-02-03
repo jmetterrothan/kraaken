@@ -26,8 +26,6 @@ export class KnockbackSystem extends System {
       // impulse (platformer-friendly: mostly horizontal + a bit upward)
       rb.velocity.x += nx * dmg.knockback.x;
       rb.velocity.y += ny * dmg.knockback.y;
-
-      console.log(e);
     }
   }
 }

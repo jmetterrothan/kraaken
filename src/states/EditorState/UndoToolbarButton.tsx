@@ -3,6 +3,7 @@ import React from "react";
 import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 
 import eventStackSvc from "@src/shared/services/EventStackService";
+import keyBindings from "@src/keyBindings";
 
 interface IUndoToolbarButtonProps {
   onClick: () => void;
@@ -29,6 +30,7 @@ const UndoToolbarButton: React.FC<IUndoToolbarButtonProps> = ({ onClick }) => {
     <ToolbarButton
       icon="undo" //
       name="Undo"
+      kbd={keyBindings.editor.undo.toString()}
       active={false}
       disabled={size === 0}
       onClick={onClick}

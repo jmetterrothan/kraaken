@@ -1,5 +1,5 @@
 .toolbar-separator {
   display: block;
-  height: 60px;
+  height: var(--toolbar-height);
   border-right: 1px solid #bfc7d4;
 }

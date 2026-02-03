@@ -2,6 +2,7 @@ import config from "@src/config";
 import { System, Entity } from "@src/ECS";
 
 import { BasicInput, Position } from "@src/ECS/components";
+import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 import { buttonPressed } from "@src/shared/utility/Utility";
 
@@ -10,7 +11,7 @@ export class BasicInputSystem extends System {
     super([Position.COMPONENT_TYPE, BasicInput.COMPONENT_TYPE]);
   }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -20,22 +21,14 @@ export class BasicInputSystem extends System {
       if (this.world.controlledEntity === entity) {
         const input = entity.getComponent(BasicInput);
 
-        switch (key) {
-          case "ArrowLeft":
-            input.left = active;
-            break;
-
-          case "ArrowRight":
-            input.right = active;
-            break;
-
-          case "ArrowUp":
-            input.up = active;
-            break;
-
-          case "ArrowDown":
-            input.down = active;
-            break;
+        if (matchKeyBinding(keyBindings.level.left, e)) {
+          input.left = active;
+        } else if (matchKeyBinding(keyBindings.level.right, e)) {
+          input.right = active;
+        } else if (matchKeyBinding(keyBindings.level.up, e)) {
+          input.up = active;
+        } else if (matchKeyBinding(keyBindings.level.down, e)) {
+          input.down = active;
         }
       }
     });

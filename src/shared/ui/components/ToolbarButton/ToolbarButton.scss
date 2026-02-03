@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   min-width: 64px;
-  height: 60px;
+  height: var(--toolbar-height);
   border: none;
   box-shadow: none;
   outline: none;
@@ -16,6 +16,22 @@
 
   &__icon {
     font-size: 1.25rem;
+  }
+
+  &__kbd {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #40506b;
+    color: #40506b;
+    border-radius: 4px;
+    min-width: 0.65rem;
+    height: 0.85rem;
+    padding: 3px;
+    font-size: 0.85rem;
+    margin-left: 0.4rem;
+    font-weight: 600;
+    line-height: auto;
   }
 
   &__inner {
@@ -56,6 +72,11 @@
     cursor: initial;
   }
 
+  &.disabled &__kbd {
+    border-color: #8796af;
+    color: #8796af;
+  }
+
   &--blue {
     &.active,
     &:hover.active {
@@ -72,6 +93,11 @@
 
   &.active,
   &:hover.active {
+    color: #f1f1f1;
+  }
+
+  .active &__kbd {
+    border-color: #f1f1f1;
     color: #f1f1f1;
   }
 }

@@ -8,8 +8,10 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import config from "@src/config";
 import World from "@src/world/World";
-import MouseButton from "@src/enums/MouseButton";
+
 import { vec2 } from "gl-matrix";
+import keyBindings, { matchKeyBinding } from "@src/keyBindings";
+import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 
 export class PlayerInputSystem extends System {
   public constructor() {
@@ -37,7 +39,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleMouseInput(button: MouseButton, _shiftKey: boolean, _ctrlKey: boolean, active: boolean, _position: vec2): void {
+  public handleMouseInput(e: MouseEvent, active: boolean, _position: vec2): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -48,16 +50,14 @@ export class PlayerInputSystem extends System {
         const input = entity.getComponent(PlayerInput);
         const health = entity.getComponent(Health);
 
-        switch (button) {
-          case MouseButton.LEFT: {
-            input.usePrimary = active && health.isAlive;
-          }
+        if (matchMouseBinding(mouseBindings.level.fire, e)) {
+          input.usePrimary = active && health.isAlive;
         }
       }
     });
   }
 
-  public handleKeyboardInput(key: string, active: boolean): void {
+  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
@@ -68,22 +68,14 @@ export class PlayerInputSystem extends System {
         const health = entity.getComponent(Health);
         const input = entity.getComponent(PlayerInput);
 
-        switch (key) {
-          case "ArrowLeft":
-            input.left = active && health.isAlive;
-            break;
-
-          case "ArrowRight":
-            input.right = active && health.isAlive;
-            break;
-
-          case "ArrowUp":
-            input.up = active && health.isAlive;
-            break;
-
-          case "ArrowDown":
-            input.down = active && health.isAlive;
-            break;
+        if (matchKeyBinding(keyBindings.level.left, e)) {
+          input.left = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.right, e)) {
+          input.right = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.up, e)) {
+          input.up = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.down, e)) {
+          input.down = active && health.isAlive;
         }
       }
     });
