@@ -5,11 +5,6 @@ export enum EditorTerrainMode {
   PICK = 3,
 }
 
-export enum EditorCollisionMode {
-  ERASE = 0,
-  PLACE = 1,
-}
-
 export enum EditorMode {
   TERRAIN = 0,
   ENTITY = 1,

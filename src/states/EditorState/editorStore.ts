@@ -1,7 +1,7 @@
 import { Subject, Subscription } from "rxjs";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { EditorMode, EditorTerrainMode, EditorCollisionMode } from "@src/shared/models/editor.model";
+import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -9,7 +9,6 @@ export interface IEditorStoreState {
   scale: number;
   mode: EditorMode;
   terrainMode: EditorTerrainMode;
-  collisionMode: EditorCollisionMode;
   layerId: number;
   tileTypeId: number;
   entityType: string;
@@ -21,7 +20,6 @@ const initialState: IEditorStoreState = {
   scale: 5,
   mode: EditorMode.TERRAIN,
   terrainMode: EditorTerrainMode.PLACE,
-  collisionMode: EditorCollisionMode.PLACE,
   layerId: TileLayer.L1,
   tileTypeId: 502,
   entityType: "alien_bat",
@@ -85,14 +83,6 @@ const editorStore = {
     };
 
     dispatch(GameEvents.zoomEvent(scale));
-    subject.next(state);
-  },
-  setCollisionMode: (collisionMode: IEditorStoreState["collisionMode"]): void => {
-    state = {
-      ...state,
-      collisionMode,
-    };
-
     subject.next(state);
   },
 };

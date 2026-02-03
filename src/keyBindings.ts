@@ -10,7 +10,7 @@ const keyBindings = {
   },
   editor: {
     save: [new KeyBinding({ code: "KeyS", ctrl: true })],
-    play: [new KeyBinding({ code: "KeyP" })],
+    play: [new KeyBinding({ code: "KeyP", ctrl: true })],
     undo: [new KeyBinding({ code: "KeyU" })],
     redo: [new KeyBinding({ code: "KeyR" })],
     zoomIn: [new KeyBinding({ code: "NumpadAdd" })],

@@ -10,7 +10,7 @@ import useTileset from "@src/shared/ui/components/ToolbarTileset/useTileset";
 import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { EditorMode, EditorTerrainMode, EditorCollisionMode } from "@src/shared/models/editor.model";
+import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 import { ILevelBlueprint } from "@src/shared/models/world.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
@@ -67,25 +67,7 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
       );
 
     case EditorMode.COLLISION:
-      return (
-        <>
-          <ToolbarButton
-            icon="brush" //
-            name="Place"
-            kbd={keyBindings.editor.place.toString()}
-            active={editorState.collisionMode === EditorCollisionMode.PLACE}
-            onClick={() => editorStore.setCollisionMode(EditorCollisionMode.PLACE)}
-          />
-          <ToolbarButton
-            icon="eraser" //
-            name="Erase"
-            theme="red"
-            kbd={keyBindings.editor.erase.toString()}
-            active={editorState.collisionMode === EditorCollisionMode.ERASE}
-            onClick={() => editorStore.setCollisionMode(EditorCollisionMode.ERASE)}
-          />
-        </>
-      );
+      return null;
 
     case EditorMode.TERRAIN:
       return (

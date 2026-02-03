@@ -87,7 +87,7 @@ export class PlayerInputSystem extends System {
 
     const controller = controllers[input.gamepadIndex];
 
-    if (controller) {
+    if (controller && controller.connected) {
       const x = controller.axes[0];
       const y = controller.axes[1];
 

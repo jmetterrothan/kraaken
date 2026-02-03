@@ -4,13 +4,11 @@ import { Entity } from "@src/ECS";
 import EditorState from "@src/states/EditorState";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
-import { EditorCollisionMode } from "@src/shared/models/editor.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
 
 import { vec2 } from "gl-matrix";
-import editorStore from "../editorStore";
-import keyBindings, { matchKeyBinding } from "@src/keyBindings";
+
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 
 class CollisionMode {
@@ -44,15 +42,7 @@ class CollisionMode {
 
   public render(_alpha: number): void {}
 
-  public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
-    if (active) {
-      if (matchKeyBinding(keyBindings.editor.place, e)) {
-        editorStore.setCollisionMode(EditorCollisionMode.PLACE);
-      } else if (matchKeyBinding(keyBindings.editor.erase, e)) {
-        editorStore.setCollisionMode(EditorCollisionMode.ERASE);
-      }
-    }
-  }
+  public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
     if (active) {
