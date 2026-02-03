@@ -36,6 +36,10 @@ export interface ITile {
   setTileTypeId(layer: TileLayer, id: number): void;
 }
 
+export const isTile = (value: unknown): value is ITile => {
+  return typeof value === "object" && value !== null && "row" in value && "col" in value;
+};
+
 export interface ITileTypeData {
   key?: string;
   row: number;

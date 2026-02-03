@@ -73,7 +73,7 @@ export class CameraSystem extends System {
     if (camera.target.hasComponent("rigid_body")) {
       const rb = camera.target.getComponent(RigidBody);
       desiredLookPxX = clamp(rb.velocity.x * camera.lookAheadVelToPx, -camera.lookAheadMaxPx, camera.lookAheadMaxPx);
-      desiredLookPxY = clamp(rb.velocity.y * camera.lookAheadVelToPx * 0.35, -camera.lookAheadMaxPx, camera.lookAheadMaxPx); // usually less vertical
+      desiredLookPxY = clamp(rb.velocity.y * camera.lookAheadVelToPx, -camera.lookAheadMaxPx, camera.lookAheadMaxPx);
     }
 
     const zoom = configSvc.scale;

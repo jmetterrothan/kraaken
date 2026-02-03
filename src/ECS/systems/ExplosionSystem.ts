@@ -1,3 +1,4 @@
+import config from "@src/config";
 import { System } from "@src/ECS";
 
 import { Position, Explosion, Health, BoundingBox, Animator, DamageEvent } from "@src/ECS/components";
@@ -57,13 +58,16 @@ export class ExplosionSystem extends System {
         if (dist > explosion.radius) continue;
 
         const k = 1 - clamp(dist / explosion.maxRadius, 0, 1);
-        const damage = Math.min(Math.max(1, Math.round(explosion.damage * k)), explosion.damage);
-        const knockback = Math.min(Math.max(0, Math.round(explosion.knockback * k)), explosion.knockback);
+        const damage = clamp(Math.round(explosion.damage * k), 1, explosion.damage);
+
+        const knockback = { x: explosion.knockback * k, y: explosion.knockback * Math.sqrt(k) };
 
         health.value -= damage;
         target.addComponent(new DamageEvent({ amount: damage, isKill: health.isDead, hitstop: false, cameraShake: true, source: position.clone(), knockback }));
 
-        // console.log(`${damage} damage inflicted\n(dist = ${dist}, r = ${explosion.radius})\n${target}`);
+        if (config.DEBUG) {
+          console.log(`${damage} damage inflicted\n(kx = ${knockback?.x ?? 0} ky = ${knockback?.y ?? 0}, dist = ${dist}, r = ${explosion.radius})\n${target}`);
+        }
 
         explosion.markAsHit(target);
       }

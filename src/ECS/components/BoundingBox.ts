@@ -2,7 +2,7 @@ import { mat3, vec4 } from "gl-matrix";
 
 import { Component } from "@src/ECS";
 
-import BoundingBoxHelper from "@src/shared/helper/BoundingBoxHelper";
+import Box2Helper from "@src/shared/helper/Box2Helper";
 
 import Box2 from "@src/shared/math/Box2";
 
@@ -16,7 +16,7 @@ interface IBoundingBoxMetadata {
 export class BoundingBox extends Box2 implements Component {
   public static COMPONENT_TYPE = "bounding_box";
 
-  public helper: BoundingBoxHelper;
+  public helper: Box2Helper;
 
   public debug: boolean;
 
@@ -25,7 +25,7 @@ export class BoundingBox extends Box2 implements Component {
 
     this.debug = debug;
 
-    this.helper = new BoundingBoxHelper(this, color);
+    this.helper = new Box2Helper(this, color);
     this.helper.init();
   }
 

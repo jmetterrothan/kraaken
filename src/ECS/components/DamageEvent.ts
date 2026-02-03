@@ -1,13 +1,14 @@
 import { Component } from "@src/ECS";
 import Vector2 from "@src/shared/math/Vector2";
+import { IVector2 } from "@src/shared/models/math.model";
 
 type IDamageEventMetadata = {
   amount: number;
   isKill: boolean;
   hitstop: boolean;
   cameraShake: boolean;
-  source?: Vector2;
-  knockback?: number;
+  source?: IVector2;
+  knockback?: IVector2;
   ignoreMass?: boolean;
 };
 
@@ -19,7 +20,7 @@ export class DamageEvent extends Component {
   public hitstop: boolean;
   public cameraShake: boolean;
   public source?: Vector2;
-  public knockback?: number;
+  public knockback: Vector2;
   public ignoreMass?: boolean;
 
   constructor(metadata: IDamageEventMetadata) {
@@ -29,8 +30,8 @@ export class DamageEvent extends Component {
     this.isKill = metadata.isKill ?? false;
     this.hitstop = metadata.hitstop ?? false;
     this.cameraShake = metadata.cameraShake ?? false;
-    this.source = metadata.source;
-    this.knockback = metadata.knockback ?? 0;
+    this.source = metadata.source ? Vector2.create(metadata.source.x, metadata.source.y) : undefined;
+    this.knockback = Vector2.create(metadata.knockback?.x ?? 0, metadata.knockback?.y ?? 0);
     this.ignoreMass = metadata.ignoreMass ?? false;
   }
 

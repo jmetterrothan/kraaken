@@ -42,7 +42,7 @@ class ComponentFactory {
       case "flying_ai":
         return new Components.FlyingAI(metadata);
       case "collider":
-        return new Components.Collider();
+        return new Components.Collider(metadata);
       case "damage_event":
         return new Components.DamageEvent(metadata);
       case "explosion":

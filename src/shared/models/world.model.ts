@@ -36,7 +36,7 @@ export type IGameEvent = {
 
 export interface IEventZone {
   mode: "contains" | "intersects";
-  debug: boolean;
+  debug?: boolean;
   position: IVector2;
   width: number;
   height: number;

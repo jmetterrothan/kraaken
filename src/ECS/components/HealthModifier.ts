@@ -12,7 +12,7 @@ interface IHealthModifierMetadata extends IConsummableMetadata {
 
 export class HealthModifier extends Consummable {
   public readonly amount: number;
-  public readonly knockback: number;
+  public readonly knockback?: number;
 
   public constructor(metadata: IHealthModifierMetadata = {}) {
     super(metadata);
@@ -35,7 +35,7 @@ export class HealthModifier extends Consummable {
           isKill: health.isDead,
           hitstop: !entity.hasComponent(PlayerInput.COMPONENT_TYPE),
           cameraShake: true,
-          knockback: this.knockback,
+          knockback: { x: this.knockback ?? 0, y: this.knockback ?? 0 },
           source: at ?? undefined,
         })
       );

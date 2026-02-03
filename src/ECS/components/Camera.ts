@@ -7,6 +7,7 @@ import Box2 from "@src/shared/math/Box2";
 import Vector2 from "@src/shared/math/Vector2";
 
 import { configSvc } from "@src/shared/services/ConfigService";
+import Box2Helper from "@src/shared/helper/Box2Helper";
 
 interface ICameraMetadata {
   smoothing?: number;
@@ -96,6 +97,12 @@ export class Camera implements Component {
 
   public lookAhead = Vector2.create(0, 0);
 
+  private _deadzoneWidth: number;
+  private _deadzoneHeight: number;
+
+  public deadzoneBox: Box2;
+  public deadzoneHelper: Box2Helper;
+
   public constructor({ smoothing, lookAheadMaxPx, lookAheadVelToPx, lookAheadSmoothing, clampSmoothing, deadzoneWFrac, deadzoneHFrac }: ICameraMetadata) {
     this.smoothing = smoothing ?? 0.1;
     this.lookAheadMaxPx = lookAheadMaxPx ?? 0;
@@ -106,6 +113,11 @@ export class Camera implements Component {
     this.deadzoneHFrac = deadzoneHFrac ?? 0;
 
     this.shake = new CameraShake();
+
+    this.deadzoneBox = new Box2();
+    this.deadzoneHelper = new Box2Helper(this.deadzoneBox, [0.2, 1.0, 0.2, 1.0]);
+
+    this.deadzoneHelper.init();
   }
 
   public clamp(position: Position): void {
@@ -153,6 +165,35 @@ export class Camera implements Component {
 
   public shakeOnce(px = 8, ms = 200, freqHz = 35): void {
     this.shake.shakeOnce(px, ms, freqHz);
+  }
+
+  public renderDebug(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
+    // If viewBox is world-space camera rect:
+    const vw = this.viewBox.width;
+    const vh = this.viewBox.height;
+
+    const dzW = vw * this.deadzoneWFrac;
+    const dzH = vh * this.deadzoneHFrac;
+
+    const x1 = this.viewBox.x1 + (vw - dzW) * 0.5;
+    const y1 = this.viewBox.y1 + (vh - dzH) * 0.5;
+
+    if (dzW !== this._deadzoneWidth || dzH !== this._deadzoneHeight) {
+      this.deadzoneHelper.resize(dzW, dzH);
+
+      this._deadzoneWidth = dzW;
+      this._deadzoneHeight = dzH;
+    }
+
+    // Update Box2 (world coords)
+    this.deadzoneBox.setMin(x1, y1);
+    this.deadzoneBox.setMax(x1 + dzW, y1 + dzH);
+
+    const model = mat3.create();
+    mat3.fromTranslation(model, [this.deadzoneBox.x1, this.deadzoneBox.y1]);
+
+    this.deadzoneHelper.use();
+    this.deadzoneHelper.render(projectionMatrix, viewMatrix, model);
   }
 
   public toString(): string {

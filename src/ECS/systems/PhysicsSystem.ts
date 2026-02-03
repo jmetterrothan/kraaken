@@ -30,12 +30,11 @@ export class PhysicsSystem extends System {
       return;
     }
 
-    const colliders = this.world.getEntities([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Collider.COMPONENT_TYPE]);
-
     entities.forEach((entity) => {
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
       const rigidBody = entity.getComponent(RigidBody);
+      const movement = entity.getComponent(Movement);
 
       // save previous velocity/pos for later
       position.previousValue.copy(position);
@@ -54,11 +53,20 @@ export class PhysicsSystem extends System {
       const step = Vector2.create(rigidBody.velocity.x, rigidBody.velocity.y).multiply(rigidBody.velocityModifier).multiplyScalar(delta);
       position.add(step);
 
-      this.collideWithMap(entity, step, delta);
+      if (movement) {
+        movement.isBlockedLeft = false;
+        movement.isBlockedRight = false;
+        movement.isBlockedUp = false;
+        movement.isBlockedDown = false;
+      }
+
+      const colliders = this.world.getEntities([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Collider.COMPONENT_TYPE]);
 
       if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
         this.collideWithBoundingBox(entity, colliders, step, delta);
       }
+
+      this.collideWithMap(entity, step, delta);
 
       if (rigidBody.clampToMap) {
         this.clampToMap(entity);
@@ -80,7 +88,7 @@ export class PhysicsSystem extends System {
         }
       }
 
-      rigidBody.isGrounded = this.isOnSolidTile(entity);
+      rigidBody.isGrounded = this.isOnSolidTile(entity) || this.isOnSolidCollider(entity, colliders);
 
       Vector2.destroy(step);
     });
@@ -136,6 +144,7 @@ export class PhysicsSystem extends System {
       if (rigidBody.reflectAngle) {
         position.rotation = Math.atan2(r.y, r.x);
       }
+
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
       if (rigidBody.velocity.x > 0) {
@@ -194,6 +203,7 @@ export class PhysicsSystem extends System {
       if (rigidBody.reflectAngle) {
         position.rotation = Math.atan2(r.y, r.x);
       }
+
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
       Vector2.destroy(n);
@@ -227,20 +237,196 @@ export class PhysicsSystem extends System {
       rigidBody.velocity.x = 0;
     }
   }
+  private overlaps(a1: number, a2: number, b1: number, b2: number): boolean {
+    return a1 < b2 && a2 > b1;
+  }
 
-  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], _step: Vector2, _delta: number): void {
+  public collideWithBoundingBox(entity: Entity, colliders: readonly Entity[], _step: Vector2, delta: number): void {
+    const position = entity.getComponent(Position);
+    const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
-    // const rigidBody = entity.getComponent(RigidBody);
+    const collider = entity.getComponent(Collider);
+    const movement = entity.hasComponent(Movement.COMPONENT_TYPE) ? entity.getComponent(Movement) : null;
 
-    colliders.forEach((collider) => {
-      if (collider.uuid === entity.uuid) {
-        return;
-      }
+    if (!rigidBody.collide) return;
 
-      if (bbox.intersectBox(collider.getComponent(BoundingBox))) {
-        // console.log("colliding", entity.type, collider.type);
-      }
+    const w = bbox.width;
+    const h = bbox.height;
+    const halfW = w / 2;
+    const halfH = h / 2;
+    const eps = 0.01;
+
+    // IMPORTANT: use actual displacement (position may have been corrected by collideWithMap)
+    const dx = position.x - position.previousValue.x;
+    const dy = position.y - position.previousValue.y;
+
+    // Helpers to read entity AABB from center position
+    const aabbAt = (cx: number, cy: number) => ({
+      x1: cx - halfW,
+      x2: cx + halfW,
+      y1: cy - halfH,
+      y2: cy + halfH,
     });
+
+    // -------------------------
+    // 1) Resolve Y (like map)
+    // -------------------------
+    if (dy !== 0) {
+      const prev = aabbAt(position.previousValue.x, position.previousValue.y);
+      const cur = aabbAt(position.x, position.y);
+
+      let hit: BoundingBox | null = null;
+
+      if (dy > 0) {
+        // moving DOWN: bottom crosses collider top (collider.y1)
+        // choose nearest => smallest collider.y1 in [prevBottom, curBottom]
+        let bestY1 = Number.POSITIVE_INFINITY;
+
+        for (const c of colliders) {
+          if (c.uuid === entity.uuid) continue;
+
+          const cc = c.getComponent(Collider);
+          if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
+
+          const cPos = c.getComponent(Position);
+          const cBox = c.getComponent(BoundingBox);
+
+          // make sure collider bbox is in sync (cheap and avoids stale values)
+          cBox.setPositionFromVector2(cPos);
+
+          if (!this.overlaps(cur.x1, cur.x2, cBox.x1, cBox.x2)) continue;
+
+          const prevBottom = prev.y2;
+          const curBottom = cur.y2;
+
+          if (prevBottom <= cBox.y1 && curBottom >= cBox.y1) {
+            if (cBox.y1 < bestY1) {
+              bestY1 = cBox.y1;
+              hit = cBox;
+            }
+          }
+        }
+
+        if (hit) {
+          position.y = hit.y1 - halfH - eps;
+          this.handleCollisionWithBottomSide(entity, hit, delta);
+          if (movement) movement.isBlockedDown = true;
+        }
+      } else {
+        // moving UP: top crosses collider bottom (collider.y2)
+        // choose nearest => largest collider.y2 in [curTop, prevTop]
+        let bestY2 = Number.NEGATIVE_INFINITY;
+
+        for (const c of colliders) {
+          if (c.uuid === entity.uuid) continue;
+
+          const cc = c.getComponent(Collider);
+          if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
+
+          const cPos = c.getComponent(Position);
+          const cBox = c.getComponent(BoundingBox);
+          cBox.setPositionFromVector2(cPos);
+
+          if (!this.overlaps(cur.x1, cur.x2, cBox.x1, cBox.x2)) continue;
+
+          const prevTop = prev.y1;
+          const curTop = cur.y1;
+
+          if (prevTop >= cBox.y2 && curTop <= cBox.y2) {
+            if (cBox.y2 > bestY2) {
+              bestY2 = cBox.y2;
+              hit = cBox;
+            }
+          }
+        }
+
+        if (hit) {
+          position.y = hit.y2 + halfH + eps;
+          this.handleCollisionWithTopSide(entity, hit, delta);
+          if (movement) movement.isBlockedUp = true;
+        }
+      }
+    }
+
+    // -------------------------
+    // 2) Resolve X (like map)
+    // -------------------------
+    if (dx !== 0) {
+      const prev = aabbAt(position.previousValue.x, position.previousValue.y);
+      const cur = aabbAt(position.x, position.y); // uses y possibly corrected above
+
+      let hit: BoundingBox | null = null;
+
+      if (dx > 0) {
+        // moving RIGHT: right crosses collider left (collider.x1)
+        // choose nearest => smallest collider.x1 in [prevRight, curRight]
+        let bestX1 = Number.POSITIVE_INFINITY;
+
+        for (const c of colliders) {
+          if (c.uuid === entity.uuid) continue;
+
+          const cc = c.getComponent(Collider);
+          if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
+
+          const cPos = c.getComponent(Position);
+          const cBox = c.getComponent(BoundingBox);
+          cBox.setPositionFromVector2(cPos);
+
+          if (!this.overlaps(cur.y1, cur.y2, cBox.y1, cBox.y2)) continue;
+
+          const prevRight = prev.x2;
+          const curRight = cur.x2;
+
+          if (prevRight <= cBox.x1 && curRight >= cBox.x1) {
+            if (cBox.x1 < bestX1) {
+              bestX1 = cBox.x1;
+              hit = cBox;
+            }
+          }
+        }
+
+        if (hit) {
+          position.x = hit.x1 - halfW - eps;
+          // keep same convention as collideWithMap: moving right -> handleCollisionWithLeftSide
+          this.handleCollisionWithLeftSide(entity, hit, delta);
+          if (movement) movement.isBlockedRight = true;
+        }
+      } else {
+        // moving LEFT: left crosses collider right (collider.x2)
+        // choose nearest => largest collider.x2 in [curLeft, prevLeft]
+        let bestX2 = Number.NEGATIVE_INFINITY;
+
+        for (const c of colliders) {
+          if (c.uuid === entity.uuid) continue;
+
+          const cc = c.getComponent(Collider);
+          if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
+
+          const cPos = c.getComponent(Position);
+          const cBox = c.getComponent(BoundingBox);
+          cBox.setPositionFromVector2(cPos);
+
+          if (!this.overlaps(cur.y1, cur.y2, cBox.y1, cBox.y2)) continue;
+
+          const prevLeft = prev.x1;
+          const curLeft = cur.x1;
+
+          if (prevLeft >= cBox.x2 && curLeft <= cBox.x2) {
+            if (cBox.x2 > bestX2) {
+              bestX2 = cBox.x2;
+              hit = cBox;
+            }
+          }
+        }
+
+        if (hit) {
+          position.x = hit.x2 + halfW + eps;
+          // keep same convention as collideWithMap: moving left -> handleCollisionWithRightSide
+          this.handleCollisionWithRightSide(entity, hit, delta);
+          if (movement) movement.isBlockedLeft = true;
+        }
+      }
+    }
   }
 
   public collideWithMap(entity: Entity, step: Vector2, delta: number): void {
@@ -248,13 +434,6 @@ export class PhysicsSystem extends System {
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
     const movement = entity.getComponent(Movement);
-
-    if (movement) {
-      movement.isBlockedLeft = false;
-      movement.isBlockedRight = false;
-      movement.isBlockedUp = false;
-      movement.isBlockedDown = false;
-    }
 
     const w = bbox?.width ?? 0;
     const h = bbox?.height ?? 0;
@@ -276,8 +455,8 @@ export class PhysicsSystem extends System {
           position.y = tile.position.y - halfH - 0.01;
           this.handleCollisionWithBottomSide(entity, tile, delta);
         }
-        if (movement) {
-          movement.isBlockedDown = !!tile;
+        if (movement && !!tile) {
+          movement.isBlockedDown = true;
         }
       } else if (step.y < 0) {
         // bottom side collision
@@ -287,8 +466,8 @@ export class PhysicsSystem extends System {
           position.y = tile.position.y + tileSize + halfH + 0.01;
           this.handleCollisionWithTopSide(entity, tile, delta);
         }
-        if (movement) {
-          movement.isBlockedUp = !!tile;
+        if (movement && !!tile) {
+          movement.isBlockedUp = true;
         }
       }
 
@@ -306,8 +485,8 @@ export class PhysicsSystem extends System {
           position.x = tile.position.x - halfW - 0.01;
           this.handleCollisionWithLeftSide(entity, tile, delta);
         }
-        if (movement) {
-          movement.isBlockedRight = !!tile;
+        if (movement && !!tile) {
+          movement.isBlockedRight = true;
         }
       } else if (step.x < 0) {
         // right side collision
@@ -317,11 +496,37 @@ export class PhysicsSystem extends System {
           position.x = tile.position.x + tileSize + halfW + 0.01;
           this.handleCollisionWithRightSide(entity, tile, delta);
         }
-        if (movement) {
-          movement.isBlockedLeft = !!tile;
+        if (movement && !!tile) {
+          movement.isBlockedLeft = true;
         }
       }
     }
+  }
+
+  private isOnSolidCollider(entity: Entity, colliders: readonly Entity[]): boolean {
+    const rb = entity.getComponent(RigidBody);
+    const collider = entity.getComponent(Collider);
+    const bbox = entity.getComponent(BoundingBox);
+
+    if (rb.velocity.y < 0) return false; // not moving upward
+
+    for (const c of colliders) {
+      if (c.uuid === entity.uuid) continue;
+
+      const cc = c.getComponent(Collider);
+      if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
+
+      const colliderPosition = c.getComponent(Position);
+      const colliderBbox = c.getComponent(BoundingBox);
+      colliderBbox.setPositionFromVector2(colliderPosition);
+
+      const closeEnough = Math.abs(colliderBbox.y1 - bbox.y2) <= 0.5;
+      const xOverlap = bbox.x1 < colliderBbox.x2 && bbox.x2 > colliderBbox.x1;
+
+      if (closeEnough && xOverlap) return true;
+    }
+
+    return false;
   }
 
   public isOnSolidTile(entity: Entity): boolean {

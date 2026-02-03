@@ -20,6 +20,7 @@ import editorStore from "../EditorState/editorStore";
 import LevelUi from "./LevelUi";
 import MouseButton from "@src/enums/MouseButton";
 import { Entity } from "@src/ECS/Entity";
+import config from "@src/config";
 
 interface LevelStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
@@ -44,7 +45,7 @@ class LevelState extends State<LevelStateOptions> {
     }
 
     await this.levelBlueprint.rooms.forEach(async ({ id }) => {
-      const world = new World(id, this.levelBlueprint);
+      const world = new World(id, this.levelBlueprint, { showZones: config.DEBUG });
 
       world.addSystem(new Systems.PlayerInputSystem());
       world.addSystem(new Systems.MovementSystem());
@@ -63,10 +64,10 @@ class LevelState extends State<LevelStateOptions> {
       const cameraComponent = new Components.Camera({
         smoothing: 0.1,
         lookAheadMaxPx: 80,
-        lookAheadVelToPx: 0.12,
+        lookAheadVelToPx: 0.1,
         lookAheadSmoothing: 0.18,
         deadzoneWFrac: 0.2,
-        deadzoneHFrac: 0.2,
+        deadzoneHFrac: 0.35,
         clampSmoothing: 0.2,
       });
 

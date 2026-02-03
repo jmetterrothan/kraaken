@@ -347,6 +347,7 @@ class World {
 
     if (config.DEBUG) {
       this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+      camera.renderDebug(this.projectionMatrix, camera.viewMatrix, alpha);
     }
 
     if (this.options.showGrid) {

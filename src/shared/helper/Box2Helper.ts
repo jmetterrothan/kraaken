@@ -12,7 +12,7 @@ import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 import fsColor from "@src/assets/shaders/color.fs.glsl?raw";
 import vsObject from "@src/assets/shaders/color.vs.glsl?raw";
 
-class BoundingBoxHelper {
+class Box2Helper {
   private colorMaterial: Material = new Material(vsObject, fsColor);
 
   private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
@@ -62,12 +62,17 @@ class BoundingBoxHelper {
 
     this.setUniform("u_color", this.color);
 
-    gl.drawElements(gl.LINE_LOOP, 6, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.LINE_LOOP, 4, gl.UNSIGNED_SHORT, 0);
   }
 
   private setUniform(key: string, value: any) {
     this.uniforms[key].value = value;
     WebGL2H.setUniform(gl, this.uniforms[key]);
+  }
+
+  public resize(width: number, height: number) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, width, height), gl.DYNAMIC_DRAW);
   }
 
   private setup() {
@@ -77,7 +82,7 @@ class BoundingBoxHelper {
     gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, this.bbox.width, this.bbox.height), gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([3, 2, 1, 3, 1, 0]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 3]), gl.STATIC_DRAW);
 
     gl.bindVertexArray(this.vao);
 
@@ -86,4 +91,4 @@ class BoundingBoxHelper {
   }
 }
 
-export default BoundingBoxHelper;
+export default Box2Helper;

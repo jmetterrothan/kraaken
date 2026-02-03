@@ -1,5 +1,5 @@
 import { System } from "@src/ECS";
-import { DamageEvent, Position, RigidBody, Movement } from "@src/ECS/components";
+import { DamageEvent, Position, RigidBody } from "@src/ECS/components";
 
 export class KnockbackSystem extends System {
   constructor() {
@@ -24,21 +24,10 @@ export class KnockbackSystem extends System {
       const ny = dy / len;
 
       // impulse (platformer-friendly: mostly horizontal + a bit upward)
-      const kb = dmg.knockback;
+      rb.velocity.x += nx * dmg.knockback.x;
+      rb.velocity.y += ny * dmg.knockback.y;
 
-      rb.velocity.x += nx * kb;
-      rb.velocity.y += ny * kb - 25;
-
-      // optional: clamp so it doesn't become insane
-      const max = 900;
-      rb.velocity.x = Math.max(-max, Math.min(max, rb.velocity.x));
-      rb.velocity.y = Math.max(-max, Math.min(max, rb.velocity.y));
-
-      // optional: short stun so input doesn't immediately cancel it
-      if (e.hasComponent(Movement.COMPONENT_TYPE)) {
-        // const mv = e.getComponent(Movement);
-        //  mv.stunMs = Math.max(mv.stunMs ?? 0, 90); // add this field if you want
-      }
+      console.log(e);
     }
   }
 }

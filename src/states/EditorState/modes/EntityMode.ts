@@ -14,6 +14,7 @@ import eventStackSvc from "@src/shared/services/EventStackService";
 import MouseButton from "@src/enums/MouseButton";
 
 import { vec2 } from "gl-matrix";
+import editorStore from "../editorStore";
 
 const snapToTileCenter = (value: number, tileSize: number) => {
   return Math.floor(value / tileSize) * tileSize + tileSize / 2;
@@ -189,6 +190,7 @@ class EntityMode {
               placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
 
               this.selectedEntity = this.focusedEntity;
+              editorStore.setSelectedEntityType(this.selectedEntity.type);
             } else {
               driver.spawn(
                 {
