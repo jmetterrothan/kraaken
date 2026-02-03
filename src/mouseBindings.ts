@@ -1,5 +1,5 @@
 import MouseButton from "./enums/MouseButton";
-import MouseBinding from "./shared/utility/MouseBinding";
+import MouseBinding from "./shared/bindings/MouseBinding";
 
 const mouseBindings = {
   level: {

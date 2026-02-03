@@ -1,4 +1,4 @@
-import GamepadBinding from "./shared/utility/GamepadBinding";
+import GamepadBinding from "./shared/bindings/GamepadBinding";
 
 /*
 case 0: // A

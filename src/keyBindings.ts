@@ -1,4 +1,4 @@
-import KeyBinding from "./shared/utility/KeyBinding";
+import KeyBinding from "./shared/bindings/KeyBinding";
 
 const keyBindings = {
   level: {
@@ -6,7 +6,7 @@ const keyBindings = {
     right: [new KeyBinding({ code: "ArrowRight" }), new KeyBinding({ code: "KeyD" })],
     up: [new KeyBinding({ code: "ArrowUp" }), new KeyBinding({ code: "KeyW" })],
     down: [new KeyBinding({ code: "ArrowDown" }), new KeyBinding({ code: "KeyS" })],
-    edit: [new KeyBinding({ code: "KeyP", ctrl: true })],
+    edit: [new KeyBinding({ code: "KeyE", ctrl: true })],
   },
   editor: {
     save: [new KeyBinding({ code: "KeyS", ctrl: true })],
