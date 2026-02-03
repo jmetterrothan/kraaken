@@ -6,12 +6,12 @@ import { buttonPressed } from "@src/shared/utility/Utility";
 
 import Vector2 from "@src/shared/math/Vector2";
 
-import config from "@src/config";
 import World from "@src/world/World";
 
 import { vec2 } from "gl-matrix";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
+import gamepadBindings, { matchGamepadBinding } from "@src/gamepadBindings";
 
 export class PlayerInputSystem extends System {
   public constructor() {
@@ -115,54 +115,14 @@ export class PlayerInputSystem extends System {
       controller.buttons.forEach((button, index) => {
         const active = buttonPressed(button);
 
-        switch (index) {
-          case 0: // A
-            input.up = active && health.isAlive;
-            break;
-
-          case 1: // B
-            break;
-
-          case 2: // X
-            input.usePrimary = active && health.isAlive;
-            break;
-
-          case 3: // Y
-            input.useSecondary = active && health.isAlive;
-            break;
-
-          case 4: // LB
-            break;
-
-          case 5: // RB
-            break;
-
-          case 6: // LT
-            input.hold = active && health.isAlive;
-            break;
-
-          case 7: // RT
-            break;
-
-          case 10: // axis button
-            break;
-
-          case 12: // up arrow
-            break;
-
-          case 13: // down arrow
-            break;
-
-          case 14: // left arrow
-            break;
-
-          case 15: // right arrow
-            break;
-
-          default:
-            if (active && config.DEBUG) {
-              console.log(`Unmapped index: ${index}`);
-            }
+        if (matchGamepadBinding(gamepadBindings.level.usePrimaryWeapon, index)) {
+          input.usePrimary = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.useSecondaryWeapon, index)) {
+          input.useSecondary = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.jump, index)) {
+          input.up = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.hold, index)) {
+          input.hold = active && health.isAlive;
         }
       });
     }

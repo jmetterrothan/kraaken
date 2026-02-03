@@ -1,7 +1,7 @@
-import config from "@src/config";
 import { System, Entity } from "@src/ECS";
 
 import { BasicInput, Position } from "@src/ECS/components";
+import gamepadBindings, { matchGamepadBinding } from "@src/gamepadBindings";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 import { buttonPressed } from "@src/shared/utility/Utility";
@@ -54,54 +54,14 @@ export class BasicInputSystem extends System {
       controller.buttons.forEach((button, index) => {
         const active = buttonPressed(button);
 
-        switch (index) {
-          case 0: // A
-            break;
-
-          case 1: // B
-            break;
-
-          case 2: // X
-            break;
-
-          case 3: // Y
-            break;
-
-          case 4: // LB
-            break;
-
-          case 5: // RB
-            break;
-
-          case 6: // LT
-            break;
-
-          case 7: // RT
-            break;
-
-          case 10: // axis button
-            break;
-
-          case 12: // up arrow
-            input.up = input.up || active;
-            break;
-
-          case 13: // down arrow
-            input.down = input.down || active;
-            break;
-
-          case 14: // left arrow
-            input.left = input.left || active;
-            break;
-
-          case 15: // right arrow
-            input.right = input.right || active;
-            break;
-
-          default:
-            if (active && config.DEBUG) {
-              console.log(`Unmapped index: ${index}`);
-            }
+        if (matchGamepadBinding(gamepadBindings.editor.up, index)) {
+          input.up = input.up || active;
+        } else if (matchGamepadBinding(gamepadBindings.editor.down, index)) {
+          input.down = input.down || active;
+        } else if (matchGamepadBinding(gamepadBindings.editor.left, index)) {
+          input.left = input.left || active;
+        } else if (matchGamepadBinding(gamepadBindings.editor.right, index)) {
+          input.right = input.right || active;
         }
       });
     }

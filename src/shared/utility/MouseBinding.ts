@@ -12,12 +12,12 @@ class MouseBinding {
   }
 
   public match(e: MouseEvent) {
-    const match = e.button === this.button;
-    if (match) {
+    const matching = e.button === this.button;
+    if (matching) {
       e.preventDefault();
       e.stopPropagation();
     }
-    return this.match;
+    return matching;
   }
 
   public toString() {

@@ -57,7 +57,13 @@ class KeyBinding {
   }
 
   public match(e: KeyboardEvent) {
-    return e.code === this.code && e.shiftKey === this.shift && e.ctrlKey === this.ctrl && e.altKey === this.alt && e.metaKey === this.meta;
+    const matching = e.code === this.code && e.shiftKey === this.shift && e.ctrlKey === this.ctrl && e.altKey === this.alt && e.metaKey === this.meta;
+
+    if (matching) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    return matching;
   }
 
   public toString() {
