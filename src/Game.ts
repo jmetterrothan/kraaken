@@ -21,6 +21,8 @@ import config from "@src/config";
 
 import "@src/assets/sass/kraaken.scss";
 import { clamp } from "./shared/utility/MathHelpers";
+import { debugSvc } from "./shared/services/Debug";
+import { DebugFlag } from "./enums/DebugFlag";
 
 const instanceSym = Symbol("instance");
 
@@ -60,6 +62,8 @@ class Game {
     if (!(Game[instanceSym] instanceof Game)) {
       Game[instanceSym] = new Game({ ...Game.DEFAULT_OPTIONS, ...options });
       Game[instanceSym].init(levelId);
+
+      console.log("Debug flags:", debugSvc.flags);
     }
     return Game[instanceSym];
   }
@@ -106,10 +110,8 @@ class Game {
 
     this.targetScale = 1;
 
-    if (config.DEBUG) {
-      this.stats = new Stats();
-      this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
-    }
+    this.stats = new Stats();
+    this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
 
     this.ups = 0;
 
@@ -198,9 +200,7 @@ class Game {
   }
 
   public run(): void {
-    if (config.DEBUG) {
-      this.stats.begin();
-    }
+    this.stats.begin();
 
     if (!this.paused) {
       const time = window.performance.now();
@@ -209,9 +209,8 @@ class Game {
       if (time > this.nextTime) {
         this.nextTime += 1000;
 
-        if (config.DEBUG) {
-          this.upsPanel.update(this.ups);
-        }
+        this.upsPanel.update(this.ups);
+
         this.ups = 0;
       }
 
@@ -234,9 +233,8 @@ class Game {
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);
-    if (config.DEBUG) {
-      this.stats.end();
-    }
+
+    this.stats.end();
 
     window.requestAnimationFrame(this.loop);
   }
@@ -249,16 +247,25 @@ class Game {
     this.initEvents();
 
     // Stats
-    if (config.DEBUG) {
-      this.stats.showPanel(0);
-      this.stats.dom.style.position = "absolute";
-      this.stats.dom.style.top = "unset";
-      this.stats.dom.style.bottom = 0;
-      this.stats.dom.style.left = "unset";
-      this.stats.dom.style.right = 0;
+    this.stats.dom.style.position = "absolute";
+    this.stats.dom.style.top = "unset";
+    this.stats.dom.style.bottom = 0;
+    this.stats.dom.style.left = "unset";
+    this.stats.dom.style.right = 0;
+    this.stats.showPanel(-1);
 
-      wrapper.appendChild(this.stats.dom);
+    [...this.stats.dom.children].forEach((c) => {
+      c.style.display = "block";
+      c.style.verticalAlign = "top";
+    });
+
+    if (debugSvc.enabled(DebugFlag.STATS)) {
+      this.stats.dom.style.display = "initial";
+    } else {
+      this.stats.dom.style.display = "none";
     }
+
+    wrapper.appendChild(this.stats.dom);
 
     // State manager
     this.stateManager.add(GameStates.MENU, new MenuState());
@@ -333,6 +340,42 @@ class Game {
       "keydown",
       (e) => {
         switch (e.code) {
+          case "F1":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.STATS);
+
+            if (debugSvc.enabled(DebugFlag.STATS)) {
+              this.stats.dom.style.display = "initial";
+            } else {
+              this.stats.dom.style.display = "none";
+            }
+            break;
+
+          case "F2":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.CAMERA);
+            break;
+
+          case "F3":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.GRID);
+            break;
+
+          case "F4":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.COLLISION);
+            break;
+
+          case "F5":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.ENTITIES);
+            break;
+
           case "F11":
             e.preventDefault();
             e.stopPropagation();

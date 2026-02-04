@@ -1,7 +1,8 @@
-import config from "@src/config";
 import { System } from "@src/ECS";
 
 import { Position, Explosion, Health, BoundingBox, Animator, DamageEvent } from "@src/ECS/components";
+import { DebugFlag } from "@src/enums/DebugFlag";
+import { debugSvc } from "@src/shared/services/Debug";
 
 import { clamp } from "@src/shared/utility/MathHelpers";
 
@@ -65,7 +66,7 @@ export class ExplosionSystem extends System {
         health.value -= damage;
         target.addComponent(new DamageEvent({ amount: damage, isKill: health.isDead, hitstop: false, cameraShake: true, source: position.clone(), knockback }));
 
-        if (config.DEBUG) {
+        if (debugSvc.enabled(DebugFlag.ENTITIES)) {
           console.log(`${damage} damage inflicted\n(kx = ${knockback?.x ?? 0} ky = ${knockback?.y ?? 0}, dist = ${dist}, r = ${explosion.radius})\n${target}`);
         }
 

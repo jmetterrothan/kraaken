@@ -29,7 +29,7 @@ export class BoundingBox extends Box2 implements Component {
     this.helper.init();
   }
 
-  public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3): void {
+  public renderHelper(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3): void {
     this.helper.use();
     this.helper.render(projectionMatrix, viewMatrix, modelMatrix);
   }

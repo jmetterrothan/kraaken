@@ -20,7 +20,7 @@ import editorStore from "../EditorState/editorStore";
 import LevelUi from "./LevelUi";
 
 import { Entity } from "@src/ECS/Entity";
-import config from "@src/config";
+
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 interface LevelStateOptions {
@@ -46,7 +46,7 @@ class LevelState extends State<LevelStateOptions> {
     }
 
     await this.levelBlueprint.rooms.forEach(async ({ id }) => {
-      const world = new World(id, this.levelBlueprint, { showZones: config.DEBUG });
+      const world = new World(id, this.levelBlueprint);
 
       world.addSystem(new Systems.PlayerInputSystem());
       world.addSystem(new Systems.MovementSystem());

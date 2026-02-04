@@ -61,10 +61,16 @@ export class MovementSystem extends System {
 
         rigidBody.velocity.y = -movement.initialJumpBoost;
 
-        if (movement.jumpSFX) movement.jumpSFX.play();
+        if (movement.jumpSFX || movement.jumpVFX) {
+          if (movement.jumpSFX) {
+            movement.jumpSFX.play();
+          }
 
-        if (movement.wasGrounded) this.world.playEffectOnceAt("dust_jump_effect", { x: position.x, y: position.y + bbox.height / 2 });
-        movement.lastEffectTime = now + 200;
+          if (movement.jumpVFX && movement.wasGrounded) {
+            this.world.playEffectOnceAt(movement.jumpVFX, { x: position.x, y: position.y + bbox.height / 2 });
+          }
+          movement.lastEffectTime = now + 200;
+        }
       }
 
       // --- VARIABLE JUMP (hold to go higher) ---
@@ -140,16 +146,17 @@ export class MovementSystem extends System {
         const fallingAirTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
 
         if (!movement.climbedDuringAirborne) {
-          if (fallingAirTime >= 1000) {
-            this.world.playEffectOnceAt("dust_land_hard_effect", { x: position.x, y: position.y + bbox.height / 2 });
-          } else if (fallingAirTime >= 400) {
-            this.world.playEffectOnceAt("dust_land_effect", { x: position.x, y: position.y + bbox.height / 2 });
+          if (movement.landHardVFX && fallingAirTime >= 1000) {
+            this.world.playEffectOnceAt(movement.landHardVFX, { x: position.x, y: position.y + bbox.height / 2 });
+            movement.lastEffectTime = now + 500;
+          } else if (movement.landVFX && fallingAirTime >= 400) {
+            this.world.playEffectOnceAt(movement.landVFX, { x: position.x, y: position.y + bbox.height / 2 });
+            movement.lastEffectTime = now + 500;
           }
         }
 
         movement.airborneSince = null;
         movement.climbedDuringAirborne = false;
-        movement.lastEffectTime = now + 500;
       }
 
       movement.wasGrounded = grounded;
@@ -182,10 +189,10 @@ export class MovementSystem extends System {
         rigidBody.orientation.x = -1;
       }
 
-      // --- RUN DUST ---
-      if (movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && grounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+      // run effect
+      if (movement.runTrailVFX && movement.walking && Math.abs(rigidBody.velocity.x) >= movement.speed && grounded && (!movement.lastEffectTime || now > movement.lastEffectTime)) {
+        this.world.playEffectOnceAt(movement.runTrailVFX, { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
         movement.lastEffectTime = now + 250;
-        this.world.playEffectOnceAt("dust_accelerate_effect", { x: position.x, y: position.y + (bbox?.height || 0) / 2 }, { x: rigidBody.direction.x * -1, y: 1 });
       }
     });
   }

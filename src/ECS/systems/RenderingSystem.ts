@@ -2,6 +2,8 @@ import { mat3 } from "gl-matrix";
 
 import { System } from "@src/ECS";
 import { Position, Sprite, RigidBody, Camera, BoundingBox } from "@src/ECS/components";
+import { debugSvc } from "@src/shared/services/Debug";
+import { DebugFlag } from "@src/enums/DebugFlag";
 
 export class RenderingSystem extends System {
   public constructor() {
@@ -79,7 +81,7 @@ export class RenderingSystem extends System {
       }
 
       // show bounding box helper
-      if (bbox && bbox.debug) {
+      if (bbox && (debugSvc.enabled(DebugFlag.COLLISION) || bbox.debug)) {
         const modelMatrix = mat3.create();
 
         mat3.fromTranslation(modelMatrix, position.toGlArray());
@@ -88,7 +90,7 @@ export class RenderingSystem extends System {
 
         mat3.multiply(modelMatrix, modelMatrix, moveOriginMatrix);
 
-        bbox.render(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
+        bbox.renderHelper(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
       }
     });
   }

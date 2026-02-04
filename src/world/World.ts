@@ -20,7 +20,8 @@ import { TileLayer } from "@src/shared/models/tilemap.model";
 
 import { configSvc } from "@src/shared/services/ConfigService";
 
-import config from "@src/config";
+import { debugSvc } from "@src/shared/services/Debug";
+import { DebugFlag } from "@src/enums/DebugFlag";
 
 class World {
   public readonly levelBlueprint: ILevelBlueprint;
@@ -50,7 +51,7 @@ class World {
   private _cameras: Entity[] = [];
   private _activeCameraIndex = 0;
 
-  constructor(roomId: string, levelBlueprint: ILevelBlueprint, options: Partial<IWorldOptions> = {}) {
+  constructor(roomId: string, levelBlueprint: ILevelBlueprint, _options: Partial<IWorldOptions> = {}) {
     this.levelBlueprint = levelBlueprint;
 
     const roomBlueprint = levelBlueprint.rooms.find((room) => room.id === roomId);
@@ -59,11 +60,6 @@ class World {
     }
 
     this.roomBlueprint = roomBlueprint;
-
-    this.options = {
-      showGrid: options.showGrid === true,
-      showZones: options.showZones === true,
-    };
   }
 
   public async init(): Promise<void> {
@@ -174,11 +170,11 @@ class World {
     return entity;
   }
 
-  public createZone({ position, width, height, color, debug, ...rest }: IEventZone): void {
+  public createZone({ position, width, height, color, debug = false, ...rest }: IEventZone): void {
     const zone = new Entity("event_zone");
 
     zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
-    zone.addComponent(new Components.BoundingBox({ width, height, color, debug: debug ?? this.options.showZones }));
+    zone.addComponent(new Components.BoundingBox({ width, height, color, debug }));
     zone.addComponent(new Components.EventZone(rest));
 
     this.addEntity(zone);
@@ -345,12 +341,13 @@ class World {
 
     this.tileMap.renderLayer(TileLayer.L2, this.projectionMatrix, camera.viewMatrix, alpha);
 
-    if (config.DEBUG) {
-      this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+    this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+
+    if (debugSvc.enabled(DebugFlag.CAMERA)) {
       camera.renderDebug(this.projectionMatrix, camera.viewMatrix, alpha);
     }
 
-    if (this.options.showGrid) {
+    if (debugSvc.enabled(DebugFlag.GRID)) {
       this.grid.use();
       this.grid.render(this.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
     }

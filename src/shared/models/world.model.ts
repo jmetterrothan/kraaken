@@ -76,7 +76,4 @@ export interface IPlaceData {
   coords: IVector2[];
 }
 
-export type IWorldOptions = {
-  showGrid: boolean;
-  showZones: boolean;
-};
+export type IWorldOptions = {};

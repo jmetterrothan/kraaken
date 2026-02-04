@@ -19,10 +19,10 @@ class WebSocketService {
   connect(): Promise<void> {
     return new Promise((resolve) => {
       this.socket.on("connect", () => {
-        if (config.DEBUG) console.info(`Connected`);
+        console.info(`Connected`);
 
         this.socket.on("disconnect", () => {
-          if (config.DEBUG) console.info(`Disconnected`);
+          console.info(`Disconnected`);
         });
 
         this.socket.on(WS_PLACE_EVENT, ({ data, options }) => {
@@ -47,12 +47,12 @@ class WebSocketService {
         });
 
         this.socket.on(WS_USER_JOINED_ROOM, (uuid) => {
-          if (config.DEBUG) console.log(`user ${uuid} joined room`);
+          console.log(`user ${uuid} joined room`);
           dispatch(GameEvents.userJoinedRoomEvent(uuid));
         });
 
         this.socket.on(WS_USER_LEFT_ROOM, (uuid) => {
-          if (config.DEBUG) console.log(`user ${uuid} left room`);
+          console.log(`user ${uuid} left room`);
           dispatch(GameEvents.userLeftRoomEvent(uuid));
         });
 
