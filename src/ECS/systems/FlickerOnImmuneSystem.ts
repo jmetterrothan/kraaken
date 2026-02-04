@@ -22,10 +22,7 @@ export class FlickerOnImmuneSystem extends System {
       const health = entity.getComponent(Health);
 
       sprite.renderOptions.flickering = health.immunity;
-
-      if (health.hit) {
-        sprite.renderOptions.tintEffect = TintEffect.EFFECT1;
-      }
+      sprite.renderOptions.tintEffect = health.hit ? TintEffect.EFFECT1 : TintEffect.NONE;
     });
   }
 }
