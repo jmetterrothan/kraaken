@@ -14,24 +14,32 @@ export class EventZoneSystem extends System {
       return;
     }
 
-    const targetBbox = this.world.player.getComponent(BoundingBox);
-    const targetHealth = this.world.player.getComponent(Health);
-
-    if (targetHealth.isDead) {
-      return;
-    }
+    const targets = this.world.getEntities([Health.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
 
     for (const entity of entities) {
       const zone = entity.getComponent(EventZone);
       const bbox = entity.getComponent(BoundingBox);
 
-      const active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
+      for (const target of targets) {
+        const targetBbox = target.getComponent(BoundingBox);
+        const targetHealth = target.getComponent(Health);
 
-      if (zone.active !== active) {
-        if (active) {
-          zone.onEnter(this.world.player);
-        } else {
-          zone.onLeave(this.world.player);
+        if (Array.isArray(zone.applyToEntityTypes) && !zone.applyToEntityTypes.includes(target.type)) {
+          continue;
+        }
+
+        if (targetHealth.isDead) {
+          continue;
+        }
+
+        const active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
+
+        if (zone.active !== active) {
+          if (active) {
+            zone.onEnter(target);
+          } else {
+            zone.onLeave(target);
+          }
         }
       }
     }

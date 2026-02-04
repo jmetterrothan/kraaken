@@ -44,7 +44,7 @@ export class PhysicsSystem extends System {
       if (rigidBody.gravity) {
         rigidBody.velocity.y += this.world.gravity * delta;
 
-        if (rigidBody.velocity.y > rigidBody.maxFallSpeed) {
+        if (rigidBody.maxFallSpeed > 0 && rigidBody.velocity.y > rigidBody.maxFallSpeed) {
           rigidBody.velocity.y = rigidBody.maxFallSpeed;
         }
       }
@@ -69,7 +69,7 @@ export class PhysicsSystem extends System {
       this.collideWithMap(entity, step, delta);
 
       if (rigidBody.clampToMap) {
-        this.clampToMap(entity);
+        this.clampToMap(entity, delta);
       }
 
       // sync bbox position
@@ -94,7 +94,7 @@ export class PhysicsSystem extends System {
     });
   }
 
-  public clampToMap(entity: Entity): void {
+  public clampToMap(entity: Entity, _delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
@@ -117,17 +117,21 @@ export class PhysicsSystem extends System {
     if (position.x < x1) {
       x = x1;
       rigidBody.velocity.x = 0;
+      rigidBody.velocity.y = 0;
     }
     if (position.y < y1) {
       y = y1;
+      rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
     }
     if (position.x > x2) {
       x = x2;
       rigidBody.velocity.x = 0;
+      rigidBody.velocity.y = 0;
     }
     if (position.y > y2) {
       y = y2;
+      rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
     }
 
@@ -193,7 +197,7 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public handleCollisionWithLeftSide(entity: Entity, bbox: BoundingBox | ITile, _delta: number): void {
+  public handleCollisionWithLeftSide(entity: Entity, bbox: BoundingBox | ITile, delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
 
@@ -206,6 +210,13 @@ export class PhysicsSystem extends System {
 
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
 
+      if (rigidBody.velocity.y > 0) {
+        rigidBody.velocity.y -= 8 * delta;
+        if (rigidBody.velocity.y < 0) {
+          rigidBody.velocity.y = 0;
+        }
+      }
+
       Vector2.destroy(n);
 
       if (rigidBody.reflectVFX) {
@@ -216,7 +227,7 @@ export class PhysicsSystem extends System {
     }
   }
 
-  public handleCollisionWithRightSide(entity: Entity, bbox: BoundingBox | ITile, _delta: number): void {
+  public handleCollisionWithRightSide(entity: Entity, bbox: BoundingBox | ITile, delta: number): void {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
 
@@ -227,6 +238,13 @@ export class PhysicsSystem extends System {
         position.rotation = Math.atan2(r.y, r.x);
       }
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
+
+      if (rigidBody.velocity.y > 0) {
+        rigidBody.velocity.y -= 8 * delta;
+        if (rigidBody.velocity.y < 0) {
+          rigidBody.velocity.y = 0;
+        }
+      }
 
       Vector2.destroy(n);
 

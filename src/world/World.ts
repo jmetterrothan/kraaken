@@ -94,16 +94,15 @@ class World {
 
   public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {
     const effect = this.createEntity(type);
-    this.placeEntity(effect, position, direction);
 
     const animator = effect.getComponent(Components.Animator);
     animator.animation.reset();
 
-    this.addEntity(effect);
+    effect.addComponent(new Components.Fuse({ delay: animator.animation.duration, expireAction: "despawn" }));
 
-    setTimeout(() => {
-      this.removeEntity(effect);
-    }, animator.animation.duration);
+    this.placeEntity(effect, position, direction);
+
+    this.addEntity(effect);
   }
 
   public despawn(uuid: string): void {
@@ -133,7 +132,7 @@ class World {
       entity.addComponent(ComponentFactory.create(name, metadata));
     });
 
-    if (type === "player") {
+    if (entity.hasComponent(Components.PlayerInput.COMPONENT_TYPE)) {
       this.player = entity;
     }
 

@@ -130,7 +130,7 @@ class ProjectileWeapon extends Weapon {
 
     const target = position.clone().add(playerInput.aim);
     const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
-    const dir = origin.clone().sub(target).normalize().negate();
+    const dir = target.clone().sub(origin).normalize();
 
     // apply spread
     if (this.spread.x !== 0 || this.spread.y !== 0) {
@@ -145,7 +145,7 @@ class ProjectileWeapon extends Weapon {
       throw new Error("Improper projectile entity (must have a projectile component)");
     }
 
-    const { speed, ttl } = projectile.getComponent(Projectile);
+    const { speed } = projectile.getComponent(Projectile);
 
     const vx = speed * dir.x;
     const vy = speed * dir.y;
@@ -194,14 +194,6 @@ class ProjectileWeapon extends Weapon {
           strongMagnitude: 1.0,
         });
       }
-    }
-
-    if (ttl !== -1) {
-      setTimeout(() => {
-        if (world) {
-          world.removeEntity(projectile);
-        }
-      }, ttl);
     }
 
     Vector2.destroy(target);

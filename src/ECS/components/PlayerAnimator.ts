@@ -24,10 +24,6 @@ export class PlayerAnimator extends Animator {
     if (health.isDead) {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
     }
-    // shooting
-    if (input.usePrimary && combat.primaryWeapon.canBeUsed(world, entity)) {
-      return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
-    }
     if (movement.wallClimbing) {
       return `${entity.type}:${PlayerAnimationKeys.WALL_CLIMBING}`;
     }
@@ -42,8 +38,19 @@ export class PlayerAnimator extends Animator {
       return `${entity.type}:${PlayerAnimationKeys.JUMPING}`;
     }
     // aiming
-    if (input.hold && !movement.walking) {
-      return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+    if (input) {
+      if (input.hold && !movement.walking) {
+        return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+      }
+      if (combat) {
+        // shooting
+        if (input.usePrimary && combat.primaryWeapon.canBeUsed(world, entity)) {
+          return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+        }
+        if (input.useSecondary && combat.secondaryWeapon.canBeUsed(world, entity)) {
+          return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+        }
+      }
     }
     // walk cycle
     if (movement.walking) {

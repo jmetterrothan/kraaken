@@ -57,6 +57,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.EventZoneSystem());
       world.addSystem(new Systems.ExplosionSystem());
       world.addSystem(new Systems.KnockbackSystem());
+      world.addSystem(new Systems.FuseSystem());
       world.addSystem(new Systems.DamageFxSystem());
       world.addSystem(new Systems.FlickerOnImmuneSystem());
 

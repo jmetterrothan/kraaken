@@ -8,6 +8,9 @@ export enum EnemyAnimationKeys {
   IDLE = "idle",
   WALKING = "walking",
   FALLING = "falling",
+  JUMPING = "jumping",
+  WALL_CLIMBING = "wall_climbing",
+  WALL_SLIDING = "wall_sliding",
 }
 
 export class EnemyAnimator extends Animator {
@@ -20,6 +23,15 @@ export class EnemyAnimator extends Animator {
     }
 
     if (movement) {
+      if (movement.jumping) {
+        return `${entity.type}:${EnemyAnimationKeys.JUMPING}`;
+      }
+      if (movement.wallClimbing) {
+        return `${entity.type}:${EnemyAnimationKeys.WALL_CLIMBING}`;
+      }
+      if (movement.wallSliding) {
+        return `${entity.type}:${EnemyAnimationKeys.WALL_SLIDING}`;
+      }
       if (movement.falling) {
         return `${entity.type}:${EnemyAnimationKeys.FALLING}`;
       }
@@ -29,5 +41,9 @@ export class EnemyAnimator extends Animator {
     }
 
     return `${entity.type}:${EnemyAnimationKeys.IDLE}`;
+  }
+
+  public toString(): string {
+    return EnemyAnimator.COMPONENT_TYPE;
   }
 }

@@ -1,6 +1,6 @@
 import { System, Entity } from "@src/ECS";
 
-import { BoundingBox, Position, Consummable, RigidBody, Animator } from "@src/ECS/components";
+import { BoundingBox, Position, Consummable, RigidBody, Animator, Fuse } from "@src/ECS/components";
 
 import Vector2 from "@src/shared/math/Vector2";
 
@@ -36,9 +36,7 @@ export class ConsummableSystem extends System {
       if (!animator || !animator.animation || animator.animation.loop) {
         this.world.removeEntity(entity);
       } else {
-        window.setTimeout(() => {
-          this.world.removeEntity(entity);
-        }, animator.animation.duration);
+        entity.addComponent(new Fuse({ delay: animator.animation.duration, expireAction: "despawn" }));
       }
     }
   }

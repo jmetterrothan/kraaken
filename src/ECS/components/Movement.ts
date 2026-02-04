@@ -13,6 +13,10 @@ interface IMovementMetadata {
   wallClimbSpeed?: number;
   wallClimbAcceleration?: number;
   jumpSFX?: string;
+  jumpVFX?: string;
+  landVFX?: string;
+  landHardVFX?: string;
+  runTrailVFX?: string;
 }
 
 export class Movement implements Component {
@@ -43,6 +47,11 @@ export class Movement implements Component {
   public readonly wallSlideMaxFallSpeed: number;
   public readonly wallClimbSpeed: number;
   public readonly wallClimbAcceleration: number;
+  public readonly jumpSFX?: Howl;
+  public readonly jumpVFX?: string;
+  public readonly landVFX?: string;
+  public readonly landHardVFX?: string;
+  public readonly runTrailVFX?: string;
 
   public lastEffectTime: number;
   public lastWallJumpTime: number;
@@ -51,9 +60,7 @@ export class Movement implements Component {
   public coyoteRemainingMs: number;
   public prevJumpDown: boolean;
 
-  public jumpSFX: Howl | undefined;
-
-  public constructor({ initialJumpBoost, jumpSpeed, coyoteTimeMs, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallClimbSpeed, wallClimbAcceleration, jumpSFX }: IMovementMetadata) {
+  public constructor({ initialJumpBoost, jumpSpeed, coyoteTimeMs, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallClimbSpeed, wallClimbAcceleration, jumpSFX, jumpVFX, landVFX, landHardVFX, runTrailVFX }: IMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.coyoteTimeMs = coyoteTimeMs ?? 0;
@@ -63,6 +70,12 @@ export class Movement implements Component {
     this.wallSlideMaxFallSpeed = wallSlideMaxFallSpeed ?? 0;
     this.wallClimbSpeed = wallClimbSpeed ?? 0;
     this.wallClimbAcceleration = wallClimbAcceleration ?? 0;
+    this.wallClimbAcceleration = wallClimbAcceleration ?? 0;
+    this.wallClimbAcceleration = wallClimbAcceleration ?? 0;
+    this.jumpVFX = jumpVFX;
+    this.landVFX = landVFX;
+    this.landHardVFX = landHardVFX;
+    this.runTrailVFX = runTrailVFX;
 
     this.lastEffectTime = -1;
     this.lastWallJumpTime = -1;

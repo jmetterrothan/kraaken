@@ -50,7 +50,8 @@ export class Animator implements Component {
 
   public get animation(): Animation {
     if (!this.hasAnimation(this.currentKey)) {
-      throw new Error(`Missing animation "${this.currentKey}"`);
+      console.warn(`Missing animation "${this.currentKey}"`);
+      return this.list.get(this.defaultKey)!;
     }
     return this.list.get(this.currentKey)!;
   }

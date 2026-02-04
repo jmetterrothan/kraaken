@@ -15,17 +15,20 @@ type IEventZoneMetadata = {
   maxTimesTriggered?: number;
   shouldTriggerWhileActive?: boolean;
   mode?: IEventZoneMode;
+  applyToEntityTypes?: string[];
+  debug?: boolean;
 };
 
 export class EventZone implements Component {
   public static COMPONENT_TYPE = "event_zone";
 
-  public events: IGameEvent[];
-  public cooldownDelay: number;
-  public maxTimesTriggered: number;
-  public shouldTriggerWhileActive: boolean; // if false, entity needs to leave the zone for it to be triggerable again
-  public mode: IEventZoneMode;
-  public debug: boolean = false;
+  public readonly events: IGameEvent[];
+  public readonly cooldownDelay: number;
+  public readonly maxTimesTriggered: number;
+  public readonly shouldTriggerWhileActive: boolean; // if false, entity needs to leave the zone for it to be triggerable again
+  public readonly mode: IEventZoneMode;
+  public readonly debug: boolean;
+  public readonly applyToEntityTypes?: string[];
 
   public nbTimesTriggered: number;
   public lastTimeTriggered: number;
@@ -39,6 +42,8 @@ export class EventZone implements Component {
     this.maxTimesTriggered = metadata.maxTimesTriggered ?? -1;
     this.shouldTriggerWhileActive = metadata.shouldTriggerWhileActive ?? false;
     this.mode = metadata.mode ?? "intersects";
+    this.debug = metadata.debug ?? false;
+    this.applyToEntityTypes = metadata.applyToEntityTypes;
 
     this.nbTimesTriggered = 0;
     this.lastTimeTriggered = -1;
@@ -81,7 +86,7 @@ export class EventZone implements Component {
   }
 
   private trigger(subject: Entity): void {
-    console.log("trigger event");
+    console.log("event triggered");
 
     this.events.forEach(({ type, data }) => {
       switch (type) {

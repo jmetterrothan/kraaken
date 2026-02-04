@@ -15,3 +15,4 @@ export * from "./EventZoneSystem";
 export * from "./DamageFxSystem";
 export * from "./ExplosionSystem";
 export * from "./KnockbackSystem";
+export * from "./FuseSystem";
