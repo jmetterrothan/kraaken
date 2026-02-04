@@ -22,6 +22,8 @@ import LevelUi from "./LevelUi";
 import { Entity } from "@src/ECS/Entity";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
+import { debugSvc } from "@src/shared/services/Debug";
+import { DebugFlag } from "@src/enums/DebugFlag";
 
 interface LevelStateOptions {
   blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
@@ -60,6 +62,8 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.FuseSystem());
       world.addSystem(new Systems.DamageFxSystem());
       world.addSystem(new Systems.FlickerOnImmuneSystem());
+
+      debugSvc.set(DebugFlag.GRID, false);
 
       await world.init();
 

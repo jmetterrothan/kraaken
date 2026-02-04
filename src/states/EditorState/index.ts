@@ -33,6 +33,8 @@ import CollisionMode from "./modes/CollisionMode";
 import editorStore, { IEditorStoreState } from "./editorStore";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
+import { debugSvc } from "@src/shared/services/Debug";
+import { DebugFlag } from "@src/enums/DebugFlag";
 
 interface EditorStateOptions {
   levelId: string;
@@ -88,6 +90,8 @@ class EditorState extends State<EditorStateOptions> {
       world.addSystem(new Systems.BasicInputSystem());
       world.addSystem(new Systems.BasicMovementSystem());
       world.addSystem(new Systems.PlaceableSystem());
+
+      debugSvc.set(DebugFlag.GRID, true);
 
       await world.init();
 
