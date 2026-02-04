@@ -22,7 +22,12 @@ export class Health extends Component {
   // delay during which the entity cannot take further damages or heal
   public readonly immunityDelay: number;
 
+  public hitDelayMs: number;
+  public hit: boolean;
+  public remainingHitMs: number;
+
   public immunity: boolean;
+  public remainingImmunityMs: number;
 
   private _value: number;
   private _prevValue: number;
@@ -46,7 +51,12 @@ export class Health extends Component {
       });
     }
 
+    this.hitDelayMs = 75;
+    this.hit = false;
+    this.remainingHitMs = 0;
+
     this.immunity = false;
+    this.remainingImmunityMs = 0;
 
     this._value = this.maxHealth;
   }
@@ -67,13 +77,12 @@ export class Health extends Component {
 
     if (damage > 0) {
       // apply immunity if debuff
-      if (this.immunityDelay > 0) {
-        this.immunity = true;
 
-        setTimeout(() => {
-          this.immunity = false;
-        }, this.immunityDelay);
-      }
+      this.immunity = true;
+      this.remainingImmunityMs = this.immunityDelay;
+
+      this.hit = true;
+      this.remainingHitMs = this.hitDelayMs;
     }
   }
 

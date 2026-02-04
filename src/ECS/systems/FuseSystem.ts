@@ -13,10 +13,6 @@ export class FuseSystem extends System {
       const fuse = e.getComponent(Fuse);
       const health = e.getComponent(Health);
 
-      if (health && health.isDead) {
-        continue;
-      }
-
       if (fuse.triggered) {
         continue;
       }
@@ -27,9 +23,10 @@ export class FuseSystem extends System {
         fuse.triggered = true;
 
         if (fuse.expireAction === "kill") {
-          if (!health) {
-            throw new Error("Trying to kill an entity w/o health component");
+          if (health.isDead) {
+            continue;
           }
+
           e.addComponent(new DamageEvent({ amount: Infinity, isKill: true, hitstop: false, cameraShake: false }));
         } else {
           this.world.despawn(e.uuid);

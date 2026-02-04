@@ -16,3 +16,4 @@ export * from "./DamageFxSystem";
 export * from "./ExplosionSystem";
 export * from "./KnockbackSystem";
 export * from "./FuseSystem";
+export * from "./ImmunitySystem";

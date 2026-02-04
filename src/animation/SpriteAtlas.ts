@@ -98,7 +98,7 @@ class SpriteAtlas {
 
   public render(projectionMatrix: mat3, viewMatrix: mat3, modelMatrix: mat3, index: number, direction: Vector2 | undefined, renderOptions: ISpriteRenderRenderOptions): void {
     // flickering effect - skip frames
-    if (renderOptions.flickering && Math.floor(window.performance.now() / (renderOptions.flickerSpeed ?? 1)) % 2) {
+    if (renderOptions.flickering && Math.floor(window.performance.now() / (renderOptions.flickerSpeed ?? 1)) % 2 === 0) {
       return;
     }
 
