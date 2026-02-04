@@ -1,3 +1,4 @@
+import config from "@src/config";
 import Vector2 from "@src/shared/math/Vector2";
 
 // the maximum is exclusive and the minimum is inclusive
@@ -40,7 +41,7 @@ export const lerp2 = (a: number, b: number, t: number): number => {
 };
 
 export const expLerpT = (s: number, delta: number) => {
-  return 1 - Math.pow(1 - s, delta * 60);
+  return 1 - Math.pow(1 - s, delta * config.TARGET_UPS);
 };
 
 // return the point of intersection between two segments or undefined, see https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection

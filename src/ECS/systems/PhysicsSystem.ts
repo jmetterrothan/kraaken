@@ -6,6 +6,11 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 import TileMap from "@src/world/TileMap";
+import config from "@src/config";
+
+const calcFriction = (delta: number, bounciness: number) => {
+  return Math.pow(bounciness, delta * config.TARGET_UPS);
+};
 
 export class PhysicsSystem extends System {
   public constructor() {
@@ -149,14 +154,7 @@ export class PhysicsSystem extends System {
         position.rotation = Math.atan2(r.y, r.x);
       }
 
-      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
-
-      if (rigidBody.velocity.x > 0) {
-        rigidBody.velocity.x -= 8 * delta;
-        if (rigidBody.velocity.x < 0) {
-          rigidBody.velocity.x = 0;
-        }
-      }
+      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
 
@@ -178,14 +176,7 @@ export class PhysicsSystem extends System {
       if (rigidBody.reflectAngle) {
         position.rotation = Math.atan2(r.y, r.x);
       }
-      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
-
-      if (rigidBody.velocity.x > 0) {
-        rigidBody.velocity.x -= 8 * delta;
-        if (rigidBody.velocity.x < 0) {
-          rigidBody.velocity.x = 0;
-        }
-      }
+      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
 
@@ -208,14 +199,7 @@ export class PhysicsSystem extends System {
         position.rotation = Math.atan2(r.y, r.x);
       }
 
-      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
-
-      if (rigidBody.velocity.y > 0) {
-        rigidBody.velocity.y -= 8 * delta;
-        if (rigidBody.velocity.y < 0) {
-          rigidBody.velocity.y = 0;
-        }
-      }
+      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
 
@@ -237,14 +221,7 @@ export class PhysicsSystem extends System {
       if (rigidBody.reflectAngle) {
         position.rotation = Math.atan2(r.y, r.x);
       }
-      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(rigidBody.bounciness);
-
-      if (rigidBody.velocity.y > 0) {
-        rigidBody.velocity.y -= 8 * delta;
-        if (rigidBody.velocity.y < 0) {
-          rigidBody.velocity.y = 0;
-        }
-      }
+      rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
 
