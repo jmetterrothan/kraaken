@@ -393,7 +393,7 @@ class TileMap {
     return this.getTileIndex(r, c);
   }
 
-  public getTileTypeIdAtCoords(layer: TileLayer, x: number, y: number): number {
+  public getTileTypeIdAtCoords(layer: TileLayer, x: number, y: number): number | null {
     const r = this.getRowAtCoord(y);
     const c = this.getColAtCoord(x);
 
@@ -404,23 +404,23 @@ class TileMap {
     const r = Math.trunc(i / this.nbCols);
     const c = Math.trunc(i % this.nbCols);
 
-    return this.getTileTypeAt(layer, r, c);
+    return this.getTileTypeAt(layer, r, c) ?? 0;
   }
 
-  public getTileTypeAt(layer: TileLayer, r: number, c: number): number {
+  public getTileTypeAt(layer: TileLayer, r: number, c: number): number | null {
     const tile = this.getTileAt(r, c);
     if (!tile) {
-      throw new Error(`Out of bound tile @ r:${r}, c:${c} on layer ${layer}`);
+      console.warn(`Out of bound tile @ r:${r}, c:${c} on layer ${layer}`);
     }
-    return tile.getTileTypeId(layer);
+    return tile?.getTileTypeId(layer) ?? null;
   }
 
   public hasCollisionAt(r: number, c: number): boolean {
-    return this.getTileTypeAt(TileLayer.L0, r, c) === 1;
+    return (this.getTileTypeAt(TileLayer.L0, r, c) ?? 1) === 1;
   }
 
   public hasCollisionAtCoords(x: number, y: number): boolean {
-    return this.getTileTypeIdAtCoords(TileLayer.L0, x, y) === 1;
+    return (this.getTileTypeIdAtCoords(TileLayer.L0, x, y) ?? 1) === 1;
   }
 
   public getBoundaries(): Box2 {
