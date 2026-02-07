@@ -7,10 +7,13 @@ import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
 import TileMap from "@src/world/TileMap";
 import config from "@src/config";
+import { clamp } from "@src/shared/utility/MathHelpers";
 
 const calcFriction = (delta: number, bounciness: number) => {
-  return Math.pow(bounciness, delta * config.TARGET_UPS);
+  return Math.pow(clamp(bounciness, 0, 1), delta * config.TARGET_UPS);
 };
+
+const EPSILON = 0.01;
 
 export class PhysicsSystem extends System {
   public constructor() {
@@ -47,7 +50,7 @@ export class PhysicsSystem extends System {
 
       // apply gravity
       if (rigidBody.gravity) {
-        rigidBody.velocity.y += this.world.gravity * delta;
+        rigidBody.velocity.y += this.world.gravity * rigidBody.gravityScale * delta;
 
         if (rigidBody.maxFallSpeed > 0 && rigidBody.velocity.y > rigidBody.maxFallSpeed) {
           rigidBody.velocity.y = rigidBody.maxFallSpeed;
@@ -82,13 +85,17 @@ export class PhysicsSystem extends System {
         bbox.setPositionFromVector2(position);
       }
 
+      // snapping to avoid funny behaviors
+      if (Math.abs(rigidBody.velocity.x) < 5) rigidBody.velocity.x = 0;
+      if (Math.abs(rigidBody.velocity.y) < 5) rigidBody.velocity.y = 0;
+
       if (rigidBody.reflectAngle) {
         const vx = rigidBody.velocity.x * rigidBody.velocityModifier.x;
         const vy = rigidBody.velocity.y * rigidBody.velocityModifier.y;
 
         // avoid noisy rotation when almost stopped
         const speed = Math.hypot(vx, vy);
-        if (speed > Number.EPSILON) {
+        if (speed > 10) {
           position.rotation = Math.atan2(vy, vx);
         }
       }
@@ -150,9 +157,6 @@ export class PhysicsSystem extends System {
     if (rigidBody.reflect) {
       const n = Vector2.create(0, -1);
       const r = rigidBody.velocity.reflect(n);
-      if (rigidBody.reflectAngle) {
-        position.rotation = Math.atan2(r.y, r.x);
-      }
 
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
@@ -173,9 +177,7 @@ export class PhysicsSystem extends System {
     if (rigidBody.reflect) {
       const n = Vector2.create(0, 1);
       const r = rigidBody.velocity.reflect(n);
-      if (rigidBody.reflectAngle) {
-        position.rotation = Math.atan2(r.y, r.x);
-      }
+
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
@@ -195,9 +197,6 @@ export class PhysicsSystem extends System {
     if (rigidBody.reflect) {
       const n = Vector2.create(1, 0);
       const r = rigidBody.velocity.reflect(n);
-      if (rigidBody.reflectAngle) {
-        position.rotation = Math.atan2(r.y, r.x);
-      }
 
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
@@ -218,9 +217,7 @@ export class PhysicsSystem extends System {
     if (rigidBody.reflect) {
       const n = Vector2.create(-1, 0);
       const r = rigidBody.velocity.reflect(n);
-      if (rigidBody.reflectAngle) {
-        position.rotation = Math.atan2(r.y, r.x);
-      }
+
       rigidBody.velocity.fromValues(r.x, r.y).multiplyScalar(calcFriction(delta, rigidBody.bounciness));
 
       Vector2.destroy(n);
@@ -249,7 +246,7 @@ export class PhysicsSystem extends System {
     const h = bbox.height;
     const halfW = w / 2;
     const halfH = h / 2;
-    const eps = 0.01;
+    const eps = EPSILON;
 
     // IMPORTANT: use actual displacement (position may have been corrected by collideWithMap)
     const dx = position.x - position.previousValue.x;
@@ -447,7 +444,7 @@ export class PhysicsSystem extends System {
         // top side collision
         const tile = this.testForCollision(this.world.tileMap, x1, y2 + step.y, x1 + halfW, y2 + step.y, x2, y2 + step.y);
         if (tile) {
-          position.y = tile.position.y - halfH - 0.01;
+          position.y = tile.position.y - halfH - EPSILON;
           this.handleCollisionWithBottomSide(entity, tile, delta);
         }
         if (movement && !!tile) {
@@ -458,7 +455,7 @@ export class PhysicsSystem extends System {
         const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + halfW, y1 + step.y, x2, y1 + step.y);
 
         if (tile) {
-          position.y = tile.position.y + tileSize + halfH + 0.01;
+          position.y = tile.position.y + tileSize + halfH + EPSILON;
           this.handleCollisionWithTopSide(entity, tile, delta);
         }
         if (movement && !!tile) {
@@ -477,7 +474,7 @@ export class PhysicsSystem extends System {
         const tile = this.testForCollision(this.world.tileMap, x2 + step.x, y1, x2 + step.x, y1 + halfH, x2 + step.x, y2);
 
         if (tile) {
-          position.x = tile.position.x - halfW - 0.01;
+          position.x = tile.position.x - halfW - EPSILON;
           this.handleCollisionWithLeftSide(entity, tile, delta);
         }
         if (movement && !!tile) {
@@ -488,7 +485,7 @@ export class PhysicsSystem extends System {
         const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + halfH, x1 + step.x, y2);
 
         if (tile) {
-          position.x = tile.position.x + tileSize + halfW + 0.01;
+          position.x = tile.position.x + tileSize + halfW + EPSILON;
           this.handleCollisionWithRightSide(entity, tile, delta);
         }
         if (movement && !!tile) {
@@ -534,7 +531,7 @@ export class PhysicsSystem extends System {
     const x1 = bbox?.x1 ?? position.x;
     const x2 = x1 + halfW;
     const x3 = bbox?.x2 ?? position.x;
-    const y = (bbox?.y2 ?? position.y) + 0.01;
+    const y = (bbox?.y2 ?? position.y) + EPSILON;
 
     const tile = this.testForCollision(this.world.tileMap, x1, y, x2, y, x3, y);
 
