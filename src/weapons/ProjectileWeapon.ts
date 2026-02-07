@@ -214,7 +214,7 @@ class ProjectileWeapon extends Weapon {
     const playerInput = owner.getComponent(PlayerInput);
 
     // caculate origin of the projectile and recover the tile at this position
-    const tile = world.tileMap.getTileAtCoords(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
+    const tile = world.tileMap.getTileAtCoords(position.x + (bbox.width / 2 + 1) * rigidBody.orientation.x, position.y);
 
     // test if the spawn position of the projectile is not in a solid tile
     if (!tile || tile.hasCollision()) {

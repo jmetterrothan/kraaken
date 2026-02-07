@@ -96,9 +96,12 @@ class World {
     const effect = this.createEntity(type);
 
     const animator = effect.getComponent(Components.Animator);
-    animator.animation.reset();
 
-    effect.addComponent(new Components.Fuse({ delay: animator.animation.duration, expireAction: "despawn" }));
+    if (animator) {
+      animator.animation.reset();
+
+      effect.addComponent(new Components.Fuse({ delay: animator.animation.duration, expireAction: "despawn" }));
+    }
 
     this.placeEntity(effect, position, direction);
 

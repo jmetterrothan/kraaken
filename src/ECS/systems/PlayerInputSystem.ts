@@ -68,7 +68,11 @@ export class PlayerInputSystem extends System {
         const health = entity.getComponent(Health);
         const input = entity.getComponent(PlayerInput);
 
-        if (matchKeyBinding(keyBindings.level.left, e)) {
+        if (matchKeyBinding(keyBindings.level.usePrimaryWeapon, e)) {
+          input.usePrimary = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.useSecondaryWeapon, e)) {
+          input.useSecondary = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.left, e)) {
           input.left = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.right, e)) {
           input.right = active && health.isAlive;

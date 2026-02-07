@@ -63,6 +63,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.DamageFxSystem());
       world.addSystem(new Systems.FlickerOnImmuneSystem());
       world.addSystem(new Systems.ImmunitySystem());
+      world.addSystem(new Systems.LootSystem());
 
       debugSvc.set(DebugFlag.GRID, false);
 

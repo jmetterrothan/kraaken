@@ -3,7 +3,7 @@ import { Component } from "../Component";
 
 type IExpireAction = "kill" | "despawn";
 
-interface IFuseModifierMetadata extends IConsummableMetadata {
+interface IFuseMetadata extends IConsummableMetadata {
   delay?: number;
   expireAction?: IExpireAction;
 }
@@ -17,7 +17,7 @@ export class Fuse extends Component {
   public remainingMs: number;
   public triggered: boolean;
 
-  public constructor(metadata: IFuseModifierMetadata = {}) {
+  public constructor(metadata: IFuseMetadata = {}) {
     super();
 
     this.delay = metadata.delay ?? 0;

@@ -51,6 +51,10 @@ class ComponentFactory {
         return new Components.Fuse(metadata);
       case "enemy_animator":
         return new Components.EnemyAnimator(metadata);
+      case "loot":
+        return new Components.Loot(metadata);
+      case "death_event":
+        return new Components.DeathEvent(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

@@ -23,3 +23,5 @@ export * from "./EventZone";
 export * from "./DamageEvent";
 export * from "./Explosion";
 export * from "./Fuse";
+export * from "./Loot";
+export * from "./DeathEvent";

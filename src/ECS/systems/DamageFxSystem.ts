@@ -1,5 +1,5 @@
 import { System } from "@src/ECS";
-import { Health, DamageEvent, Camera, Position, Fuse } from "@src/ECS/components";
+import { Health, DamageEvent, Camera, Position, Fuse, DeathEvent } from "@src/ECS/components";
 import { clamp, lerp } from "@src/shared/utility/MathHelpers";
 
 export class DamageFxSystem extends System {
@@ -40,6 +40,7 @@ export class DamageFxSystem extends System {
         // remove dead entities from world
         if (dmg.isKill) {
           entity.addComponent(new Fuse({ delay: health.hitDelayMs, expireAction: "despawn" }));
+          entity.addComponent(new DeathEvent({})); // TODO: maybe refactor death detection
         }
       }
 
