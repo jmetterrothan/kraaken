@@ -6,8 +6,9 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 import TileMap from "@src/world/TileMap";
-import config from "@src/config";
+
 import { clamp } from "@src/shared/utility/MathHelpers";
+import config from "@src/config";
 
 const calcFriction = (delta: number, bounciness: number) => {
   return Math.pow(clamp(bounciness, 0, 1), delta * config.TARGET_UPS);
@@ -86,8 +87,8 @@ export class PhysicsSystem extends System {
       }
 
       // snapping to avoid funny behaviors
-      if (Math.abs(rigidBody.velocity.x) < 5) rigidBody.velocity.x = 0;
-      if (Math.abs(rigidBody.velocity.y) < 5) rigidBody.velocity.y = 0;
+      if (Math.abs(rigidBody.velocity.x) < 10 * delta) rigidBody.velocity.x = 0;
+      if (Math.abs(rigidBody.velocity.y) < 10 * delta) rigidBody.velocity.y = 0;
 
       if (rigidBody.reflectAngle) {
         const vx = rigidBody.velocity.x * rigidBody.velocityModifier.x;

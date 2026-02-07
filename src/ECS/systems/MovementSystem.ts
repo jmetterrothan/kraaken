@@ -130,8 +130,8 @@ export class MovementSystem extends System {
       }
 
       movement.falling = !grounded && rigidBody.velocity.y > 0;
-      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > 0.001;
-      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= 0.001;
+      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
+      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= Number.EPSILON;
 
       // --- AIR TIME - LANDING DETECTION ---
       const justLeftGround = !grounded && movement.wasGrounded;
