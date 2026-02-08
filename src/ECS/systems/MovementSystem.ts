@@ -31,9 +31,8 @@ export class MovementSystem extends System {
 
       const dtMs = delta * 1000;
 
-      const jumpDown = input.up;
-      const jumpPressed = jumpDown && !movement.prevJumpDown;
-      movement.prevJumpDown = jumpDown;
+      const jumpPressed = input.jump && !movement.prevJumpDown;
+      movement.prevJumpDown = input.jump;
 
       // --- COYOTE TIME ---
       if (grounded) {
@@ -75,12 +74,12 @@ export class MovementSystem extends System {
 
       // --- VARIABLE JUMP (hold to go higher) ---
       if (movement.jumping) {
-        if (jumpDown && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
+        if (input.jump && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
           rigidBody.velocity.y += -movement.jumpSpeed * delta; // your existing “maintain momentum”
         }
 
         // release-to-cut jump (optional but feels great)
-        if (!jumpDown && rigidBody.velocity.y < 0) {
+        if (!input.jump && rigidBody.velocity.y < 0) {
           rigidBody.velocity.y *= 0.5;
           movement.jumping = false;
         }
@@ -104,19 +103,24 @@ export class MovementSystem extends System {
       }
 
       // --- WALL SLIDING ---
-      movement.wallSliding = !grounded && !movement.jumping && pressingIntoWall && rigidBody.velocity.y > 0;
+      movement.wallSliding = !grounded && !movement.wallClimbing && pressingIntoWall && rigidBody.velocity.y > 0;
 
       if (movement.wallSliding) {
         if (rigidBody.velocity.y > movement.wallSlideMaxFallSpeed) {
           rigidBody.velocity.y = movement.wallSlideMaxFallSpeed;
         }
+
+        if (movement.wallSlideVFX && now > movement.lastEffectTime) {
+          this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y - bbox.height / 2 });
+          movement.lastEffectTime = now + 300;
+        }
       }
 
       // --- WALL CLIMBING ---
-      movement.wallClimbing = !grounded && jumpDown && !movement.jumping && pressingIntoWall;
+      movement.wallClimbing = !grounded && input.up && pressingIntoWall && movement.wallClimbStamina > 0;
 
       if (movement.wallClimbing) {
-        const targetVy = -movement.wallClimbSpeed;
+        const targetVy = input.up ? -movement.wallClimbSpeed : 0;
         const maxStep = movement.wallClimbAcceleration * delta;
 
         const diff = targetVy - rigidBody.velocity.y;
@@ -126,10 +130,22 @@ export class MovementSystem extends System {
         // optional: prevent any downward velocity while climbing
         if (rigidBody.velocity.y > 0) rigidBody.velocity.y = 0;
 
+        movement.wallClimbStamina = Math.max(0, movement.wallClimbStamina - movement.wallClimbStaminaConsumptionPerS * delta);
+
         movement.climbedDuringAirborne = true;
+
+        if (movement.wallSlideVFX && now > movement.lastEffectTime) {
+          this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y + bbox.height / 2 });
+          movement.lastEffectTime = now + 300;
+        }
       }
 
-      movement.falling = !grounded && rigidBody.velocity.y > 0;
+      // wall climbing stamina reset
+      if (!movement.wallClimbing && grounded) {
+        movement.wallClimbStamina = Math.min(movement.maxWallClimbStamina, movement.wallClimbStamina + movement.wallClimbStaminaRecoveryPerS * delta);
+      }
+
+      movement.falling = !grounded && rigidBody.velocity.y > Number.EPSILON;
       movement.walking = grounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
       movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= Number.EPSILON;
 
@@ -157,6 +173,7 @@ export class MovementSystem extends System {
 
         movement.airborneSince = null;
         movement.climbedDuringAirborne = false;
+        movement.wallClimbStamina = movement.maxWallClimbStamina;
       }
 
       movement.wasGrounded = grounded;

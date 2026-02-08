@@ -80,6 +80,8 @@ export class PlayerInputSystem extends System {
           input.up = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.down, e)) {
           input.down = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.jump, e)) {
+          input.jump = active && health.isAlive;
         }
       }
     });

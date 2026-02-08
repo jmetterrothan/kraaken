@@ -6,6 +6,7 @@ const keyBindings = {
     right: [new KeyBinding({ code: "ArrowRight" }), new KeyBinding({ code: "KeyD" })],
     up: [new KeyBinding({ code: "ArrowUp" }), new KeyBinding({ code: "KeyW" })],
     down: [new KeyBinding({ code: "ArrowDown" }), new KeyBinding({ code: "KeyS" })],
+    jump: [new KeyBinding({ code: "Space" })],
     usePrimaryWeapon: [],
     useSecondaryWeapon: [new KeyBinding({ code: "KeyG" })],
     edit: [new KeyBinding({ code: "KeyE", ctrl: true })],
@@ -26,6 +27,7 @@ const keyBindings = {
 
 export const matchKeyBinding = (keyBindings: KeyBinding[], e: KeyboardEvent) => {
   const match = keyBindings.some((keyBinding) => keyBinding.match(e));
+
   if (match) {
     e.preventDefault();
     e.stopPropagation();
