@@ -79,16 +79,16 @@ class TerrainMode {
 
   public update(_delta: number): void {
     const cursorPosition = this.editor.currentRoom.cursor.getComponent(Position);
-    const gridCursorPosition = this.editor.currentRoom.gridCursor.getComponent(Position);
+    // const gridCursorPosition = this.editor.currentRoom.gridCursor.getComponent(Position);
 
     cursorPosition.fromValues(this.editor.mouse.x, this.editor.mouse.y);
 
     const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(this.editor.mouse.x, this.editor.mouse.y);
 
     if (tile) {
-      const x = tile.position.x + tile.size / 2;
-      const y = tile.position.y + tile.size / 2;
-      gridCursorPosition.fromValues(x, y);
+      // const x = tile.position.x + tile.size / 2;
+      // const y = tile.position.y + tile.size / 2;
+      // gridCursorPosition.fromValues(x, y);
     }
   }
 

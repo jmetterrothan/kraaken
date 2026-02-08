@@ -119,7 +119,7 @@ class World {
     const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 0, align: "center" }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 2, col: 4, align: "center" }));
 
     this.addEntity(entity);
 

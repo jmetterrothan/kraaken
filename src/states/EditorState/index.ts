@@ -44,7 +44,7 @@ interface EditorStateOptions {
 type RoomData = {
   world: World;
   cursor: Entity;
-  gridCursor: Entity;
+  //  gridCursor: Entity;
 };
 
 class EditorState extends State<EditorStateOptions> {
@@ -104,8 +104,8 @@ class EditorState extends State<EditorStateOptions> {
       world.addCamera(camera, true);
 
       // show a cursor following the mouse
-      const gridCursor = this.createGridCursor();
-      world.addEntity(gridCursor);
+      // const gridCursor = this.createGridCursor();
+      // world.addEntity(gridCursor);
 
       const cursor = this.createCursor();
       world.addEntity(cursor);
@@ -126,7 +126,7 @@ class EditorState extends State<EditorStateOptions> {
         position.fromValues(x, y);
       }
 
-      this.rooms.set(id, { world, gridCursor, cursor });
+      this.rooms.set(id, { world, cursor });
     });
 
     this.state = editorStore.initialState;
@@ -168,7 +168,7 @@ class EditorState extends State<EditorStateOptions> {
     const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 1, align: "center" }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 4, col: 4, align: "center" }));
 
     return entity;
   }
