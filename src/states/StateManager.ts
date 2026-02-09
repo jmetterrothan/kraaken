@@ -43,9 +43,9 @@ class StateManager {
     }
   }
 
-  public handleMouseMove(position: vec2): void {
+  public handleMouseMove(e: MouseEvent, position: vec2): void {
     if (this.isReady) {
-      this.currentState.handleMouseMove(position);
+      this.currentState.handleMouseMove(e, position);
     }
   }
 

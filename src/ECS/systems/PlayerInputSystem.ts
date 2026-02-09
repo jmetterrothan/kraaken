@@ -17,7 +17,7 @@ export class PlayerInputSystem extends System {
     super([Position.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, PlayerCombat.COMPONENT_TYPE, Health.COMPONENT_TYPE]);
   }
 
-  public handleMouseMove(coords: Vector2): void {
+  public handleMouseMove(_e: MouseEvent, coords: Vector2): void {
     const entities = this.world.getEntities(this.componentTypes);
 
     if (entities.length === 0) {

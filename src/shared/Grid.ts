@@ -13,6 +13,7 @@ import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 import vsObject from "@src/assets/shaders/grid.vs.glsl?raw";
 import fsSprite from "@src/assets/shaders/grid.fs.glsl?raw";
 import Vector2 from "./math/Vector2";
+import { clamp } from "./utility/MathHelpers";
 
 class Grid {
   private material: Material = new Material(vsObject, fsSprite);
@@ -23,15 +24,18 @@ class Grid {
 
   private transform: mat3;
 
-  private width: number;
-  private height: number;
+  private readonly nbCols: number;
+  private readonly nbRows: number;
+  private readonly width: number;
+  private readonly height: number;
+  private readonly tileSize: vec2;
 
-  private size: vec2;
-
-  private activeCell: vec2;
+  private cursorPosition: Vector2;
+  private selectionStart: Vector2 | null;
+  private selectionEnd: Vector2 | null;
 
   private color: vec4;
-  private activeCellColor: vec4;
+  private selectionColor: vec4;
 
   private attributes: IAttributes = {
     a_position: gl.getAttribLocation(this.material.program, "a_position"),
@@ -42,26 +46,34 @@ class Grid {
     u_view: { type: "Matrix3fv", value: undefined, location: null },
     u_model: { type: "Matrix3fv", value: undefined, location: null },
     u_color: { type: "4fv", value: undefined, location: null },
-    u_active_cell_color: { type: "4fv", value: undefined, location: null },
+    u_selection_color: { type: "4fv", value: undefined, location: null },
     u_scale: { type: "1f", value: undefined, location: null },
     u_tilesize: { type: "2fv", value: undefined, location: null },
     u_offset: { type: "2fv", value: undefined, location: null },
-    u_active_cell: { type: "2fv", value: undefined, location: null },
+    u_show_selection: { type: "1i", value: false, location: null },
+    u_selection_min: { type: "2fv", value: undefined, location: null },
+    u_selection_max: { type: "2fv", value: undefined, location: null },
   };
 
-  private loaded = false;
+  private loaded: boolean;
 
   public constructor(nbCols: number, nbRows: number, tileSize: number, c: vec4, ac: vec4) {
     this.transform = mat3.create();
 
+    this.nbCols = nbCols;
+    this.nbRows = nbRows;
     this.width = nbCols * tileSize;
     this.height = nbRows * tileSize;
-    this.size = [tileSize, tileSize];
+    this.tileSize = [tileSize, tileSize];
 
-    this.activeCell = [0, 0];
+    this.cursorPosition = new Vector2(0, 0);
+    this.selectionStart = null;
+    this.selectionEnd = null;
 
     this.color = c;
-    this.activeCellColor = ac;
+    this.selectionColor = ac;
+
+    this.loaded = false;
   }
 
   public async init() {
@@ -84,23 +96,17 @@ class Grid {
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", this.transform);
-      this.setUniform("u_active_cell_color", this.activeCellColor);
       this.setUniform("u_color", this.color);
       this.setUniform("u_scale", configSvc.scale);
-      this.setUniform("u_tilesize", this.size);
+      this.setUniform("u_tilesize", this.tileSize);
       this.setUniform("u_offset", offset);
-      this.setUniform("u_active_cell", this.activeCell);
+      this.setUniform("u_show_selection", true);
+      this.setUniform("u_selection_min", this.selectionMin);
+      this.setUniform("u_selection_max", this.selectionMax);
+      this.setUniform("u_selection_color", this.selectionColor);
 
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
     }
-  }
-
-  public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
-
-  public handleMouseInput(_e: MouseEvent, _active: boolean, _position: Vector2): void {}
-
-  public handleMouseMove(position: Vector2): void {
-    this.activeCell = [Math.floor(position.x / this.size[0]), Math.floor(position.y / this.size[1])];
   }
 
   private setUniform(key: string, value: any) {
@@ -131,6 +137,65 @@ class Grid {
     gl.deleteBuffer(this.vbo);
     gl.deleteBuffer(this.ibo);
     gl.deleteVertexArray(this.vao);
+  }
+
+  public setCursorPosition(position: Vector2): void {
+    this.cursorPosition = position.clone();
+  }
+
+  public beginSelection(position: Vector2): void {
+    this.selectionStart = position.clone();
+    this.selectionEnd = position.clone();
+  }
+
+  public updateSelection(position: Vector2): void {
+    if (!this.selectionStart) {
+      return;
+    }
+    this.selectionEnd = position.clone();
+  }
+
+  public endSelection(): void {
+    this.selectionEnd = null;
+    this.selectionStart = null;
+  }
+
+  public get selectionMin(): vec2 {
+    const start = this.selectionStart ?? this.cursorPosition;
+    const end = this.selectionEnd ?? start;
+
+    const minX = Math.min(start.x, end.x);
+    const minY = Math.min(start.y, end.y);
+
+    return this.coordToIndex(minX, minY);
+  }
+
+  public get selectionMax(): vec2 {
+    const start = this.selectionStart ?? this.cursorPosition;
+    const end = this.selectionEnd ?? start;
+
+    const maxX = Math.max(start.x, end.x);
+    const maxY = Math.max(start.y, end.y);
+
+    return this.coordToIndex(maxX, maxY);
+  }
+
+  public get selection(): Vector2[] {
+    const min = this.selectionMin;
+    const max = this.selectionMax;
+
+    const a = [];
+
+    for (let r = min[1]; r <= max[1]; r++) {
+      for (let c = min[0]; c <= max[0]; c++) {
+        a.push(new Vector2(c * this.tileSize[0], r * this.tileSize[1]));
+      }
+    }
+    return a;
+  }
+
+  public coordToIndex(x: number, y: number): vec2 {
+    return [clamp(Math.floor(x / this.tileSize[0]), 0, this.nbCols - 1), clamp(Math.floor(y / this.tileSize[1]), 0, this.nbRows - 1)];
   }
 }
 

@@ -81,7 +81,7 @@ export class RenderingSystem extends System {
       }
 
       // show bounding box helper
-      if (bbox && (debugSvc.enabled(DebugFlag.COLLISION) || bbox.debug)) {
+      if (bbox && (debugSvc.enabled(DebugFlag.ENTITIES) || bbox.debug)) {
         const modelMatrix = mat3.create();
 
         mat3.fromTranslation(modelMatrix, position.toGlArray());

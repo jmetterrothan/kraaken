@@ -92,6 +92,9 @@ const setUniform = (gl: WebGL2RenderingContext, uniform: IUniform): void => {
     case "1iv":
       gl.uniform1iv(uniform.location, uniform.value);
       break;
+    case "2iv":
+      gl.uniform2iv(uniform.location, uniform.value);
+      break;
     case "3iv":
       gl.uniform3iv(uniform.location, uniform.value);
       break;

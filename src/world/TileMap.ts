@@ -170,6 +170,20 @@ class TileMap {
     }
   }
 
+  public renderCollisionLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
+    this.atlas.use();
+
+    for (let r = this.startRow; r <= this.endRow; r++) {
+      for (let c = this.startCol; c <= this.endCol; c++) {
+        const tile = this.tiles[r][c];
+
+        if (tile.hasCollision()) {
+          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, 624, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
+        }
+      }
+    }
+  }
+
   public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
     this.atlas.use();
 

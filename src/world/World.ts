@@ -344,7 +344,11 @@ class World {
 
     this.tileMap.renderLayer(TileLayer.L2, this.projectionMatrix, camera.viewMatrix, alpha);
 
-    this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+    if (debugSvc.enabled(DebugFlag.COLLISION)) {
+      this.tileMap.renderCollisionLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+
+      this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+    }
 
     if (debugSvc.enabled(DebugFlag.CAMERA)) {
       camera.renderDebug(this.projectionMatrix, camera.viewMatrix, alpha);
@@ -365,8 +369,6 @@ class World {
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleKeyboardInput(e, active);
     }
-
-    this.grid.handleKeyboardInput(e, active);
   }
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
@@ -375,18 +377,14 @@ class World {
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleMouseInput(e, active, coords);
     }
-
-    this.grid.handleMouseInput(e, active, coords);
   }
 
-  public handleMouseMove(position: vec2): void {
+  public handleMouseMove(e: MouseEvent, position: vec2): void {
     const coords = this.screenToCameraCoords(position);
 
     for (let i = 0, n = this._systems.length; i < n; i++) {
-      this._systems[i].handleMouseMove(coords);
+      this._systems[i].handleMouseMove(e, coords);
     }
-
-    this.grid.handleMouseMove(coords);
   }
 
   public handleFullscreenChange(_b: boolean): void {
@@ -426,7 +424,7 @@ class World {
     const camera = this.camera.getComponent(Components.Camera);
 
     const v = vec2.transformMat3(vec2.create(), coords, camera.viewMatrixInverse);
-    return Vector2.create(v[0], v[1]);
+    return Vector2.fromGlArray(v);
   }
 
   public isFrustumCulled(entity: Entity): boolean {

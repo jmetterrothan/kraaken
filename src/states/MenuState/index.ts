@@ -23,7 +23,7 @@ class MenuState extends State<void> {
 
   public handleMouseInput(_e: MouseEvent, _active: boolean, _position: vec2): void {}
 
-  public handleMouseMove(_position: vec2): void {}
+  public handleMouseMove(_e: MouseEvent, _position: vec2): void {}
 
   public handleFullscreenChange(_b: boolean): void {}
 

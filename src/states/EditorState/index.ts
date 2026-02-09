@@ -33,8 +33,8 @@ import CollisionMode from "./modes/CollisionMode";
 import editorStore, { IEditorStoreState } from "./editorStore";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
-import { debugSvc } from "@src/shared/services/Debug";
-import { DebugFlag } from "@src/enums/DebugFlag";
+
+import { Position } from "@src/ECS/components";
 
 interface EditorStateOptions {
   levelId: string;
@@ -44,7 +44,6 @@ interface EditorStateOptions {
 type RoomData = {
   world: World;
   cursor: Entity;
-  //  gridCursor: Entity;
 };
 
 class EditorState extends State<EditorStateOptions> {
@@ -85,10 +84,19 @@ class EditorState extends State<EditorStateOptions> {
       await this.initRoom(room);
     });
 
-    await this.addRoom("3", 16, "tiles");
+    // await this.addRoom("3", 16, "tiles");
 
     this.state = editorStore.initialState;
-    editorStore.subscribe((state) => (this.state = state));
+    editorStore.subscribe((state) => {
+      console.log(state);
+
+      if (this.state.mode !== state.mode) {
+        this.modes[this.state.mode].unmounted();
+        this.modes[state.mode].mounted();
+      }
+
+      this.state = state;
+    });
     editorStore.init();
 
     this.mouse = new Vector2(0, 0);
@@ -98,6 +106,8 @@ class EditorState extends State<EditorStateOptions> {
       [EditorMode.ENTITY]: new EntityMode(this),
       [EditorMode.COLLISION]: new CollisionMode(this),
     };
+
+    this.currentMode.mounted();
 
     editorStore.setScale(3);
 
@@ -114,8 +124,6 @@ class EditorState extends State<EditorStateOptions> {
     world.addSystem(new Systems.BasicMovementSystem());
     world.addSystem(new Systems.PlaceableSystem());
 
-    debugSvc.set(DebugFlag.GRID, true);
-
     await world.init();
 
     const cameraComponent = new Components.Camera({
@@ -125,10 +133,6 @@ class EditorState extends State<EditorStateOptions> {
     const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
 
     world.addCamera(camera, true);
-
-    // show a cursor following the mouse
-    // const gridCursor = this.createGridCursor();
-    // world.addEntity(gridCursor);
 
     const cursor = this.createCursor();
     world.addEntity(cursor);
@@ -171,6 +175,7 @@ class EditorState extends State<EditorStateOptions> {
     this.levelBlueprint.rooms.push(room);
 
     await this.initRoom(room);
+
     this.currentRoomId = room.id;
   }
 
@@ -188,15 +193,6 @@ class EditorState extends State<EditorStateOptions> {
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
     entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 2, align: "center" }));
-
-    return entity;
-  }
-
-  public createGridCursor(uuid = uuidv4()): Entity {
-    const entity = new Entity("cursor", uuid);
-
-    entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 4, col: 4, align: "center" }));
 
     return entity;
   }
@@ -240,9 +236,6 @@ class EditorState extends State<EditorStateOptions> {
 
     this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (_e: GameEvents.UserLeftRoomEvent) => {});
 
-    this.modes[EditorMode.ENTITY].mounted();
-    this.modes[EditorMode.TERRAIN].mounted();
-
     driver.sync(this.levelBlueprint.id);
 
     // init ui
@@ -263,9 +256,6 @@ class EditorState extends State<EditorStateOptions> {
     // reset event history stack
     eventStackSvc.reset();
 
-    this.modes[EditorMode.ENTITY].unmounted();
-    this.modes[EditorMode.TERRAIN].unmounted();
-
     this.rooms.forEach((room) => {
       room.world.destroy();
     });
@@ -277,6 +267,9 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public update(delta: number): void {
+    const cursorPosition = this.currentRoom.cursor.getComponent(Position);
+    cursorPosition.fromValues(this.mouse.x, this.mouse.y);
+
     this.currentRoom.world.update(delta);
     this.currentMode.update(delta);
   }
@@ -319,11 +312,12 @@ class EditorState extends State<EditorStateOptions> {
     this.currentMode.handleMouseInput(e, active, position);
   }
 
-  public handleMouseMove(position: vec2): void {
-    this.mouse = this.currentRoom.world.screenToCameraCoords(position);
+  public handleMouseMove(e: MouseEvent, position: vec2): void {
+    const worldPos = this.currentRoom.world.screenToCameraCoords(position);
+    this.mouse = worldPos;
 
-    this.currentRoom.world.handleMouseMove(position);
-    this.currentMode.handleMouseMove(position);
+    this.currentRoom.world.handleMouseMove(e, position);
+    this.currentMode.handleMouseMove(e, position);
   }
 
   public handleFullscreenChange(b: boolean): void {
@@ -334,7 +328,7 @@ class EditorState extends State<EditorStateOptions> {
     this.currentRoom.world.handleResize();
   }
 
-  public get currentMode(): any {
+  public get currentMode() {
     return this.modes[this.state.mode];
   }
 

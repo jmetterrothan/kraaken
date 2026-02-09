@@ -2,9 +2,11 @@
 precision highp float;
 
 uniform vec4 u_color;
-uniform vec4 u_active_cell_color;
 uniform vec2 u_tilesize;
-uniform vec2 u_active_cell;
+uniform bool u_show_selection;
+uniform vec4 u_selection_color;
+uniform vec2 u_selection_min;
+uniform vec2 u_selection_max;
 
 in vec2 v_world;
 out vec4 fragColor;
@@ -14,11 +16,13 @@ void main() {
   vec2 cellIndex = floor(v_world / u_tilesize);
 
   float gridW = 0.02;
-  float gridLine = (cell.x < gridW || cell.y < gridW) ? 1.0 : 0.0;
+  float gridLine = (cell.x < gridW || cell.y < gridW) ? 1.0 : 0.0; 
 
-  bool isHovered =
-    cellIndex.x == u_active_cell.x &&
-    cellIndex.y == u_active_cell.y;
+  bool inSelection =
+  cellIndex.x >= u_selection_min.x &&
+  cellIndex.y >= u_selection_min.y &&
+  cellIndex.x <= u_selection_max.x &&
+  cellIndex.y <= u_selection_max.y;
 
   float outlineW = 0.03;
   float outline =
@@ -31,8 +35,22 @@ void main() {
 
   vec4 base = mix(vec4(0.0), u_color, gridLine);
 
-  if (isHovered && outline > 0.0) {
-    fragColor = u_active_cell_color; // blue outline
+  if (u_show_selection && inSelection && outline > 0.0) {
+    bool leftEdge =
+      cellIndex.x == u_selection_min.x && cell.x < outlineW;
+
+    bool rightEdge =
+      cellIndex.x == u_selection_max.x && cell.x > 1.0 - outlineW;
+
+    bool topEdge =
+      cellIndex.y == u_selection_min.y && cell.y < outlineW;
+
+    bool bottomEdge =
+      cellIndex.y == u_selection_max.y && cell.y > 1.0 - outlineW;
+
+    bool selectionOutline = leftEdge || rightEdge || topEdge || bottomEdge;
+
+    fragColor = selectionOutline ? u_selection_color : base;
   } else {
     fragColor = base;
   }

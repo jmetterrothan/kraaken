@@ -188,8 +188,8 @@ class LevelState extends State<LevelStateOptions> {
     this.currentRoom.handleMouseInput(e, active, position);
   }
 
-  public handleMouseMove(position: vec2): void {
-    this.currentRoom.handleMouseMove(position);
+  public handleMouseMove(e: MouseEvent, position: vec2): void {
+    this.currentRoom.handleMouseMove(e, position);
   }
 
   public handleFullscreenChange(b: boolean): void {

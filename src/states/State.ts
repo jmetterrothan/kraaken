@@ -46,7 +46,7 @@ abstract class State<O = any> {
 
   public abstract handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void;
 
-  public abstract handleMouseMove(position: vec2): void;
+  public abstract handleMouseMove(e: MouseEvent, position: vec2): void;
 
   public abstract handleFullscreenChange(b: boolean): void;
 
@@ -55,8 +55,8 @@ abstract class State<O = any> {
   /**
    * Register an event listener to the state that can be later flushed
    */
-  public registerEvent(type: keyof WindowEventMap, listener: any): void {
-    registerEvent(type, listener, { signal: this.controller.signal });
+  public registerEvent(type: keyof WindowEventMap, listener: any) {
+    return registerEvent(type, listener, { signal: this.controller.signal });
   }
 
   /**

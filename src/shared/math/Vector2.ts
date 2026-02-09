@@ -9,6 +9,10 @@ class Vector2 {
   public x: number;
   public y: number;
 
+  public static fromGlArray(v: vec2): Vector2 {
+    return Vector2.create(v[0], v[1]);
+  }
+
   public static create(x?: number, y?: number): Vector2 {
     const v = Vector2.instances.pop();
     if (typeof v !== "undefined" && v !== null) {

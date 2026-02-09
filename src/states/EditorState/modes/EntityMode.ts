@@ -15,6 +15,8 @@ import eventStackSvc from "@src/shared/services/EventStackService";
 import { vec2 } from "gl-matrix";
 import editorStore from "../editorStore";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
+import { DebugFlag } from "@src/enums/DebugFlag";
+import { debugSvc } from "@src/shared/services/Debug";
 
 const snapToTileCenter = (value: number, tileSize: number) => {
   return Math.floor(value / tileSize) * tileSize + tileSize / 2;
@@ -26,110 +28,123 @@ class EntityMode {
 
   private editor: EditorState;
 
+  private events: Array<() => void>;
+
   public constructor(editor: EditorState) {
     this.editor = editor;
+
+    this.events = [];
   }
 
   public mounted(): void {
-    this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
-      const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
+    debugSvc.set(DebugFlag.GRID, true);
+    debugSvc.set(DebugFlag.COLLISION, false);
+    debugSvc.set(DebugFlag.ENTITIES, true);
 
-      const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
+    this.events.push(
+      this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
+        const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-      if (!room) {
-        throw new Error(`Unknown room`);
-      }
+        const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
 
-      const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
+        if (!room) {
+          throw new Error(`Unknown room`);
+        }
 
-      try {
-        if (index !== -1) {
-          room.spawnPoints[index] = spawnPoint;
+        const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
-          // TODO: push to event stack
-        } else {
-          this.editor.currentRoom.world.spawn(spawnPoint);
-          room.spawnPoints.push(spawnPoint);
+        try {
+          if (index !== -1) {
+            room.spawnPoints[index] = spawnPoint;
+
+            // TODO: push to event stack
+          } else {
+            this.editor.currentRoom.world.spawn(spawnPoint);
+            room.spawnPoints.push(spawnPoint);
+
+            if (pushToStack) {
+              eventStackSvc.undoStack.push({
+                undo: () => driver.despawn(spawnPoint.uuid, false),
+                redo: () => driver.spawn(spawnPoint, false),
+              });
+            }
+          }
+
+          // if entity already exists in the world we update its position
+          const entity = this.editor.currentRoom.world.getEntityByUuid(spawnPoint.uuid);
+          if (entity) {
+            if (entity.hasComponent(Position.COMPONENT_TYPE)) {
+              const position = entity.getComponent(Position);
+              position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+            }
+
+            if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
+              const rigidBody = entity.getComponent(RigidBody);
+              rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
+            }
+          }
+
+          if (typeof onSuccess === "function") {
+            onSuccess();
+          }
+        } catch (e) {
+          if (typeof onFailure === "function") {
+            onFailure();
+          }
+        }
+      })
+    );
+
+    this.events.push(
+      this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
+        const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
+
+        const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
+
+        if (!room) {
+          throw new Error(`Unknown room "${this.editor.currentRoom.world.levelBlueprint.defaultRoomId}"`);
+        }
+
+        const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
+        const spawnPoint = room.spawnPoints[index];
+
+        try {
+          if (!spawnPoint) {
+            throw new Error(`Unknown entity with uuid "${uuid}"`);
+          }
+          if (!spawnPoint.uuid) {
+            throw new Error(`Spawnpoint w/o uuid`);
+          }
+
+          this.editor.currentRoom.world.despawn(spawnPoint.uuid);
+          room.spawnPoints.splice(index, 1);
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: () => driver.despawn(spawnPoint.uuid, false),
-              redo: () => driver.spawn(spawnPoint, false),
+              undo: () => driver.spawn(spawnPoint, false),
+              redo: () => driver.despawn(spawnPoint.uuid, false),
             });
           }
-        }
 
-        // if entity already exists in the world we update its position
-        const entity = this.editor.currentRoom.world.getEntityByUuid(spawnPoint.uuid);
-        if (entity) {
-          if (entity.hasComponent(Position.COMPONENT_TYPE)) {
-            const position = entity.getComponent(Position);
-            position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+          if (typeof onSuccess === "function") {
+            onSuccess();
           }
-
-          if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
-            const rigidBody = entity.getComponent(RigidBody);
-            rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
+        } catch (e) {
+          if (typeof onFailure === "function") {
+            onFailure();
           }
         }
+      })
+    );
+  }
 
-        if (typeof onSuccess === "function") {
-          onSuccess();
-        }
-      } catch (e) {
-        if (typeof onFailure === "function") {
-          onFailure();
-        }
-      }
-    });
-
-    this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
-      const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
-
-      const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
-
-      if (!room) {
-        throw new Error(`Unknown room "${this.editor.currentRoom.world.levelBlueprint.defaultRoomId}"`);
-      }
-
-      const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
-      const spawnPoint = room.spawnPoints[index];
-
-      try {
-        if (!spawnPoint) {
-          throw new Error(`Unknown entity with uuid "${uuid}"`);
-        }
-        if (!spawnPoint.uuid) {
-          throw new Error(`Spawnpoint w/o uuid`);
-        }
-
-        this.editor.currentRoom.world.despawn(spawnPoint.uuid);
-        room.spawnPoints.splice(index, 1);
-
-        if (pushToStack) {
-          eventStackSvc.undoStack.push({
-            undo: () => driver.spawn(spawnPoint, false),
-            redo: () => driver.despawn(spawnPoint.uuid, false),
-          });
-        }
-
-        if (typeof onSuccess === "function") {
-          onSuccess();
-        }
-      } catch (e) {
-        if (typeof onFailure === "function") {
-          onFailure();
-        }
-      }
+  public unmounted(): void {
+    this.events.map((callback) => {
+      callback();
     });
   }
 
-  public unmounted(): void {}
-
-  public update(_delta: number): void {
-    const position = this.editor.currentRoom.cursor.getComponent(Position);
-    position.fromValues(this.editor.mouse.x, this.editor.mouse.y);
-  }
+  public update(_delta: number): void {}
 
   public render(_alpha: number): void {}
 
