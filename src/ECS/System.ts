@@ -1,6 +1,5 @@
 import Vector2 from "@src/shared/math/Vector2";
 import World from "@src/world/World";
-import { vec2 } from "gl-matrix";
 
 export abstract class System {
   public readonly componentTypes: ReadonlyArray<string>;
@@ -15,7 +14,7 @@ export abstract class System {
 
   public handleMouseMove(_coords: Vector2): void {}
 
-  public handleMouseInput(_e: MouseEvent, _active: boolean, _position: vec2): void {}
+  public handleMouseInput(_e: MouseEvent, _active: boolean, _position: Vector2): void {}
 
   public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 

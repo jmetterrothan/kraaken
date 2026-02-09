@@ -78,7 +78,8 @@ class World {
       this.roomBlueprint.tileMapCols, //
       this.roomBlueprint.tileMapRows,
       this.roomBlueprint.tileSize,
-      [0.05, 0.05, 0.05, 0]
+      [0.05, 0.05, 0.05, 0],
+      [0.6, 0.4, 1, 1]
     );
     this.grid.init();
 
@@ -364,12 +365,18 @@ class World {
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleKeyboardInput(e, active);
     }
+
+    this.grid.handleKeyboardInput(e, active);
   }
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
+    const coords = this.screenToCameraCoords(position);
+
     for (let i = 0, n = this._systems.length; i < n; i++) {
-      this._systems[i].handleMouseInput(e, active, position);
+      this._systems[i].handleMouseInput(e, active, coords);
     }
+
+    this.grid.handleMouseInput(e, active, coords);
   }
 
   public handleMouseMove(position: vec2): void {
@@ -378,6 +385,8 @@ class World {
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleMouseMove(coords);
     }
+
+    this.grid.handleMouseMove(coords);
   }
 
   public handleFullscreenChange(_b: boolean): void {

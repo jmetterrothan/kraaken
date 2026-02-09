@@ -12,7 +12,7 @@ import World from "@src/world/World";
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
 import { EditorMode } from "@src/shared/models/editor.model";
-import { ILevelBlueprint } from "@src/shared/models/world.model";
+import { ILevelBlueprint, IRoomBlueprint } from "@src/shared/models/world.model";
 
 import Vector2 from "@src/shared/math/Vector2";
 
@@ -82,52 +82,10 @@ class EditorState extends State<EditorStateOptions> {
         throw new Error(`Could not find room with id = ${id}`);
       }
 
-      const world = new World(id, this.levelBlueprint, {
-        showGrid: true,
-        showZones: true,
-      });
-
-      world.addSystem(new Systems.BasicInputSystem());
-      world.addSystem(new Systems.BasicMovementSystem());
-      world.addSystem(new Systems.PlaceableSystem());
-
-      debugSvc.set(DebugFlag.GRID, true);
-
-      await world.init();
-
-      const cameraComponent = new Components.Camera({
-        smoothing: 0.1,
-      });
-
-      const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
-
-      world.addCamera(camera, true);
-
-      // show a cursor following the mouse
-      // const gridCursor = this.createGridCursor();
-      // world.addEntity(gridCursor);
-
-      const cursor = this.createCursor();
-      world.addEntity(cursor);
-
-      // add controllable object with the arrow keys to move the camera around
-      const controllableObject = this.createControllableEntity();
-      world.addEntity(controllableObject);
-      world.followEntity(controllableObject);
-      world.controlEntity(controllableObject);
-
-      // focus on player if it exists
-      const playerSpawnPoint = room.spawnPoints.find((spawnpoint) => spawnpoint.type === "dino");
-
-      if (playerSpawnPoint) {
-        const { x, y } = playerSpawnPoint.position;
-        const position = controllableObject.getComponent(Components.Position);
-
-        position.fromValues(x, y);
-      }
-
-      this.rooms.set(id, { world, cursor });
+      await this.initRoom(room);
     });
+
+    await this.addRoom("3", 16, "tiles");
 
     this.state = editorStore.initialState;
     editorStore.subscribe((state) => (this.state = state));
@@ -144,6 +102,76 @@ class EditorState extends State<EditorStateOptions> {
     editorStore.setScale(3);
 
     console.info("Editor initialized");
+  }
+
+  public async initRoom(room: IRoomBlueprint) {
+    const world = new World(room.id, this.levelBlueprint, {
+      showGrid: true,
+      showZones: true,
+    });
+
+    world.addSystem(new Systems.BasicInputSystem());
+    world.addSystem(new Systems.BasicMovementSystem());
+    world.addSystem(new Systems.PlaceableSystem());
+
+    debugSvc.set(DebugFlag.GRID, true);
+
+    await world.init();
+
+    const cameraComponent = new Components.Camera({
+      smoothing: 0.1,
+    });
+
+    const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
+
+    world.addCamera(camera, true);
+
+    // show a cursor following the mouse
+    // const gridCursor = this.createGridCursor();
+    // world.addEntity(gridCursor);
+
+    const cursor = this.createCursor();
+    world.addEntity(cursor);
+
+    // add controllable object with the arrow keys to move the camera around
+    const controllableObject = this.createControllableEntity();
+    world.addEntity(controllableObject);
+    world.followEntity(controllableObject);
+    world.controlEntity(controllableObject);
+
+    // focus on player if it exists
+    const playerSpawnPoint = room.spawnPoints.find((spawnpoint) => spawnpoint.type === "dino");
+
+    if (playerSpawnPoint) {
+      const { x, y } = playerSpawnPoint.position;
+      const position = controllableObject.getComponent(Components.Position);
+
+      position.fromValues(x, y);
+    }
+
+    this.rooms.set(room.id, { world, cursor });
+  }
+
+  public async addRoom(id: string, tileSize: number, tileSet: string) {
+    const room = {
+      id,
+      tileSize,
+      tileSet,
+      tileMapRows: 64,
+      tileMapCols: 64,
+      layers: {
+        1: [],
+        2: [],
+        3: [],
+      },
+      spawnPoints: [],
+      zones: [],
+    };
+
+    this.levelBlueprint.rooms.push(room);
+
+    await this.initRoom(room);
+    this.currentRoomId = room.id;
   }
 
   public createControllableEntity(uuid = uuidv4()): Entity {

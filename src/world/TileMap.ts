@@ -79,7 +79,7 @@ class TileMap {
       for (let c = 0; c < this.nbCols; c++) {
         const getTileTypeId = (layer: TileLayer) => {
           const index = r * this.nbCols + c;
-          return blueprint.layers[layer][index];
+          return blueprint.layers[layer][index] ?? 0;
         };
 
         const setTileTypeId = (layer: TileLayer, id: number) => {

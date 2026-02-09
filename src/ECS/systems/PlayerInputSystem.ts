@@ -8,7 +8,6 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
 
-import { vec2 } from "gl-matrix";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 import gamepadBindings, { matchGamepadBinding } from "@src/gamepadBindings";
@@ -39,7 +38,7 @@ export class PlayerInputSystem extends System {
     });
   }
 
-  public handleMouseInput(e: MouseEvent, active: boolean, _position: vec2): void {
+  public handleMouseInput(e: MouseEvent, active: boolean, _position: Vector2): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;

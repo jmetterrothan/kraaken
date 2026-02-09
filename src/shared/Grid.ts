@@ -12,6 +12,7 @@ import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 
 import vsObject from "@src/assets/shaders/grid.vs.glsl?raw";
 import fsSprite from "@src/assets/shaders/grid.fs.glsl?raw";
+import Vector2 from "./math/Vector2";
 
 class Grid {
   private material: Material = new Material(vsObject, fsSprite);
@@ -27,7 +28,10 @@ class Grid {
 
   private size: vec2;
 
+  private activeCell: vec2;
+
   private color: vec4;
+  private activeCellColor: vec4;
 
   private attributes: IAttributes = {
     a_position: gl.getAttribLocation(this.material.program, "a_position"),
@@ -38,21 +42,26 @@ class Grid {
     u_view: { type: "Matrix3fv", value: undefined, location: null },
     u_model: { type: "Matrix3fv", value: undefined, location: null },
     u_color: { type: "4fv", value: undefined, location: null },
+    u_active_cell_color: { type: "4fv", value: undefined, location: null },
     u_scale: { type: "1f", value: undefined, location: null },
     u_tilesize: { type: "2fv", value: undefined, location: null },
     u_offset: { type: "2fv", value: undefined, location: null },
+    u_active_cell: { type: "2fv", value: undefined, location: null },
   };
 
   private loaded = false;
 
-  public constructor(nbCols: number, nbRows: number, tileSize: number, c: vec4) {
+  public constructor(nbCols: number, nbRows: number, tileSize: number, c: vec4, ac: vec4) {
     this.transform = mat3.create();
 
     this.width = nbCols * tileSize;
     this.height = nbRows * tileSize;
     this.size = [tileSize, tileSize];
 
+    this.activeCell = [0, 0];
+
     this.color = c;
+    this.activeCellColor = ac;
   }
 
   public async init() {
@@ -75,13 +84,23 @@ class Grid {
       this.setUniform("u_projection", projectionMatrix);
       this.setUniform("u_view", viewMatrix);
       this.setUniform("u_model", this.transform);
+      this.setUniform("u_active_cell_color", this.activeCellColor);
       this.setUniform("u_color", this.color);
       this.setUniform("u_scale", configSvc.scale);
       this.setUniform("u_tilesize", this.size);
       this.setUniform("u_offset", offset);
+      this.setUniform("u_active_cell", this.activeCell);
 
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
     }
+  }
+
+  public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
+
+  public handleMouseInput(_e: MouseEvent, _active: boolean, _position: Vector2): void {}
+
+  public handleMouseMove(position: Vector2): void {
+    this.activeCell = [Math.floor(position.x / this.size[0]), Math.floor(position.y / this.size[1])];
   }
 
   private setUniform(key: string, value: any) {
