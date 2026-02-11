@@ -5,13 +5,15 @@ import World from "@src/world/World";
 
 export enum PlayerAnimationKeys {
   DEAD = "dead",
+  HURT = "hurt",
   IDLE = "idle",
   WALKING = "walking",
   FALLING = "falling",
+  LANDING = "landing",
   JUMPING = "jumping",
   WALL_CLIMBING = "wallClimbing",
   WALL_SLIDING = "wallSliding",
-  USE_PRIMARY_WEAPON = "use_primary_weapon",
+  USE_PRIMARY_WEAPON = "usePrimaryWeapon",
 }
 
 export class PlayerAnimator extends Animator {
@@ -24,6 +26,9 @@ export class PlayerAnimator extends Animator {
     if (health.isDead) {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
     }
+    if (health.isHit) {
+      return `${entity.type}:${PlayerAnimationKeys.HURT}`;
+    }
     if (movement.wallClimbing) {
       return `${entity.type}:${PlayerAnimationKeys.WALL_CLIMBING}`;
     }
@@ -31,6 +36,9 @@ export class PlayerAnimator extends Animator {
       return `${entity.type}:${PlayerAnimationKeys.WALL_SLIDING}`;
     }
     // vertical movement
+    if (movement.landing) {
+      return `${entity.type}:${PlayerAnimationKeys.LANDING}`;
+    }
     if (movement.falling) {
       return `${entity.type}:${PlayerAnimationKeys.FALLING}`;
     }

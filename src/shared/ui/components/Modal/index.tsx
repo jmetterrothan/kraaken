@@ -5,7 +5,8 @@ import TileImage from "../TileImage";
 
 import "./Modal.scss";
 
-import { IToolbarTilesetItem } from "../ToolbarTileset/useTileset";
+import useTileset from "../ToolbarTileset/useTileset";
+import { ISpriteData } from "@src/shared/models/sprite.model";
 
 interface Modal {
   isOpen?: boolean;
@@ -24,21 +25,19 @@ export const useModal = (): Modal => {
 };
 
 interface IModalProps {
-  tiles: IToolbarTilesetItem[];
+  tileSet: ISpriteData;
   selected: number;
-  nbCols: number;
-  nbRows: number;
-  tileWidth: number;
-  tileHeight: number;
   isOpen?: boolean;
   onSelect?: (id: number) => void;
   onClose?: () => void;
 }
 
-const Modal = ({ tiles, selected, nbCols, nbRows, tileWidth, tileHeight, isOpen, onSelect, onClose }: PropsWithChildren<IModalProps>) => {
+const Modal = ({ selected, tileSet, isOpen, onSelect, onClose }: PropsWithChildren<IModalProps>) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const scale = 4;
+
+  const { tiles, nbCols, nbRows } = useTileset(tileSet);
 
   React.useLayoutEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -61,9 +60,9 @@ const Modal = ({ tiles, selected, nbCols, nbRows, tileWidth, tileHeight, isOpen,
           className="modal-grid"
           style={{
             position: "relative", //
-            width: `${nbCols * tileWidth * scale}px`,
-            height: `${nbRows * tileHeight * scale}px`,
-            backgroundSize: `${tileWidth * scale}px ${tileHeight * scale}px`,
+            width: `${nbCols * tileSet.tileWidth * scale}px`,
+            height: `${nbRows * tileSet.tileHeight * scale}px`,
+            backgroundSize: `${tileSet.tileWidth * scale}px ${tileSet.tileHeight * scale}px`,
           }}
         >
           {tiles.map(({ index, row, col, subImage }) => {
@@ -78,16 +77,16 @@ const Modal = ({ tiles, selected, nbCols, nbRows, tileWidth, tileHeight, isOpen,
                 className={cx("modal-grid__item", selected === index && "active")}
                 style={{
                   position: "absolute", //
-                  top: `${row * (tileHeight * scale)}px`,
-                  left: `${col * (tileWidth * scale)}px`,
+                  top: `${row * (tileSet.tileHeight * scale)}px`,
+                  left: `${col * (tileSet.tileWidth * scale)}px`,
                 }}
               >
                 <TileImage
                   title={`row: ${row}, col: ${col}, index: ${index}`} //
                   src={subImage}
                   style={{
-                    width: `${tileWidth * scale}px`, //
-                    height: `${tileHeight * scale}px`,
+                    width: `${tileSet.tileWidth * scale}px`, //
+                    height: `${tileSet.tileHeight * scale}px`,
                   }}
                   onClick={onClick}
                 />

@@ -26,7 +26,7 @@ class WebSocketService {
         });
 
         this.socket.on(WS_PLACE_EVENT, ({ data, options }) => {
-          dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, options.pushToStack));
+          dispatch(GameEvents.placeEvent(data.layerId, data.coords, options.pushToStack));
         });
 
         this.socket.on(WS_SPAWN_EVENT, ({ data, options }) => {

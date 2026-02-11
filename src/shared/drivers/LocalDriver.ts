@@ -30,7 +30,7 @@ class LocalDriver extends AbstractDriver {
   public async sync(_id: string): Promise<void> {}
 
   public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
-    dispatch(GameEvents.placeEvent(data.layerId, data.tileTypeId, data.coords, pushToStack));
+    dispatch(GameEvents.placeEvent(data.layerId, data.coords, pushToStack));
   }
 
   public async spawn(data: ISpawnpoint, pushToStack: boolean): Promise<void> {

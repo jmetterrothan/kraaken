@@ -2,6 +2,9 @@ import { Entity } from "@src/ECS";
 
 import EditorState from "@src/states/EditorState";
 
+import * as GameEventTypes from "@src/shared/events/constants";
+import * as GameEvents from "@src/shared/events";
+
 import { TileLayer } from "@src/shared/models/tilemap.model";
 
 import { driver } from "@src/shared/drivers/DriverFactory";
@@ -11,6 +14,7 @@ import { vec2 } from "gl-matrix";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
+import eventStackSvc from "@src/shared/services/EventStackService";
 
 class CollisionMode {
   public focusedEntity: Entity | undefined;
@@ -30,6 +34,60 @@ class CollisionMode {
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, true);
     debugSvc.set(DebugFlag.ENTITIES, false);
+
+    this.events.push(
+      this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
+        const { coords = [], layer, onSuccess, onFailure, pushToStack } = e.detail || {};
+
+        try {
+          const tileMap = this.editor.currentRoom.world.tileMap;
+
+          const prevCoords = coords.map((c) => {
+            const tile = tileMap.getTileAtCoords(c.x, c.y);
+            const oldTileTypeId = tile?.getTileTypeId(layer) ?? 0;
+
+            return {
+              ...c,
+              tileTypeId: oldTileTypeId,
+            };
+          });
+
+          // compute layer transforms
+          coords.forEach((coord) => {
+            const tile = tileMap.getTileAtCoords(coord.x, coord.y);
+
+            if (tile) {
+              tile.setCollision(coord.tileTypeId > 0);
+            }
+          });
+
+          // register event
+          if (pushToStack) {
+            eventStackSvc.undoStack.push({
+              undo: () =>
+                driver.place(
+                  {
+                    layerId: layer,
+                    coords: prevCoords,
+                  },
+                  false
+                ), //
+              redo: () => driver.place({ layerId: layer, coords }, false),
+            });
+          }
+
+          if (typeof onSuccess === "function") {
+            onSuccess();
+          }
+        } catch (e) {
+          console.error(e);
+
+          if (typeof onFailure === "function") {
+            onFailure();
+          }
+        }
+      })
+    );
   }
 
   public unmounted(): void {
@@ -57,9 +115,9 @@ class CollisionMode {
       }
 
       if (matchMouseBinding(mouseBindings.editor.collisionMode.place, e)) {
-        driver.place({ layerId: TileLayer.L0, tileTypeId: 1, coords }, true);
+        driver.place({ layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 1 })) }, true);
       } else if (matchMouseBinding(mouseBindings.editor.collisionMode.erase, e)) {
-        driver.place({ layerId: TileLayer.L0, tileTypeId: 0, coords }, true);
+        driver.place({ layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();

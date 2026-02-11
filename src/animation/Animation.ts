@@ -42,23 +42,15 @@ class Animation {
   }
 
   public static destroy(animation: Animation): void {
-    const usePool = Animation.shouldUsePool(animation.name);
+    if (Animation.pools.has(animation.name)) {
+      animation.reset();
 
-    if (usePool) {
-      if (Animation.pools.has(animation.name)) {
-        animation.reset();
+      const pool = Animation.pools.get(animation.name);
 
-        const pool = Animation.pools.get(animation.name);
-
-        if (pool) {
-          pool.release(animation);
-        }
+      if (pool) {
+        pool.release(animation);
       }
     }
-  }
-
-  public static shouldUsePool(name: string): boolean {
-    return !name.startsWith("coin");
   }
 
   public readonly sprite: string;

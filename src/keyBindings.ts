@@ -1,4 +1,4 @@
-import KeyBinding from "./shared/bindings/KeyBinding";
+import KeyBinding, { IS_MAC_PLATFORM } from "./shared/bindings/KeyBinding";
 
 const keyBindings = {
   level: {
@@ -9,13 +9,13 @@ const keyBindings = {
     jump: [new KeyBinding({ code: "Space" })],
     usePrimaryWeapon: [],
     useSecondaryWeapon: [new KeyBinding({ code: "KeyG" })],
-    edit: [new KeyBinding({ code: "KeyE", ctrl: true })],
+    edit: [new KeyBinding({ code: "KeyE", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
   },
   editor: {
     save: [new KeyBinding({ code: "KeyS", ctrl: true })],
     play: [new KeyBinding({ code: "KeyP", ctrl: true })],
-    undo: [new KeyBinding({ code: "KeyU" })],
-    redo: [new KeyBinding({ code: "KeyR" })],
+    undo: [new KeyBinding({ code: "KeyW", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
+    redo: [new KeyBinding({ code: "KeyY", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
     zoomIn: [new KeyBinding({ code: "NumpadAdd" })],
     zoomOut: [new KeyBinding({ code: "NumpadSubtract" })],
     place: [new KeyBinding({ code: "Digit1" })],

@@ -37,37 +37,46 @@ class TerrainMode {
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
-        const { coords = [], layer, tileTypeId, onSuccess, onFailure, pushToStack } = e.detail || {};
-
-        if (typeof tileTypeId === "undefined") {
-          throw new Error("Undefined tile type index");
-        }
-
-        let oldTileTypeId: number = tileTypeId;
+        const { coords = [], layer, onSuccess, onFailure, pushToStack } = e.detail || {};
 
         try {
           const tileMap = this.editor.currentRoom.world.tileMap;
+
+          const prevCoords = coords.map((c) => {
+            const tile = tileMap.getTileAtCoords(c.x, c.y);
+            const oldTileTypeId = tile?.getTileTypeId(layer) ?? 0;
+
+            return {
+              ...c,
+              tileTypeId: oldTileTypeId,
+            };
+          });
 
           // compute layer transforms
           coords.forEach((coord) => {
             const tile = tileMap.getTileAtCoords(coord.x, coord.y);
 
             if (tile) {
-              oldTileTypeId = tile.getTileTypeId(layer);
-
               if (layer === TileLayer.L0) {
-                tile.setCollision(tileTypeId > 0);
+                tile.setCollision(coord.tileTypeId > 0);
               } else {
-                tile.setTileTypeId(layer, tileTypeId);
+                tile.setTileTypeId(layer, coord.tileTypeId);
               }
             }
           });
 
           // register event
-          if (oldTileTypeId !== tileTypeId && pushToStack) {
+          if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: () => driver.place({ layerId: layer, tileTypeId: oldTileTypeId, coords }, false), //
-              redo: () => driver.place({ layerId: layer, tileTypeId, coords }, false),
+              undo: () =>
+                driver.place(
+                  {
+                    layerId: layer,
+                    coords: prevCoords,
+                  },
+                  false
+                ), //
+              redo: () => driver.place({ layerId: layer, coords }, false),
             });
           }
 
@@ -132,9 +141,9 @@ class TerrainMode {
             editorStore.setSelectedTileTypeId(tileTypeId);
           }
         } else if (terrainMode === EditorTerrainMode.PLACE) {
-          driver.place({ layerId, tileTypeId, coords }, true);
+          driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
         } else if (terrainMode === EditorTerrainMode.ERASE) {
-          driver.place({ layerId, tileTypeId: 0, coords }, true);
+          driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
         } else if (terrainMode === EditorTerrainMode.FILL) {
           const targetTile = tileMap.getTileAtCoords(coords[0].x, coords[0].y);
           const tileSize = tileMap.getTileSize();
@@ -143,7 +152,7 @@ class TerrainMode {
             const targetId = targetTile.getTileTypeId(layerId);
             const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
-            driver.place({ layerId, tileTypeId, coords: listOfCoords }, true);
+            driver.place({ layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
           }
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.pick, e)) {
@@ -153,7 +162,7 @@ class TerrainMode {
           editorStore.setSelectedTileTypeId(tileTypeId);
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.erase, e)) {
-        driver.place({ layerId, tileTypeId: 0, coords }, true);
+        driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();

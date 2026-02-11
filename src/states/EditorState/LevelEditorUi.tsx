@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -6,14 +6,11 @@ import ToolbarButton from "@src/shared/ui/components/ToolbarButton";
 import ToolbarTileset from "@src/shared/ui/components/ToolbarTileset";
 import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
 import ToolbarSelect from "@src/shared/ui/components/ToolbarSelect";
-import useTileset from "@src/shared/ui/components/ToolbarTileset/useTileset";
 import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 import { ILevelBlueprint } from "@src/shared/models/world.model";
-
-import { driver } from "@src/shared/drivers/DriverFactory";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -22,8 +19,10 @@ import RedoToolbarButton from "./RedoToolbarButton";
 import ZoomToolbarSelect from "./ZoomToolbarSelect";
 
 import editorStore from "./editorStore";
-import { Placeable } from "@src/ECS/components";
+
 import keyBindings from "@src/keyBindings";
+import TerrainModeSidePanel from "@src/shared/ui/components/TerrainModeSidePanel";
+import EntityModeSidePanel from "@src/shared/ui/components/EntityModeSidePanel";
 
 interface EditorUiProps {
   levelId: string;
@@ -45,26 +44,14 @@ const useEditorActions = () => {
 // TODO: add props
 type ToolbarModeProps = {
   editorState: any;
-  entities: any;
   modal: any;
   tileSet: any;
-  mostFrequentlyUsedTiles: any;
 };
 
-const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsedTiles }: ToolbarModeProps) => {
+const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
   switch (editorState.mode) {
     case EditorMode.ENTITY:
-      return (
-        <>
-          <ToolbarSelect<string>
-            icon="hat-wizard" //
-            selected={editorState.entityType}
-            active={false}
-            onItemClick={(option) => editorStore.setSelectedEntityType(option.value)}
-            options={entities}
-          />
-        </>
-      );
+      return null;
 
     case EditorMode.COLLISION:
       return null;
@@ -112,15 +99,15 @@ const ToolbarMode = ({ editorState, entities, modal, tileSet, mostFrequentlyUsed
               { name: "Secondary layer", description: "", value: TileLayer.L2 },
             ]}
           />
-          <ToolbarTileset
-            selected={editorState.tileTypeId} //
-            onSelect={editorStore.setSelectedTileTypeId}
-            src={driver.getAssetUrl(tileSet.src)}
-            tileSize={tileSet.tileWidth}
-            mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
-            disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
-            onClick={modal.open}
-          />
+          <Suspense>
+            <ToolbarTileset
+              selected={editorState.tileTypeId} //
+              onSelect={editorStore.setSelectedTileTypeId}
+              tileSet={tileSet}
+              disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
+              onClick={modal.open}
+            />
+          </Suspense>
         </>
       );
 
@@ -149,28 +136,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
     []
   );
 
-  const { tiles, nbCols, nbRows } = useTileset(driver.getAssetUrl(tileSet.src), tileSet.tileWidth, tileSet.tileHeight);
-
-  const mostFrequentlyUsedTiles = React.useMemo(() => {
-    const tileTypeIndexes = [...(room?.layers[TileLayer.L1] ?? []), ...(room?.layers[TileLayer.L2] ?? [])];
-
-    return tileTypeIndexes.reduce<Record<number, number>>((acc, index) => {
-      if (index !== 0) {
-        if (typeof acc[index] === "undefined") {
-          acc[index] = 0;
-        }
-        acc[index]++;
-      }
-      return acc;
-    }, {});
-  }, [blueprint]);
-
-  const entities = React.useMemo(() => {
-    return blueprint.entities
-      .filter((entity) => entity.components.find((component) => component.name === Placeable.COMPONENT_TYPE)) //
-      .map((entity) => ({ name: entity.type, value: entity.type }));
-  }, [blueprint]);
-
   const [editorState, setEditorState] = React.useState(editorStore.initialState);
 
   React.useLayoutEffect(() => {
@@ -183,17 +148,9 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
 
   return (
     <Ui>
-      <Modal
-        tiles={tiles} //
-        selected={editorState.tileTypeId}
-        nbCols={nbCols}
-        nbRows={nbRows}
-        tileWidth={tileSet.tileWidth}
-        tileHeight={tileSet.tileHeight}
-        isOpen={modal.isOpen}
-        onClose={modal.close}
-        onSelect={editorStore.setSelectedTileTypeId}
-      />
+      <Suspense>
+        <Modal selected={editorState.tileTypeId} tileSet={tileSet} isOpen={modal.isOpen} onClose={modal.close} onSelect={editorStore.setSelectedTileTypeId} />
+      </Suspense>
       <Toolbar>
         <div>
           <ToolbarSelect<number>
@@ -210,9 +167,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
           <ToolbarMode
             editorState={editorState} //
             tileSet={tileSet}
-            entities={entities}
             modal={modal}
-            mostFrequentlyUsedTiles={mostFrequentlyUsedTiles}
           />
         </div>
         <div>
@@ -240,6 +195,8 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
           />
         </div>
       </Toolbar>
+      {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel editorState={editorState} tileSet={tileSet} room={room} />}
+      {editorState.mode === EditorMode.ENTITY && <EntityModeSidePanel editorState={editorState} blueprint={blueprint} />}
     </Ui>
   );
 };

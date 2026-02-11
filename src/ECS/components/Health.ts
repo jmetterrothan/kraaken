@@ -102,6 +102,10 @@ export class Health extends Component {
     return this._value === 0;
   }
 
+  public get isHit(): boolean {
+    return this.hit;
+  }
+
   public toString(): string {
     return Health.COMPONENT_TYPE;
   }

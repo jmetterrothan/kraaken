@@ -32,6 +32,7 @@ export class Movement implements Component {
   public falling = false;
   public jumping = false;
   public walking = false;
+  public landing = false;
   public idle = true;
   public climbedDuringAirborne = false;
 

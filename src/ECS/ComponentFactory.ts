@@ -15,10 +15,15 @@ class ComponentFactory {
         return new Components.Movement(metadata);
       case "player_input":
         return new Components.PlayerInput();
-      case "player_animator":
-        return new Components.PlayerAnimator(metadata);
       case "animator":
-        return new Components.Animator(metadata);
+        switch (metadata.type) {
+          case "player_animator":
+            return new Components.PlayerAnimator(metadata);
+          case "enemy_animator":
+            return new Components.EnemyAnimator(metadata);
+          default:
+            return new Components.Animator(metadata);
+        }
       case "sprite":
         return new Components.Sprite(metadata);
       case "health":
@@ -49,8 +54,6 @@ class ComponentFactory {
         return new Components.Explosion(metadata);
       case "fuse":
         return new Components.Fuse(metadata);
-      case "enemy_animator":
-        return new Components.EnemyAnimator(metadata);
       case "loot":
         return new Components.Loot(metadata);
       case "death_event":

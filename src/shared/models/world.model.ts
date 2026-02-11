@@ -70,10 +70,11 @@ export interface ISpawnpoint {
   debug?: boolean;
 }
 
+export type IPlaceTileData = IVector2 & { tileTypeId: number };
+
 export interface IPlaceData {
   layerId: number;
-  tileTypeId: number;
-  coords: IVector2[];
+  coords: IPlaceTileData[];
 }
 
 export type IWorldOptions = {};

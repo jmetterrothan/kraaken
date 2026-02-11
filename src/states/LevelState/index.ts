@@ -65,7 +65,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.ImmunitySystem());
       world.addSystem(new Systems.LootSystem());
 
-      debugSvc.set(DebugFlag.GRID, false);
+      debugSvc.set(DebugFlag.ALL, false);
 
       await world.init();
 

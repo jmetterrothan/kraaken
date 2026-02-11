@@ -3,7 +3,7 @@ import * as GameEventTypes from "@src/shared/events/constants";
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { IEventDetails } from "@src/shared/models/event.model";
 import { IVector2 } from "@src/shared/models/math.model";
-import { ISpawnpoint } from "@src/shared/models/world.model";
+import { IPlaceTileData, ISpawnpoint } from "@src/shared/models/world.model";
 
 interface IChangeRoomEventDetails {
   roomId: string;
@@ -24,21 +24,19 @@ export const changeRoom = (roomId: string, moveTo?: IVector2, lookAt?: IVector2)
 };
 
 interface IPlaceEventDetails extends IEventDetails {
-  coords: IVector2[];
+  coords: IPlaceTileData[];
   layer: TileLayer;
-  tileTypeId: number;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: TileLayer, tileTypeId: number, coords: IVector2[], pushToStack = true): PlaceEvent => {
+export const placeEvent = (layer: TileLayer, coords: IPlaceTileData[], pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(GameEventTypes.PLACE_EVENT, {
     detail: {
       coords,
       layer,
-      tileTypeId,
       pushToStack,
     },
   });
@@ -190,7 +188,7 @@ export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent => {
 };
 
 const dispatch = <T>(event: CustomEvent<T>): void => {
-  console.info(`Dispatched "${event.type}"`);
+  console.info(`Dispatched "${event.type}"`, event.detail);
   window.dispatchEvent(event);
 };
 

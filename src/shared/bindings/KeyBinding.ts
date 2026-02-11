@@ -6,6 +6,8 @@ export type IKeyBindingMetadata = {
   meta?: boolean;
 };
 
+export const IS_MAC_PLATFORM = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
 const map: Record<string, string> = {
   NumpadSubtract: "-",
   NumpadAdd: "+",
@@ -67,13 +69,11 @@ class KeyBinding {
   }
 
   public toString() {
-    const mac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
-
     const parts: string[] = [];
     if (this.ctrl) parts.push("Ctrl");
-    if (this.alt) parts.push(mac ? "Option" : "Alt");
+    if (this.alt) parts.push(IS_MAC_PLATFORM ? "Option" : "Alt");
     if (this.shift) parts.push("Shift");
-    if (this.meta) parts.push(mac ? "Cmd" : "Meta");
+    if (this.meta) parts.push(IS_MAC_PLATFORM ? "Cmd" : "Meta");
 
     parts.push(codeToLabel(this.code));
     return parts.join("+");

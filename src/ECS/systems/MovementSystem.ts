@@ -145,6 +145,7 @@ export class MovementSystem extends System {
         movement.wallClimbStamina = Math.min(movement.maxWallClimbStamina, movement.wallClimbStamina + movement.wallClimbStaminaRecoveryPerS * delta);
       }
 
+      movement.landing = false;
       movement.falling = !grounded && rigidBody.velocity.y > Number.EPSILON;
       movement.walking = grounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
       movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= Number.EPSILON;
@@ -159,6 +160,8 @@ export class MovementSystem extends System {
       }
 
       if (justLanded) {
+        movement.landing = true;
+
         const fallingAirTime = movement.wallSliding ? 0 : movement.airborneSince != null ? now - movement.airborneSince : 0;
 
         if (!movement.climbedDuringAirborne) {

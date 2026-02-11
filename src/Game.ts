@@ -445,7 +445,7 @@ class Game {
     wrapper.addEventListener(
       "wheel",
       (e: WheelEvent) => {
-        e.preventDefault();
+        // e.preventDefault();
 
         if (canvas.contains(e.target as Node)) {
           const scale = Math.max(1, Math.min(20, this.targetScale + (e.deltaY > 0 ? -1 : 1)));
