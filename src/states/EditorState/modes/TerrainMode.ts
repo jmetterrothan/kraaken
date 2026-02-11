@@ -70,13 +70,14 @@ class TerrainMode {
             eventStackSvc.undoStack.push({
               undo: () =>
                 driver.place(
+                  this.editor.currentRoomId,
                   {
                     layerId: layer,
                     coords: prevCoords,
                   },
                   false
                 ), //
-              redo: () => driver.place({ layerId: layer, coords }, false),
+              redo: () => driver.place(this.editor.currentRoomId, { layerId: layer, coords }, false),
             });
           }
 
@@ -141,9 +142,9 @@ class TerrainMode {
             editorStore.setSelectedTileTypeId(tileTypeId);
           }
         } else if (terrainMode === EditorTerrainMode.PLACE) {
-          driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
+          driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
         } else if (terrainMode === EditorTerrainMode.ERASE) {
-          driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+          driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
         } else if (terrainMode === EditorTerrainMode.FILL) {
           const targetTile = tileMap.getTileAtCoords(coords[0].x, coords[0].y);
           const tileSize = tileMap.getTileSize();
@@ -152,7 +153,7 @@ class TerrainMode {
             const targetId = targetTile.getTileTypeId(layerId);
             const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
-            driver.place({ layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
+            driver.place(this.editor.currentRoomId, { layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
           }
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.pick, e)) {
@@ -162,7 +163,7 @@ class TerrainMode {
           editorStore.setSelectedTileTypeId(tileTypeId);
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.erase, e)) {
-        driver.place({ layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+        driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();

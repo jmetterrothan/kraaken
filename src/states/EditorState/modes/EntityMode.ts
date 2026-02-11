@@ -64,8 +64,8 @@ class EntityMode {
 
             if (pushToStack) {
               eventStackSvc.undoStack.push({
-                undo: () => driver.despawn(spawnPoint.uuid, false),
-                redo: () => driver.spawn(spawnPoint, false),
+                undo: () => driver.despawn(this.editor.currentRoomId, spawnPoint.uuid, false),
+                redo: () => driver.spawn(this.editor.currentRoomId, spawnPoint, false),
               });
             }
           }
@@ -121,8 +121,8 @@ class EntityMode {
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: () => driver.spawn(spawnPoint, false),
-              redo: () => driver.despawn(spawnPoint.uuid, false),
+              undo: () => driver.spawn(this.editor.currentRoomId, spawnPoint, false),
+              redo: () => driver.despawn(this.editor.currentRoomId, spawnPoint.uuid, false),
             });
           }
 
@@ -171,6 +171,7 @@ class EntityMode {
           selectedEntityPos.fromValues(x, y);
 
           driver.spawn(
+            this.editor.currentRoomId,
             {
               uuid: this.selectedEntity.uuid,
               type: this.selectedEntity.type,
@@ -192,6 +193,7 @@ class EntityMode {
             editorStore.setSelectedEntityType(this.selectedEntity.type);
           } else {
             driver.spawn(
+              this.editor.currentRoomId,
               {
                 uuid: uuidv4(),
                 type: this.editor.state.entityType,
@@ -204,7 +206,7 @@ class EntityMode {
         }
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.despawn, e)) {
         if (this.focusedEntity) {
-          driver.despawn(this.focusedEntity.uuid, true);
+          driver.despawn(this.editor.currentRoomId, this.focusedEntity.uuid, true);
         }
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.test, e)) {
         const player = this.editor.currentRoom.world.player;

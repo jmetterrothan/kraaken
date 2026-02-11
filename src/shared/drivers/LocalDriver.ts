@@ -10,7 +10,6 @@ import config from "@src/config";
 
 class LocalDriver extends AbstractDriver {
   protected http: AxiosInstance;
-  protected currentLevelId: string = "";
 
   public constructor() {
     super();
@@ -27,13 +26,13 @@ class LocalDriver extends AbstractDriver {
     await this.http.get(`/api`);
   }
 
-  public async sync(_id: string): Promise<void> {}
+  public async sync(_roomId: string): Promise<void> {}
 
-  public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
+  public async place(_roomId: string, data: IPlaceData, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.placeEvent(data.layerId, data.coords, pushToStack));
   }
 
-  public async spawn(data: ISpawnpoint, pushToStack: boolean): Promise<void> {
+  public async spawn(_roomId: string, data: ISpawnpoint, pushToStack: boolean): Promise<void> {
     dispatch(
       GameEvents.spawnEvent(
         data.uuid, //
@@ -46,33 +45,33 @@ class LocalDriver extends AbstractDriver {
     );
   }
 
-  public async despawn(uuid: string, pushToStack: boolean): Promise<void> {
+  public async despawn(_roomId: string, uuid: string, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.despawnEvent(uuid, pushToStack));
   }
 
-  public async load(id: string): Promise<ILevelBlueprint> {
-    this.currentLevelId = id;
+  public async load(levelId: string): Promise<ILevelBlueprint> {
+    this.levelId = levelId;
 
-    const { data } = await this.http.get(`/api/levels/${this.currentLevelId}`);
+    const { data } = await this.http.get(`/api/levels/${levelId}`);
     return data;
   }
 
-  public async save(id: string, data: ILevelBlueprint): Promise<void> {
+  public async save(roomId: string, data: ILevelBlueprint): Promise<void> {
     const { resources, entities, rooms, ...level } = data;
 
-    await this.http.post(`/api/levels/${id}`, level);
+    await this.http.post(`/api/levels/${this.levelId}`, level);
 
-    const room = rooms.find((room) => room.id === level.defaultRoomId);
+    const room = rooms.find((room) => room.id === roomId);
 
     if (!room) {
-      throw new Error(`Could not find level room "${level.defaultRoomId}"`);
+      throw new Error(`Could not find level room "${roomId}"`);
     }
 
-    await this.http.post(`/api/levels/${id}/rooms/${room.id}`, room);
+    await this.http.post(`/api/levels/${this.levelId}/rooms/${room.id}`, room);
   }
 
   public getAssetUrl(path: string): string {
-    return `${config.REST_API}/api/levels/${this.currentLevelId}${path}`;
+    return `${config.REST_API}/api/levels/${this.levelId}${path}`;
   }
 }
 

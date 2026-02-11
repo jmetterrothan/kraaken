@@ -12,20 +12,20 @@ class OnlineDriver extends LocalDriver {
     wsSvc.connect();
   }
 
-  public async sync(id: string): Promise<void> {
-    await wsSvc.sync(id);
+  public async sync(roomId: string): Promise<void> {
+    await wsSvc.sync(roomId);
   }
 
-  public async place(data: IPlaceData, pushToStack: boolean): Promise<void> {
-    await wsSvc.placeEvent(this.currentLevelId, data, pushToStack);
+  public async place(roomId: string, data: IPlaceData, pushToStack: boolean): Promise<void> {
+    await wsSvc.placeEvent(roomId, data, pushToStack);
   }
 
-  public async spawn(spawnpoint: ISpawnpoint, pushToStack: boolean): Promise<void> {
-    await wsSvc.spawnEvent(this.currentLevelId, spawnpoint, pushToStack);
+  public async spawn(roomId: string, spawnpoint: ISpawnpoint, pushToStack: boolean): Promise<void> {
+    await wsSvc.spawnEvent(roomId, spawnpoint, pushToStack);
   }
 
-  public async despawn(uuid: string, pushToStack: boolean): Promise<void> {
-    await wsSvc.despawnEvent(this.currentLevelId, uuid, pushToStack);
+  public async despawn(roomId: string, uuid: string, pushToStack: boolean): Promise<void> {
+    await wsSvc.despawnEvent(roomId, uuid, pushToStack);
   }
 
   public async load(id: string): Promise<ILevelBlueprint> {
@@ -34,9 +34,9 @@ class OnlineDriver extends LocalDriver {
     return super.load(id);
   }
 
-  public async save(id: string, data: ILevelBlueprint): Promise<void> {
-    await super.save(id, data);
-    await wsSvc.resetRoom(id);
+  public async save(roomId: string, data: ILevelBlueprint): Promise<void> {
+    await super.save(roomId, data);
+    await wsSvc.resetRoom(roomId);
   }
 }
 

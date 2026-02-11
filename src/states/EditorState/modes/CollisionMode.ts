@@ -66,13 +66,14 @@ class CollisionMode {
             eventStackSvc.undoStack.push({
               undo: () =>
                 driver.place(
+                  this.editor.currentRoomId,
                   {
                     layerId: layer,
                     coords: prevCoords,
                   },
                   false
                 ), //
-              redo: () => driver.place({ layerId: layer, coords }, false),
+              redo: () => driver.place(this.editor.currentRoomId, { layerId: layer, coords }, false),
             });
           }
 
@@ -115,9 +116,9 @@ class CollisionMode {
       }
 
       if (matchMouseBinding(mouseBindings.editor.collisionMode.place, e)) {
-        driver.place({ layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 1 })) }, true);
+        driver.place(this.editor.currentRoomId, { layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 1 })) }, true);
       } else if (matchMouseBinding(mouseBindings.editor.collisionMode.erase, e)) {
-        driver.place({ layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+        driver.place(this.editor.currentRoomId, { layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();
