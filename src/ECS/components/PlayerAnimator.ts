@@ -17,7 +17,7 @@ export enum PlayerAnimationKeys {
 }
 
 export class PlayerAnimator extends Animator {
-  public update(world: World, entity: Entity): string {
+  public update(_world: World, entity: Entity): string {
     const movement = entity.getComponent(Movement);
     const combat = entity.getComponent(PlayerCombat);
     const input = entity.getComponent(PlayerInput);
@@ -45,20 +45,9 @@ export class PlayerAnimator extends Animator {
     if (movement.jumping) {
       return `${entity.type}:${PlayerAnimationKeys.JUMPING}`;
     }
-    // aiming
-    if (input) {
-      if (input.hold && !movement.walking) {
-        return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
-      }
-      if (combat) {
-        // shooting
-        if (input.usePrimary && combat.primaryWeapon.canBeUsed(world, entity)) {
-          return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
-        }
-        if (input.useSecondary && combat.secondaryWeapon.canBeUsed(world, entity)) {
-          return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
-        }
-      }
+    // shooting
+    if (input && input.attack && combat && combat.attacking) {
+      return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
     }
     // walk cycle
     if (movement.walking) {

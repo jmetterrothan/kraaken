@@ -5,8 +5,8 @@ import ProjectileWeapon from "@src/weapons/ProjectileWeapon";
 export class PlayerCombat implements Component {
   public static COMPONENT_TYPE = "player_combat";
 
-  public usingPrimaryWeapon = false;
-  public usingSecondaryWeapon = false;
+  public attacking = false;
+  public attackAnimRemainingMs = 0;
 
   private _weapon1: ProjectileWeapon = new ProjectileWeapon({
     projectile: "energy_bolt", //
@@ -33,10 +33,6 @@ export class PlayerCombat implements Component {
   });
 
   public get primaryWeapon(): ProjectileWeapon {
-    return this._weapon1;
-  }
-
-  public get secondaryWeapon(): ProjectileWeapon {
     return this._weapon2;
   }
 

@@ -12,8 +12,8 @@ export class PlayerInput implements Component {
   public jump = false;
   public hold = false;
 
-  public usePrimary = false;
-  public useSecondary = false;
+  public attack = false;
+  public prevAttackDown = false;
 
   public aim: Vector2 = new Vector2(16, -16);
 

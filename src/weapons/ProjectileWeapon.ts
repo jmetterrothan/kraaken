@@ -122,82 +122,85 @@ class ProjectileWeapon extends Weapon {
   }
 
   protected use(world: World, owner: Entity): void {
-    const position = owner.getComponent(Position);
-    const bbox = owner.getComponent(BoundingBox);
-    const rigidBody = owner.getComponent(RigidBody);
-    const playerInput = owner.getComponent(PlayerInput);
+    // FIXME: rework setTimeout
+    setTimeout(() => {
+      const position = owner.getComponent(Position);
+      const bbox = owner.getComponent(BoundingBox);
+      const rigidBody = owner.getComponent(RigidBody);
+      const playerInput = owner.getComponent(PlayerInput);
 
-    const target = position.clone().add(playerInput.aim);
-    const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
-    const dir = target.clone().sub(origin).normalize();
+      const target = position.clone().add(playerInput.aim);
+      const origin = Vector2.create(position.x + (bbox.width / 2 + 8) * rigidBody.orientation.x, position.y);
+      const dir = target.clone().sub(origin).normalize();
 
-    // apply spread
-    if (this.spread.x !== 0 || this.spread.y !== 0) {
-      dir.x += (Math.random() * 2 - 1) * this.spread.x;
-      dir.y += (Math.random() * 2 - 1) * this.spread.y;
-      dir.normalize();
-    }
-
-    const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
-
-    if (!projectile.hasComponent(Projectile.COMPONENT_TYPE)) {
-      throw new Error("Improper projectile entity (must have a projectile component)");
-    }
-
-    const { speed } = projectile.getComponent(Projectile);
-
-    const vx = speed * dir.x;
-    const vy = speed * dir.y;
-
-    if (!projectile.hasComponent(Position.COMPONENT_TYPE)) {
-      throw new Error("Improper projectile entity (must have a position component)");
-    }
-    if (!projectile.hasComponent(RigidBody.COMPONENT_TYPE)) {
-      throw new Error("Improper projectile entity (must have a rigid body component)");
-    }
-
-    const projectilePos = projectile.getComponent(Position);
-    const projectileRigidBody = projectile.getComponent(RigidBody);
-
-    if (projectileRigidBody.reflectAngle) {
-      const angle = Math.atan2(vy, vx);
-
-      projectilePos.rotation = angle;
-    }
-
-    projectileRigidBody.velocity.fromValues(vx, vy);
-
-    if (this.maxAmmo !== -1) {
-      this.ammo -= 1;
-    }
-
-    if (this.fireSFX) {
-      this.fireSFX.play();
-    }
-
-    world.camera.getComponent(Camera).shakeOnce(4, 100);
-
-    if (playerInput && "vibrate" in navigator) {
-      const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];
-      const gamepad = gamepads[playerInput.gamepadIndex] as any;
-
-      if (gamepad && gamepad.vibrationActuator) {
-        /*
-         * TODO: Check on gamepad API evolution, only works on Chrome
-         * Should be using an intermediate interface here to regroup all browser implementations
-         */
-        gamepad.vibrationActuator.playEffect("dual-rumble", {
-          startDelay: 100,
-          duration: 150,
-          weakMagnitude: 0.75,
-          strongMagnitude: 1.0,
-        });
+      // apply spread
+      if (this.spread.x !== 0 || this.spread.y !== 0) {
+        dir.x += (Math.random() * 2 - 1) * this.spread.x;
+        dir.y += (Math.random() * 2 - 1) * this.spread.y;
+        dir.normalize();
       }
-    }
 
-    Vector2.destroy(target);
-    Vector2.destroy(origin);
-    Vector2.destroy(dir);
+      const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
+
+      if (!projectile.hasComponent(Projectile.COMPONENT_TYPE)) {
+        throw new Error("Improper projectile entity (must have a projectile component)");
+      }
+
+      const { speed } = projectile.getComponent(Projectile);
+
+      const vx = speed * dir.x;
+      const vy = speed * dir.y;
+
+      if (!projectile.hasComponent(Position.COMPONENT_TYPE)) {
+        throw new Error("Improper projectile entity (must have a position component)");
+      }
+      if (!projectile.hasComponent(RigidBody.COMPONENT_TYPE)) {
+        throw new Error("Improper projectile entity (must have a rigid body component)");
+      }
+
+      const projectilePos = projectile.getComponent(Position);
+      const projectileRigidBody = projectile.getComponent(RigidBody);
+
+      if (projectileRigidBody.reflectAngle) {
+        const angle = Math.atan2(vy, vx);
+
+        projectilePos.rotation = angle;
+      }
+
+      projectileRigidBody.velocity.fromValues(vx, vy);
+
+      if (this.maxAmmo !== -1) {
+        this.ammo -= 1;
+      }
+
+      if (this.fireSFX) {
+        this.fireSFX.play();
+      }
+
+      world.camera.getComponent(Camera).shakeOnce(4, 100);
+
+      if (playerInput && "vibrate" in navigator) {
+        const gamepads = "getGamepads" in navigator ? navigator.getGamepads() : [];
+        const gamepad = gamepads[playerInput.gamepadIndex] as any;
+
+        if (gamepad && gamepad.vibrationActuator) {
+          /*
+           * TODO: Check on gamepad API evolution, only works on Chrome
+           * Should be using an intermediate interface here to regroup all browser implementations
+           */
+          gamepad.vibrationActuator.playEffect("dual-rumble", {
+            startDelay: 100,
+            duration: 150,
+            weakMagnitude: 0.75,
+            strongMagnitude: 1.0,
+          });
+        }
+      }
+
+      Vector2.destroy(target);
+      Vector2.destroy(origin);
+      Vector2.destroy(dir);
+    }, 400);
   }
 
   public hasAmmo(): boolean {

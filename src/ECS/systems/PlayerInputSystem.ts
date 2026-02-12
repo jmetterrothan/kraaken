@@ -50,7 +50,7 @@ export class PlayerInputSystem extends System {
         const health = entity.getComponent(Health);
 
         if (matchMouseBinding(mouseBindings.level.fire, e)) {
-          input.usePrimary = active && health.isAlive;
+          input.attack = active && health.isAlive;
         }
       }
     });
@@ -68,9 +68,7 @@ export class PlayerInputSystem extends System {
         const input = entity.getComponent(PlayerInput);
 
         if (matchKeyBinding(keyBindings.level.usePrimaryWeapon, e)) {
-          input.usePrimary = active && health.isAlive;
-        } else if (matchKeyBinding(keyBindings.level.useSecondaryWeapon, e)) {
-          input.useSecondary = active && health.isAlive;
+          input.attack = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.left, e)) {
           input.left = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.right, e)) {
@@ -121,9 +119,7 @@ export class PlayerInputSystem extends System {
         const active = buttonPressed(button);
 
         if (matchGamepadBinding(gamepadBindings.level.usePrimaryWeapon, index)) {
-          input.usePrimary = active && health.isAlive;
-        } else if (matchGamepadBinding(gamepadBindings.level.useSecondaryWeapon, index)) {
-          input.useSecondary = active && health.isAlive;
+          input.attack = active && health.isAlive;
         } else if (matchGamepadBinding(gamepadBindings.level.jump, index)) {
           input.up = active && health.isAlive;
         } else if (matchGamepadBinding(gamepadBindings.level.hold, index)) {
