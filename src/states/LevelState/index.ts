@@ -88,7 +88,7 @@ class LevelState extends State<LevelStateOptions> {
       world.followEntity(world.player);
       world.controlEntity(world.player);
 
-      world.aimEntity = world.createCrosshair();
+      // world.aimEntity = world.createCrosshair();
 
       this.levels.set(id, world);
     });

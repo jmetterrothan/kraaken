@@ -169,14 +169,14 @@ export class PlayerInputSystem extends System {
     if (this.world.controlledEntity) {
       const input = this.world.controlledEntity.getComponent(PlayerInput);
 
+      input.jumpPressed = input.jump && !input.prevJump;
       input.prevJump = input.jump;
+
+      input.attackPressed = input.attack && !input.prevAttack;
       input.prevAttack = input.attack;
+
+      input.dashPressed = input.dash && !input.prevDash;
       input.prevDash = input.dash;
-      input.prevHold = input.hold;
-      input.prevLeft = input.left;
-      input.prevRight = input.right;
-      input.prevUp = input.up;
-      input.prevDown = input.down;
 
       this.handleGamepadInput(this.world.controlledEntity, controllers, delta);
       this.enforceWeaponRangeLimit(this.world.controlledEntity);
