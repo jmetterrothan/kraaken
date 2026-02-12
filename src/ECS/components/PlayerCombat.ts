@@ -22,7 +22,7 @@ export class PlayerCombat implements Component {
   });
 
   private _weapon2: ProjectileWeapon = new ProjectileWeapon({
-    projectile: "grenade", //
+    projectile: "flask", //
     rate: 60,
     burstLimit: 1,
     burstDelay: 1000,

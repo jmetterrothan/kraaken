@@ -10,7 +10,7 @@ import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
-import { ILevelBlueprint } from "@src/shared/models/world.model";
+import { IProjectBlueprint } from "@src/shared/models/world.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -25,8 +25,8 @@ import TerrainModeSidePanel from "@src/shared/ui/components/TerrainModeSidePanel
 import EntityModeSidePanel from "@src/shared/ui/components/EntityModeSidePanel";
 
 interface EditorUiProps {
-  levelId: string;
-  blueprint: ILevelBlueprint;
+  projectId: string;
+  blueprint: IProjectBlueprint;
 }
 
 const useEditorActions = () => {
@@ -116,18 +116,18 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
   }
 };
 
-const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
-  const { resources, rooms, ...level } = blueprint;
+const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
+  const { assets, levels, defaultLevelId } = blueprint;
 
   const actions = useEditorActions();
 
   const modal = useModal();
 
-  const room = rooms.find((room) => room.id === level.defaultRoomId);
+  const level = levels.find((level) => level.id === defaultLevelId);
 
   const tileSet = React.useMemo(
     () =>
-      resources.sprites.find((sprite) => sprite.name === room?.tileSet) ?? {
+      assets.sprites.find((sprite) => sprite.name === level?.tileSet) ?? {
         src: "",
         name: "",
         tileHeight: 0,
@@ -183,19 +183,20 @@ const EditorUi: React.FC<EditorUiProps> = ({ levelId, blueprint }) => {
             icon="save" //
             name="Save"
             kbd={keyBindings.editor.save.toString()}
+            disabled={editorState.loading}
             active={false}
-            onClick={() => actions.save(levelId)}
+            onClick={() => actions.save(projectId)}
           />
           <ToolbarButton
             icon="play" //
             name="Play"
             kbd={keyBindings.editor.play.toString()}
             active={false}
-            onClick={() => actions.play(levelId)}
+            onClick={() => actions.play(projectId)}
           />
         </div>
       </Toolbar>
-      {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel editorState={editorState} tileSet={tileSet} room={room} />}
+      {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel editorState={editorState} tileSet={tileSet} level={level} />}
       {editorState.mode === EditorMode.ENTITY && <EntityModeSidePanel editorState={editorState} blueprint={blueprint} />}
     </Ui>
   );

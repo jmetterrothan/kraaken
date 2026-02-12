@@ -5,7 +5,7 @@ const game = Game.create({
   width: "auto",
   height: "auto",
   root: document.getElementById("game")!,
-  levelId: "H2DAzdU049HDkTwWfmKL",
+  projectId: "H2DAzdU049HDkTwWfmKL",
 });
 
 game.run();

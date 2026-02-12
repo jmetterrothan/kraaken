@@ -9,7 +9,7 @@ import TileImage from "../TileImage";
 import { registerEvent } from "@src/shared/utility/Utility";
 
 import "./TerrainModeSidePanel.scss";
-import { IRoomBlueprint } from "@src/shared/models/world.model";
+import { ILevelBlueprint } from "@src/shared/models/world.model";
 import { TileLayer } from "@src/shared/models/tilemap.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import SidePanel from "../SidePanel";
@@ -19,11 +19,11 @@ import editorStore from "@src/states/EditorState/editorStore";
 type TerrainModeSidePanelProps = {
   editorState: IEditorStoreState;
   tileSet: ISpriteData;
-  room?: IRoomBlueprint;
+  level?: ILevelBlueprint;
 };
 
-const mostFrequentlyUsedTiles = (room?: IRoomBlueprint) => {
-  const tileTypeIndexes = [...(room?.layers[TileLayer.L1] ?? []), ...(room?.layers[TileLayer.L2] ?? [])];
+const mostFrequentlyUsedTiles = (level?: ILevelBlueprint) => {
+  const tileTypeIndexes = [...(level?.layers[TileLayer.L1] ?? []), ...(level?.layers[TileLayer.L2] ?? [])];
 
   return tileTypeIndexes.reduce<Record<number, number>>((acc, index) => {
     if (index !== 0) {
@@ -36,9 +36,9 @@ const mostFrequentlyUsedTiles = (room?: IRoomBlueprint) => {
   }, {});
 };
 
-const TerrainModeSidePanel = ({ editorState, tileSet, room }: TerrainModeSidePanelProps) => {
+const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePanelProps) => {
   const [lastUsed, setLastUsed] = React.useState<number[]>([]);
-  const [history, setHistory] = React.useState<Record<number, number>>(mostFrequentlyUsedTiles(room));
+  const [history, setHistory] = React.useState<Record<number, number>>(mostFrequentlyUsedTiles(level));
 
   const { tiles } = useTileset(tileSet);
 

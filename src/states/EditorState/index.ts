@@ -12,7 +12,7 @@ import World from "@src/world/World";
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
 
 import { EditorMode } from "@src/shared/models/editor.model";
-import { ILevelBlueprint, IRoomBlueprint } from "@src/shared/models/world.model";
+import { IProjectBlueprint, ILevelBlueprint } from "@src/shared/models/world.model";
 
 import Vector2 from "@src/shared/math/Vector2";
 
@@ -37,20 +37,22 @@ import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import { Position } from "@src/ECS/components";
 
 interface EditorStateOptions {
-  levelId: string;
-  blueprint: Promise<ILevelBlueprint> | ILevelBlueprint;
+  projectId: string;
+  blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }
 
-type RoomData = {
+type LevelData = {
   world: World;
   cursor: Entity;
 };
 
 class EditorState extends State<EditorStateOptions> {
-  public levelBlueprint: ILevelBlueprint;
-  public currentRoomId: string = "";
+  public projectBlueprint: IProjectBlueprint;
+  public currentLevelId: string;
 
-  private rooms: Map<string, RoomData> = new Map<string, RoomData>();
+  private levels: Map<string, LevelData> = new Map<string, LevelData>();
+
+  private backupIntervalId = -1;
 
   public mouse: Vector2 = new Vector2();
 
@@ -63,28 +65,28 @@ class EditorState extends State<EditorStateOptions> {
   };
 
   public async init({ blueprint }: EditorStateOptions): Promise<void> {
-    this.levelBlueprint = await Promise.resolve(blueprint);
-    this.currentRoomId = this.levelBlueprint.defaultRoomId;
+    this.projectBlueprint = await Promise.resolve(blueprint);
+    this.currentLevelId = this.projectBlueprint.defaultLevelId;
 
-    for (const sound of this.levelBlueprint.resources.sounds) {
+    for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
     }
 
-    for (const sprite of this.levelBlueprint.resources.sprites) {
+    for (const sprite of this.projectBlueprint.assets.sprites) {
       await SpriteManager.create(sprite.src, sprite.name, sprite.tileWidth, sprite.tileHeight);
     }
 
-    await this.levelBlueprint.rooms.forEach(async ({ id }) => {
-      const room = this.levelBlueprint.rooms.find((room) => room.id === id);
+    await this.projectBlueprint.levels.forEach(async ({ id }) => {
+      const level = this.projectBlueprint.levels.find((level) => level.id === id);
 
-      if (!room) {
-        throw new Error(`Could not find room with id = ${id}`);
+      if (!level) {
+        throw new Error(`Could not find level with id = ${id}`);
       }
 
-      await this.initRoom(room);
+      await this.initLevel(level);
     });
 
-    // await this.addRoom("3", 16, "tiles");
+    // await this.addLevel("3", 16, "tiles");
 
     this.state = editorStore.initialState;
     editorStore.subscribe((state) => {
@@ -114,8 +116,8 @@ class EditorState extends State<EditorStateOptions> {
     console.info("Editor initialized");
   }
 
-  public async initRoom(room: IRoomBlueprint) {
-    const world = new World(room.id, this.levelBlueprint, {
+  public async initLevel(level: ILevelBlueprint): Promise<void> {
+    const world = new World(level.id, this.projectBlueprint, {
       showGrid: true,
       showZones: true,
     });
@@ -144,7 +146,7 @@ class EditorState extends State<EditorStateOptions> {
     world.controlEntity(controllableObject);
 
     // focus on player if it exists
-    const playerSpawnPoint = room.spawnPoints.find((spawnpoint) => spawnpoint.type === "dino");
+    const playerSpawnPoint = level.spawnPoints.find((spawnpoint) => spawnpoint.type === "dino");
 
     if (playerSpawnPoint) {
       const { x, y } = playerSpawnPoint.position;
@@ -153,11 +155,11 @@ class EditorState extends State<EditorStateOptions> {
       position.fromValues(x, y);
     }
 
-    this.rooms.set(room.id, { world, cursor });
+    this.levels.set(level.id, { world, cursor });
   }
 
-  public async addRoom(id: string, tileSize: number, tileSet: string) {
-    const room = {
+  public async addLevel(id: string, tileSize: number, tileSet: string): Promise<void> {
+    const level = {
       id,
       tileSize,
       tileSet,
@@ -172,11 +174,11 @@ class EditorState extends State<EditorStateOptions> {
       zones: [],
     };
 
-    this.levelBlueprint.rooms.push(room);
+    this.projectBlueprint.levels.push(level);
 
-    await this.initRoom(room);
+    await this.initLevel(level);
 
-    this.currentRoomId = room.id;
+    this.currentLevelId = level.id;
   }
 
   public createControllableEntity(uuid = uuidv4()): Entity {
@@ -200,6 +202,10 @@ class EditorState extends State<EditorStateOptions> {
   public mounted(): void {
     console.info("Editor mounted");
 
+    this.backupIntervalId = window.setInterval(() => {
+      driver.backup(this.projectBlueprint);
+    }, 1000 * 30);
+
     this.registerEvent(GameEventTypes.UNDO_EVENT, () => {
       if (!eventStackSvc.undoStack.isEmpty) {
         const action = eventStackSvc.undoStack.pop();
@@ -222,11 +228,16 @@ class EditorState extends State<EditorStateOptions> {
       }
     });
 
-    this.registerEvent(GameEventTypes.SAVE_EVENT, (e: GameEvents.SaveEvent) => {
-      driver.save(e.detail.id, this.levelBlueprint);
+    this.registerEvent(GameEventTypes.SAVE_EVENT, async (_e: GameEvents.SaveEvent) => {
+      try {
+        editorStore.setLoading(true);
+        await driver.save(this.projectBlueprint);
+      } finally {
+        editorStore.setLoading(false);
+      }
     });
 
-    this.registerEvent(GameEventTypes.USER_JOINED_ROOM_EVENT, (_e: GameEvents.UserJoinedRoomEvent) => {
+    this.registerEvent(GameEventTypes.USER_JOINED_LEVEL_EVENT, (_e: GameEvents.UserJoinedLevelEvent) => {
       /*
       const cursor = this.createCursor(e.detail.uuid);
       this.world.addEntity(cursor);
@@ -234,15 +245,15 @@ class EditorState extends State<EditorStateOptions> {
       */
     });
 
-    this.registerEvent(GameEventTypes.USER_LEFT_ROOM_EVENT, (_e: GameEvents.UserLeftRoomEvent) => {});
+    this.registerEvent(GameEventTypes.USER_LEFT_LEVEL_EVENT, (_e: GameEvents.UserLeftLevelEvent) => {});
 
-    driver.sync(this.levelBlueprint.id);
+    driver.sync(this.projectBlueprint.id);
 
     // init ui
     this.root.render(
       React.createElement(LevelEditorUi, {
-        levelId: this.levelBlueprint.id,
-        blueprint: this.levelBlueprint,
+        projectId: this.projectBlueprint.id,
+        blueprint: this.projectBlueprint,
       })
     );
   }
@@ -250,55 +261,55 @@ class EditorState extends State<EditorStateOptions> {
   public unmounted(): void {
     console.info("Editor unmounted");
 
+    window.clearInterval(this.backupIntervalId);
+
     // remove event listeners
     this.flushEvents();
 
     // reset event history stack
     eventStackSvc.reset();
 
-    this.rooms.forEach((room) => {
-      room.world.destroy();
+    this.levels.forEach((level) => {
+      level.world.destroy();
     });
 
-    this.rooms = new Map();
+    this.levels = new Map();
 
     // remove ui
     this.root.unmount();
   }
 
   public update(delta: number): void {
-    const cursorPosition = this.currentRoom.cursor.getComponent(Position);
+    const cursorPosition = this.currentLevel.cursor.getComponent(Position);
     cursorPosition.fromValues(this.mouse.x, this.mouse.y);
 
-    this.currentRoom.world.update(delta);
+    this.currentLevel.world.update(delta);
     this.currentMode.update(delta);
   }
 
   public render(alpha: number): void {
-    this.currentRoom.world.render(alpha);
+    this.currentLevel.world.render(alpha);
     this.currentMode.render(alpha);
   }
 
   public handleGamepadInput(): void {}
 
   public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
-    this.currentRoom.world.handleKeyboardInput(e, active);
+    this.currentLevel.world.handleKeyboardInput(e, active);
 
     if (active) {
       if (matchKeyBinding(keyBindings.editor.undo, e)) {
         dispatch(GameEvents.undoEvent());
       } else if (matchKeyBinding(keyBindings.editor.redo, e)) {
         dispatch(GameEvents.redoEvent());
-      } else if (matchKeyBinding(keyBindings.editor.undo, e)) {
-        dispatch(GameEvents.undoEvent());
       } else if (matchKeyBinding(keyBindings.editor.zoomOut, e)) {
         dispatch(GameEvents.zoomOutEvent());
       } else if (matchKeyBinding(keyBindings.editor.zoomIn, e)) {
         dispatch(GameEvents.zoomInEvent());
       } else if (matchKeyBinding(keyBindings.editor.save, e)) {
-        dispatch(GameEvents.saveEvent(this.levelBlueprint.id));
+        dispatch(GameEvents.saveEvent(this.projectBlueprint.id));
       } else if (matchKeyBinding(keyBindings.editor.play, e)) {
-        dispatch(GameEvents.playEvent(this.levelBlueprint.id));
+        dispatch(GameEvents.playEvent(this.projectBlueprint.id));
       } else {
         this.currentMode.handleKeyboardInput(e, active);
       }
@@ -308,32 +319,32 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
-    this.currentRoom.world.handleMouseInput(e, active, position);
+    this.currentLevel.world.handleMouseInput(e, active, position);
     this.currentMode.handleMouseInput(e, active, position);
   }
 
   public handleMouseMove(e: MouseEvent, position: vec2): void {
-    const worldPos = this.currentRoom.world.screenToCameraCoords(position);
+    const worldPos = this.currentLevel.world.screenToCameraCoords(position);
     this.mouse = worldPos;
 
-    this.currentRoom.world.handleMouseMove(e, position);
+    this.currentLevel.world.handleMouseMove(e, position);
     this.currentMode.handleMouseMove(e, position);
   }
 
   public handleFullscreenChange(b: boolean): void {
-    this.currentRoom.world.handleFullscreenChange(b);
+    this.currentLevel.world.handleFullscreenChange(b);
   }
 
   public handleResize(): void {
-    this.currentRoom.world.handleResize();
+    this.currentLevel.world.handleResize();
   }
 
   public get currentMode() {
     return this.modes[this.state.mode];
   }
 
-  public get currentRoom(): RoomData {
-    return this.rooms.get(this.currentRoomId)!;
+  public get currentLevel(): LevelData {
+    return this.levels.get(this.currentLevelId)!;
   }
 }
 

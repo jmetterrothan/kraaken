@@ -20,9 +20,9 @@ export const ZOOM_EVENT = "zoom";
 export const ZOOM_IN_EVENT = "zoomIn";
 export const ZOOM_OUT_EVENT = "zoomOut";
 
-export const USER_JOINED_ROOM_EVENT = "user_joined_room";
-export const USER_LEFT_ROOM_EVENT = "user_left_room";
+export const USER_JOINED_LEVEL_EVENT = "user_joined_level";
+export const USER_LEFT_LEVEL_EVENT = "user_left_level";
 
-export const CHANGE_ROOM = "change_room";
+export const CHANGE_LEVEL = "change_level";
 
 export const SHAKE_CAMERA_EVENT = "shake_camera";

@@ -10,8 +10,8 @@ const WS_PLACE_EVENT = "place";
 const WS_SPAWN_EVENT = "spawn";
 const WS_DESPAWN_EVENT = "despawn";
 
-const WS_USER_JOINED_ROOM = "user_joined_room";
-const WS_USER_LEFT_ROOM = "user_left_room";
+const WS_USER_JOINED_LEVEL = "user_joined_level";
+const WS_USER_LEFT_LEVEL = "user_left_level";
 
 class WebSocketService {
   private socket: Socket = io(config.WEBSOCKET_API);
@@ -46,14 +46,14 @@ class WebSocketService {
           dispatch(GameEvents.despawnEvent(uuid, options.pushToStack));
         });
 
-        this.socket.on(WS_USER_JOINED_ROOM, (uuid) => {
-          console.log(`user ${uuid} joined room`);
-          dispatch(GameEvents.userJoinedRoomEvent(uuid));
+        this.socket.on(WS_USER_JOINED_LEVEL, (uuid) => {
+          console.log(`user ${uuid} joined level`);
+          dispatch(GameEvents.userJoinedLevelEvent(uuid));
         });
 
-        this.socket.on(WS_USER_LEFT_ROOM, (uuid) => {
-          console.log(`user ${uuid} left room`);
-          dispatch(GameEvents.userLeftRoomEvent(uuid));
+        this.socket.on(WS_USER_LEFT_LEVEL, (uuid) => {
+          console.log(`user ${uuid} left level`);
+          dispatch(GameEvents.userLeftLevelEvent(uuid));
         });
 
         resolve();
@@ -61,58 +61,58 @@ class WebSocketService {
     });
   }
 
-  sync(roomId: string): Promise<void> {
+  sync(levelId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
       }
 
-      this.socket.emit("sync_room", roomId);
+      this.socket.emit("sync_level", levelId);
       resolve();
     });
   }
 
-  joinRoom(roomId: string): Promise<void> {
+  joinLevel(levelId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
       }
 
-      this.socket.emit("join_room", roomId);
+      this.socket.emit("join_level", levelId);
       resolve();
     });
   }
 
-  resetRoom(roomId: string): Promise<void> {
+  resetLevel(levelId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
       }
 
-      this.socket.emit("reset_room", roomId);
+      this.socket.emit("reset_level", levelId);
       resolve();
     });
   }
 
-  placeEvent(roomId: string, data: IPlaceData, pushToStack: boolean) {
-    return this.emitEvent(roomId, WS_PLACE_EVENT, data, { pushToStack });
+  placeEvent(levelId: string, data: IPlaceData, pushToStack: boolean) {
+    return this.emitEvent(levelId, WS_PLACE_EVENT, data, { pushToStack });
   }
 
-  spawnEvent(roomId: string, data: ISpawnpoint, pushToStack: boolean) {
-    return this.emitEvent(roomId, WS_SPAWN_EVENT, data, { pushToStack });
+  spawnEvent(levelId: string, data: ISpawnpoint, pushToStack: boolean) {
+    return this.emitEvent(levelId, WS_SPAWN_EVENT, data, { pushToStack });
   }
 
-  despawnEvent(roomId: string, uuid: string, pushToStack: boolean) {
-    return this.emitEvent(roomId, WS_DESPAWN_EVENT, uuid, { pushToStack });
+  despawnEvent(levelId: string, uuid: string, pushToStack: boolean) {
+    return this.emitEvent(levelId, WS_DESPAWN_EVENT, uuid, { pushToStack });
   }
 
-  private emitEvent<T = any>(roomId: string, type: string, data: T, options: Record<string, any> = {}): Promise<void> {
+  private emitEvent<T = any>(levelId: string, type: string, data: T, options: Record<string, any> = {}): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject();
       }
 
-      this.socket.emit("event", { roomId, event: { type, data, options } });
+      this.socket.emit("event", { levelId, event: { type, data, options } });
       resolve();
     });
   }

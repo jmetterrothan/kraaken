@@ -5,18 +5,18 @@ import { IEventDetails } from "@src/shared/models/event.model";
 import { IVector2 } from "@src/shared/models/math.model";
 import { IPlaceTileData, ISpawnpoint } from "@src/shared/models/world.model";
 
-interface IChangeRoomEventDetails {
-  roomId: string;
+interface IChangeLevelEventDetails {
+  levelId: string;
   moveTo?: IVector2;
   lookAt?: IVector2;
 }
 
-export type ChangeRoomEvent = CustomEvent<IChangeRoomEventDetails>;
+export type ChangeLevelEvent = CustomEvent<IChangeLevelEventDetails>;
 
-export const changeRoom = (roomId: string, moveTo?: IVector2, lookAt?: IVector2): ChangeRoomEvent => {
-  return new CustomEvent<IChangeRoomEventDetails>(GameEventTypes.CHANGE_ROOM, {
+export const changeLevel = (levelId: string, moveTo?: IVector2, lookAt?: IVector2): ChangeLevelEvent => {
+  return new CustomEvent<IChangeLevelEventDetails>(GameEventTypes.CHANGE_LEVEL, {
     detail: {
-      roomId,
+      levelId,
       moveTo,
       lookAt,
     },
@@ -159,28 +159,28 @@ export const zoomOutEvent = (): ZoomEvent => {
   return new CustomEvent(GameEventTypes.ZOOM_OUT_EVENT, {});
 };
 
-interface IUserJoinedRoomEventDetails {
+interface IUserJoinedLevelEventDetails {
   uuid: string;
 }
 
-export type UserJoinedRoomEvent = CustomEvent<IUserJoinedRoomEventDetails>;
+export type UserJoinedLevelEvent = CustomEvent<IUserJoinedLevelEventDetails>;
 
-export const userJoinedRoomEvent = (uuid: string): UserJoinedRoomEvent => {
-  return new CustomEvent<IUserJoinedRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
+export const userJoinedLevelEvent = (uuid: string): UserJoinedLevelEvent => {
+  return new CustomEvent<IUserJoinedLevelEventDetails>(GameEventTypes.USER_JOINED_LEVEL_EVENT, {
     detail: {
       uuid,
     },
   });
 };
 
-interface IUserLeftRoomEventDetails {
+interface IUserLeftLevelEventDetails {
   uuid: string;
 }
 
-export type UserLeftRoomEvent = CustomEvent<IUserLeftRoomEventDetails>;
+export type UserLeftLevelEvent = CustomEvent<IUserLeftLevelEventDetails>;
 
-export const userLeftRoomEvent = (uuid: string): UserLeftRoomEvent => {
-  return new CustomEvent<IUserLeftRoomEventDetails>(GameEventTypes.USER_JOINED_ROOM_EVENT, {
+export const userLeftLevelEvent = (uuid: string): UserLeftLevelEvent => {
+  return new CustomEvent<IUserLeftLevelEventDetails>(GameEventTypes.USER_JOINED_LEVEL_EVENT, {
     detail: {
       uuid,
     },

@@ -3,7 +3,7 @@ import cx from "classnames";
 import SidePanel from "../SidePanel";
 import "./EntityModeSidePanel.scss";
 import { Animator, IAnimatorMetadata, Placeable, Sprite } from "@src/ECS/components";
-import { ILevelBlueprint } from "@src/shared/models/world.model";
+import { IProjectBlueprint } from "@src/shared/models/world.model";
 import type { IEditorStoreState } from "@src/states/EditorState/editorStore";
 import editorStore from "@src/states/EditorState/editorStore";
 import useTileset from "../ToolbarTileset/useTileset";
@@ -79,7 +79,7 @@ const AnimatedEntityImage = ({ type, animation, tileSet }: AnimatedEntityImagePr
 
 type EntityModeSidePanelProps = {
   editorState: IEditorStoreState;
-  blueprint: ILevelBlueprint;
+  blueprint: IProjectBlueprint;
 };
 
 const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProps) => {
@@ -96,7 +96,7 @@ const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProp
 
         const animation = defaultKey in list && list[defaultKey] ? list[defaultKey] : undefined;
 
-        const tileSet: ISpriteData = blueprint.resources?.sprites?.find((s) => s.name === sprite?.metadata?.alias) ?? { name: "", src: "", tileWidth: 0, tileHeight: 0 };
+        const tileSet: ISpriteData = blueprint.assets?.sprites?.find((s) => s.name === sprite?.metadata?.alias) ?? { name: "", src: "", tileWidth: 0, tileHeight: 0 };
 
         return {
           type: entity.type,
@@ -107,7 +107,7 @@ const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProp
         };
       })
       .filter(({ tileSet }) => tileSet.src.length > 0);
-  }, [blueprint.entities, blueprint.resources]);
+  }, [blueprint.entities, blueprint.assets]);
 
   return (
     <SidePanel className="entity-mode-side-panel">

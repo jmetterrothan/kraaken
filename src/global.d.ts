@@ -5,13 +5,13 @@ declare global {
     level_state_switch: GameEvents.LevelStateSwitchEvent;
     editor_state_switch: GameEvents.EditorStateSwitchEvent;
     zoom: GameEvents.ZoomEvent;
-    change_room: GameEvents.ChangeRoomEvent;
+    change_level: GameEvents.ChangeLevelEvent;
     spawn_event: GameEvents.SpawnEvent;
     despawn_event: GameEvents.DespawnEvent;
     place_event: GameEvents.PlaceEvent;
     save: GameEvents.SaveEvent;
-    user_joined_room: GameEvents.UserJoinedRoomEvent;
-    user_left_room: GameEvents.UserLeftRoomEvent;
+    user_joined_level: GameEvents.UserJoinedLevelEvent;
+    user_left_level: GameEvents.UserLeftLevelEvent;
     ui_undo: void;
     ui_redo: void;
   }

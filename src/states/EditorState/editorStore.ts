@@ -6,6 +6,7 @@ import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 import dispatch, * as GameEvents from "@src/shared/events";
 
 export interface IEditorStoreState {
+  loading: boolean;
   scale: number;
   mode: EditorMode;
   terrainMode: EditorTerrainMode;
@@ -17,6 +18,7 @@ export interface IEditorStoreState {
 const subject = new Subject<IEditorStoreState>();
 
 const initialState: IEditorStoreState = {
+  loading: false,
   scale: 5,
   mode: EditorMode.TERRAIN,
   terrainMode: EditorTerrainMode.PLACE,
@@ -35,6 +37,14 @@ const editorStore = {
   },
   subscribe: (setState: (state: IEditorStoreState) => void): Subscription => {
     return subject.subscribe(setState);
+  },
+  setLoading: (b: boolean): void => {
+    state = {
+      ...state,
+      loading: b,
+    };
+
+    subject.next(state);
   },
   setMode: (mode: IEditorStoreState["mode"]): void => {
     state = {

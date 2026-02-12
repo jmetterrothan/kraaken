@@ -15,7 +15,7 @@ import Grid from "@src/shared/Grid";
 import Vector2 from "@src/shared/math/Vector2";
 
 import { IVector2 } from "@src/shared/models/event.model";
-import { ILevelBlueprint, ISpawnpoint, IEventZone, IRoomBlueprint, IWorldOptions } from "@src/shared/models/world.model";
+import { IProjectBlueprint, ISpawnpoint, IEventZone, ILevelBlueprint, IWorldOptions } from "@src/shared/models/world.model";
 import { TileLayer } from "@src/shared/models/tilemap.model";
 
 import { configSvc } from "@src/shared/services/ConfigService";
@@ -24,8 +24,8 @@ import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 
 class World {
+  public readonly projectBlueprint: IProjectBlueprint;
   public readonly levelBlueprint: ILevelBlueprint;
-  public readonly roomBlueprint: IRoomBlueprint;
 
   public readonly options: IWorldOptions;
 
@@ -51,19 +51,19 @@ class World {
   private _cameras: Entity[] = [];
   private _activeCameraIndex = 0;
 
-  constructor(roomId: string, levelBlueprint: ILevelBlueprint, _options: Partial<IWorldOptions> = {}) {
-    this.levelBlueprint = levelBlueprint;
+  constructor(levelId: string, projectBlueprint: IProjectBlueprint, _options: Partial<IWorldOptions> = {}) {
+    this.projectBlueprint = projectBlueprint;
 
-    const roomBlueprint = levelBlueprint.rooms.find((room) => room.id === roomId);
-    if (!roomBlueprint) {
-      throw new Error(`Could not find room "${roomId}" blueprint`);
+    const levelBlueprint = projectBlueprint.levels.find((level) => level.id === levelId);
+    if (!levelBlueprint) {
+      throw new Error(`Could not find level "${levelId}" blueprint`);
     }
 
-    this.roomBlueprint = roomBlueprint;
+    this.levelBlueprint = levelBlueprint;
   }
 
   public async init(): Promise<void> {
-    const { resources, ...level } = this.levelBlueprint;
+    const { assets, ...level } = this.projectBlueprint;
 
     this.addSystem(new Systems.CameraSystem());
     this.addSystem(new Systems.AnimationSystem());
@@ -71,13 +71,13 @@ class World {
     this.renderer = new Systems.RenderingSystem();
     this.renderer.addedToWorld(this);
 
-    this.tileMap = new TileMap(this.roomBlueprint);
+    this.tileMap = new TileMap(this.levelBlueprint);
     this.tileMap.init();
 
     this.grid = new Grid(
-      this.roomBlueprint.tileMapCols, //
-      this.roomBlueprint.tileMapRows,
-      this.roomBlueprint.tileSize,
+      this.levelBlueprint.tileMapCols, //
+      this.levelBlueprint.tileMapRows,
+      this.levelBlueprint.tileSize,
       [0.05, 0.05, 0.05, 0],
       [0.6, 0.4, 1, 1]
     );
@@ -85,8 +85,8 @@ class World {
 
     this.gravity = level.gravity;
 
-    this.roomBlueprint.spawnPoints.forEach(this.spawn.bind(this));
-    this.roomBlueprint.zones.forEach(this.createZone.bind(this));
+    this.levelBlueprint.spawnPoints.forEach(this.spawn.bind(this));
+    this.levelBlueprint.zones.forEach(this.createZone.bind(this));
 
     this.setClearColor(level.background);
 
@@ -130,7 +130,7 @@ class World {
   public createEntity(type: string, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
-    const components = this.levelBlueprint.entities.find((item) => item.type === type)?.components ?? [];
+    const components = this.projectBlueprint.entities.find((item) => item.type === type)?.components ?? [];
 
     components.forEach(({ name, metadata = {} }) => {
       entity.addComponent(ComponentFactory.create(name, metadata));
@@ -143,7 +143,7 @@ class World {
     return entity;
   }
 
-  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug: boolean = false): void {
+  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug = false): void {
     if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
       const positionComp = entity.getComponent(Components.Position);
       positionComp.x = position?.x ?? 0;
@@ -466,7 +466,7 @@ class World {
     return this._cameras[this._activeCameraIndex];
   }
 
-  public destroy() {
+  public destroy(): void {
     this.removeAllEntities();
     this.removeAllSystems();
 

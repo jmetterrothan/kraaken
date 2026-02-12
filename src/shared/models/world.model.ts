@@ -15,15 +15,16 @@ export interface IEntityBlueprint {
   components: IComponentBlueprint[];
 }
 
-export interface ILevelBlueprint {
+export interface IProjectBlueprint {
   id: string;
+  version: number;
   title: string;
   background: vec4;
   gravity: number;
-  defaultRoomId: string;
-  rooms: IRoomBlueprint[];
+  defaultLevelId: string;
+  levels: ILevelBlueprint[];
   entities: IEntityBlueprint[];
-  resources: {
+  assets: {
     sprites: ISpriteData[];
     sounds: ISoundData[];
   };
@@ -47,7 +48,7 @@ export interface IEventZone {
   events: IGameEvent[];
 }
 
-export interface IRoomBlueprint {
+export interface ILevelBlueprint {
   id: string;
   tileSize: number;
   tileSet: string;
@@ -77,4 +78,6 @@ export interface IPlaceData {
   coords: IPlaceTileData[];
 }
 
-export type IWorldOptions = {};
+export type IWorldOptions = {
+  // ...
+};

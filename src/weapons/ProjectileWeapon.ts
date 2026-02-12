@@ -34,14 +34,13 @@ class ProjectileWeapon extends Weapon {
 
   protected _ammo: number;
 
+  protected lastFireFailAt = 0;
   protected nextShotAt = 0;
   protected nextBurstAt = 0;
   protected shotsLeftInBurst: number;
 
   protected fireSFX: Howl | undefined;
   protected fireFailSFX: Howl | undefined;
-
-  protected lastFireFailAt: number = 0;
 
   constructor({ projectile, rate = 0, burstLimit = 1, burstDelay = 0, maxAmmo = -1, minRange = -1, maxRange = -1, spread, fireSFX, fireFailSFX }: ProjectileWeaponOptions) {
     super();
@@ -201,7 +200,7 @@ class ProjectileWeapon extends Weapon {
     Vector2.destroy(dir);
   }
 
-  public hasAmmo() {
+  public hasAmmo(): boolean {
     return this.ammo > 0 || this.maxAmmo === -1;
   }
 

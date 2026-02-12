@@ -40,7 +40,7 @@ class TerrainMode {
         const { coords = [], layer, onSuccess, onFailure, pushToStack } = e.detail || {};
 
         try {
-          const tileMap = this.editor.currentRoom.world.tileMap;
+          const tileMap = this.editor.currentLevel.world.tileMap;
 
           const prevCoords = coords.map((c) => {
             const tile = tileMap.getTileAtCoords(c.x, c.y);
@@ -70,14 +70,14 @@ class TerrainMode {
             eventStackSvc.undoStack.push({
               undo: () =>
                 driver.place(
-                  this.editor.currentRoomId,
+                  this.editor.currentLevelId,
                   {
                     layerId: layer,
                     coords: prevCoords,
                   },
                   false
                 ), //
-              redo: () => driver.place(this.editor.currentRoomId, { layerId: layer, coords }, false),
+              redo: () => driver.place(this.editor.currentLevelId, { layerId: layer, coords }, false),
             });
           }
 
@@ -120,8 +120,8 @@ class TerrainMode {
   }
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
-    const worldPos = this.editor.currentRoom.world.screenToCameraCoords(position);
-    const grid = this.editor.currentRoom.world.grid;
+    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
+    const grid = this.editor.currentLevel.world.grid;
 
     if (active) {
       grid.beginSelection(worldPos);
@@ -130,7 +130,7 @@ class TerrainMode {
       if (coords.length === 0) {
         return;
       }
-      const tileMap = this.editor.currentRoom.world.tileMap;
+      const tileMap = this.editor.currentLevel.world.tileMap;
 
       const { layerId, tileTypeId, terrainMode } = this.editor.state;
 
@@ -142,9 +142,9 @@ class TerrainMode {
             editorStore.setSelectedTileTypeId(tileTypeId);
           }
         } else if (terrainMode === EditorTerrainMode.PLACE) {
-          driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
+          driver.place(this.editor.currentLevelId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
         } else if (terrainMode === EditorTerrainMode.ERASE) {
-          driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+          driver.place(this.editor.currentLevelId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
         } else if (terrainMode === EditorTerrainMode.FILL) {
           const targetTile = tileMap.getTileAtCoords(coords[0].x, coords[0].y);
           const tileSize = tileMap.getTileSize();
@@ -153,7 +153,7 @@ class TerrainMode {
             const targetId = targetTile.getTileTypeId(layerId);
             const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
-            driver.place(this.editor.currentRoomId, { layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
+            driver.place(this.editor.currentLevelId, { layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
           }
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.pick, e)) {
@@ -163,7 +163,7 @@ class TerrainMode {
           editorStore.setSelectedTileTypeId(tileTypeId);
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.erase, e)) {
-        driver.place(this.editor.currentRoomId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+        driver.place(this.editor.currentLevelId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();
@@ -171,10 +171,10 @@ class TerrainMode {
   }
 
   public handleMouseMove(_e: MouseEvent, position: vec2): void {
-    const worldPos = this.editor.currentRoom.world.screenToCameraCoords(position);
+    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
 
-    this.editor.currentRoom.world.grid.setCursorPosition(worldPos);
-    this.editor.currentRoom.world.grid.updateSelection(worldPos);
+    this.editor.currentLevel.world.grid.setCursorPosition(worldPos);
+    this.editor.currentLevel.world.grid.updateSelection(worldPos);
   }
 }
 

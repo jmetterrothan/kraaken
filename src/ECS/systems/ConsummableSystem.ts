@@ -15,6 +15,9 @@ export class ConsummableSystem extends System {
     let consummated = false;
 
     for (const target of targets) {
+      if (entity === target) {
+        continue;
+      }
       if (!consummable.canBeConsummatedBy(target)) {
         continue;
       }
@@ -41,7 +44,7 @@ export class ConsummableSystem extends System {
     }
   }
 
-  public isColliding(entity: Entity, target: Entity) {
+  public isColliding(entity: Entity, target: Entity): boolean {
     if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
       const targetBbox = target.getComponent(BoundingBox);
       const bbox = entity.getComponent(BoundingBox);

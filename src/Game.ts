@@ -58,10 +58,10 @@ class Game {
   public static readonly TARGET_UPS: number = config.TARGET_UPS;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
 
-  public static create({ levelId = "", ...options }: Partial<IGameOptions>): Game {
+  public static create({ projectId = "", ...options }: Partial<IGameOptions>): Game {
     if (!(Game[instanceSym] instanceof Game)) {
       Game[instanceSym] = new Game({ ...Game.DEFAULT_OPTIONS, ...options });
-      Game[instanceSym].init(levelId);
+      Game[instanceSym].init(projectId);
 
       console.log("Debug flags:", debugSvc.flags);
     }
@@ -73,7 +73,7 @@ class Game {
     height: 900,
     width: 1280,
     root: document.body,
-    levelId: "",
+    projectId: "",
   };
 
   private options: IGameOptions;
@@ -241,7 +241,7 @@ class Game {
 
   private readonly loop = () => this.run();
 
-  private init(levelId: string) {
+  private init(projectId: string) {
     this.initCanvas();
     this.initWebGL();
     this.initEvents();
@@ -280,8 +280,8 @@ class Game {
       })
       .finally(() => {
         this.stateManager.switch(GameStates.EDITOR, {
-          id: levelId,
-          blueprint: driver.load(levelId),
+          id: projectId,
+          blueprint: driver.load(projectId),
         });
       });
   }

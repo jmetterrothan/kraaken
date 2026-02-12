@@ -6,7 +6,7 @@ import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
-import { IRoomBlueprint } from "@src/shared/models/world.model";
+import { ILevelBlueprint } from "@src/shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
 import { TileLayer, ITile } from "@src/shared/models/tilemap.model";
 
@@ -54,7 +54,7 @@ class TileMap {
 
   private debugLayer: Map<number, number>;
 
-  constructor(blueprint: IRoomBlueprint) {
+  constructor(blueprint: ILevelBlueprint) {
     this.nbCols = blueprint.tileMapCols;
     this.nbRows = blueprint.tileMapRows;
     this.tileSize = blueprint.tileSize;

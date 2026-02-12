@@ -17,10 +17,10 @@ const useLevelActions = () => {
 };
 
 interface ILevelUiProps {
-  levelId: string;
+  projectId: string;
 }
 
-const LevelUi: React.FC<ILevelUiProps> = ({ levelId }) => {
+const LevelUi: React.FC<ILevelUiProps> = ({ projectId }) => {
   const actions = useLevelActions();
 
   return (
@@ -31,7 +31,7 @@ const LevelUi: React.FC<ILevelUiProps> = ({ levelId }) => {
           name="Edit level"
           kbd={keyBindings.level.edit.toString()}
           active={false}
-          onClick={() => actions.edit(levelId)}
+          onClick={() => actions.edit(projectId)}
         />
       </Toolbar>
     </Ui>

@@ -45,33 +45,33 @@ class EntityMode {
       this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
         const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-        const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
+        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevel.world.projectBlueprint.defaultLevelId);
 
-        if (!room) {
-          throw new Error(`Unknown room`);
+        if (!level) {
+          throw new Error(`Unknown level`);
         }
 
-        const index = room.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
+        const index = level.spawnPoints.findIndex(({ uuid }) => uuid === spawnPoint.uuid);
 
         try {
           if (index !== -1) {
-            room.spawnPoints[index] = spawnPoint;
+            level.spawnPoints[index] = spawnPoint;
 
             // TODO: push to event stack
           } else {
-            this.editor.currentRoom.world.spawn(spawnPoint);
-            room.spawnPoints.push(spawnPoint);
+            this.editor.currentLevel.world.spawn(spawnPoint);
+            level.spawnPoints.push(spawnPoint);
 
             if (pushToStack) {
               eventStackSvc.undoStack.push({
-                undo: () => driver.despawn(this.editor.currentRoomId, spawnPoint.uuid, false),
-                redo: () => driver.spawn(this.editor.currentRoomId, spawnPoint, false),
+                undo: () => driver.despawn(this.editor.currentLevelId, spawnPoint.uuid, false),
+                redo: () => driver.spawn(this.editor.currentLevelId, spawnPoint, false),
               });
             }
           }
 
           // if entity already exists in the world we update its position
-          const entity = this.editor.currentRoom.world.getEntityByUuid(spawnPoint.uuid);
+          const entity = this.editor.currentLevel.world.getEntityByUuid(spawnPoint.uuid);
           if (entity) {
             if (entity.hasComponent(Position.COMPONENT_TYPE)) {
               const position = entity.getComponent(Position);
@@ -99,14 +99,14 @@ class EntityMode {
       this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
         const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
 
-        const room = this.editor.currentRoom.world.levelBlueprint.rooms.find((room) => room.id === this.editor.currentRoom.world.levelBlueprint.defaultRoomId);
+        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevel.world.projectBlueprint.defaultLevelId);
 
-        if (!room) {
-          throw new Error(`Unknown room "${this.editor.currentRoom.world.levelBlueprint.defaultRoomId}"`);
+        if (!level) {
+          throw new Error(`Unknown level "${this.editor.currentLevel.world.projectBlueprint.defaultLevelId}"`);
         }
 
-        const index = room.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
-        const spawnPoint = room.spawnPoints[index];
+        const index = level.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
+        const spawnPoint = level.spawnPoints[index];
 
         try {
           if (!spawnPoint) {
@@ -116,13 +116,13 @@ class EntityMode {
             throw new Error(`Spawnpoint w/o uuid`);
           }
 
-          this.editor.currentRoom.world.despawn(spawnPoint.uuid);
-          room.spawnPoints.splice(index, 1);
+          this.editor.currentLevel.world.despawn(spawnPoint.uuid);
+          level.spawnPoints.splice(index, 1);
 
           if (pushToStack) {
             eventStackSvc.undoStack.push({
-              undo: () => driver.spawn(this.editor.currentRoomId, spawnPoint, false),
-              redo: () => driver.despawn(this.editor.currentRoomId, spawnPoint.uuid, false),
+              undo: () => driver.spawn(this.editor.currentLevelId, spawnPoint, false),
+              redo: () => driver.despawn(this.editor.currentLevelId, spawnPoint.uuid, false),
             });
           }
 
@@ -154,10 +154,10 @@ class EntityMode {
     const snapToGrid = e.shiftKey;
 
     if (active) {
-      const coords = this.editor.currentRoom.world.screenToCameraCoords(position);
-      const tileSize = this.editor.currentRoom.world.tileMap.getTileSize();
+      const coords = this.editor.currentLevel.world.screenToCameraCoords(position);
+      const tileSize = this.editor.currentLevel.world.tileMap.getTileSize();
 
-      const tile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
+      const tile = this.editor.currentLevel.world.tileMap.getTileAtCoords(coords.x, coords.y);
 
       if (matchMouseBinding(mouseBindings.editor.entityMode.spawn, e)) {
         const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
@@ -171,7 +171,7 @@ class EntityMode {
           selectedEntityPos.fromValues(x, y);
 
           driver.spawn(
-            this.editor.currentRoomId,
+            this.editor.currentLevelId,
             {
               uuid: this.selectedEntity.uuid,
               type: this.selectedEntity.type,
@@ -187,13 +187,13 @@ class EntityMode {
             const focusedEntityPos = this.focusedEntity.getComponent(Position);
             const placeable = this.focusedEntity.getComponent(Placeable);
 
-            placeable.follow(this.editor.currentRoom.cursor, focusedEntityPos);
+            placeable.follow(this.editor.currentLevel.cursor, focusedEntityPos);
 
             this.selectedEntity = this.focusedEntity;
             editorStore.setSelectedEntityType(this.selectedEntity.type);
           } else {
             driver.spawn(
-              this.editor.currentRoomId,
+              this.editor.currentLevelId,
               {
                 uuid: uuidv4(),
                 type: this.editor.state.entityType,
@@ -206,19 +206,19 @@ class EntityMode {
         }
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.despawn, e)) {
         if (this.focusedEntity) {
-          driver.despawn(this.editor.currentRoomId, this.focusedEntity.uuid, true);
+          driver.despawn(this.editor.currentLevelId, this.focusedEntity.uuid, true);
         }
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.test, e)) {
-        const player = this.editor.currentRoom.world.player;
+        const player = this.editor.currentLevel.world.player;
 
         if (player) {
           const playerPosition = player.getComponent(Position);
 
-          const startTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(coords.x, coords.y);
-          const goalTile = this.editor.currentRoom.world.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
+          const startTile = this.editor.currentLevel.world.tileMap.getTileAtCoords(coords.x, coords.y);
+          const goalTile = this.editor.currentLevel.world.tileMap.getTileAtCoords(playerPosition.x, playerPosition.y);
 
           if (startTile && goalTile) {
-            this.editor.currentRoom.world.tileMap.aStar(startTile, goalTile);
+            this.editor.currentLevel.world.tileMap.aStar(startTile, goalTile);
           }
         }
       }
@@ -226,7 +226,7 @@ class EntityMode {
   }
 
   public handleMouseMove(): void {
-    const entities = this.editor.currentRoom.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
+    const entities = this.editor.currentLevel.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
 
     this.focusedEntity = undefined;
 

@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 
 import AbstractDriver from "@src/shared/drivers/AbstractDriver";
 
-import { IPlaceData, ISpawnpoint, ILevelBlueprint } from "@src/shared/models/world.model";
+import { IPlaceData, ISpawnpoint, IProjectBlueprint } from "@src/shared/models/world.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
 
@@ -26,13 +26,13 @@ class LocalDriver extends AbstractDriver {
     await this.http.get(`/api`);
   }
 
-  public async sync(_roomId: string): Promise<void> {}
+  public async sync(_levelId: string): Promise<void> {}
 
-  public async place(_roomId: string, data: IPlaceData, pushToStack: boolean): Promise<void> {
+  public async place(_levelId: string, data: IPlaceData, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.placeEvent(data.layerId, data.coords, pushToStack));
   }
 
-  public async spawn(_roomId: string, data: ISpawnpoint, pushToStack: boolean): Promise<void> {
+  public async spawn(_levelId: string, data: ISpawnpoint, pushToStack: boolean): Promise<void> {
     dispatch(
       GameEvents.spawnEvent(
         data.uuid, //
@@ -45,33 +45,29 @@ class LocalDriver extends AbstractDriver {
     );
   }
 
-  public async despawn(_roomId: string, uuid: string, pushToStack: boolean): Promise<void> {
+  public async despawn(_levelId: string, uuid: string, pushToStack: boolean): Promise<void> {
     dispatch(GameEvents.despawnEvent(uuid, pushToStack));
   }
 
-  public async load(levelId: string): Promise<ILevelBlueprint> {
-    this.levelId = levelId;
+  public async load(projectId: string): Promise<IProjectBlueprint> {
+    const response = await this.http.get<IProjectBlueprint>(`/api/projects/${projectId}`);
 
-    const { data } = await this.http.get(`/api/levels/${levelId}`);
-    return data;
+    this.projectId = response.data.id;
+    this.version = response.data.version;
+
+    return response.data;
   }
 
-  public async save(roomId: string, data: ILevelBlueprint): Promise<void> {
-    const { resources, entities, rooms, ...level } = data;
+  public async save(data: IProjectBlueprint): Promise<IProjectBlueprint> {
+    const response = await this.http.post<IProjectBlueprint>(`/api/projects/${this.projectId}`, { ...data, version: this.version });
 
-    await this.http.post(`/api/levels/${this.levelId}`, level);
+    this.version = response.data.version;
 
-    const room = rooms.find((room) => room.id === roomId);
-
-    if (!room) {
-      throw new Error(`Could not find level room "${roomId}"`);
-    }
-
-    await this.http.post(`/api/levels/${this.levelId}/rooms/${room.id}`, room);
+    return response.data;
   }
 
   public getAssetUrl(path: string): string {
-    return `${config.REST_API}/api/levels/${this.levelId}${path}`;
+    return `${config.REST_API}/api/projects/${this.projectId}${path}`;
   }
 }
 
