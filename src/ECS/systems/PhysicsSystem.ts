@@ -87,8 +87,8 @@ export class PhysicsSystem extends System {
       }
 
       // snapping to avoid funny behaviors
-      if (Math.abs(rigidBody.velocity.x) < 10 * delta) rigidBody.velocity.x = 0;
-      if (Math.abs(rigidBody.velocity.y) < 10 * delta) rigidBody.velocity.y = 0;
+      if (Math.abs(rigidBody.velocity.x) < EPSILON * delta) rigidBody.velocity.x = 0;
+      if (Math.abs(rigidBody.velocity.y) < EPSILON * delta) rigidBody.velocity.y = 0;
 
       if (rigidBody.reflectAngle) {
         const vx = rigidBody.velocity.x * rigidBody.velocityModifier.x;

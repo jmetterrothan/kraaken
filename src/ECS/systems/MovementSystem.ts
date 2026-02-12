@@ -22,7 +22,7 @@ export class MovementSystem extends System {
       const rigidBody = entity.getComponent(RigidBody);
       const input = entity.getComponent(PlayerInput);
 
-      const grounded = rigidBody.isGrounded;
+      let grounded = rigidBody.isGrounded;
 
       const pressingIntoLeftWall = input.left && movement.isBlockedLeft;
       const pressingIntoRightWall = input.right && movement.isBlockedRight;
@@ -57,6 +57,7 @@ export class MovementSystem extends System {
 
         movement.jumping = true;
         rigidBody.isGrounded = false;
+        grounded = false;
 
         rigidBody.velocity.y = -movement.initialJumpBoost;
 
@@ -75,13 +76,12 @@ export class MovementSystem extends System {
       // --- VARIABLE JUMP (hold to go higher) ---
       if (movement.jumping) {
         if (input.jump && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
-          rigidBody.velocity.y += -movement.jumpSpeed * delta; // your existing “maintain momentum”
+          rigidBody.velocity.y += -movement.jumpSpeed * delta;
         }
 
-        // release-to-cut jump (optional but feels great)
+        // release-to-cut jump
         if (!input.jump && rigidBody.velocity.y < 0) {
           rigidBody.velocity.y *= 0.5;
-          movement.jumping = false;
         }
 
         // stop “jumping” state once you start falling
@@ -146,9 +146,9 @@ export class MovementSystem extends System {
       }
 
       movement.landing = false;
-      movement.falling = !grounded && rigidBody.velocity.y > Number.EPSILON;
-      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
-      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= Number.EPSILON;
+      movement.falling = !grounded && rigidBody.velocity.y > 0;
+      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > 0;
+      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= 0;
 
       // --- AIR TIME - LANDING DETECTION ---
       const justLeftGround = !grounded && movement.wasGrounded;
