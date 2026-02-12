@@ -29,10 +29,7 @@ export class PlayerCombatSystem extends System {
         combat.attacking = false;
       }
 
-      const usePrimaryPressed = input.attack && !input.prevAttackDown;
-      input.prevAttackDown = input.attack;
-
-      if (usePrimaryPressed && combat.primaryWeapon) {
+      if (input.attackPressed && combat.primaryWeapon) {
         combat.primaryWeapon.update(this.world, entity);
 
         combat.attacking = true;

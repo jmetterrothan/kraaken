@@ -32,12 +32,10 @@ export class MovementSystem extends System {
       const dtMs = delta * 1000;
 
       // --- DASH ---
-      const dashPressed = input.dash && !input.prevDashDown;
-      input.prevDashDown = input.dash;
 
       movement.dashCooldownRemainingMs = Math.max(movement.dashCooldownRemainingMs - dtMs, 0);
 
-      const canConsummeDash = dashPressed && !movement.dashing && movement.dashCooldownRemainingMs <= 0 && (grounded || movement.airDashesRemaining > 0) && !movement.wallClimbing;
+      const canConsummeDash = input.dashPressed && !movement.dashing && movement.dashCooldownRemainingMs <= 0 && (grounded || movement.airDashesRemaining > 0) && !movement.wallClimbing;
 
       if (grounded) {
         movement.airDashesRemaining = movement.maxAirDashes;
@@ -78,9 +76,6 @@ export class MovementSystem extends System {
           rigidBody.velocity.x *= 0.2; // keep momentum
         }
       } else {
-        const jumpPressed = input.jump && !input.prevJumpDown;
-        input.prevJumpDown = input.jump;
-
         // --- COYOTE TIME ---
         if (grounded) {
           movement.coyoteRemainingMs = movement.coyoteTimeMs;
@@ -89,7 +84,7 @@ export class MovementSystem extends System {
         }
 
         // --- JUMP BUFFER ---
-        if (jumpPressed) {
+        if (input.jumpPressed) {
           movement.jumpBufferRemainingMs = movement.jumpBufferMs;
         } else {
           movement.jumpBufferRemainingMs = Math.max(0, movement.jumpBufferRemainingMs - dtMs);

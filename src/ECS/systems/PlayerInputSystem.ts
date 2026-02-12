@@ -167,6 +167,17 @@ export class PlayerInputSystem extends System {
     const controllers = ("getGamepads" in navigator ? navigator.getGamepads() : []).filter((gamepad) => gamepad !== null);
 
     if (this.world.controlledEntity) {
+      const input = this.world.controlledEntity.getComponent(PlayerInput);
+
+      input.prevJump = input.jump;
+      input.prevAttack = input.attack;
+      input.prevDash = input.dash;
+      input.prevHold = input.hold;
+      input.prevLeft = input.left;
+      input.prevRight = input.right;
+      input.prevUp = input.up;
+      input.prevDown = input.down;
+
       this.handleGamepadInput(this.world.controlledEntity, controllers, delta);
       this.enforceWeaponRangeLimit(this.world.controlledEntity);
     }
