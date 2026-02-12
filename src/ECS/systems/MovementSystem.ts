@@ -31,124 +31,189 @@ export class MovementSystem extends System {
 
       const dtMs = delta * 1000;
 
-      const jumpPressed = input.jump && !movement.prevJumpDown;
-      movement.prevJumpDown = input.jump;
+      // --- DASH ---
+      const dashPressed = input.dash && !input.prevDashDown;
+      input.prevDashDown = input.dash;
 
-      // --- COYOTE TIME ---
+      movement.dashCooldownRemainingMs = Math.max(movement.dashCooldownRemainingMs - dtMs, 0);
+
+      const canConsummeDash = dashPressed && !movement.dashing && movement.dashCooldownRemainingMs <= 0 && (grounded || movement.airDashesRemaining > 0) && !movement.wallClimbing;
+
       if (grounded) {
-        movement.coyoteRemainingMs = movement.coyoteTimeMs;
-      } else {
-        movement.coyoteRemainingMs = Math.max(0, movement.coyoteRemainingMs - dtMs);
+        movement.airDashesRemaining = movement.maxAirDashes;
       }
 
-      // --- JUMP BUFFER ---
-      if (jumpPressed) {
-        movement.jumpBufferRemainingMs = movement.jumpBufferMs;
-      } else {
-        movement.jumpBufferRemainingMs = Math.max(0, movement.jumpBufferRemainingMs - dtMs);
-      }
-
-      // --- CONSUME BUFFER IF WE CAN JUMP ---
-      const canConsumeJump = movement.jumpBufferRemainingMs > 0 && movement.coyoteRemainingMs > 0 && !movement.wallSliding && !movement.wallClimbing; // optional: decide priority with wall climb
-
-      if (canConsumeJump) {
-        movement.jumpBufferRemainingMs = 0;
-        movement.coyoteRemainingMs = 0;
-
-        movement.jumping = true;
-        rigidBody.isGrounded = false;
-        grounded = false;
-
-        rigidBody.velocity.y = -movement.initialJumpBoost;
-
-        if (movement.jumpSFX || movement.jumpVFX) {
-          if (movement.jumpSFX) {
-            movement.jumpSFX.play();
-          }
-
-          if (movement.jumpVFX && movement.wasGrounded) {
-            this.world.playEffectOnceAt(movement.jumpVFX, { x: position.x, y: position.y + bbox.height / 2 });
-          }
-          movement.lastEffectTime = now + 200;
-        }
-      }
-
-      // --- VARIABLE JUMP (hold to go higher) ---
-      if (movement.jumping) {
-        if (input.jump && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
-          rigidBody.velocity.y += -movement.jumpSpeed * delta;
-        }
-
-        // release-to-cut jump
-        if (!input.jump && rigidBody.velocity.y < 0) {
-          rigidBody.velocity.y *= 0.5;
-        }
-
-        // stop “jumping” state once you start falling
-        if (rigidBody.velocity.y >= 0) {
-          movement.jumping = false;
-        }
-      }
-
-      // --- BASIC MOVEMENTS ---
-      if (input.right || input.left) {
+      if (canConsummeDash) {
         const axis = (input.right ? 1 : 0) + (input.left ? -1 : 0);
 
-        rigidBody.velocity.x += axis * movement.acceleration * delta;
-        rigidBody.velocity.x = Math.max(-movement.speed, Math.min(movement.speed, rigidBody.velocity.x));
+        movement.dashDir = axis !== 0 ? Math.sign(axis) : rigidBody.direction.x;
+        movement.dashing = true;
+        movement.dashRemainingMs = movement.dashDurationMs;
+        movement.dashCooldownRemainingMs = movement.dashCooldownMs;
+
+        if (!grounded) {
+          movement.airDashesRemaining = Math.max(0, movement.airDashesRemaining - 1);
+        }
+
+        rigidBody.velocity.x = movement.dashDir * movement.dashSpeed;
+        rigidBody.velocity.y = 0;
+        movement.jumping = false;
+        movement.wallSliding = false;
+        movement.wallClimbing = false;
+
+        movement.savedGravityScale = rigidBody.gravityScale;
+        rigidBody.gravityScale = 0;
+      }
+
+      if (movement.dashing) {
+        const hitWall = (movement.dashDir > 0 && movement.isBlockedRight) || (movement.dashDir < 0 && movement.isBlockedLeft);
+        rigidBody.velocity.x = movement.dashDir * movement.dashSpeed;
+
+        movement.dashRemainingMs = Math.max(0, movement.dashRemainingMs - dtMs);
+
+        if (movement.dashRemainingMs <= 0 || hitWall) {
+          rigidBody.gravityScale = movement.savedGravityScale;
+
+          movement.dashing = false;
+          rigidBody.velocity.x *= 0.2; // keep momentum
+        }
       } else {
-        const decel = movement.deceleration * delta;
-        if (rigidBody.velocity.x > 0) rigidBody.velocity.x = Math.max(0, rigidBody.velocity.x - decel);
-        if (rigidBody.velocity.x < 0) rigidBody.velocity.x = Math.min(0, rigidBody.velocity.x + decel);
-      }
+        const jumpPressed = input.jump && !input.prevJumpDown;
+        input.prevJumpDown = input.jump;
 
-      // --- WALL SLIDING ---
-      movement.wallSliding = !grounded && !movement.wallClimbing && pressingIntoWall && rigidBody.velocity.y > 0;
-
-      if (movement.wallSliding) {
-        if (rigidBody.velocity.y > movement.wallSlideMaxFallSpeed) {
-          rigidBody.velocity.y = movement.wallSlideMaxFallSpeed;
+        // --- COYOTE TIME ---
+        if (grounded) {
+          movement.coyoteRemainingMs = movement.coyoteTimeMs;
+        } else {
+          movement.coyoteRemainingMs = Math.max(0, movement.coyoteRemainingMs - dtMs);
         }
 
-        if (movement.wallSlideVFX && now > movement.lastEffectTime) {
-          this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y - bbox.height / 2 });
-          movement.lastEffectTime = now + 300;
+        // --- JUMP BUFFER ---
+        if (jumpPressed) {
+          movement.jumpBufferRemainingMs = movement.jumpBufferMs;
+        } else {
+          movement.jumpBufferRemainingMs = Math.max(0, movement.jumpBufferRemainingMs - dtMs);
         }
-      }
 
-      // --- WALL CLIMBING ---
-      movement.wallClimbing = !grounded && input.up && pressingIntoWall && movement.wallClimbStamina > 0;
+        // --- CONSUME BUFFER IF WE CAN JUMP ---
+        const canConsumeJump = movement.jumpBufferRemainingMs > 0 && movement.coyoteRemainingMs > 0 && !movement.wallSliding && !movement.wallClimbing;
 
-      if (movement.wallClimbing) {
-        const targetVy = input.up ? -movement.wallClimbSpeed : 0;
-        const maxStep = movement.wallClimbAcceleration * delta;
+        if (canConsumeJump) {
+          movement.jumpBufferRemainingMs = 0;
+          movement.coyoteRemainingMs = 0;
 
-        const diff = targetVy - rigidBody.velocity.y;
-        const step = Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
-        rigidBody.velocity.y += step;
+          movement.jumping = true;
+          rigidBody.isGrounded = false;
+          grounded = false;
 
-        // optional: prevent any downward velocity while climbing
-        if (rigidBody.velocity.y > 0) rigidBody.velocity.y = 0;
+          rigidBody.velocity.y = -movement.initialJumpBoost;
 
-        movement.wallClimbStamina = Math.max(0, movement.wallClimbStamina - movement.wallClimbStaminaConsumptionPerS * delta);
+          if (movement.jumpSFX || movement.jumpVFX) {
+            if (movement.jumpSFX) {
+              movement.jumpSFX.play();
+            }
 
-        movement.climbedDuringAirborne = true;
-
-        if (movement.wallSlideVFX && now > movement.lastEffectTime) {
-          this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y + bbox.height / 2 });
-          movement.lastEffectTime = now + 300;
+            if (movement.jumpVFX && movement.wasGrounded) {
+              this.world.playEffectOnceAt(movement.jumpVFX, { x: position.x, y: position.y + bbox.height / 2 });
+            }
+            movement.lastEffectTime = now + 200;
+          }
         }
-      }
 
-      // wall climbing stamina reset
-      if (!movement.wallClimbing && grounded) {
-        movement.wallClimbStamina = Math.min(movement.maxWallClimbStamina, movement.wallClimbStamina + movement.wallClimbStaminaRecoveryPerS * delta);
+        // --- VARIABLE JUMP (hold to go higher) ---
+        if (movement.jumping) {
+          if (input.jump && rigidBody.velocity.y < 0 && !movement.wallClimbing) {
+            rigidBody.velocity.y += -movement.jumpSpeed * delta;
+          }
+
+          // release-to-cut jump
+          if (!input.jump && rigidBody.velocity.y < 0) {
+            rigidBody.velocity.y *= 0.5;
+          }
+
+          // stop “jumping” state once you start falling
+          if (rigidBody.velocity.y >= 0) {
+            movement.jumping = false;
+          }
+        }
+
+        // --- BASIC MOVEMENTS ---
+
+        if (input.right || input.left) {
+          const axis = (input.right ? 1 : 0) + (input.left ? -1 : 0);
+
+          rigidBody.velocity.x += axis * movement.acceleration * delta;
+          rigidBody.velocity.x = Math.max(-movement.speed, Math.min(movement.speed, rigidBody.velocity.x));
+        } else {
+          const decel = movement.deceleration * delta;
+          if (rigidBody.velocity.x > 0) rigidBody.velocity.x = Math.max(0, rigidBody.velocity.x - decel);
+          if (rigidBody.velocity.x < 0) rigidBody.velocity.x = Math.min(0, rigidBody.velocity.x + decel);
+        }
+
+        // --- WALL CLIMBING ---
+        const wasWallClimbing = movement.wallClimbing;
+
+        movement.wallClimbing = !grounded && !movement.jumping && pressingIntoWall && movement.wallClimbStamina > 0;
+
+        if (movement.wallClimbing) {
+          const vyAxis = (input.up ? -1 : 0) + (input.down ? 1 : 0); // up/down/none
+          const targetVy = movement.wallClimbSpeed * vyAxis;
+
+          const maxStep = movement.wallClimbAcceleration * delta;
+
+          const diff = targetVy - rigidBody.velocity.y;
+          const step = Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
+          rigidBody.velocity.y += step;
+
+          // prevent any downward velocity while climbing
+          if (vyAxis === 0) {
+            rigidBody.velocity.y = 0;
+          }
+
+          if (vyAxis < 0) {
+            movement.wallClimbStamina = Math.max(0, movement.wallClimbStamina - movement.wallClimbStaminaConsumptionPerS * delta);
+          }
+          movement.climbedDuringAirborne = true;
+
+          if (vyAxis !== 0 && movement.wallSlideVFX && now > movement.lastEffectTime) {
+            this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y + bbox.height / 2 });
+            movement.lastEffectTime = now + 300;
+          }
+        }
+
+        // wall climbing stamina reset
+        if (!movement.wallClimbing && grounded) {
+          movement.wallClimbStamina = Math.min(movement.maxWallClimbStamina, movement.wallClimbStamina + movement.wallClimbStaminaRecoveryPerS * delta);
+        }
+
+        if (movement.wallClimbing && !wasWallClimbing) {
+          movement.savedGravityScale = rigidBody.gravityScale;
+          rigidBody.gravityScale = 0;
+        }
+
+        if (!movement.wallClimbing && wasWallClimbing) {
+          rigidBody.gravityScale = movement.savedGravityScale;
+        }
+
+        // --- WALL SLIDING ---
+        movement.wallSliding = !grounded && !movement.wallClimbing && pressingIntoWall && rigidBody.velocity.y > 0;
+
+        if (movement.wallSliding) {
+          if (rigidBody.velocity.y > movement.wallSlideMaxFallSpeed) {
+            rigidBody.velocity.y = movement.wallSlideMaxFallSpeed;
+          }
+
+          if (movement.wallSlideVFX && now > movement.lastEffectTime) {
+            this.world.playEffectOnceAt(movement.wallSlideVFX, { x: pressingIntoLeftWall ? position.x - bbox.width / 2 : position.x + bbox.width / 2, y: position.y - bbox.height / 2 });
+            movement.lastEffectTime = now + 300;
+          }
+        }
       }
 
       movement.landing = false;
-      movement.falling = !grounded && rigidBody.velocity.y > 0;
-      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > 0;
-      movement.idle = grounded && Math.abs(rigidBody.velocity.x) <= 0;
+      movement.falling = !movement.dashing && !grounded && rigidBody.velocity.y >= 0;
+      movement.walking = grounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
+      movement.idle = grounded && !movement.walking;
 
       // --- AIR TIME - LANDING DETECTION ---
       const justLeftGround = !grounded && movement.wasGrounded;
@@ -185,10 +250,13 @@ export class MovementSystem extends System {
       // register direction change
       if (input.left) {
         rigidBody.direction.x = -1;
+        rigidBody.orientation.x = -1;
       } else if (input.right) {
         rigidBody.direction.x = 1;
+        rigidBody.orientation.x = 1;
       }
 
+      /*
       // register orientation change
       if (input.aim.x < 0) {
         rigidBody.direction.x = -1; // sync aim and facing dir
@@ -197,6 +265,7 @@ export class MovementSystem extends System {
         rigidBody.direction.x = 1; // sync aim and facing dir
         rigidBody.orientation.x = 1;
       }
+        */
 
       // lock direction/orientation when wallSliding
       if ((movement.wallSliding || movement.wallClimbing) && pressingIntoRightWall) {

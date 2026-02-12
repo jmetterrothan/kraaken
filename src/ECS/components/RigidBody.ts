@@ -10,7 +10,7 @@ export interface IRigidBodyMetadata {
   orientation?: IVector2;
   collide?: boolean;
   gravity?: boolean;
-  gravityScale?: number;
+  defaultGravityScale?: number;
   maxFallSpeed?: number;
   clampToMap?: boolean;
   bounciness?: number;
@@ -24,7 +24,7 @@ export class RigidBody implements Component {
 
   public readonly collide: boolean;
   public readonly gravity: boolean;
-  public readonly gravityScale: number;
+  public readonly defaultGravityScale: number;
   public readonly maxFallSpeed: number;
   public readonly clampToMap: boolean;
   public readonly reflect: boolean;
@@ -32,6 +32,7 @@ export class RigidBody implements Component {
   public readonly reflectVFX: string | null;
   public readonly bounciness: number;
 
+  public gravityScale: number;
   public orientation: Vector2 = new Vector2(1, 1);
   public direction: Vector2 = new Vector2(1, 1);
   public velocity: Vector2 = new Vector2(0, 0);
@@ -40,7 +41,7 @@ export class RigidBody implements Component {
 
   public isGrounded: boolean;
 
-  public constructor({ velocity, direction, collide, gravity, gravityScale, maxFallSpeed, clampToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
+  public constructor({ velocity, direction, collide, gravity, defaultGravityScale, maxFallSpeed, clampToMap, bounciness, reflect, reflectAngle, reflectVFX }: IRigidBodyMetadata = {}) {
     this.velocity.x = velocity?.x ?? 0;
     this.velocity.y = velocity?.y ?? 0;
 
@@ -49,7 +50,7 @@ export class RigidBody implements Component {
 
     this.collide = collide ?? true;
     this.gravity = gravity ?? true;
-    this.gravityScale = gravityScale ?? 1;
+    this.defaultGravityScale = defaultGravityScale ?? 1;
     this.maxFallSpeed = maxFallSpeed ?? 0;
     this.clampToMap = clampToMap ?? false;
     this.reflect = reflect ?? false;
@@ -57,6 +58,7 @@ export class RigidBody implements Component {
     this.reflectVFX = reflectVFX ?? null;
     this.bounciness = bounciness ?? 1;
 
+    this.gravityScale = defaultGravityScale ?? 1;
     this.isGrounded = false;
   }
 

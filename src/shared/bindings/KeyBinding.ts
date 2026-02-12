@@ -58,7 +58,7 @@ class KeyBinding {
     this.meta = meta ?? false;
   }
 
-  public match(e: KeyboardEvent) {
+  public match(e: KeyboardEvent): boolean {
     const matching = e.code === this.code && e.shiftKey === this.shift && e.ctrlKey === this.ctrl && e.altKey === this.alt && e.metaKey === this.meta;
 
     if (matching) {
@@ -68,7 +68,7 @@ class KeyBinding {
     return matching;
   }
 
-  public toString() {
+  public toString(): string {
     const parts: string[] = [];
     if (this.ctrl) parts.push("Ctrl");
     if (this.alt) parts.push(IS_MAC_PLATFORM ? "Option" : "Alt");

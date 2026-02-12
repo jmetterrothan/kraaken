@@ -67,7 +67,7 @@ export class PlayerInputSystem extends System {
         const health = entity.getComponent(Health);
         const input = entity.getComponent(PlayerInput);
 
-        if (matchKeyBinding(keyBindings.level.usePrimaryWeapon, e)) {
+        if (matchKeyBinding(keyBindings.level.attack, e)) {
           input.attack = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.left, e)) {
           input.left = active && health.isAlive;
@@ -79,6 +79,8 @@ export class PlayerInputSystem extends System {
           input.down = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.jump, e)) {
           input.jump = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.dash, e)) {
+          input.dash = active && health.isAlive;
         }
       }
     });
@@ -91,39 +93,44 @@ export class PlayerInputSystem extends System {
     const controller = controllers[input.gamepadIndex];
 
     if (controller && controller.connected) {
-      const x = controller.axes[0];
-      const y = controller.axes[1];
+      const lx = controller.axes[0] ?? 0;
+      const ly = controller.axes[1] ?? 0;
 
-      if (!input.hold && health.isAlive) {
-        if (x >= 0.5) {
-          input.right = true;
-        } else {
-          input.right = false;
-        }
+      const deadzone = 0.25;
 
-        if (x <= -0.5) {
-          input.left = true;
-        } else {
-          input.left = false;
-        }
-      } else {
-        input.left = false;
-        input.right = false;
+      // set from stick first
+      input.left = health.isAlive && lx < -deadzone;
+      input.right = health.isAlive && lx > deadzone;
+      input.up = health.isAlive && ly < -deadzone;
+      input.down = health.isAlive && ly > deadzone;
+
+      const rx = controller.axes[2] ?? 0;
+      const ry = controller.axes[3] ?? 0;
+
+      if (health.isAlive && (Math.abs(rx) >= 0.15 || Math.abs(ry) >= 0.15)) {
+        input.aim.x += rx * 450 * delta;
+        input.aim.y += ry * 450 * delta;
       }
-
-      input.aim.x += health.isAlive && Math.abs(x) >= 0.15 ? x * 450 * delta : 0;
-      input.aim.y += health.isAlive && Math.abs(y) >= 0.15 ? y * 450 * delta : 0;
-
       // handle buttons
       controller.buttons.forEach((button, index) => {
         const active = buttonPressed(button);
 
-        if (matchGamepadBinding(gamepadBindings.level.usePrimaryWeapon, index)) {
+        if (matchGamepadBinding(gamepadBindings.level.attack, index)) {
           input.attack = active && health.isAlive;
-        } else if (matchGamepadBinding(gamepadBindings.level.jump, index)) {
+        } else if (matchGamepadBinding(gamepadBindings.level.left, index)) {
+          input.left = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.right, index)) {
+          input.right = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.up, index)) {
           input.up = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.down, index)) {
+          input.down = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.jump, index)) {
+          input.jump = active && health.isAlive;
         } else if (matchGamepadBinding(gamepadBindings.level.hold, index)) {
           input.hold = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.dash, index)) {
+          input.dash = active && health.isAlive;
         }
       });
     }

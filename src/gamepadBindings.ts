@@ -49,16 +49,19 @@ const gamepadBindings = {
     down: [new GamepadBinding({ index: 13 })],
   },
   level: {
-    usePrimaryWeapon: [new GamepadBinding({ index: 2 })],
-    useSecondaryWeapon: [new GamepadBinding({ index: 3 })],
+    attack: [new GamepadBinding({ index: 2 })],
     jump: [new GamepadBinding({ index: 0 })],
     hold: [new GamepadBinding({ index: 6 })],
+    dash: [new GamepadBinding({ index: 1 })],
+    left: [],
+    right: [],
+    up: [],
+    down: [],
   },
 };
 
-export const matchGamepadBinding = (gamepadBindings: GamepadBinding[], index: number) => {
+export const matchGamepadBinding = (gamepadBindings: GamepadBinding[], index: number): boolean => {
   const match = gamepadBindings.some((gamepadBinding) => gamepadBinding.match(index));
-
   return match;
 };
 

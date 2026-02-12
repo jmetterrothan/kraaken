@@ -15,6 +15,10 @@ interface IMovementMetadata {
   wallClimbAcceleration?: number;
   wallClimbStaminaConsumptionPerS?: number;
   wallClimbStaminaRecoveryPerS?: number;
+  dashSpeed?: number;
+  dashCooldownMs?: number;
+  dashDurationMs?: number;
+  maxAirDashes?: number;
   jumpSFX?: string;
   jumpVFX?: string;
   landVFX?: string;
@@ -30,6 +34,7 @@ export class Movement implements Component {
   public wallSliding = false;
   public wallClimbing = false;
   public falling = false;
+  public dashing = false;
   public jumping = false;
   public walking = false;
   public landing = false;
@@ -56,6 +61,10 @@ export class Movement implements Component {
   public readonly maxWallClimbStamina: number;
   public readonly wallClimbStaminaConsumptionPerS: number;
   public readonly wallClimbStaminaRecoveryPerS: number;
+  public readonly dashSpeed: number;
+  public readonly dashDurationMs: number;
+  public readonly dashCooldownMs: number;
+  public readonly maxAirDashes: number;
   public readonly jumpSFX?: Howl;
   public readonly jumpVFX?: string;
   public readonly landVFX?: string;
@@ -69,10 +78,38 @@ export class Movement implements Component {
   public jumpBufferMs: number;
   public jumpBufferRemainingMs: number;
   public coyoteRemainingMs: number;
-  public prevJumpDown: boolean;
+  public dashRemainingMs: number;
+  public dashCooldownRemainingMs: number;
+  public airDashesRemaining: number;
+  public dashDir: number;
   public wallClimbStamina: number;
+  public savedGravityScale: number;
 
-  public constructor({ initialJumpBoost, jumpSpeed, coyoteTimeMs, speed, acceleration, deceleration, wallSlideMaxFallSpeed, wallSlideVFX, wallClimbVFX, wallClimbSpeed, wallClimbAcceleration, maxWallClimbStamina, wallClimbStaminaConsumptionPerS, wallClimbStaminaRecoveryPerS, jumpSFX, jumpVFX, landVFX, landHardVFX, runTrailVFX }: IMovementMetadata) {
+  public constructor({
+    initialJumpBoost,
+    jumpSpeed,
+    coyoteTimeMs,
+    speed,
+    acceleration,
+    deceleration,
+    wallSlideMaxFallSpeed,
+    wallSlideVFX,
+    wallClimbVFX,
+    wallClimbSpeed,
+    wallClimbAcceleration,
+    maxWallClimbStamina,
+    wallClimbStaminaConsumptionPerS,
+    wallClimbStaminaRecoveryPerS,
+    dashSpeed,
+    dashCooldownMs,
+    dashDurationMs,
+    maxAirDashes,
+    jumpSFX,
+    jumpVFX,
+    landVFX,
+    landHardVFX,
+    runTrailVFX,
+  }: IMovementMetadata) {
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.coyoteTimeMs = coyoteTimeMs ?? 0;
@@ -85,6 +122,10 @@ export class Movement implements Component {
     this.wallClimbStaminaConsumptionPerS = wallClimbStaminaConsumptionPerS ?? 50;
     this.wallClimbStaminaRecoveryPerS = wallClimbStaminaRecoveryPerS ?? 30;
     this.wallClimbAcceleration = wallClimbAcceleration ?? 0;
+    this.dashSpeed = dashSpeed ?? 350;
+    this.dashDurationMs = dashDurationMs ?? 180;
+    this.dashCooldownMs = dashCooldownMs ?? 300;
+    this.maxAirDashes = maxAirDashes ?? 1;
     this.jumpVFX = jumpVFX;
     this.landVFX = landVFX;
     this.landHardVFX = landHardVFX;
@@ -97,9 +138,13 @@ export class Movement implements Component {
     this.jumpBufferMs = 100;
     this.jumpBufferRemainingMs = 0;
     this.coyoteRemainingMs = 0;
-    this.prevJumpDown = false;
+    this.dashRemainingMs = 0;
+    this.dashCooldownRemainingMs = 0;
+    this.dashDir = 1;
+    this.airDashesRemaining = this.maxAirDashes;
     this.wasGrounded = true;
     this.wallClimbStamina = this.maxWallClimbStamina;
+    this.savedGravityScale = 0;
 
     if (jumpSFX) {
       this.jumpSFX = SoundManager.create(jumpSFX, {

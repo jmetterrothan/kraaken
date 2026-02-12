@@ -2,13 +2,13 @@ import KeyBinding, { IS_MAC_PLATFORM } from "./shared/bindings/KeyBinding";
 
 const keyBindings = {
   level: {
-    left: [new KeyBinding({ code: "ArrowLeft" }), new KeyBinding({ code: "KeyA" })],
-    right: [new KeyBinding({ code: "ArrowRight" }), new KeyBinding({ code: "KeyD" })],
-    up: [new KeyBinding({ code: "ArrowUp" }), new KeyBinding({ code: "KeyW" })],
-    down: [new KeyBinding({ code: "ArrowDown" }), new KeyBinding({ code: "KeyS" })],
+    left: [new KeyBinding({ code: "KeyA" })],
+    right: [new KeyBinding({ code: "KeyD" })],
+    up: [new KeyBinding({ code: "KeyW" })],
+    down: [new KeyBinding({ code: "KeyS" })],
     jump: [new KeyBinding({ code: "Space" })],
-    usePrimaryWeapon: [],
-    useSecondaryWeapon: [new KeyBinding({ code: "KeyG" })],
+    dash: [new KeyBinding({ code: "KeyQ" })],
+    attack: [],
     edit: [new KeyBinding({ code: "KeyE", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
   },
   editor: {
@@ -25,7 +25,7 @@ const keyBindings = {
   },
 };
 
-export const matchKeyBinding = (keyBindings: KeyBinding[], e: KeyboardEvent) => {
+export const matchKeyBinding = (keyBindings: KeyBinding[], e: KeyboardEvent): boolean => {
   const match = keyBindings.some((keyBinding) => keyBinding.match(e));
 
   if (match) {

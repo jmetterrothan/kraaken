@@ -10,10 +10,11 @@ export enum PlayerAnimationKeys {
   WALKING = "walking",
   FALLING = "falling",
   LANDING = "landing",
+  DASHING = "dashing",
   JUMPING = "jumping",
   WALL_CLIMBING = "wallClimbing",
   WALL_SLIDING = "wallSliding",
-  USE_PRIMARY_WEAPON = "usePrimaryWeapon",
+  ATTACK = "attack",
 }
 
 export class PlayerAnimator extends Animator {
@@ -25,6 +26,9 @@ export class PlayerAnimator extends Animator {
 
     if (health.isDead) {
       return `${entity.type}:${PlayerAnimationKeys.DEAD}`;
+    }
+    if (movement.dashing) {
+      return `${entity.type}:${PlayerAnimationKeys.DASHING}`;
     }
     if (health.isHit) {
       return `${entity.type}:${PlayerAnimationKeys.HURT}`;
@@ -47,7 +51,7 @@ export class PlayerAnimator extends Animator {
     }
     // shooting
     if (input && input.attack && combat && combat.attacking) {
-      return `${entity.type}:${PlayerAnimationKeys.USE_PRIMARY_WEAPON}`;
+      return `${entity.type}:${PlayerAnimationKeys.ATTACK}`;
     }
     // walk cycle
     if (movement.walking) {
