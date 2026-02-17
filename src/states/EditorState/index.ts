@@ -109,8 +109,6 @@ class EditorState extends State<EditorStateOptions> {
 
     this.currentMode.mounted();
 
-    editorStore.setScale(3);
-
     console.info("Editor initialized");
   }
 
@@ -209,6 +207,18 @@ class EditorState extends State<EditorStateOptions> {
   public mounted(): void {
     console.info("Editor mounted");
 
+    // init ui
+    const root = this.createRoot();
+
+    root.render(
+      React.createElement(LevelEditorUi, {
+        projectId: this.projectBlueprint.id,
+        blueprint: this.projectBlueprint,
+      })
+    );
+
+    editorStore.setScale(3);
+
     this.backupIntervalId = window.setInterval(() => {
       driver.backup(this.projectBlueprint);
     }, 1000 * 30);
@@ -255,14 +265,6 @@ class EditorState extends State<EditorStateOptions> {
     this.registerEvent(GameEventTypes.USER_LEFT_LEVEL_EVENT, (_e: GameEvents.UserLeftLevelEvent) => {});
 
     driver.sync(this.projectBlueprint.id);
-
-    // init ui
-    this.root.render(
-      React.createElement(LevelEditorUi, {
-        projectId: this.projectBlueprint.id,
-        blueprint: this.projectBlueprint,
-      })
-    );
   }
 
   public unmounted(): void {

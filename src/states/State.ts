@@ -11,19 +11,7 @@ abstract class State<O = any> {
   private controller: AbortController;
 
   constructor() {
-    const $kraaken = document.querySelector(".kraaken");
-
-    if (!$kraaken) {
-      throw new Error("Could not find game instance root node");
-    }
-
-    const $ui = document.createElement("div");
-    $ui.classList.add("kraaken-ui");
-    $kraaken.appendChild($ui);
-
     this.controller = new AbortController();
-
-    this.root = createRoot($ui);
   }
 
   public abstract init(options: O): Promise<void>;
@@ -64,6 +52,21 @@ abstract class State<O = any> {
    */
   public flushEvents(): void {
     this.controller.abort();
+  }
+
+  protected createRoot(): Root {
+    const $kraaken = document.querySelector(".kraaken");
+
+    if (!$kraaken) {
+      throw new Error("Could not find game instance root node");
+    }
+
+    const $ui = document.createElement("div");
+    $ui.classList.add("kraaken-ui");
+    $kraaken.appendChild($ui);
+
+    this.root = createRoot($ui);
+    return this.root;
   }
 }
 

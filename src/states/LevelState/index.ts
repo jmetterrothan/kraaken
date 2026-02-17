@@ -15,8 +15,6 @@ import { IProjectBlueprint } from "@src/shared/models/world.model";
 import * as GameEventTypes from "@src/shared/events/constants";
 import dispatch, * as GameEvents from "@src/shared/events";
 
-import editorStore from "../EditorState/editorStore";
-
 import LevelUi from "./LevelUi";
 
 import { Entity } from "@src/ECS/Entity";
@@ -24,6 +22,7 @@ import { Entity } from "@src/ECS/Entity";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
+import editorStore from "../EditorState/editorStore";
 
 interface LevelStateOptions {
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
@@ -94,13 +93,16 @@ class LevelState extends State<LevelStateOptions> {
       this.levels.set(id, world);
     });
 
-    editorStore.setScale(5);
-
     console.info("Level initialized");
   }
 
   public mounted(): void {
     console.info("Level mounted");
+
+    editorStore.setScale(5);
+
+    const root = this.createRoot();
+    root.render(React.createElement(LevelUi, { projectId: this.projectBlueprint.id }));
 
     this.registerEvent(GameEventTypes.CHANGE_LEVEL, (e: GameEvents.ChangeLevelEvent) => {
       const { levelId, moveTo, lookAt } = e.detail;
@@ -147,8 +149,6 @@ class LevelState extends State<LevelStateOptions> {
         this.currentLevel.spawn(spawnPoint);
       }
     });
-
-    this.root.render(React.createElement(LevelUi, { projectId: this.projectBlueprint.id }));
   }
 
   public unmounted(): void {
