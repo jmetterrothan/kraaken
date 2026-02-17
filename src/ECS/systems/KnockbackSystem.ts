@@ -8,6 +8,7 @@ export class KnockbackSystem extends System {
 
   execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
+
     for (const e of entities) {
       const dmg = e.getComponent(DamageEvent);
       if (!dmg.knockback || !dmg.source) continue;

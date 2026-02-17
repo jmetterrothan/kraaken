@@ -1,7 +1,7 @@
 import { IConsummableMetadata } from "@src/ECS/components";
 import { Component } from "../Component";
 
-type IExpireAction = "kill" | "despawn";
+type IExpireAction = "kill" | "despawn" | "respawn";
 
 interface IFuseMetadata extends IConsummableMetadata {
   delay?: number;

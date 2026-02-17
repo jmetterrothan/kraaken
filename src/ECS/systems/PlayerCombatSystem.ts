@@ -19,7 +19,7 @@ export class PlayerCombatSystem extends System {
       const combat = entity.getComponent(PlayerCombat);
       const animator = entity.getComponent(Animator);
 
-      const animation = animator.list.get(PlayerAnimationKeys.ATTACK);
+      const animation = animator.list.get(`${entity.type}:${PlayerAnimationKeys.ATTACK}`);
 
       // countdown latch
       if (combat.attackAnimRemainingMs > 0) {

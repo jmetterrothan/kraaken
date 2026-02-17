@@ -18,3 +18,4 @@ export * from "./KnockbackSystem";
 export * from "./FuseSystem";
 export * from "./ImmunitySystem";
 export * from "./LootSystem";
+export * from "./RespawnSystem";

@@ -33,10 +33,10 @@ export const heuristics = {
 };
 
 class TileMap {
-  private startCol: number = 0;
-  private startRow: number = 0;
-  private endCol: number = 0;
-  private endRow: number = 0;
+  private startCol: number;
+  private startRow: number;
+  private endCol: number;
+  private endRow: number;
 
   public tiles: ITile[][];
   public atlas: SpriteAtlas;
@@ -59,6 +59,11 @@ class TileMap {
     this.nbRows = blueprint.tileMapRows;
     this.tileSize = blueprint.tileSize;
     this.tileSet = blueprint.tileSet;
+
+    this.startCol = 0;
+    this.startRow = 0;
+    this.endCol = 0;
+    this.endRow = 0;
 
     this.sizeX = this.nbCols * this.tileSize;
     this.sizeY = this.nbRows * this.tileSize;

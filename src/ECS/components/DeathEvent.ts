@@ -1,6 +1,6 @@
 import { Component } from "@src/ECS";
 
-type IDeathEventMetadata = {};
+type IDeathEventMetadata = Record<string, unknown>;
 
 export class DeathEvent extends Component {
   static COMPONENT_TYPE = "death_event";

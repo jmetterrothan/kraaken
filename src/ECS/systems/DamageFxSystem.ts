@@ -1,5 +1,5 @@
 import { System } from "@src/ECS";
-import { Health, DamageEvent, Camera, Position, Fuse, DeathEvent } from "@src/ECS/components";
+import { Health, DamageEvent, Camera, Position, Fuse, DeathEvent, Animator, PlayerAnimationKeys } from "@src/ECS/components";
 import { clamp, lerp } from "@src/shared/utility/MathHelpers";
 
 export class DamageFxSystem extends System {
@@ -36,11 +36,16 @@ export class DamageFxSystem extends System {
       if (dmg.hitstop) this.world.hitstop(dmg.isKill ? 100 : lerp(40, 80, impact));
       if (dmg.cameraShake) camera.shakeOnce(dmg.isKill ? 6 : lerp(2, 6, impact), dmg.isKill ? 120 : lerp(60, 120, impact));
 
-      if (!isPlayer) {
-        // remove dead entities from world
-        if (dmg.isKill) {
-          entity.addComponent(new Fuse({ delay: health.hitDelayMs, expireAction: "despawn" }));
+      const animator = entity.getComponent(Animator);
+      const deathAnimationDurationMs = animator?.list.get(`${entity.type}:${PlayerAnimationKeys.DEAD}`)?.duration ?? 0;
+
+      if (dmg.isKill) {
+        if (!isPlayer) {
+          // remove dead entities from world
+          entity.addComponent(new Fuse({ delay: health.hitDelayMs + deathAnimationDurationMs, expireAction: "despawn" }));
           entity.addComponent(new DeathEvent({})); // TODO: maybe refactor death detection
+        } else {
+          entity.addComponent(new Fuse({ delay: deathAnimationDurationMs + 1000, expireAction: "respawn" }));
         }
       }
 

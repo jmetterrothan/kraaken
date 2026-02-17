@@ -448,7 +448,11 @@ class Game {
         // e.preventDefault();
 
         if (canvas.contains(e.target as Node)) {
-          const scale = Math.max(1, Math.min(20, this.targetScale + (e.deltaY > 0 ? -1 : 1)));
+          const step = 0.1;
+          const value = this.targetScale + (e.deltaY > 0 ? -step : step);
+
+          const scale = clamp(Math.round(value * 10) / 10, 1, 20);
+
           editorStore.setScale(scale);
         }
       },

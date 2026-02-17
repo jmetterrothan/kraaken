@@ -90,8 +90,6 @@ class EditorState extends State<EditorStateOptions> {
 
     this.state = editorStore.initialState;
     editorStore.subscribe((state) => {
-      console.log(state);
-
       if (this.state.mode !== state.mode) {
         this.modes[this.state.mode].unmounted();
         this.modes[state.mode].mounted();
@@ -159,20 +157,29 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public async addLevel(id: string, tileSize: number, tileSet: string): Promise<void> {
+    const rows = 64;
+    const cols = 64;
+
     const level = {
       id,
       tileSize,
       tileSet,
-      tileMapRows: 64,
-      tileMapCols: 64,
+      tileMapRows: rows,
+      tileMapCols: cols,
       layers: {
-        1: [],
-        2: [],
-        3: [],
+        1: new Array(rows * cols).fill(0),
+        2: new Array(rows * cols).fill(0),
+        3: new Array(rows * cols).fill(0),
       },
       spawnPoints: [],
       zones: [],
     };
+
+    const index = this.projectBlueprint.levels.findIndex((level) => level.id === id);
+
+    if (index !== -1) {
+      throw new Error(`Level id = ${id} already exists`);
+    }
 
     this.projectBlueprint.levels.push(level);
 

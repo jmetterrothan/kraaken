@@ -1,5 +1,5 @@
 import { System } from "@src/ECS";
-import { DamageEvent, Fuse, Health } from "@src/ECS/components";
+import { DamageEvent, Fuse, Health, RespawnEvent } from "@src/ECS/components";
 
 export class FuseSystem extends System {
   constructor() {
@@ -28,6 +28,8 @@ export class FuseSystem extends System {
           }
 
           e.addComponent(new DamageEvent({ amount: Infinity, isKill: true, hitstop: false, cameraShake: false }));
+        } else if (fuse.expireAction === "respawn") {
+          e.addComponent(new RespawnEvent({}));
         } else {
           this.world.despawn(e.uuid);
         }

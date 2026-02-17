@@ -27,7 +27,7 @@ const initialState: IEditorStoreState = {
   entityType: "alien_bat",
 };
 
-let state: IEditorStoreState;
+let state: IEditorStoreState = initialState;
 
 const editorStore = {
   initialState,
@@ -39,61 +39,75 @@ const editorStore = {
     return subject.subscribe(setState);
   },
   setLoading: (b: boolean): void => {
-    state = {
-      ...state,
-      loading: b,
-    };
+    if (b !== state.loading) {
+      state = {
+        ...state,
+        loading: b,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setMode: (mode: IEditorStoreState["mode"]): void => {
-    state = {
-      ...state,
-      mode,
-    };
+    if (mode !== state.mode) {
+      state = {
+        ...state,
+        mode,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setTerrainMode: (terrainMode: IEditorStoreState["terrainMode"]): void => {
-    state = {
-      ...state,
-      terrainMode,
-    };
+    if (terrainMode !== state.terrainMode) {
+      state = {
+        ...state,
+        terrainMode,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setSelectedLayerId: (layerId: IEditorStoreState["layerId"]): void => {
-    state = {
-      ...state,
-      layerId,
-    };
+    if (layerId !== state.layerId) {
+      state = {
+        ...state,
+        layerId,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setSelectedTileTypeId: (tileTypeId: IEditorStoreState["tileTypeId"]): void => {
-    state = {
-      ...state,
-      tileTypeId,
-    };
+    if (tileTypeId !== state.tileTypeId) {
+      state = {
+        ...state,
+        tileTypeId,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setSelectedEntityType: (entityType: IEditorStoreState["entityType"]): void => {
-    state = {
-      ...state,
-      entityType,
-    };
+    if (entityType !== state.entityType) {
+      state = {
+        ...state,
+        entityType,
+      };
 
-    subject.next(state);
+      subject.next(state);
+    }
   },
   setScale: (scale: IEditorStoreState["scale"]): void => {
-    state = {
-      ...state,
-      scale,
-    };
+    if (scale !== state.scale) {
+      state = {
+        ...state,
+        scale,
+      };
 
+      subject.next(state);
+    }
     dispatch(GameEvents.zoomEvent(scale));
-    subject.next(state);
   },
 };
 
