@@ -2,11 +2,10 @@ import { mat3, vec2 } from "gl-matrix";
 
 import { Camera } from "@src/ECS/components";
 
-import SpriteAtlas from "@src/animation/SpriteAtlas";
 import SpriteManager from "@src/animation/SpriteManager";
 import World from "@src/world/World";
 
-import { ILevelBlueprint } from "@src/shared/models/world.model";
+import { ILayer, ILevelBlueprint } from "@src/shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
 import { TileLayer, ITile } from "@src/shared/models/tilemap.model";
 
@@ -39,7 +38,7 @@ class TileMap {
   private endRow: number;
 
   public tiles: ITile[][];
-  public atlas: SpriteAtlas;
+  public layers: Map<TileLayer, ILayer>;
 
   private boundaries: Box2;
 
@@ -47,7 +46,6 @@ class TileMap {
   private readonly nbRows: number;
 
   private readonly tileSize: number;
-  private readonly tileSet: string;
 
   private readonly sizeX: number;
   private readonly sizeY: number;
@@ -58,7 +56,6 @@ class TileMap {
     this.nbCols = blueprint.tileMapCols;
     this.nbRows = blueprint.tileMapRows;
     this.tileSize = blueprint.tileSize;
-    this.tileSet = blueprint.tileSet;
 
     this.startCol = 0;
     this.startRow = 0;
@@ -70,9 +67,12 @@ class TileMap {
 
     this.boundaries = new Box2(this.sizeX / 2, this.sizeY / 2, this.sizeX, this.sizeY);
 
-    this.atlas = SpriteManager.get(this.tileSet);
-
     this.tiles = create2DArray<ITile>(this.nbRows, this.nbCols);
+
+    this.layers = new Map();
+    this.layers.set(TileLayer.L0, blueprint.layers[TileLayer.L0]);
+    this.layers.set(TileLayer.L1, blueprint.layers[TileLayer.L1]);
+    this.layers.set(TileLayer.L2, blueprint.layers[TileLayer.L2]);
 
     this.debugLayer = new Map<number, number>();
 
@@ -84,12 +84,12 @@ class TileMap {
       for (let c = 0; c < this.nbCols; c++) {
         const getTileTypeId = (layer: TileLayer) => {
           const index = r * this.nbCols + c;
-          return blueprint.layers[layer][index] ?? 0;
+          return blueprint.layers[layer].data[index] ?? 0;
         };
 
         const setTileTypeId = (layer: TileLayer, id: number) => {
           const index = r * this.nbCols + c;
-          blueprint.layers[layer][index] = id;
+          blueprint.layers[layer].data[index] = id;
         };
 
         const tile: ITile = {
@@ -160,37 +160,65 @@ class TileMap {
     }
   }
 
-  public renderLayer(layer: TileLayer, projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    this.atlas.use();
+  private getLayerAtlas(layerId: TileLayer) {
+    const layer = this.layers.get(layerId);
+
+    if (!layer || layer.tileSet === null) {
+      return null;
+    }
+
+    return SpriteManager.get(layer.tileSet);
+  }
+
+  public renderLayer(layerId: TileLayer, projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
+    const atlas = this.getLayerAtlas(layerId);
+
+    if (!atlas) {
+      return;
+    }
+
+    atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
         const tile = this.tiles[r][c];
-        const layerIndex = tile.getTileTypeId(layer);
+        const layerIndex = tile.getTileTypeId(layerId);
 
         if (layerIndex > 0) {
-          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, layerIndex, tile.direction, tile.renderOptions);
+          atlas.render(projectionMatrix, viewMatrix, tile.transform, layerIndex, tile.direction, tile.renderOptions);
         }
       }
     }
   }
 
   public renderCollisionLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    this.atlas.use();
+    const atlas = this.getLayerAtlas(TileLayer.L0);
+
+    if (!atlas) {
+      return;
+    }
+
+    atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
         const tile = this.tiles[r][c];
 
         if (tile.hasCollision()) {
-          this.atlas.render(projectionMatrix, viewMatrix, tile.transform, 624, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
+          atlas.render(projectionMatrix, viewMatrix, tile.transform, 0, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
         }
       }
     }
   }
 
   public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    this.atlas.use();
+    const atlas = this.getLayerAtlas(TileLayer.L2);
+
+    if (!atlas) {
+      return;
+    }
+
+    atlas.use();
 
     for (let r = this.startRow; r <= this.endRow; r++) {
       for (let c = this.startCol; c <= this.endCol; c++) {
@@ -199,7 +227,7 @@ class TileMap {
         if (this.debugLayer.has(tile.index)) {
           const n = this.debugLayer.get(tile.index);
           if (typeof n === "number" && n > 0) {
-            this.atlas.render(projectionMatrix, viewMatrix, tile.transform, n, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
+            atlas.render(projectionMatrix, viewMatrix, tile.transform, n, tile.direction, { ...tile.renderOptions, alpha: 0.4 });
           }
         }
       }

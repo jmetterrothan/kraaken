@@ -63,8 +63,6 @@ class World {
   }
 
   public async init(): Promise<void> {
-    const { assets, ...level } = this.projectBlueprint;
-
     this.addSystem(new Systems.CameraSystem());
     this.addSystem(new Systems.AnimationSystem());
 
@@ -83,12 +81,12 @@ class World {
     );
     this.grid.init();
 
-    this.gravity = level.gravity;
+    this.gravity = this.levelBlueprint.gravity;
 
     this.levelBlueprint.spawnPoints.forEach(this.spawn.bind(this));
     this.levelBlueprint.zones.forEach(this.createZone.bind(this));
 
-    this.setClearColor(level.background);
+    this.setClearColor(this.levelBlueprint.background);
 
     console.debug(`Project "${this.projectBlueprint.id}" world level "${this.levelBlueprint.id}" initialized`);
   }

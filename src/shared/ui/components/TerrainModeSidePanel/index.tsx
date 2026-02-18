@@ -23,7 +23,7 @@ type TerrainModeSidePanelProps = {
 };
 
 const mostFrequentlyUsedTiles = (level?: ILevelBlueprint) => {
-  const tileTypeIndexes = [...(level?.layers[TileLayer.L1] ?? []), ...(level?.layers[TileLayer.L2] ?? [])];
+  const tileTypeIndexes = [...(level?.layers[TileLayer.L1].data ?? []), ...(level?.layers[TileLayer.L2].data ?? [])];
 
   return tileTypeIndexes.reduce<Record<number, number>>((acc, index) => {
     if (index !== 0) {

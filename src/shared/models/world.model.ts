@@ -19,8 +19,6 @@ export interface IProjectBlueprint {
   id: string;
   version: number;
   title: string;
-  background: vec4;
-  gravity: number;
   defaultLevelId: string;
   levels: ILevelBlueprint[];
   entities: IEntityBlueprint[];
@@ -48,16 +46,23 @@ export interface IEventZone {
   events: IGameEvent[];
 }
 
+export interface ILayer {
+  tileSet: string;
+  visible: boolean;
+  data: number[];
+}
+
 export interface ILevelBlueprint {
   id: string;
   tileSize: number;
-  tileSet: string;
   tileMapRows: number;
   tileMapCols: number;
+  background: vec4;
+  gravity: number;
   layers: {
-    [TileLayer.L0]: number[];
-    [TileLayer.L1]: number[];
-    [TileLayer.L2]: number[];
+    [TileLayer.L0]: ILayer;
+    [TileLayer.L1]: ILayer;
+    [TileLayer.L2]: ILayer;
   };
   spawnPoints: ISpawnpoint[];
   zones: IEventZone[];

@@ -117,6 +117,8 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
 };
 
 const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
+  const [editorState, setEditorState] = React.useState(editorStore.initialState);
+
   const { assets, levels, defaultLevelId } = blueprint;
 
   const actions = useEditorActions();
@@ -127,16 +129,14 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
 
   const tileSet = React.useMemo(
     () =>
-      assets.sprites.find((sprite) => sprite.name === level?.tileSet) ?? {
+      assets.sprites.find((sprite) => sprite.name === level?.layers[editorState.layerId as TileLayer].tileSet) ?? {
         src: "",
         name: "",
         tileHeight: 0,
         tileWidth: 0,
       },
-    []
+    [editorState.layerId]
   );
-
-  const [editorState, setEditorState] = React.useState(editorStore.initialState);
 
   React.useLayoutEffect(() => {
     const editorSub = editorStore.subscribe(setEditorState);

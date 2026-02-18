@@ -89,6 +89,7 @@ class EditorState extends State<EditorStateOptions> {
     // await this.addLevel("3", 16, "tiles");
 
     this.state = editorStore.initialState;
+
     editorStore.subscribe((state) => {
       if (this.state.mode !== state.mode) {
         this.modes[this.state.mode].unmounted();
@@ -165,14 +166,27 @@ class EditorState extends State<EditorStateOptions> {
     const level = {
       id,
       tileSize,
-      tileSet,
       tileMapRows: rows,
       tileMapCols: cols,
       layers: {
-        1: new Array(rows * cols).fill(0),
-        2: new Array(rows * cols).fill(0),
-        3: new Array(rows * cols).fill(0),
+        1: {
+          tileSet,
+          data: new Array(rows * cols).fill(0),
+          visible: true,
+        },
+        2: {
+          tileSet,
+          data: new Array(rows * cols).fill(0),
+          visible: true,
+        },
+        3: {
+          tileSet,
+          data: new Array(rows * cols).fill(0),
+          visible: false,
+        },
       },
+      gravity: 580,
+      background: [0.1, 0.1, 0.1, 1],
       spawnPoints: [],
       zones: [],
     };
