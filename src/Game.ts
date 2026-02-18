@@ -63,7 +63,7 @@ class Game {
       Game[instanceSym] = new Game({ ...Game.DEFAULT_OPTIONS, ...options });
       Game[instanceSym].init(projectId);
 
-      console.log("Debug flags:", debugSvc.flags);
+      console.debug("Debug flags:", debugSvc.flags);
     }
     return Game[instanceSym];
   }
@@ -392,7 +392,7 @@ class Game {
     window.addEventListener(
       "gamepadconnected",
       (e: GamepadEvent) => {
-        console.log('Gamepad connected (index = %d, id = "%s"): %d buttons, %d axes.', e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+        console.debug('Gamepad connected (index = %d, id = "%s"): %d buttons, %d axes.', e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
       },
       false
     );
@@ -400,7 +400,7 @@ class Game {
     window.addEventListener(
       "gamepaddisconnected",
       (e: GamepadEvent) => {
-        console.info("Gamepad disconnected (index = %d, id = $s)", e.gamepad.index, e.gamepad.id);
+        console.debug("Gamepad disconnected (index = %d, id = $s)", e.gamepad.index, e.gamepad.id);
       },
       false
     );

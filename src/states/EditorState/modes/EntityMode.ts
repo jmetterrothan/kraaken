@@ -23,6 +23,8 @@ const snapToTileCenter = (value: number, tileSize: number) => {
 };
 
 class EntityMode {
+  private loaded: boolean;
+
   public focusedEntity: Entity | undefined;
   public selectedEntity: Entity | undefined;
 
@@ -37,6 +39,10 @@ class EntityMode {
   }
 
   public mounted(): void {
+    if (this.loaded) {
+      throw new Error("Entity mode already mounted");
+    }
+
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
     debugSvc.set(DebugFlag.ENTITIES, true);
@@ -136,12 +142,20 @@ class EntityMode {
         }
       })
     );
+
+    this.loaded = true;
+
+    console.debug("Entity mode mounted");
   }
 
   public unmounted(): void {
     this.events.map((callback) => {
       callback();
     });
+
+    this.loaded = false;
+
+    console.debug("Entity mode unmounted");
   }
 
   public update(_delta: number): void {}

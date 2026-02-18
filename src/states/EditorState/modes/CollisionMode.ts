@@ -17,6 +17,8 @@ import { DebugFlag } from "@src/enums/DebugFlag";
 import eventStackSvc from "@src/shared/services/EventStackService";
 
 class CollisionMode {
+  private loaded: boolean;
+
   public focusedEntity: Entity | undefined;
   public selectedEntity: Entity | undefined;
 
@@ -28,9 +30,14 @@ class CollisionMode {
     this.editor = editor;
 
     this.events = [];
+    this.loaded = false;
   }
 
   public mounted(): void {
+    if (this.loaded) {
+      throw new Error("Collision mode already mounted");
+    }
+
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, true);
     debugSvc.set(DebugFlag.ENTITIES, false);
@@ -89,12 +96,20 @@ class CollisionMode {
         }
       })
     );
+
+    this.loaded = true;
+
+    console.debug("Collision mode mounted");
   }
 
   public unmounted(): void {
     this.events.map((callback) => {
       callback();
     });
+
+    this.loaded = false;
+
+    console.debug("Collision mode unmounted");
   }
 
   public update(_delta: number): void {}

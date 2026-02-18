@@ -53,7 +53,7 @@ export class EventZone implements Component {
   }
 
   public onEnter(subject: Entity): void {
-    console.log("enter");
+    console.debug(`Entity "${subject.uuid}" entered event zone`);
 
     if ((this.shouldTriggerWhileActive || !this.shouldWaitToLeave) && this.canBeTriggered()) {
       this.trigger(subject);
@@ -64,8 +64,8 @@ export class EventZone implements Component {
     this.active = true;
   }
 
-  public onLeave(_subject: Entity): void {
-    console.log("leave");
+  public onLeave(subject: Entity): void {
+    console.debug(`Entity "${subject.uuid}" Left event zone`);
 
     this.active = false;
     this.shouldWaitToLeave = false;
@@ -86,7 +86,7 @@ export class EventZone implements Component {
   }
 
   private trigger(subject: Entity): void {
-    console.log("event triggered");
+    console.debug(`Entity "${subject.uuid}" triggered event zone`);
 
     this.events.forEach(({ type, data }) => {
       switch (type) {

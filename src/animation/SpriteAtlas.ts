@@ -69,7 +69,7 @@ class SpriteAtlas {
     }
 
     const image: HTMLImageElement = await SpriteManager.load(this.src);
-    console.info(`Loaded sprite "${this.alias}" ${this.tileWidth}x${this.tileHeight}`);
+    console.debug(`Loaded sprite "${this.alias}" ${this.tileWidth}x${this.tileHeight}`);
 
     this.width = image.width;
     this.height = image.height;

@@ -1,8 +1,6 @@
 import { System } from "@src/ECS";
 
 import { Position, Explosion, Health, BoundingBox, Animator, DamageEvent } from "@src/ECS/components";
-import { DebugFlag } from "@src/enums/DebugFlag";
-import { debugSvc } from "@src/shared/services/Debug";
 
 import { clamp } from "@src/shared/utility/MathHelpers";
 
@@ -24,7 +22,7 @@ export class ExplosionSystem extends System {
       return;
     }
 
-    for (let entity of entities) {
+    for (const entity of entities) {
       const position = entity.getComponent(Position);
       const animator = entity.getComponent(Animator);
       const explosion = entity.getComponent(Explosion);
@@ -35,7 +33,7 @@ export class ExplosionSystem extends System {
       const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
       explosion.radius = Math.min(explosion.maxRadius * eased, explosion.maxRadius);
 
-      for (let target of targets) {
+      for (const target of targets) {
         if (target.uuid === entity.uuid) {
           continue;
         }
@@ -65,10 +63,6 @@ export class ExplosionSystem extends System {
 
         health.value -= damage;
         target.addComponent(new DamageEvent({ amount: damage, isKill: health.isDead, hitstop: false, cameraShake: true, source: position.clone(), knockback }));
-
-        if (debugSvc.enabled(DebugFlag.ENTITIES)) {
-          console.log(`${damage} damage inflicted\n(kx = ${knockback?.x ?? 0} ky = ${knockback?.y ?? 0}, dist = ${dist}, r = ${explosion.radius})\n${target}`);
-        }
 
         explosion.markAsHit(target);
       }

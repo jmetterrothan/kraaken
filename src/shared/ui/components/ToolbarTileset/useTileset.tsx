@@ -19,7 +19,7 @@ const CACHE: Map<string, Promise<ProcessedTileset>> = new Map();
 
 const processTileset = async (src: string, tileWidth: number, tileHeight = tileWidth) => {
   if (CACHE.has(src)) {
-    console.log(`Recovered tileset from cache @ "${src}"`);
+    console.debug(`Recovered tileset from cache @ "${src}"`);
     return CACHE.get(src)!;
   }
 
@@ -82,7 +82,7 @@ const processTileset = async (src: string, tileWidth: number, tileHeight = tileW
     file.crossOrigin = "anonymous";
     file.src = driver.getAssetUrl(src);
   });
-  console.log(`Processed tileset @ "${src}"`);
+  console.debug(`Processed tileset @ "${src}"`);
 
   CACHE.set(src, promise);
 

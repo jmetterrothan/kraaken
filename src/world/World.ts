@@ -90,7 +90,7 @@ class World {
 
     this.setClearColor(level.background);
 
-    console.info("World initialized");
+    console.debug(`Project "${this.projectBlueprint.id}" world level "${this.levelBlueprint.id}" initialized`);
   }
 
   public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {

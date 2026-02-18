@@ -20,6 +20,8 @@ import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 
 class TerrainMode {
+  private loaded: boolean;
+
   private editor: EditorState;
 
   private events: Array<() => void>;
@@ -31,6 +33,10 @@ class TerrainMode {
   }
 
   public mounted(): void {
+    if (this.loaded) {
+      throw new Error("Terrain mode already mounted");
+    }
+
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
     debugSvc.set(DebugFlag.ENTITIES, false);
@@ -93,12 +99,20 @@ class TerrainMode {
         }
       })
     );
+
+    this.loaded = true;
+
+    console.debug("Terrain mode mounted");
   }
 
   public unmounted(): void {
     this.events.map((callback) => {
       callback();
     });
+
+    this.loaded = false;
+
+    console.debug("Terrain mode unmounted");
   }
 
   public update(_delta: number): void {}

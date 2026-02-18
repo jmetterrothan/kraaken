@@ -19,7 +19,9 @@ abstract class State<O = any> {
   /**
    * Perform actions each time the state is mounted
    */
-  public abstract mounted(): void;
+  public mounted(): void {
+    this.controller = new AbortController();
+  }
 
   /**
    * Perform actions each time the state is unmounted
@@ -44,6 +46,7 @@ abstract class State<O = any> {
    * Register an event listener to the state that can be later flushed
    */
   public registerEvent(type: keyof WindowEventMap, listener: any) {
+    console.debug(`Registered event ${type}`);
     return registerEvent(type, listener, { signal: this.controller.signal });
   }
 
@@ -51,6 +54,7 @@ abstract class State<O = any> {
    * Remove all event listeners registered in the state
    */
   public flushEvents(): void {
+    console.debug(`Flushed events`);
     this.controller.abort();
   }
 

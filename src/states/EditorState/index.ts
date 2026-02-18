@@ -97,6 +97,7 @@ class EditorState extends State<EditorStateOptions> {
 
       this.state = state;
     });
+
     editorStore.init();
 
     this.mouse = new Vector2(0, 0);
@@ -107,7 +108,7 @@ class EditorState extends State<EditorStateOptions> {
       [EditorMode.COLLISION]: new CollisionMode(this),
     };
 
-    this.currentMode.mounted();
+    editorStore.setScale(3);
 
     console.info("Editor initialized");
   }
@@ -127,8 +128,9 @@ class EditorState extends State<EditorStateOptions> {
     const cameraComponent = new Components.Camera({
       smoothing: 0.1,
     });
+    const cameraPosition = new Components.Position({ x: (level.tileSize * level.tileMapCols) / 2, y: (level.tileSize * level.tileMapRows) / 2 });
 
-    const camera = new Entity("camera").addComponent(new Components.Position()).addComponent(cameraComponent);
+    const camera = new Entity("camera").addComponent(cameraPosition).addComponent(cameraComponent);
 
     world.addCamera(camera, true);
 
@@ -149,6 +151,8 @@ class EditorState extends State<EditorStateOptions> {
       const position = controllableObject.getComponent(Components.Position);
 
       position.fromValues(x, y);
+
+      cameraPosition.fromValues(x, y);
     }
 
     this.levels.set(level.id, { world, cursor });
@@ -205,7 +209,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public mounted(): void {
-    console.info("Editor mounted");
+    super.mounted();
 
     // init ui
     const root = this.createRoot();
@@ -216,8 +220,6 @@ class EditorState extends State<EditorStateOptions> {
         blueprint: this.projectBlueprint,
       })
     );
-
-    editorStore.setScale(3);
 
     this.backupIntervalId = window.setInterval(() => {
       driver.backup(this.projectBlueprint);
@@ -264,11 +266,15 @@ class EditorState extends State<EditorStateOptions> {
 
     this.registerEvent(GameEventTypes.USER_LEFT_LEVEL_EVENT, (_e: GameEvents.UserLeftLevelEvent) => {});
 
+    this.currentMode.mounted();
+
     driver.sync(this.projectBlueprint.id);
+
+    console.debug("Editor mounted");
   }
 
   public unmounted(): void {
-    console.info("Editor unmounted");
+    this.currentMode.unmounted();
 
     window.clearInterval(this.backupIntervalId);
 
@@ -286,6 +292,8 @@ class EditorState extends State<EditorStateOptions> {
 
     // remove ui
     this.root.unmount();
+
+    console.debug("Editor unmounted");
   }
 
   public update(delta: number): void {

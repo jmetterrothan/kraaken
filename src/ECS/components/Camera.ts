@@ -25,7 +25,7 @@ export class CameraShake {
   private shakes: IShake[] = [];
 
   /** Start a micro shake: px = peak amplitude in pixels, ms = duration */
-  shakeOnce(px: number, ms: number, freqHz = 35) {
+  shakeOnce(px: number, ms: number, freqHz = 35): void {
     const dur = Math.max(1, ms) / 1000;
     this.shakes.push({
       t: 0,
@@ -38,7 +38,7 @@ export class CameraShake {
     });
   }
 
-  update(dt: number) {
+  update(dt: number): { xPx: number; yPx: number } {
     let x = 0,
       y = 0;
 

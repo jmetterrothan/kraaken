@@ -93,13 +93,13 @@ class LevelState extends State<LevelStateOptions> {
       this.levels.set(id, world);
     });
 
+    editorStore.setScale(5);
+
     console.info("Level initialized");
   }
 
   public mounted(): void {
-    console.info("Level mounted");
-
-    editorStore.setScale(5);
+    super.mounted();
 
     const root = this.createRoot();
     root.render(React.createElement(LevelUi, { projectId: this.projectBlueprint.id }));
@@ -149,11 +149,11 @@ class LevelState extends State<LevelStateOptions> {
         this.currentLevel.spawn(spawnPoint);
       }
     });
+
+    console.debug("Level mounted");
   }
 
   public unmounted(): void {
-    console.info("Level unmounted");
-
     // remove ui
     this.root.unmount();
 
@@ -165,6 +165,8 @@ class LevelState extends State<LevelStateOptions> {
 
     // remove event listeners
     this.flushEvents();
+
+    console.debug("Level unmounted");
   }
 
   public update(delta: number): void {
