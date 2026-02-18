@@ -2,12 +2,13 @@ import KeyBinding, { IS_MAC_PLATFORM } from "./shared/bindings/KeyBinding";
 
 const keyBindings = {
   level: {
+    grab: [new KeyBinding({ code: "KeyE" })],
     left: [new KeyBinding({ code: "KeyA" })],
     right: [new KeyBinding({ code: "KeyD" })],
     up: [new KeyBinding({ code: "KeyW" })],
     down: [new KeyBinding({ code: "KeyS" })],
     jump: [new KeyBinding({ code: "Space" })],
-    dash: [new KeyBinding({ code: "KeyQ" })],
+    dash: [new KeyBinding({ code: "ShiftLeft" })],
     attack: [],
     edit: [new KeyBinding({ code: "KeyE", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
   },

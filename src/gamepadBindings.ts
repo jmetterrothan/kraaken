@@ -51,7 +51,7 @@ const gamepadBindings = {
   level: {
     attack: [new GamepadBinding({ index: 2 })],
     jump: [new GamepadBinding({ index: 0 })],
-    hold: [new GamepadBinding({ index: 6 })],
+    grab: [new GamepadBinding({ index: 6 })],
     dash: [new GamepadBinding({ index: 1 })],
     left: [],
     right: [],

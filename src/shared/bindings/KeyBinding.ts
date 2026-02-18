@@ -59,7 +59,7 @@ class KeyBinding {
   }
 
   public match(e: KeyboardEvent): boolean {
-    const matching = e.code === this.code && e.shiftKey === this.shift && e.ctrlKey === this.ctrl && e.altKey === this.alt && e.metaKey === this.meta;
+    const matching = e.code === this.code && (!this.shift || e.shiftKey === this.shift) && (!this.ctrl || e.ctrlKey === this.ctrl) && (!this.alt || e.altKey === this.alt) && (!this.meta || e.metaKey === this.meta);
 
     if (matching) {
       e.preventDefault();

@@ -32,14 +32,14 @@ export class MovementSystem extends System {
 
     movement.dashCooldownRemainingMs = Math.max(movement.dashCooldownRemainingMs - dtMs, 0);
 
-    const canConsummeDash = input.dashPressed && !movement.dashing && movement.dashCooldownRemainingMs <= 0 && (rigidBody.isGrounded || movement.airDashesRemaining > 0) && !movement.wallClimbing;
+    const canConsummeDash = input.dashPressed && !movement.dashing && movement.dashCooldownRemainingMs <= 0 && (rigidBody.isGrounded || movement.airDashesRemaining > 0);
 
-    if (rigidBody.isGrounded) {
+    if (rigidBody.isGrounded || movement.isBlockedLeft || movement.isBlockedRight) {
       movement.airDashesRemaining = movement.maxAirDashes;
     }
 
     if (canConsummeDash) {
-      const axis = (input.right ? 1 : 0) + (input.left ? -1 : 0);
+      const axis = (input.right ? (movement.isBlockedRight ? -1 : 1) : 0) + (input.left ? (movement.isBlockedLeft ? 1 : -1) : 0);
 
       movement.dashDir = axis !== 0 ? Math.sign(axis) : rigidBody.direction.x;
       movement.dashing = true;
@@ -56,7 +56,7 @@ export class MovementSystem extends System {
       movement.wallSliding = false;
       movement.wallClimbing = false;
 
-      movement.savedGravityScale = motor.gravityScale;
+      movement.savedGravityScale = rigidBody.defaultGravityScale;
       motor.gravityScale = 0;
     }
 
@@ -202,7 +202,7 @@ export class MovementSystem extends System {
     }
 
     if (movement.wallClimbing && !wasWallClimbing) {
-      movement.savedGravityScale = motor.gravityScale;
+      movement.savedGravityScale = rigidBody.defaultGravityScale;
       motor.gravityScale = 0;
     }
 
@@ -299,12 +299,22 @@ export class MovementSystem extends System {
       this.updateJump(entity, ctx, motor, delta);
       this.updateWalk(entity, ctx, motor, delta);
 
+      const falling = !rigidBody.isGrounded && !movement.dashing && !movement.wallClimbing && !movement.wallSliding && motor.vy > 0;
+
+      if (falling) {
+        motor.gravityScale = rigidBody.defaultGravityScale * movement.fallGravityMultiplier;
+      } else {
+        if (motor.gravityScale > 0) {
+          motor.gravityScale = rigidBody.defaultGravityScale;
+        }
+      }
+
       rigidBody.velocity.x = motor.vx;
       rigidBody.velocity.y = motor.vy;
       rigidBody.gravityScale = motor.gravityScale;
 
       movement.landing = false;
-      movement.falling = !movement.dashing && !rigidBody.isGrounded && rigidBody.velocity.y >= 0;
+      movement.falling = falling;
       movement.walking = rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
       movement.idle = rigidBody.isGrounded && !movement.walking;
 

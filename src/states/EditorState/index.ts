@@ -264,6 +264,7 @@ class EditorState extends State<EditorStateOptions> {
     this.registerEvent(GameEventTypes.SAVE_EVENT, async (_e: GameEvents.SaveEvent) => {
       try {
         editorStore.setLoading(true);
+        console.log(this.projectBlueprint);
         await driver.save(this.projectBlueprint);
       } finally {
         editorStore.setLoading(false);

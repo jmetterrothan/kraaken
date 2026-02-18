@@ -81,6 +81,8 @@ export class PlayerInputSystem extends System {
           input.jump = active && health.isAlive;
         } else if (matchKeyBinding(keyBindings.level.dash, e)) {
           input.dash = active && health.isAlive;
+        } else if (matchKeyBinding(keyBindings.level.grab, e)) {
+          input.grab = active && health.isAlive;
         }
       }
     });
@@ -127,8 +129,8 @@ export class PlayerInputSystem extends System {
           input.down = active && health.isAlive;
         } else if (matchGamepadBinding(gamepadBindings.level.jump, index)) {
           input.jump = active && health.isAlive;
-        } else if (matchGamepadBinding(gamepadBindings.level.hold, index)) {
-          input.hold = active && health.isAlive;
+        } else if (matchGamepadBinding(gamepadBindings.level.grab, index)) {
+          input.grab = active && health.isAlive;
         } else if (matchGamepadBinding(gamepadBindings.level.dash, index)) {
           input.dash = active && health.isAlive;
         }

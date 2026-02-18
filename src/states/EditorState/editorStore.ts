@@ -10,8 +10,8 @@ export interface IEditorStoreState {
   scale: number;
   mode: EditorMode;
   terrainMode: EditorTerrainMode;
-  layerId: number;
-  tileTypeId: number;
+  layerId: TileLayer;
+  layers: Record<TileLayer, { tileTypeId: number }>;
   entityType: string;
 }
 
@@ -23,7 +23,11 @@ const initialState: IEditorStoreState = {
   mode: EditorMode.TERRAIN,
   terrainMode: EditorTerrainMode.PLACE,
   layerId: TileLayer.L1,
-  tileTypeId: 502,
+  layers: {
+    [TileLayer.L0]: { tileTypeId: 0 },
+    [TileLayer.L1]: { tileTypeId: 0 },
+    [TileLayer.L2]: { tileTypeId: 0 },
+  },
   entityType: "alien_bat",
 };
 
@@ -68,7 +72,7 @@ const editorStore = {
       subject.next(state);
     }
   },
-  setSelectedLayerId: (layerId: IEditorStoreState["layerId"]): void => {
+  setSelectedLayerId: (layerId: TileLayer): void => {
     if (layerId !== state.layerId) {
       state = {
         ...state,
@@ -78,11 +82,16 @@ const editorStore = {
       subject.next(state);
     }
   },
-  setSelectedTileTypeId: (tileTypeId: IEditorStoreState["tileTypeId"]): void => {
-    if (tileTypeId !== state.tileTypeId) {
+  setSelectedTileTypeId: (tileTypeId: number): void => {
+    const prevValue = state.layers[state.layerId];
+
+    if (prevValue && tileTypeId !== prevValue.tileTypeId) {
       state = {
         ...state,
-        tileTypeId,
+        layers: {
+          ...state.layers,
+          [state.layerId]: { ...prevValue, tileTypeId },
+        },
       };
 
       subject.next(state);

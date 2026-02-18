@@ -127,16 +127,20 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
 
   const level = levels.find((level) => level.id === defaultLevelId);
 
+  const tileSetName = level?.layers[editorState.layerId].tileSet;
+
   const tileSet = React.useMemo(
     () =>
-      assets.sprites.find((sprite) => sprite.name === level?.layers[editorState.layerId as TileLayer].tileSet) ?? {
+      assets.sprites.find((sprite) => sprite.name === tileSetName) ?? {
         src: "",
         name: "",
         tileHeight: 0,
         tileWidth: 0,
       },
-    [editorState.layerId]
+    [tileSetName]
   );
+
+  const tileTypeId = editorState.layers[editorState.layerId]?.tileTypeId ?? 0;
 
   React.useLayoutEffect(() => {
     const editorSub = editorStore.subscribe(setEditorState);
@@ -149,7 +153,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
   return (
     <Ui>
       <Suspense>
-        <Modal selected={editorState.tileTypeId} tileSet={tileSet} isOpen={modal.isOpen} onClose={modal.close} onSelect={editorStore.setSelectedTileTypeId} />
+        <Modal selected={tileTypeId} tileSet={tileSet} isOpen={modal.isOpen} onClose={modal.close} onSelect={editorStore.setSelectedTileTypeId} />
       </Suspense>
       <Toolbar>
         <div>

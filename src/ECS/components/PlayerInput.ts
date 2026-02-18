@@ -9,7 +9,7 @@ export class PlayerInput implements Component {
   public right = false;
   public up = false;
   public down = false;
-  public hold = false;
+  public grab = false;
 
   public jump = false;
   public prevJump = false;

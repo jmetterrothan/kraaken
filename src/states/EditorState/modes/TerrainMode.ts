@@ -146,7 +146,9 @@ class TerrainMode {
       }
       const tileMap = this.editor.currentLevel.world.tileMap;
 
-      const { layerId, tileTypeId, terrainMode } = this.editor.state;
+      const { layerId, layers, terrainMode } = this.editor.state;
+
+      const { tileTypeId = 0 } = layers[layerId] || {};
 
       if (matchMouseBinding(mouseBindings.editor.terrainMode.place, e)) {
         if (terrainMode === EditorTerrainMode.PICK) {

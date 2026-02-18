@@ -100,6 +100,8 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
     return unsubscribe;
   }, []);
 
+  const tileTypeId = editorState.layers[editorState.layerId]?.tileTypeId ?? 0;
+
   return (
     <SidePanel className="terrain-mode-side-panel">
       {tiles.length > 0 && (
@@ -107,7 +109,7 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
           <SidePanel.Title>Most frequently used</SidePanel.Title>
           <ul className="tileset-group__list">
             {list.map(({ index, row, col, subImage }) => (
-              <li key={index} className={cx(index === editorState.tileTypeId && "active")}>
+              <li key={index} className={cx(index === tileTypeId && "active")}>
                 <TileImage
                   title={`row: ${row}, col: ${col}, index: ${index}`}
                   src={subImage}
@@ -128,7 +130,7 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
               .map((id) => tiles[id])
               .filter((tile) => typeof tile !== "undefined")
               .map(({ index, row, col, subImage }) => (
-                <li key={index} className={cx(index === editorState.tileTypeId && "active")}>
+                <li key={index} className={cx(index === tileTypeId && "active")}>
                   <TileImage
                     title={`row: ${row}, col: ${col}, index: ${index}`}
                     src={subImage}

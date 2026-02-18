@@ -49,6 +49,7 @@ export class Movement implements Component {
   public isBlockedUp = false;
   public isBlockedDown = false;
 
+  public readonly fallGravityMultiplier: number;
   public readonly initialJumpBoost: number;
   public readonly jumpSpeed: number;
   public readonly coyoteTimeMs: number;
@@ -110,6 +111,7 @@ export class Movement implements Component {
     landHardVFX,
     runTrailVFX,
   }: IMovementMetadata) {
+    this.fallGravityMultiplier = 2;
     this.initialJumpBoost = initialJumpBoost ?? 0;
     this.jumpSpeed = jumpSpeed ?? 0;
     this.coyoteTimeMs = coyoteTimeMs ?? 0;
