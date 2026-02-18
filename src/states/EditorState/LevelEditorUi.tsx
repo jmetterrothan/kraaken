@@ -18,7 +18,7 @@ import UndoToolbarButton from "./UndoToolbarButton";
 import RedoToolbarButton from "./RedoToolbarButton";
 import ZoomToolbarSelect from "./ZoomToolbarSelect";
 
-import editorStore from "./editorStore";
+import editorStore, { IEditorStoreState } from "./editorStore";
 
 import keyBindings from "@src/keyBindings";
 import TerrainModeSidePanel from "@src/shared/ui/components/TerrainModeSidePanel";
@@ -43,7 +43,7 @@ const useEditorActions = () => {
 
 // TODO: add props
 type ToolbarModeProps = {
-  editorState: any;
+  editorState: IEditorStoreState;
   modal: any;
   tileSet: any;
 };
@@ -101,7 +101,7 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
           />
           <Suspense>
             <ToolbarTileset
-              selected={editorState.tileTypeId} //
+              selected={editorState.layers[editorState.layerId].tileTypeId} //
               onSelect={editorStore.setSelectedTileTypeId}
               tileSet={tileSet}
               disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
