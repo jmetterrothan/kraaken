@@ -2,7 +2,7 @@ import KeyBinding, { IS_MAC_PLATFORM } from "./shared/bindings/KeyBinding";
 
 const keyBindings = {
   level: {
-    grab: [new KeyBinding({ code: "KeyE" })],
+    grab: [new KeyBinding({ code: "KeyC" }), new KeyBinding({ code: "KeyE" })],
     left: [new KeyBinding({ code: "KeyA" })],
     right: [new KeyBinding({ code: "KeyD" })],
     up: [new KeyBinding({ code: "KeyW" })],

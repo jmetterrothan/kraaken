@@ -34,6 +34,7 @@ export class Movement implements Component {
   public wallSliding = false;
   public wallClimbing = false;
   public falling = false;
+  public grabbing = false;
   public dashing = false;
   public jumping = false;
   public walking = false;
@@ -85,6 +86,8 @@ export class Movement implements Component {
   public dashDir: number;
   public wallClimbStamina: number;
   public savedGravityScale: number;
+  public grabToggled: boolean;
+  public grabDisableRemainingMs: number;
 
   public constructor({
     initialJumpBoost,
@@ -147,6 +150,8 @@ export class Movement implements Component {
     this.wasGrounded = true;
     this.wallClimbStamina = this.maxWallClimbStamina;
     this.savedGravityScale = 0;
+    this.grabToggled = false;
+    this.grabDisableRemainingMs = 0;
 
     if (jumpSFX) {
       this.jumpSFX = SoundManager.create(jumpSFX, {

@@ -41,6 +41,8 @@ export class MovementSystem extends System {
     if (canConsummeDash) {
       const axis = (input.right ? (movement.isBlockedRight ? -1 : 1) : 0) + (input.left ? (movement.isBlockedLeft ? 1 : -1) : 0);
 
+      movement.grabDisableRemainingMs = 150;
+
       movement.dashDir = axis !== 0 ? Math.sign(axis) : rigidBody.direction.x;
       movement.dashing = true;
       movement.dashRemainingMs = movement.dashDurationMs;
@@ -115,6 +117,7 @@ export class MovementSystem extends System {
       movement.coyoteRemainingMs = 0;
 
       movement.jumping = true;
+      movement.grabDisableRemainingMs = 120;
 
       motor.vy = -movement.initialJumpBoost;
 
@@ -148,6 +151,29 @@ export class MovementSystem extends System {
     }
   }
 
+  updateGrabToggle(entity: Entity, ctx: Ctx, delta: number): void {
+    const dtMs = delta * 1000;
+
+    const movement = entity.getComponent(Movement);
+    const input = entity.getComponent(PlayerInput);
+    const rigidBody = entity.getComponent(RigidBody);
+
+    // tick down anti-regrab window
+    movement.grabDisableRemainingMs = Math.max(0, movement.grabDisableRemainingMs - dtMs);
+
+    if (input.grabPressed) {
+      movement.grabToggled = !movement.grabToggled;
+    }
+
+    if (rigidBody.isGrounded) movement.grabToggled = false;
+    if (movement.dashing) movement.grabToggled = false;
+    if (movement.wallClimbStamina <= 0) movement.grabToggled = false;
+
+    if (!ctx.pressingIntoWall) {
+      movement.grabToggled = false;
+    }
+  }
+
   updateWallClimbing(entity: Entity, ctx: Ctx, motor: Motor, delta: number): void {
     const movement = entity.getComponent(Movement);
 
@@ -165,7 +191,9 @@ export class MovementSystem extends System {
 
     const wasWallClimbing = movement.wallClimbing;
 
-    movement.wallClimbing = !rigidBody.isGrounded && !movement.jumping && ctx.pressingIntoWall && movement.wallClimbStamina > 0;
+    const grabActive = movement.grabToggled && movement.grabDisableRemainingMs <= 0;
+
+    movement.wallClimbing = grabActive && !rigidBody.isGrounded && !movement.jumping && ctx.pressingIntoWall && movement.wallClimbStamina > 0;
 
     if (movement.wallClimbing) {
       const vyAxis = (input.up ? -1 : 0) + (input.down ? 1 : 0); // up/down/none
@@ -294,12 +322,13 @@ export class MovementSystem extends System {
       };
 
       this.updateDash(entity, ctx, motor, delta);
+      this.updateGrabToggle(entity, ctx, delta);
       this.updateWallClimbing(entity, ctx, motor, delta);
       this.updateWallSliding(entity, ctx, motor, delta);
       this.updateJump(entity, ctx, motor, delta);
       this.updateWalk(entity, ctx, motor, delta);
 
-      const falling = !rigidBody.isGrounded && !movement.dashing && !movement.wallClimbing && !movement.wallSliding && motor.vy > 0;
+      const falling = !motor.lockY && !rigidBody.isGrounded && !movement.dashing && !movement.wallClimbing && !movement.wallSliding && motor.vy > 0;
 
       if (falling) {
         motor.gravityScale = rigidBody.defaultGravityScale * movement.fallGravityMultiplier;
@@ -317,6 +346,8 @@ export class MovementSystem extends System {
       movement.falling = falling;
       movement.walking = rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
       movement.idle = rigidBody.isGrounded && !movement.walking;
+
+      movement.grabbing = movement.grabToggled && movement.grabDisableRemainingMs <= 0 && !rigidBody.isGrounded && ctx.pressingIntoWall && !movement.dashing;
 
       // --- AIR TIME - LANDING DETECTION ---
       const justLeftGround = !rigidBody.isGrounded && movement.wasGrounded;

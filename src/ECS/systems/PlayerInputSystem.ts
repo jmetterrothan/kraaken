@@ -171,6 +171,9 @@ export class PlayerInputSystem extends System {
     if (this.world.controlledEntity) {
       const input = this.world.controlledEntity.getComponent(PlayerInput);
 
+      input.grabPressed = input.grab && !input.prevGrab;
+      input.prevGrab = input.grab;
+
       input.jumpPressed = input.jump && !input.prevJump;
       input.prevJump = input.jump;
 

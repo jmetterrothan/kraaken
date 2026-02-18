@@ -12,6 +12,7 @@ export enum PlayerAnimationKeys {
   LANDING = "landing",
   DASHING = "dashing",
   JUMPING = "jumping",
+  GRABBING = "grabbing",
   WALL_CLIMBING = "wallClimbing",
   WALL_SLIDING = "wallSliding",
   ATTACK = "attack",
@@ -32,6 +33,9 @@ export class PlayerAnimator extends Animator {
     }
     if (health.isHit) {
       return `${entity.type}:${PlayerAnimationKeys.HURT}`;
+    }
+    if (movement.grabbing) {
+      return `${entity.type}:${PlayerAnimationKeys.GRABBING}`;
     }
     if (movement.wallClimbing) {
       return `${entity.type}:${PlayerAnimationKeys.WALL_CLIMBING}`;
