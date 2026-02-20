@@ -39,7 +39,7 @@ export class MovementSystem extends System {
     }
 
     if (canConsummeDash) {
-      const axis = (input.right ? (movement.isBlockedRight ? -1 : 1) : 0) + (input.left ? (movement.isBlockedLeft ? 1 : -1) : 0);
+      const axis = (input.right ? (movement.isBlockedRight && !rigidBody.isGrounded ? -1 : 1) : 0) + (input.left && !rigidBody.isGrounded ? (movement.isBlockedLeft ? 1 : -1) : 0);
 
       movement.grabDisableRemainingMs = 150;
 
