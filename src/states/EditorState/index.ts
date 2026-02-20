@@ -35,6 +35,7 @@ import editorStore, { IEditorStoreState } from "./editorStore";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 import { Position } from "@src/ECS/components";
+import { Subscription } from "rxjs";
 
 interface EditorStateOptions {
   projectId: string;
@@ -57,6 +58,8 @@ class EditorState extends State<EditorStateOptions> {
   public mouse: Vector2 = new Vector2();
 
   public state: IEditorStoreState;
+
+  public sub: Subscription;
 
   public modes: {
     [EditorMode.TERRAIN]: TerrainMode;
@@ -90,7 +93,7 @@ class EditorState extends State<EditorStateOptions> {
 
     this.state = editorStore.initialState;
 
-    editorStore.subscribe((state) => {
+    this.sub = editorStore.subscribe((state) => {
       if (this.state.mode !== state.mode) {
         this.modes[this.state.mode].unmounted();
         this.modes[state.mode].mounted();
@@ -217,7 +220,7 @@ class EditorState extends State<EditorStateOptions> {
     const entity = new Entity("cursor", uuid);
 
     entity.addComponent(new Components.Position({ x: 0, y: 0 }));
-    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 2, align: "center" }));
+    entity.addComponent(new Components.Sprite({ alias: "cursors", row: 0, col: 2, align: "center", offset: new Vector2(1.5, 0.5) }));
 
     return entity;
   }
@@ -307,6 +310,8 @@ class EditorState extends State<EditorStateOptions> {
 
     // remove ui
     this.root.unmount();
+
+    this.sub.unsubscribe();
 
     console.debug("Editor unmounted");
   }

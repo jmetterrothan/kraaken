@@ -45,7 +45,7 @@ export class DamageFxSystem extends System {
           entity.addComponent(new Fuse({ delay: health.hitDelayMs + deathAnimationDurationMs, expireAction: "despawn" }));
           entity.addComponent(new DeathEvent({})); // TODO: maybe refactor death detection
         } else {
-          entity.addComponent(new Fuse({ delay: deathAnimationDurationMs + 1000, expireAction: "respawn" }));
+          entity.addComponent(new Fuse({ delay: deathAnimationDurationMs + 500, expireAction: "respawn" }));
         }
       }
 

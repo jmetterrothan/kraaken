@@ -7,6 +7,7 @@ declare global {
     zoom: GameEvents.ZoomEvent;
     change_level: GameEvents.ChangeLevelEvent;
     spawn_event: GameEvents.SpawnEvent;
+    move_event: GameEvents.MoveEvent;
     despawn_event: GameEvents.DespawnEvent;
     place_event: GameEvents.PlaceEvent;
     save: GameEvents.SaveEvent;

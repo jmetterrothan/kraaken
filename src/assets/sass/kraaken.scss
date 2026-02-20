@@ -22,7 +22,7 @@ html {
   overflow: hidden;
 
   canvas {
-    cursor: none;
+    cursor: none !important;
   }
 
   &-ui {

@@ -445,10 +445,9 @@ class Game {
     wrapper.addEventListener(
       "wheel",
       (e: WheelEvent) => {
-        // e.preventDefault();
-
         if (canvas.contains(e.target as Node)) {
-          const step = 0.1;
+          e.preventDefault();
+          const step = 1;
           const value = this.targetScale + (e.deltaY > 0 ? -step : step);
 
           const scale = clamp(Math.round(value * 10) / 10, 1, 20);

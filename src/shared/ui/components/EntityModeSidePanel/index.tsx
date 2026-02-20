@@ -12,13 +12,14 @@ import { IAnimation } from "@src/shared/models/animation.model";
 
 type EntityImageProps = {
   type: string;
+  selected?: boolean;
   style?: CSSProperties;
   tileSet: ISpriteData;
   row?: number;
   col?: number;
 };
 
-const EntityImage = ({ type, row = 0, col = 0, tileSet, ...props }: EntityImageProps) => {
+const EntityImage = ({ type, row = 0, col = 0, selected = false, tileSet, ...props }: EntityImageProps) => {
   const { getTileAt } = useTileset(tileSet);
 
   const [loaded, setLoaded] = React.useState(false);
@@ -36,7 +37,7 @@ const EntityImage = ({ type, row = 0, col = 0, tileSet, ...props }: EntityImageP
       width={tile.width * 4}
       height={tile.height * 4}
       onClick={() => {
-        editorStore.setSelectedEntityType(type);
+        editorStore.setSelectedEntityType(selected ? null : type);
       }}
       className={cx("pixelated", loaded && "loaded", failedLoading && "failed")}
       onLoad={() => setLoaded(true)}
@@ -49,11 +50,12 @@ const EntityImage = ({ type, row = 0, col = 0, tileSet, ...props }: EntityImageP
 type AnimatedEntityImageProps = {
   type: string;
   animation: IAnimation;
+  selected?: boolean;
   style?: CSSProperties;
   tileSet: ISpriteData;
 };
 
-const AnimatedEntityImage = ({ type, animation, tileSet }: AnimatedEntityImageProps) => {
+const AnimatedEntityImage = ({ type, selected = false, animation, tileSet }: AnimatedEntityImageProps) => {
   const [keyframeIndex, setKeyframeIndex] = useState(0);
 
   const n = animation.keyframes.length;
@@ -74,7 +76,7 @@ const AnimatedEntityImage = ({ type, animation, tileSet }: AnimatedEntityImagePr
     };
   }, [n]);
 
-  return <EntityImage type={type} row={animation.keyframes[keyframeIndex].row} col={animation.keyframes[keyframeIndex].col} tileSet={tileSet} />;
+  return <EntityImage type={type} row={animation.keyframes[keyframeIndex].row} col={animation.keyframes[keyframeIndex].col} tileSet={tileSet} selected={selected} />;
 };
 
 type EntityModeSidePanelProps = {
@@ -118,7 +120,7 @@ const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProp
             return (
               <li key={type} title={type} data-type={type} data-row={row} data-col={col} className={cx(type === editorState.entityType && "active")}>
                 <figure>
-                  <Suspense>{animation ? <AnimatedEntityImage type={type} animation={animation} tileSet={tileSet} /> : <EntityImage type={type} row={row} col={col} tileSet={tileSet} />}</Suspense>
+                  <Suspense>{animation ? <AnimatedEntityImage type={type} animation={animation} tileSet={tileSet} selected={type === editorState.entityType} /> : <EntityImage type={type} row={row} col={col} tileSet={tileSet} selected={type === editorState.entityType} />}</Suspense>
                   <figcaption>{type}</figcaption>
                 </figure>
               </li>

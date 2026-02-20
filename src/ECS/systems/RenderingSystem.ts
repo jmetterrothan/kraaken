@@ -20,6 +20,10 @@ export class RenderingSystem extends System {
     }
 
     entities.forEach((entity) => {
+      if (!entity.visible) {
+        return;
+      }
+
       if (this.world.isFrustumCulled(entity)) {
         return;
       }

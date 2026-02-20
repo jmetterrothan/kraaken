@@ -161,17 +161,14 @@ export class MovementSystem extends System {
     // tick down anti-regrab window
     movement.grabDisableRemainingMs = Math.max(0, movement.grabDisableRemainingMs - dtMs);
 
-    if (input.grabPressed) {
-      movement.grabToggled = !movement.grabToggled;
+    if (input.grabPressed || input.up || input.down) {
+      movement.grabToggled = true;
     }
 
     if (rigidBody.isGrounded) movement.grabToggled = false;
     if (movement.dashing) movement.grabToggled = false;
     if (movement.wallClimbStamina <= 0) movement.grabToggled = false;
-
-    if (!ctx.pressingIntoWall) {
-      movement.grabToggled = false;
-    }
+    if (!ctx.pressingIntoWall) movement.grabToggled = false;
   }
 
   updateWallClimbing(entity: Entity, ctx: Ctx, motor: Motor, delta: number): void {

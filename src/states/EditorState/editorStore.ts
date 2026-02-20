@@ -12,7 +12,7 @@ export interface IEditorStoreState {
   terrainMode: EditorTerrainMode;
   layerId: TileLayer;
   layers: Record<TileLayer, { tileTypeId: number }>;
-  entityType: string;
+  entityType: string | null;
 }
 
 const subject = new Subject<IEditorStoreState>();
@@ -28,7 +28,7 @@ const initialState: IEditorStoreState = {
     [TileLayer.L1]: { tileTypeId: 0 },
     [TileLayer.L2]: { tileTypeId: 0 },
   },
-  entityType: "alien_bat",
+  entityType: null,
 };
 
 let state: IEditorStoreState = initialState;

@@ -9,6 +9,8 @@ export class Entity {
   public readonly type: string;
   public readonly uuid: string;
 
+  public visible: boolean;
+
   private _components: Map<string, Component> = new Map();
   private readonly _componentAddedSubject$ = new Subject<Component>();
   private readonly _componentRemovedSubject$ = new Subject<Component>();
@@ -16,6 +18,8 @@ export class Entity {
   public constructor(type: string, uuid: string = uuidv4()) {
     this.type = type;
     this.uuid = uuid;
+
+    this.visible = true;
   }
 
   public addComponent<T extends Component = Component>(component: T): Entity {

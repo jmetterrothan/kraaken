@@ -25,8 +25,9 @@ const snapToTileCenter = (value: number, tileSize: number) => {
 class EntityMode {
   private loaded: boolean;
 
-  public focusedEntity: Entity | undefined;
-  public selectedEntity: Entity | undefined;
+  public focusedEntity: Entity | null;
+  public selectedEntity: Entity | null;
+  public previewEntity: Entity | null;
 
   private editor: EditorState;
 
@@ -38,6 +39,32 @@ class EntityMode {
     this.events = [];
   }
 
+  public createPreviewEntity(type: string): void {
+    const entity = this.editor.currentLevel.world.createEntity(type);
+
+    entity.removeComponent(Placeable.COMPONENT_TYPE);
+
+    const sprite = entity.getComponent(Sprite);
+
+    sprite.renderOptions = {
+      ...sprite.renderOptions,
+      alpha: 0.65,
+    };
+
+    this.editor.currentLevel.world.addEntity(entity);
+    this.previewEntity = entity;
+
+    this.editor.currentLevel.cursor.visible = false;
+  }
+
+  public removePreviewEntity(): void {
+    if (this.previewEntity) {
+      this.editor.currentLevel.world.removeEntity(this.previewEntity);
+      this.editor.currentLevel.cursor.visible = true;
+      this.previewEntity = null;
+    }
+  }
+
   public mounted(): void {
     if (this.loaded) {
       throw new Error("Entity mode already mounted");
@@ -46,6 +73,14 @@ class EntityMode {
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
     debugSvc.set(DebugFlag.ENTITIES, true);
+
+    editorStore.subscribe((state) => {
+      this.removePreviewEntity();
+
+      if (state.entityType) {
+        this.createPreviewEntity(state.entityType);
+      }
+    });
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
@@ -61,9 +96,15 @@ class EntityMode {
 
         try {
           if (index !== -1) {
+            const oldSpawnPoint = level.spawnPoints[index];
             level.spawnPoints[index] = spawnPoint;
 
-            // TODO: push to event stack
+            if (pushToStack) {
+              eventStackSvc.undoStack.push({
+                undo: () => driver.spawn(this.editor.currentLevelId, oldSpawnPoint, false),
+                redo: () => driver.spawn(this.editor.currentLevelId, spawnPoint, false),
+              });
+            }
           } else {
             this.editor.currentLevel.world.spawn(spawnPoint);
             level.spawnPoints.push(spawnPoint);
@@ -158,7 +199,33 @@ class EntityMode {
     console.debug("Entity mode unmounted");
   }
 
-  public update(_delta: number): void {}
+  public update(_delta: number): void {
+    const entities = this.editor.currentLevel.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
+
+    this.focusedEntity = null;
+
+    if (!this.previewEntity) {
+      for (const entity of entities) {
+        if (!entity.visible) {
+          continue;
+        }
+
+        const bbox = entity.getComponent(BoundingBox);
+        const sprite = entity.getComponent(Sprite);
+
+        if (bbox.containsPointWithVector2(this.editor.mouse)) {
+          this.focusedEntity = entity;
+        }
+
+        sprite.renderOptions.outline = this.focusedEntity === entity || this.selectedEntity === entity;
+      }
+    } else {
+      const entity = this.previewEntity;
+      const position = entity.getComponent(Position);
+
+      position.fromValues(Math.round(this.editor.mouse.x), Math.round(this.editor.mouse.y));
+    }
+  }
 
   public render(_alpha: number): void {}
 
@@ -179,9 +246,6 @@ class EntityMode {
 
         if (this.selectedEntity) {
           const selectedEntityPos = this.selectedEntity.getComponent(Position);
-          const placeable = this.selectedEntity.getComponent(Placeable);
-
-          placeable.unfollow();
           selectedEntityPos.fromValues(x, y);
 
           driver.spawn(
@@ -195,33 +259,45 @@ class EntityMode {
             true
           );
 
-          this.selectedEntity = undefined;
+          this.selectedEntity.visible = true;
+          this.selectedEntity = null;
+          this.focusedEntity = null;
+
+          editorStore.setSelectedEntityType(null);
         } else {
           if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
-            const focusedEntityPos = this.focusedEntity.getComponent(Position);
-            const placeable = this.focusedEntity.getComponent(Placeable);
-
-            placeable.follow(this.editor.currentLevel.cursor, focusedEntityPos);
-
             this.selectedEntity = this.focusedEntity;
+            this.focusedEntity = null;
+            this.selectedEntity.visible = false;
             editorStore.setSelectedEntityType(this.selectedEntity.type);
           } else {
-            driver.spawn(
-              this.editor.currentLevelId,
-              {
-                uuid: uuidv4(),
-                type: this.editor.state.entityType,
-                position: { x, y },
-                direction: { x: 1, y: 1 },
-              },
-              true
-            );
+            if (this.editor.state.entityType) {
+              driver.spawn(
+                this.editor.currentLevelId,
+                {
+                  uuid: uuidv4(),
+                  type: this.editor.state.entityType,
+                  position: { x, y },
+                  direction: { x: 1, y: 1 },
+                },
+                true
+              );
+            }
+
+            editorStore.setSelectedEntityType(null);
           }
         }
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.despawn, e)) {
+        if (this.selectedEntity) {
+          this.selectedEntity.visible = true;
+          this.selectedEntity = null;
+        }
         if (this.focusedEntity) {
           driver.despawn(this.editor.currentLevelId, this.focusedEntity.uuid, true);
+          this.focusedEntity = null;
         }
+
+        editorStore.setSelectedEntityType(null);
       } else if (matchMouseBinding(mouseBindings.editor.entityMode.test, e)) {
         const player = this.editor.currentLevel.world.player;
 
@@ -239,22 +315,7 @@ class EntityMode {
     }
   }
 
-  public handleMouseMove(): void {
-    const entities = this.editor.currentLevel.world.getEntities([Placeable.COMPONENT_TYPE, Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Sprite.COMPONENT_TYPE]);
-
-    this.focusedEntity = undefined;
-
-    entities.forEach((entity) => {
-      const bbox = entity.getComponent(BoundingBox);
-      const sprite = entity.getComponent(Sprite);
-
-      if (bbox.containsPointWithVector2(this.editor.mouse)) {
-        this.focusedEntity = entity;
-      }
-
-      sprite.renderOptions.outline = this.focusedEntity === entity || this.selectedEntity === entity;
-    });
-  }
+  public handleMouseMove(): void {}
 }
 
 export default EntityMode;
