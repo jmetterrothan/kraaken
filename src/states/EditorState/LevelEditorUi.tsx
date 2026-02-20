@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -137,6 +137,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
         name: "",
         tileHeight: 0,
         tileWidth: 0,
+        defaultTileIndex: null,
       },
     [tileSetName]
   );
@@ -150,6 +151,12 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
       editorSub.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (tileSet.defaultTileIndex) {
+      editorStore.setSelectedTileTypeId(tileSet.defaultTileIndex);
+    }
+  }, [tileSet.defaultTileIndex]);
 
   return (
     <Ui>

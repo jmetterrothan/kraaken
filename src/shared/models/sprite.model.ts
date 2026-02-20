@@ -17,4 +17,5 @@ export interface ISpriteData {
   name: string;
   tileWidth: number;
   tileHeight: number;
+  defaultTileIndex: number | null;
 }
