@@ -104,7 +104,7 @@ class LevelState extends State<LevelStateOptions> {
     super.mounted();
 
     const root = this.createRoot();
-    root.render(React.createElement(LevelUi, { projectId: this.projectBlueprint.id }));
+    root.render(React.createElement(LevelUi, { projectId: this.projectBlueprint.id, levelId: this.currentLevelId }));
 
     this.registerEvent(GameEventTypes.CHANGE_LEVEL, (e: GameEvents.ChangeLevelEvent) => {
       const { levelId, moveTo, lookAt } = e.detail;
@@ -183,7 +183,7 @@ class LevelState extends State<LevelStateOptions> {
 
   public handleKeyboardInput(e: KeyboardEvent, active: boolean): void {
     if (matchKeyBinding(keyBindings.level.edit, e)) {
-      dispatch(GameEvents.editEvent(this.projectBlueprint.id));
+      dispatch(GameEvents.editEvent(this.projectBlueprint.id, this.currentLevelId));
     } else {
       this.currentLevel.handleKeyboardInput(e, active);
     }

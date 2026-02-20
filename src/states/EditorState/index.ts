@@ -71,7 +71,7 @@ class EditorState extends State<EditorStateOptions> {
   public async init({ levelId, blueprint }: EditorStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
     this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
-
+    console.log(levelId, this.projectBlueprint.defaultLevelId);
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
     }
@@ -235,6 +235,7 @@ class EditorState extends State<EditorStateOptions> {
     root.render(
       React.createElement(LevelEditorUi, {
         projectId: this.projectBlueprint.id,
+        levelId: this.currentLevelId,
         blueprint: this.projectBlueprint,
       })
     );
@@ -347,7 +348,7 @@ class EditorState extends State<EditorStateOptions> {
       } else if (matchKeyBinding(keyBindings.editor.save, e)) {
         dispatch(GameEvents.saveEvent(this.projectBlueprint.id));
       } else if (matchKeyBinding(keyBindings.editor.play, e)) {
-        dispatch(GameEvents.playEvent(this.projectBlueprint.id));
+        dispatch(GameEvents.playEvent(this.projectBlueprint.id, this.currentLevelId));
       } else {
         this.currentMode.handleKeyboardInput(e, active);
       }

@@ -26,6 +26,7 @@ import EntityModeSidePanel from "@src/shared/ui/components/EntityModeSidePanel";
 
 interface EditorUiProps {
   projectId: string;
+  levelId: string | null;
   blueprint: IProjectBlueprint;
 }
 
@@ -34,8 +35,8 @@ const useEditorActions = () => {
     () => ({
       undo: () => dispatch(GameEvents.undoEvent()),
       redo: () => dispatch(GameEvents.redoEvent()),
-      play: (id: string) => dispatch(GameEvents.playEvent(id)),
-      save: (id: string) => dispatch(GameEvents.saveEvent(id)),
+      play: (projectId: string, levelId: string | null) => dispatch(GameEvents.playEvent(projectId, levelId)),
+      save: (projectId: string) => dispatch(GameEvents.saveEvent(projectId)),
     }),
     []
   );
@@ -116,16 +117,16 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
   }
 };
 
-const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
+const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blueprint.defaultLevelId }) => {
   const [editorState, setEditorState] = React.useState(editorStore.initialState);
 
-  const { assets, levels, defaultLevelId } = blueprint;
+  const { assets, levels } = blueprint;
 
   const actions = useEditorActions();
 
   const modal = useModal();
 
-  const level = levels.find((level) => level.id === defaultLevelId);
+  const level = levels.find((level) => level.id === levelId);
 
   const tileSetName = level?.layers[editorState.layerId].tileSet;
 
@@ -196,7 +197,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint }) => {
             name="Play"
             kbd={keyBindings.editor.play.toString()}
             active={false}
-            onClick={() => actions.play(projectId)}
+            onClick={() => actions.play(projectId, levelId)}
           />
         </div>
       </Toolbar>

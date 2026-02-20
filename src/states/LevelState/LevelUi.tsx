@@ -10,7 +10,7 @@ import keyBindings from "@src/keyBindings";
 const useLevelActions = () => {
   return React.useMemo(
     () => ({
-      edit: (id: string) => dispatch(GameEvents.editEvent(id)),
+      edit: (projectId: string, levelId: string | null) => dispatch(GameEvents.editEvent(projectId, levelId)),
     }),
     []
   );
@@ -18,9 +18,10 @@ const useLevelActions = () => {
 
 interface ILevelUiProps {
   projectId: string;
+  levelId: string | null;
 }
 
-const LevelUi: React.FC<ILevelUiProps> = ({ projectId }) => {
+const LevelUi: React.FC<ILevelUiProps> = ({ projectId, levelId }) => {
   const actions = useLevelActions();
 
   return (
@@ -31,7 +32,7 @@ const LevelUi: React.FC<ILevelUiProps> = ({ projectId }) => {
           name="Edit level"
           kbd={keyBindings.level.edit.toString()}
           active={false}
-          onClick={() => actions.edit(projectId)}
+          onClick={() => actions.edit(projectId, levelId)}
         />
       </Toolbar>
     </Ui>

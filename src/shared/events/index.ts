@@ -43,29 +43,33 @@ export const placeEvent = (layer: TileLayer, coords: IPlaceTileData[], pushToSta
 };
 
 interface ILevelStateSwitchEventDetails {
-  id: string;
+  projectId: string;
+  levelId: string | null;
 }
 
 export type LevelStateSwitchEvent = CustomEvent<ILevelStateSwitchEventDetails>;
 
-export const playEvent = (id: string): LevelStateSwitchEvent => {
+export const playEvent = (projectId: string, levelId: string | null): LevelStateSwitchEvent => {
   return new CustomEvent<ILevelStateSwitchEventDetails>(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, {
     detail: {
-      id,
+      projectId,
+      levelId,
     },
   });
 };
 
 interface IEditorStateSwitchEventDetails {
-  id: string;
+  projectId: string;
+  levelId: string | null;
 }
 
 export type EditorStateSwitchEvent = CustomEvent<IEditorStateSwitchEventDetails>;
 
-export const editEvent = (id: string): EditorStateSwitchEvent => {
+export const editEvent = (projectId: string, levelId: string | null): EditorStateSwitchEvent => {
   return new CustomEvent<IEditorStateSwitchEventDetails>(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, {
     detail: {
-      id,
+      projectId,
+      levelId,
     },
   });
 };

@@ -493,15 +493,17 @@ class Game {
     // game events
     window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => {
       this.stateManager.switch(GameStates.LEVEL, {
-        id: e.detail.id,
-        blueprint: driver.load(e.detail.id),
+        projectId: e.detail.projectId,
+        levelId: e.detail.levelId,
+        blueprint: driver.load(e.detail.projectId),
       });
     });
 
     window.addEventListener(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, (e: GameEvents.EditorStateSwitchEvent) => {
       this.stateManager.switch(GameStates.EDITOR, {
-        id: e.detail.id,
-        blueprint: driver.load(e.detail.id),
+        projectId: e.detail.projectId,
+        levelId: e.detail.levelId,
+        blueprint: driver.load(e.detail.projectId),
       });
     });
 

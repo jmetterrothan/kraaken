@@ -86,7 +86,7 @@ class EntityMode {
       this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
         const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
-        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevel.world.projectBlueprint.defaultLevelId);
+        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevelId);
 
         if (!level) {
           throw new Error(`Unknown level`);
