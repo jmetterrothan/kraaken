@@ -26,6 +26,9 @@ export class RespawnSystem extends System {
 
       health.value = health.maxHealth;
 
+      health.immunity = true;
+      health.remainingImmunityMs = health.immunityDelay;
+
       entity.removeComponent(RespawnEvent.COMPONENT_TYPE);
     }
   }
