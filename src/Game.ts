@@ -58,10 +58,12 @@ class Game {
   public static readonly TARGET_UPS: number = config.TARGET_UPS;
   public static readonly MS_PER_UPDATE: number = 1000 / Game.TARGET_UPS;
 
-  public static create({ projectId = "", ...options }: Partial<IGameOptions>): Game {
+  public static create(customOptions: Partial<IGameOptions>): Game {
     if (!(Game[instanceSym] instanceof Game)) {
-      Game[instanceSym] = new Game({ ...Game.DEFAULT_OPTIONS, ...options });
-      Game[instanceSym].init(projectId);
+      const options = { ...Game.DEFAULT_OPTIONS, ...customOptions };
+
+      Game[instanceSym] = new Game(options);
+      Game[instanceSym].init();
 
       console.debug("Debug flags:", debugSvc.flags);
     }
@@ -73,7 +75,6 @@ class Game {
     height: 900,
     width: 1280,
     root: document.body,
-    projectId: "",
   };
 
   private options: IGameOptions;
@@ -241,7 +242,7 @@ class Game {
 
   private readonly loop = () => this.run();
 
-  private init(projectId: string) {
+  private init() {
     this.initCanvas();
     this.initWebGL();
     this.initEvents();
@@ -271,22 +272,13 @@ class Game {
     this.stateManager.add(GameStates.MENU, new MenuState());
     this.stateManager.add(GameStates.LEVEL, new LevelState());
     this.stateManager.add(GameStates.EDITOR, new EditorState());
-
-    // Driver
-    driver
-      .ping()
-      .catch(() => {
-        alert("Failed to establish a connexion with the server, some features may not work properly...");
-      })
-      .finally(() => {
-        this.stateManager.switch(GameStates.LEVEL, {
-          id: projectId,
-          blueprint: driver.load(projectId),
-        });
-      });
   }
 
   private initCanvas() {
+    if (!this.options.root) {
+      throw new Error("Missing root elment");
+    }
+
     // Main elements
     wrapper = document.createElement("div");
     wrapper.classList.add("kraaken");
@@ -322,6 +314,22 @@ class Game {
     const { width, height } = this.computeDimensions();
 
     this.resize(width, height);
+  }
+
+  public load(projectId: string, levelId: string | null = null): void {
+    // Driver
+    driver
+      .ping()
+      .catch(() => {
+        alert("Failed to establish a connexion with the server, some features may not work properly...");
+      })
+      .finally(() => {
+        this.stateManager.switch(GameStates.LEVEL, {
+          projectId,
+          levelId,
+          blueprint: driver.load(projectId),
+        });
+      });
   }
 
   private initEvents() {

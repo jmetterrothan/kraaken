@@ -25,6 +25,8 @@ import { DebugFlag } from "@src/enums/DebugFlag";
 import editorStore from "../EditorState/editorStore";
 
 interface LevelStateOptions {
+  projectId: string;
+  levelId: string | null;
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }
 
@@ -34,9 +36,9 @@ class LevelState extends State<LevelStateOptions> {
 
   private levels: Map<string, World> = new Map<string, World>();
 
-  public async init({ blueprint }: LevelStateOptions): Promise<void> {
+  public async init({ levelId, blueprint }: LevelStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
-    this.currentLevelId = this.projectBlueprint.defaultLevelId;
+    this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
 
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);

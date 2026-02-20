@@ -39,6 +39,7 @@ import { Subscription } from "rxjs";
 
 interface EditorStateOptions {
   projectId: string;
+  levelId: string | null;
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }
 
@@ -67,9 +68,9 @@ class EditorState extends State<EditorStateOptions> {
     [EditorMode.COLLISION]: CollisionMode;
   };
 
-  public async init({ blueprint }: EditorStateOptions): Promise<void> {
+  public async init({ levelId, blueprint }: EditorStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
-    this.currentLevelId = this.projectBlueprint.defaultLevelId;
+    this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
 
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
