@@ -9,6 +9,7 @@ const RAYCAST_STEPS_NB = 32;
 export enum FlyingAIBehavior {
   SEEK = "seek",
   TURRET = "turret",
+  PATROL = "patrol",
 }
 
 type IFlyingAIMetadata = {

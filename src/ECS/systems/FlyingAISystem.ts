@@ -3,7 +3,7 @@ import { RigidBody, FlyingAI, Position, FlyingAIBehavior, Health } from "@src/EC
 
 import Vector2 from "@src/shared/math/Vector2";
 
-export class AISystem extends System {
+export class FlyingAISystem extends System {
   public constructor() {
     super([FlyingAI.COMPONENT_TYPE, Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE]);
   }

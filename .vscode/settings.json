@@ -3,12 +3,11 @@
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
-    "**/fontawesome-pro": true
+    "**/fonts/**": true,
+    "**/fontawesome-pro/**": true
   },
   "files.exclude": {
     "**/.git": true,
-    "**/.DS_Store": true,
-    "**/node_modules": true,
-    "**/fontawesome-pro": true
+    "**/.DS_Store": true
   }
 }

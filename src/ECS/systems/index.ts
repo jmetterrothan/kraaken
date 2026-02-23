@@ -9,7 +9,7 @@ export * from "./PlayerCombatSystem";
 export * from "./BasicInputSystem";
 export * from "./BasicMovementSystem";
 export * from "./PlaceableSystem";
-export * from "./AISystem";
+export * from "./FlyingAISystem";
 export * from "./FlickerOnImmuneSystem";
 export * from "./EventZoneSystem";
 export * from "./DamageFxSystem";
