@@ -27,7 +27,7 @@ class Box2 {
     return box._max.x < this._min.x || box._min.x > this._max.x || box._max.y < this._min.y || box._min.y > this._max.y ? false : true;
   }
 
-  public distFromEdgeToPoint(position: Vector2) {
+  public distFromEdgeToPoint(position: Vector2): number {
     // take closest points
     const cx = Math.max(this.x1, Math.min(position.x, this.x2));
     const cy = Math.max(this.y1, Math.min(position.y, this.y2));
@@ -38,7 +38,7 @@ class Box2 {
     return Math.hypot(distX, distY);
   }
 
-  public intersectCircle(position: Vector2, radius: number) {
+  public intersectCircle(position: Vector2, radius: number): boolean {
     const distX = Math.abs(position.x - this.x);
     const distY = Math.abs(position.y - this.y);
 

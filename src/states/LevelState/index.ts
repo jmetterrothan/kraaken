@@ -52,7 +52,7 @@ class LevelState extends State<LevelStateOptions> {
       const world = new World(id, this.projectBlueprint);
 
       world.addSystem(new Systems.PlayerInputSystem());
-      world.addSystem(new Systems.MovementSystem());
+      world.addSystem(new Systems.PlayerMovementSystem());
       world.addSystem(new Systems.PhysicsSystem());
       world.addSystem(new Systems.PlayerCombatSystem());
       world.addSystem(new Systems.ConsummableSystem());
@@ -66,6 +66,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.ImmunitySystem());
       world.addSystem(new Systems.LootSystem());
       world.addSystem(new Systems.RespawnSystem());
+      world.addSystem(new Systems.PatrolAISystem());
 
       debugSvc.set(DebugFlag.ALL, false);
 

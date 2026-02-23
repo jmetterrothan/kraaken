@@ -98,7 +98,7 @@ const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProp
 
         const animation = defaultKey in list && list[defaultKey] ? list[defaultKey] : undefined;
 
-        const tileSet: ISpriteData = blueprint.assets?.sprites?.find((s) => s.name === sprite?.metadata?.alias) ?? { name: "", src: "", tileWidth: 0, tileHeight: 0 };
+        const tileSet: ISpriteData = blueprint.assets?.sprites?.find((s) => s.name === sprite?.metadata?.alias) ?? { name: "", src: "", tileWidth: 0, tileHeight: 0, defaultTileIndex: null };
 
         return {
           type: entity.type,

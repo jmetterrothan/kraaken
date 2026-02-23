@@ -26,3 +26,4 @@ export * from "./Fuse";
 export * from "./Loot";
 export * from "./DeathEvent";
 export * from "./RespawnEvent";
+export * from "./PatrolAI";

@@ -18,7 +18,7 @@ type Motor = {
   lockY: boolean;
 };
 
-export class MovementSystem extends System {
+export class PlayerMovementSystem extends System {
   public constructor() {
     super([Position.COMPONENT_TYPE, RigidBody.COMPONENT_TYPE, Movement.COMPONENT_TYPE, PlayerInput.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE]);
   }

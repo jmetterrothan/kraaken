@@ -5,16 +5,28 @@ import { ITile } from "@src/shared/models/tilemap.model";
 import Vector2 from "@src/shared/math/Vector2";
 
 import World from "@src/world/World";
-import TileMap from "@src/world/TileMap";
 
 import { clamp } from "@src/shared/utility/MathHelpers";
 import config from "@src/config";
+
+export const EPSILON = 0.01;
 
 const calcFriction = (delta: number, bounciness: number) => {
   return Math.pow(clamp(bounciness, 0, 1), delta * config.TARGET_UPS);
 };
 
-const EPSILON = 0.01;
+// Helpers to read entity AABB from center position
+const aabbAt = (cx: number, cy: number, w: number, h: number) => {
+  const halfW = w / 2;
+  const halfH = h / 2;
+
+  return {
+    x1: cx - halfW,
+    x2: cx + halfW,
+    y1: cy - halfH,
+    y2: cy + halfH,
+  };
+};
 
 export class PhysicsSystem extends System {
   public constructor() {
@@ -101,7 +113,7 @@ export class PhysicsSystem extends System {
         }
       }
 
-      rigidBody.isGrounded = this.isOnSolidTile(entity) || this.isOnSolidCollider(entity, colliders);
+      rigidBody.isGrounded = this.isOnSolidTile(entity) || PhysicsSystem.isOnSolidCollider(entity, colliders);
 
       Vector2.destroy(step);
     });
@@ -230,6 +242,7 @@ export class PhysicsSystem extends System {
       rigidBody.velocity.x = 0;
     }
   }
+
   private overlaps(a1: number, a2: number, b1: number, b2: number): boolean {
     return a1 < b2 && a2 > b1;
   }
@@ -253,20 +266,12 @@ export class PhysicsSystem extends System {
     const dx = position.x - position.previousValue.x;
     const dy = position.y - position.previousValue.y;
 
-    // Helpers to read entity AABB from center position
-    const aabbAt = (cx: number, cy: number) => ({
-      x1: cx - halfW,
-      x2: cx + halfW,
-      y1: cy - halfH,
-      y2: cy + halfH,
-    });
-
     // -------------------------
     // 1) Resolve Y (like map)
     // -------------------------
     if (dy !== 0) {
-      const prev = aabbAt(position.previousValue.x, position.previousValue.y);
-      const cur = aabbAt(position.x, position.y);
+      const prev = aabbAt(position.previousValue.x, position.previousValue.y, w, h);
+      const cur = aabbAt(position.x, position.y, w, h);
 
       let hit: BoundingBox | null = null;
 
@@ -345,8 +350,8 @@ export class PhysicsSystem extends System {
     // 2) Resolve X (like map)
     // -------------------------
     if (dx !== 0) {
-      const prev = aabbAt(position.previousValue.x, position.previousValue.y);
-      const cur = aabbAt(position.x, position.y); // uses y possibly corrected above
+      const prev = aabbAt(position.previousValue.x, position.previousValue.y, w, h);
+      const cur = aabbAt(position.x, position.y, w, h); // uses y possibly corrected above
 
       let hit: BoundingBox | null = null;
 
@@ -443,7 +448,7 @@ export class PhysicsSystem extends System {
     if (rigidBody.collide) {
       if (step.y > 0) {
         // top side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y2 + step.y, x1 + halfW, y2 + step.y, x2, y2 + step.y);
+        const tile = this.testForCollision(x1, y2 + step.y, x1 + halfW, y2 + step.y, x2, y2 + step.y);
         if (tile) {
           position.y = tile.position.y - halfH - EPSILON;
           this.handleCollisionWithBottomSide(entity, tile, delta);
@@ -453,7 +458,7 @@ export class PhysicsSystem extends System {
         }
       } else if (step.y < 0) {
         // bottom side collision
-        const tile = this.testForCollision(this.world.tileMap, x1, y1 + step.y, x1 + halfW, y1 + step.y, x2, y1 + step.y);
+        const tile = this.testForCollision(x1, y1 + step.y, x1 + halfW, y1 + step.y, x2, y1 + step.y);
 
         if (tile) {
           position.y = tile.position.y + tileSize + halfH + EPSILON;
@@ -472,7 +477,7 @@ export class PhysicsSystem extends System {
 
       if (step.x > 0) {
         // left side collision
-        const tile = this.testForCollision(this.world.tileMap, x2 + step.x, y1, x2 + step.x, y1 + halfH, x2 + step.x, y2);
+        const tile = this.testForCollision(x2 + step.x, y1, x2 + step.x, y1 + halfH, x2 + step.x, y2);
 
         if (tile) {
           position.x = tile.position.x - halfW - EPSILON;
@@ -483,7 +488,7 @@ export class PhysicsSystem extends System {
         }
       } else if (step.x < 0) {
         // right side collision
-        const tile = this.testForCollision(this.world.tileMap, x1 + step.x, y1, x1 + step.x, y1 + halfH, x1 + step.x, y2);
+        const tile = this.testForCollision(x1 + step.x, y1, x1 + step.x, y1 + halfH, x1 + step.x, y2);
 
         if (tile) {
           position.x = tile.position.x + tileSize + halfW + EPSILON;
@@ -496,12 +501,47 @@ export class PhysicsSystem extends System {
     }
   }
 
-  private isOnSolidCollider(entity: Entity, colliders: readonly Entity[]): boolean {
+  public testForCollision(a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): ITile | undefined {
+    const a = this.world.tileMap.getTileAtCoords(a1x, a1y);
+    if (a && a.hasCollision()) {
+      return a;
+    }
+
+    const b = this.world.tileMap.getTileAtCoords(b1x, b1y);
+    if (b && b.hasCollision()) {
+      return b;
+    }
+
+    const c = this.world.tileMap.getTileAtCoords(c1x, c1y);
+    if (c && c.hasCollision()) {
+      return c;
+    }
+
+    return undefined;
+  }
+
+  public isOnSolidTile(entity: Entity): boolean {
+    const position = entity.getComponent(Position);
     const rb = entity.getComponent(RigidBody);
-    const collider = entity.getComponent(Collider);
     const bbox = entity.getComponent(BoundingBox);
 
     if (rb.velocity.y < 0) return false; // not moving upward
+
+    const w = bbox?.width ?? 0;
+    const halfW = w / 2;
+
+    const x1 = bbox?.x1 ?? position.x;
+    const x2 = x1 + halfW;
+    const x3 = bbox?.x2 ?? position.x;
+    const y = (bbox?.y2 ?? position.y) + EPSILON;
+
+    const tile = this.testForCollision(x1, y, x2, y, x3, y);
+
+    return tile !== undefined;
+  }
+
+  public static isOnSolidColliderAt(entity: Entity, x1: number, x2: number, y: number, colliders: readonly Entity[]): boolean {
+    const collider = entity.getComponent(Collider);
 
     for (const c of colliders) {
       if (c.uuid === entity.uuid) continue;
@@ -513,8 +553,8 @@ export class PhysicsSystem extends System {
       const colliderBbox = c.getComponent(BoundingBox);
       colliderBbox.setPositionFromVector2(colliderPosition);
 
-      const closeEnough = Math.abs(colliderBbox.y1 - bbox.y2) <= 0.5;
-      const xOverlap = bbox.x1 < colliderBbox.x2 && bbox.x2 > colliderBbox.x1;
+      const xOverlap = x1 < colliderBbox.x2 && x2 > colliderBbox.x1;
+      const closeEnough = Math.abs(colliderBbox.y1 - y) <= 0.5;
 
       if (closeEnough && xOverlap) return true;
     }
@@ -522,39 +562,30 @@ export class PhysicsSystem extends System {
     return false;
   }
 
-  public isOnSolidTile(entity: Entity): boolean {
-    const position = entity.getComponent(Position);
-    const bbox = entity.getComponent(BoundingBox);
+  public static isOnSolidColliderAtPoint(entity: Entity, x: number, y: number, colliders: readonly Entity[]): boolean {
+    const collider = entity.getComponent(Collider);
 
-    const w = bbox?.width ?? 0;
-    const halfW = w / 2;
+    for (const c of colliders) {
+      if (c.uuid === entity.uuid) continue;
 
-    const x1 = bbox?.x1 ?? position.x;
-    const x2 = x1 + halfW;
-    const x3 = bbox?.x2 ?? position.x;
-    const y = (bbox?.y2 ?? position.y) + EPSILON;
+      const cc = c.getComponent(Collider);
+      if (cc.isExcluded(entity) || collider?.isExcluded(c)) continue;
 
-    const tile = this.testForCollision(this.world.tileMap, x1, y, x2, y, x3, y);
+      const colliderPosition = c.getComponent(Position);
+      const colliderBbox = c.getComponent(BoundingBox);
+      colliderBbox.setPositionFromVector2(colliderPosition);
 
-    return tile !== undefined;
+      if (colliderBbox.containsPoint(x, y)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  protected testForCollision(tileMap: TileMap, a1x: number, a1y: number, b1x: number, b1y: number, c1x: number, c1y: number): ITile | undefined {
-    const a = tileMap.getTileAtCoords(a1x, a1y);
-    if (a && a.hasCollision()) {
-      return a;
-    }
+  public static isOnSolidCollider(entity: Entity, colliders: readonly Entity[]): boolean {
+    const bbox = entity.getComponent(BoundingBox);
 
-    const b = tileMap.getTileAtCoords(b1x, b1y);
-    if (b && b.hasCollision()) {
-      return b;
-    }
-
-    const c = tileMap.getTileAtCoords(c1x, c1y);
-    if (c && c.hasCollision()) {
-      return c;
-    }
-
-    return undefined;
+    return PhysicsSystem.isOnSolidColliderAt(entity, bbox.x1, bbox.x2, bbox.y2, colliders);
   }
 }

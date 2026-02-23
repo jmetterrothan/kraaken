@@ -58,6 +58,8 @@ class ComponentFactory {
         return new Components.Loot(metadata);
       case "death_event":
         return new Components.DeathEvent(metadata);
+      case "patrol_ai":
+        return new Components.PatrolAI(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

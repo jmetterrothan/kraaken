@@ -1,5 +1,5 @@
 export * from "./CameraSystem";
-export * from "./MovementSystem";
+export * from "./PlayerMovementSystem";
 export * from "./RenderingSystem";
 export * from "./AnimationSystem";
 export * from "./PlayerInputSystem";
@@ -19,3 +19,4 @@ export * from "./FuseSystem";
 export * from "./ImmunitySystem";
 export * from "./LootSystem";
 export * from "./RespawnSystem";
+export * from "./PatrolAISystem";

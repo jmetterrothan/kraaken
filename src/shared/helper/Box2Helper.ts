@@ -70,7 +70,7 @@ class Box2Helper {
     WebGL2H.setUniform(gl, this.uniforms[key]);
   }
 
-  public resize(width: number, height: number) {
+  public resize(width: number, height: number): void {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, width, height), gl.DYNAMIC_DRAW);
   }

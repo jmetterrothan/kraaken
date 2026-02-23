@@ -40,7 +40,7 @@ export const lerp2 = (a: number, b: number, t: number): number => {
   return a + t * (b - a);
 };
 
-export const expLerpT = (s: number, delta: number) => {
+export const expLerpT = (s: number, delta: number): number => {
   return 1 - Math.pow(1 - s, delta * config.TARGET_UPS);
 };
 
