@@ -22,20 +22,16 @@ export class EventZoneSystem extends System {
 
       for (const target of targets) {
         const targetBbox = target.getComponent(BoundingBox);
-        const targetHealth = target.getComponent(Health);
 
-        if (Array.isArray(zone.applyToEntityTypes) && !zone.applyToEntityTypes.includes(target.type)) {
+        if (!zone.canBeTriggeredBy(target)) {
           continue;
         }
 
-        if (targetHealth.isDead) {
-          continue;
-        }
+        zone.wasActive = zone.active;
+        zone.active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
 
-        const active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
-
-        if (zone.active !== active) {
-          if (active) {
+        if (zone.wasActive !== zone.active) {
+          if (zone.active) {
             zone.onEnter(target);
           } else {
             zone.onLeave(target);

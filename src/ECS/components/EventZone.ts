@@ -34,6 +34,7 @@ export class EventZone implements Component {
   public lastTimeTriggered: number;
 
   public active: boolean;
+  public wasActive: boolean;
   public shouldWaitToLeave: boolean;
 
   public constructor(metadata: IEventZoneMetadata = {}) {
@@ -49,13 +50,14 @@ export class EventZone implements Component {
     this.lastTimeTriggered = -1;
 
     this.active = false;
+    this.wasActive = false;
     this.shouldWaitToLeave = false;
   }
 
   public onEnter(subject: Entity): void {
     console.debug(`Entity "${subject.uuid}" entered event zone`);
 
-    if ((this.shouldTriggerWhileActive || !this.shouldWaitToLeave) && this.canBeTriggered()) {
+    if (this.shouldTriggerWhileActive || !this.shouldWaitToLeave) {
       this.trigger(subject);
 
       this.shouldWaitToLeave = true;
@@ -65,14 +67,24 @@ export class EventZone implements Component {
   }
 
   public onLeave(subject: Entity): void {
-    console.debug(`Entity "${subject.uuid}" Left event zone`);
+    console.debug(`Entity "${subject.uuid}" left event zone`);
 
     this.active = false;
     this.shouldWaitToLeave = false;
   }
 
-  private canBeTriggered(): boolean {
+  public canBeTriggeredBy(entity: Entity): boolean {
     const now = window.performance.now();
+
+    const targetHealth = entity.getComponent(Health);
+
+    if (targetHealth.isDead) {
+      return false;
+    }
+
+    if (Array.isArray(this.applyToEntityTypes) && !this.applyToEntityTypes.includes(entity.type)) {
+      return false;
+    }
 
     if (this.maxTimesTriggered > 0 && this.nbTimesTriggered >= this.maxTimesTriggered) {
       return false;
@@ -86,7 +98,7 @@ export class EventZone implements Component {
   }
 
   private trigger(subject: Entity): void {
-    console.debug(`Entity "${subject.uuid}" triggered event zone`);
+    console.debug(`Entity "${subject.uuid}" triggered event zone`, this);
 
     this.events.forEach(({ type, data }) => {
       switch (type) {
@@ -133,6 +145,9 @@ export class EventZone implements Component {
           dispatch(GameEvents.despawnEvent(data.uuid, false));
           return;
         }
+
+        default:
+          console.log(`Unknown event "${type}"`);
       }
     });
 

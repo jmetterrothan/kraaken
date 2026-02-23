@@ -114,6 +114,15 @@ class LevelState extends State<LevelStateOptions> {
         throw new Error(`Could not find level "${levelId}"`);
       }
 
+      // kill inputs
+      const input = this.currentLevel.player.getComponent(Components.PlayerInput);
+
+      input.down = false;
+      input.up = false;
+      input.left = false;
+      input.right = false;
+      input.jump = false;
+
       this.currentLevelId = levelId;
 
       if (moveTo) {
