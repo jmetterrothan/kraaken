@@ -69,11 +69,12 @@ export interface ILevelBlueprint {
 }
 
 export interface ISpawnpoint {
-  uuid: string;
-  position: { x: number; y: number };
-  direction: { x: number; y: number };
   type: string;
-  debug?: boolean;
+  uuid: string;
+  components?: {
+    position?: { x: number; y: number };
+    direction?: { x: number; y: number };
+  };
 }
 
 export type IPlaceTileData = IVector2 & { tileTypeId: number };

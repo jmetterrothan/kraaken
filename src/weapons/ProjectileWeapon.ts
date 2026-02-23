@@ -140,7 +140,7 @@ class ProjectileWeapon extends Weapon {
         dir.normalize();
       }
 
-      const projectile = world.spawn({ type: this.projectile, position: { x: origin.x, y: origin.y } });
+      const projectile = world.spawn({ type: this.projectile, components: { position: origin.toObject() } });
 
       if (!projectile.hasComponent(Projectile.COMPONENT_TYPE)) {
         throw new Error("Improper projectile entity (must have a projectile component)");

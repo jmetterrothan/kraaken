@@ -43,7 +43,7 @@ export class LootSystem extends System {
             const x = position.x + dx;
             const y = position.y + dy;
 
-            const dropEntity = this.world.spawn({ type: drop.type, position: { x, y } });
+            const dropEntity = this.world.spawn({ type: drop.type, components: { position: { x, y } } });
 
             const dropRb = dropEntity.getComponent(RigidBody);
 

@@ -92,7 +92,7 @@ class World {
   }
 
   public playEffectOnceAt(type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }): void {
-    const effect = this.createEntity(type);
+    const effect = this.createEntity(type, { position, direction });
 
     const animator = effect.getComponent(Components.Animator);
 
@@ -101,8 +101,6 @@ class World {
 
       effect.addComponent(new Components.Fuse({ delay: animator.animation.duration, expireAction: "despawn" }));
     }
-
-    this.placeEntity(effect, position, direction);
 
     this.addEntity(effect);
   }
@@ -125,13 +123,13 @@ class World {
     return entity;
   }
 
-  public createEntity(type: string, uuid?: string): Entity {
+  public createEntity(type: string, customMetadata: any = {}, uuid?: string): Entity {
     const entity = new Entity(type, uuid);
 
     const components = this.projectBlueprint.entities.find((item) => item.type === type)?.components ?? [];
 
     components.forEach(({ name, metadata = {} }) => {
-      entity.addComponent(ComponentFactory.create(name, metadata));
+      entity.addComponent(ComponentFactory.create(name, { ...metadata, ...customMetadata[name] }));
     });
 
     if (entity.hasComponent(Components.PlayerInput.COMPONENT_TYPE)) {
@@ -141,31 +139,9 @@ class World {
     return entity;
   }
 
-  public placeEntity(entity: Entity, position: IVector2, direction: IVector2, debug = false): void {
-    if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
-      const positionComp = entity.getComponent(Components.Position);
-      positionComp.x = position?.x ?? 0;
-      positionComp.y = position?.y ?? 0;
-    }
+  public spawn({ type, uuid = uuidv4(), components = {} }: Partial<Omit<ISpawnpoint, "type">> & Pick<ISpawnpoint, "type">): Entity {
+    const entity = this.createEntity(type, components, uuid);
 
-    if (entity.hasComponent(Components.RigidBody.COMPONENT_TYPE)) {
-      const rigidBodyComp = entity.getComponent(Components.RigidBody);
-      rigidBodyComp.orientation.x = direction?.x ?? 1;
-      rigidBodyComp.orientation.y = direction?.y ?? 1;
-
-      rigidBodyComp.direction.x = direction?.x ?? 1;
-      rigidBodyComp.direction.y = direction?.y ?? 1;
-    }
-
-    if (entity.hasComponent(Components.BoundingBox.COMPONENT_TYPE)) {
-      const bboxComp = entity.getComponent(Components.BoundingBox);
-      bboxComp.debug = bboxComp.debug || debug;
-    }
-  }
-
-  public spawn({ type, uuid = uuidv4(), position = { x: 0, y: 0 }, direction = { x: 1, y: 1 }, debug }: Partial<Omit<ISpawnpoint, "type">> & Pick<ISpawnpoint, "type">): Entity {
-    const entity = this.createEntity(type, uuid);
-    this.placeEntity(entity, position, direction, debug);
     this.addEntity(entity);
 
     return entity;

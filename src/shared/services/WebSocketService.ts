@@ -36,7 +36,6 @@ class WebSocketService {
               data.type,
               data.position,
               data.direction,
-              data.debug,
               options.pushToStack
             )
           );

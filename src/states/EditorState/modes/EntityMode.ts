@@ -117,17 +117,20 @@ class EntityMode {
             }
           }
 
+          const { uuid, components = {} } = spawnPoint;
+
           // if entity already exists in the world we update its position
-          const entity = this.editor.currentLevel.world.getEntityByUuid(spawnPoint.uuid);
+          const entity = this.editor.currentLevel.world.getEntityByUuid(uuid);
+
           if (entity) {
             if (entity.hasComponent(Position.COMPONENT_TYPE)) {
               const position = entity.getComponent(Position);
-              position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+              position.fromValues(components?.position?.x ?? 0, components?.position?.y ?? 0);
             }
 
             if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
               const rigidBody = entity.getComponent(RigidBody);
-              rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
+              rigidBody.direction.fromValues(components?.direction?.x ?? 1, components?.direction?.y ?? 1);
             }
           }
 
@@ -253,8 +256,10 @@ class EntityMode {
             {
               uuid: this.selectedEntity.uuid,
               type: this.selectedEntity.type,
-              position: { x, y },
-              direction: { x: 1, y: 1 },
+              components: {
+                position: { x, y },
+                direction: { x: 1, y: 1 },
+              },
             },
             true
           );
@@ -277,8 +282,7 @@ class EntityMode {
                 {
                   uuid: uuidv4(),
                   type: this.editor.state.entityType,
-                  position: { x, y },
-                  direction: { x: 1, y: 1 },
+                  components: { position: { x, y }, direction: { x: 1, y: 1 } },
                 },
                 true
               );

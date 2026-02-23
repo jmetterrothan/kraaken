@@ -16,12 +16,12 @@ export class RespawnSystem extends System {
 
       const spawnPoint = this.world.levelBlueprint.spawnPoints.find(({ uuid }) => uuid === entity.uuid);
 
-      pos.x = spawnPoint?.position?.x ?? 0;
-      pos.y = spawnPoint?.position?.y ?? 0;
+      pos.x = spawnPoint?.components?.position?.x ?? 0;
+      pos.y = spawnPoint?.components?.position?.y ?? 0;
 
       if (rb) {
-        rb.direction.x = spawnPoint?.direction?.x ?? 0;
-        rb.direction.y = spawnPoint?.direction?.y ?? 0;
+        rb.direction.x = spawnPoint?.components?.direction?.x ?? 1;
+        rb.direction.y = spawnPoint?.components?.direction?.y ?? 1;
       }
 
       health.value = health.maxHealth;

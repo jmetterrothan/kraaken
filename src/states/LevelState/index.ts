@@ -147,15 +147,16 @@ class LevelState extends State<LevelStateOptions> {
 
       // if entity already exists in the world we update its position
       const entity = this.currentLevel.getEntityByUuid(spawnPoint.uuid);
+
       if (entity) {
         if (entity.hasComponent(Components.Position.COMPONENT_TYPE)) {
           const position = entity.getComponent(Components.Position);
-          position.fromValues(spawnPoint.position.x, spawnPoint.position.y);
+          position.fromValues(spawnPoint?.components?.position?.x ?? 0, spawnPoint?.components?.position?.y ?? 0);
         }
 
         if (entity.hasComponent(Components.RigidBody.COMPONENT_TYPE)) {
           const rigidBody = entity.getComponent(Components.RigidBody);
-          rigidBody.direction.fromValues(spawnPoint.direction.x || 1, spawnPoint.direction.y || 1);
+          rigidBody.direction.fromValues(spawnPoint?.components?.direction?.x ?? 1, spawnPoint?.components?.direction?.y ?? 1);
         }
       } else {
         this.currentLevel.spawn(spawnPoint);

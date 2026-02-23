@@ -37,9 +37,8 @@ class LocalDriver extends AbstractDriver {
       GameEvents.spawnEvent(
         data.uuid, //
         data.type,
-        data.position,
-        data.direction,
-        data.debug,
+        { x: 0, y: 0, ...data.components?.position },
+        { x: 1, y: 1, ...data.components?.direction },
         pushToStack
       )
     );

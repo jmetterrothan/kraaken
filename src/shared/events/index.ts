@@ -96,15 +96,13 @@ interface ISpawnEventDetails extends IEventDetails {
 
 export type SpawnEvent = CustomEvent<ISpawnEventDetails>;
 
-export const spawnEvent = (uuid: string, type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, debug = false, pushToStack = true): SpawnEvent => {
+export const spawnEvent = (uuid: string, type: string, position: IVector2, direction: IVector2 = { x: 1, y: 1 }, pushToStack = true): SpawnEvent => {
   return new CustomEvent<ISpawnEventDetails>(GameEventTypes.SPAWN_EVENT, {
     detail: {
       spawnpoint: {
         type,
         uuid,
-        position,
-        direction,
-        debug,
+        components: { position, direction },
       },
       pushToStack,
     },

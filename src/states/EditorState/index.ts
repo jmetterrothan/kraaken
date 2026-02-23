@@ -152,11 +152,11 @@ class EditorState extends State<EditorStateOptions> {
     const playerSpawnPoint = level.spawnPoints.find((spawnpoint) => spawnpoint.type === "dino");
 
     if (playerSpawnPoint) {
-      const { x, y } = playerSpawnPoint.position;
+      const { x = 0, y = 0 } = playerSpawnPoint.components?.position ?? {};
+
       const position = controllableObject.getComponent(Components.Position);
 
       position.fromValues(x, y);
-
       cameraPosition.fromValues(x, y);
     }
 

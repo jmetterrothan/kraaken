@@ -134,7 +134,6 @@ export class EventZone implements Component {
               data.type,
               data.position,
               data.direction,
-              data.debug,
               false
             )
           );

@@ -2,6 +2,7 @@ import { vec2 } from "gl-matrix";
 
 import Lifo from "@src/shared/utility/Lifo";
 import { lerp, lerp2 } from "@src/shared/utility/MathHelpers";
+import { IVector2 } from "../models/math.model";
 
 class Vector2 {
   public static instances: Lifo<Vector2> = new Lifo();
@@ -302,6 +303,13 @@ class Vector2 {
     this.y = Math.floor(this.y * n) / n;
 
     return this;
+  }
+
+  public toObject(): IVector2 {
+    return {
+      x: this.x,
+      y: this.y,
+    };
   }
 
   public toString(): string {
