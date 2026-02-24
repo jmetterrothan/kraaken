@@ -309,7 +309,7 @@ class Game {
     gl.depthFunc(gl.LEQUAL);
 
     gl.clearDepth(1.0);
-    gl.clearColor(65 / 255, 140 / 255, 191 / 255, 1.0);
+    gl.clearColor(0, 0, 0, 1.0);
 
     const { width, height } = this.computeDimensions();
 

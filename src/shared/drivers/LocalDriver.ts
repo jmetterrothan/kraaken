@@ -16,6 +16,7 @@ class LocalDriver extends AbstractDriver {
 
     this.http = axios.create({
       baseURL: config.REST_API,
+      timeout: 1000 * 60,
       headers: {
         "Content-Type": "application/json",
       },

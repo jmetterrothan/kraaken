@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "vite --host",
-    "build": "vite build",
+    "build": "vite build --base=\"/kraaken/\"",
     "start-local-server": "node local/server.js",
     "check": "tsc -p tsconfig.json --noEmit --skipLibCheck",
     "lint": "eslint ./src/**/*.ts{,x} --cache --max-warnings=0",
