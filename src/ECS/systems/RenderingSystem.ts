@@ -1,7 +1,7 @@
 import { mat3 } from "gl-matrix";
 
 import { System } from "@src/ECS";
-import { Position, Sprite, RigidBody, Camera, BoundingBox } from "@src/ECS/components";
+import { Position, Sprite, RigidBody, Camera, BoundingBox, EventZone, Placeable } from "@src/ECS/components";
 import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 
@@ -84,8 +84,11 @@ export class RenderingSystem extends System {
         sprite.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, rigidBody?.orientation);
       }
 
+      const showZone = entity.hasComponent(EventZone.COMPONENT_TYPE) && debugSvc.enabled(DebugFlag.ZONE_ENTITIES);
+      const showPlaceable = entity.hasComponent(Placeable.COMPONENT_TYPE) && debugSvc.enabled(DebugFlag.PLACEABLE_ENTITIES);
+
       // show bounding box helper
-      if (bbox && (debugSvc.enabled(DebugFlag.ENTITIES) || bbox.debug)) {
+      if (bbox && (showZone || showPlaceable || bbox.debug)) {
         const modelMatrix = mat3.create();
 
         mat3.fromTranslation(modelMatrix, position.toGlArray());

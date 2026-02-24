@@ -72,7 +72,8 @@ class EntityMode {
 
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.ENTITIES, true);
+    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, true);
+    debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
 
     editorStore.subscribe((state) => {
       this.removePreviewEntity();

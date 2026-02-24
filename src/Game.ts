@@ -381,7 +381,13 @@ class Game {
           case "F5":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.ENTITIES);
+            debugSvc.toggle(DebugFlag.PLACEABLE_ENTITIES);
+            break;
+
+          case "F6":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.ZONE_ENTITIES);
             break;
 
           case "F11":

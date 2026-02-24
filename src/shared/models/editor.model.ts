@@ -9,4 +9,5 @@ export enum EditorMode {
   TERRAIN = 0,
   ENTITY = 1,
   COLLISION = 2,
+  ZONE = 3,
 }

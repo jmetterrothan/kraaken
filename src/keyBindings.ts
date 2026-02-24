@@ -13,6 +13,10 @@ const keyBindings = {
     edit: [new KeyBinding({ code: "KeyE", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],
   },
   editor: {
+    left: [new KeyBinding({ code: "ArrowLeft" })],
+    right: [new KeyBinding({ code: "ArrowRight" })],
+    up: [new KeyBinding({ code: "ArrowUp" })],
+    down: [new KeyBinding({ code: "ArrowDown" })],
     save: [new KeyBinding({ code: "KeyS", ctrl: true })],
     play: [new KeyBinding({ code: "KeyP", ctrl: true })],
     undo: [new KeyBinding({ code: "KeyW", meta: IS_MAC_PLATFORM, ctrl: !IS_MAC_PLATFORM })],

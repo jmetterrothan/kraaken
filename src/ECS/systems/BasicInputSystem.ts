@@ -21,13 +21,13 @@ export class BasicInputSystem extends System {
       if (this.world.controlledEntity === entity) {
         const input = entity.getComponent(BasicInput);
 
-        if (matchKeyBinding(keyBindings.level.left, e)) {
+        if (matchKeyBinding(keyBindings.editor.left, e)) {
           input.left = active;
-        } else if (matchKeyBinding(keyBindings.level.right, e)) {
+        } else if (matchKeyBinding(keyBindings.editor.right, e)) {
           input.right = active;
-        } else if (matchKeyBinding(keyBindings.level.up, e)) {
+        } else if (matchKeyBinding(keyBindings.editor.up, e)) {
           input.up = active;
-        } else if (matchKeyBinding(keyBindings.level.down, e)) {
+        } else if (matchKeyBinding(keyBindings.editor.down, e)) {
           input.down = active;
         }
       }

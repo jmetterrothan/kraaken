@@ -36,6 +36,7 @@ import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 import { Position } from "@src/ECS/components";
 import { Subscription } from "rxjs";
+import ZoneMode from "./modes/ZoneMode";
 
 interface EditorStateOptions {
   projectId: string;
@@ -66,6 +67,7 @@ class EditorState extends State<EditorStateOptions> {
     [EditorMode.TERRAIN]: TerrainMode;
     [EditorMode.ENTITY]: EntityMode;
     [EditorMode.COLLISION]: CollisionMode;
+    [EditorMode.ZONE]: ZoneMode;
   };
 
   public async init({ levelId, blueprint }: EditorStateOptions): Promise<void> {
@@ -111,6 +113,7 @@ class EditorState extends State<EditorStateOptions> {
       [EditorMode.TERRAIN]: new TerrainMode(this),
       [EditorMode.ENTITY]: new EntityMode(this),
       [EditorMode.COLLISION]: new CollisionMode(this),
+      [EditorMode.ZONE]: new ZoneMode(this),
     };
 
     editorStore.setScale(3);

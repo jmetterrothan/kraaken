@@ -82,17 +82,17 @@ class ProjectileWeapon extends Weapon {
     }
   }
 
-  public update(world: World, owner: Entity): void {
+  public update(world: World, owner: Entity): boolean {
     const now = window.performance.now();
 
     if (!this.canBeUsed(world, owner)) {
-      return;
+      return false;
     }
 
     const shotIntervalMs = this.rate > 0 ? 60000 / this.rate : 0;
 
     if (now < this.nextBurstAt || (shotIntervalMs > 0 && now < this.nextShotAt)) {
-      return;
+      return false;
     }
 
     if (!this.hasAmmo()) {
@@ -103,7 +103,7 @@ class ProjectileWeapon extends Weapon {
 
         this.lastFireFailAt = now;
       }
-      return;
+      return false;
     }
 
     this.use(world, owner);
@@ -119,6 +119,8 @@ class ProjectileWeapon extends Weapon {
       this.nextShotAt = this.nextBurstAt;
       this.shotsLeftInBurst = this.burstLimit;
     }
+
+    return true;
   }
 
   protected use(world: World, owner: Entity): void {

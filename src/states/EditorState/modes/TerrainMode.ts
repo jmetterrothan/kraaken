@@ -39,7 +39,8 @@ class TerrainMode {
 
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.ENTITIES, false);
+    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
+    debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {

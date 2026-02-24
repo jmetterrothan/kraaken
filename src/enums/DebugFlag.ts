@@ -4,6 +4,7 @@ export const enum DebugFlag {
   CAMERA = 1 << 1,
   GRID = 1 << 2,
   COLLISION = 1 << 3,
-  ENTITIES = 1 << 4,
+  PLACEABLE_ENTITIES = 1 << 4,
+  ZONE_ENTITIES = 1 << 5,
   ALL = 0xffffffff,
 }

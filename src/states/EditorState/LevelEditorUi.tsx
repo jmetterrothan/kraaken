@@ -173,6 +173,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
               { value: EditorMode.TERRAIN, name: "Painting mode" },
               { value: EditorMode.ENTITY, name: "Entity mode" },
               { value: EditorMode.COLLISION, name: "Collision mode" },
+              { value: EditorMode.ZONE, name: "Zone mode" },
             ]}
           />
           <ToolbarSeparator />
