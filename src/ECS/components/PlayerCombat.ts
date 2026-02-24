@@ -26,10 +26,10 @@ export class PlayerCombat implements Component {
     rate: 60,
     burstLimit: 1,
     burstDelay: 1000,
-    maxAmmo: 100,
-    minRange: 24,
-    maxRange: 240,
-    spread: { x: 0.1, y: 0.1 },
+    maxAmmo: 8,
+    minRange: 16,
+    maxRange: 64,
+    spread: { x: 0.15, y: 0.15 },
   });
 
   public get primaryWeapon(): ProjectileWeapon {
