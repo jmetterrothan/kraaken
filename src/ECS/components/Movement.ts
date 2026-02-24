@@ -1,4 +1,4 @@
-import { Component } from "@src/ECS";
+import { Component, Entity } from "@src/ECS";
 
 import SoundManager from "@src/animation/SoundManager";
 
@@ -44,6 +44,7 @@ export class Movement implements Component {
 
   public airborneSince: number | null = null;
   public wasGrounded: boolean;
+  public groundEntity: Entity | null = null;
 
   public isBlockedLeft = false;
   public isBlockedRight = false;

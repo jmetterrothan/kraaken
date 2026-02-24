@@ -34,8 +34,7 @@ class WebSocketService {
             GameEvents.spawnEvent(
               data.uuid, //
               data.type,
-              data.position,
-              data.direction,
+              data.components,
               options.pushToStack
             )
           );

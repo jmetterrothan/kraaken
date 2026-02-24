@@ -82,7 +82,6 @@ class StateManager {
     const newState = this.getState(index);
     newState.ready = false;
 
-    console.log(options);
     await newState.init(options);
 
     newState.ready = true;

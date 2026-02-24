@@ -28,7 +28,7 @@ interface IModalProps {
   tileSet: ISpriteData;
   selected: number;
   isOpen?: boolean;
-  onSelect?: (id: number) => void;
+  onSelect?: (tileSet: string, id: number) => void;
   onClose?: () => void;
 }
 
@@ -67,7 +67,7 @@ const Modal = ({ selected, tileSet, isOpen, onSelect, onClose }: PropsWithChildr
         >
           {tiles.map(({ index, row, col, subImage }) => {
             const onClick = () => {
-              onSelect?.(index);
+              onSelect?.(tileSet.name, index);
               onClose?.();
             };
 

@@ -12,7 +12,7 @@ interface IToolbarTilesetProps {
   tileSet: ISpriteData;
   disabled?: boolean;
   selected: number;
-  onSelect: (index: number) => void;
+  onSelect: (tileSet: string, index: number) => void;
   onClick: () => void;
 }
 

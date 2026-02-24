@@ -35,7 +35,6 @@ export type IGameEvent = {
 
 export interface IEventZone {
   mode: "contains" | "intersects";
-  debug?: boolean;
   position: IVector2;
   width: number;
   height: number;
@@ -72,8 +71,10 @@ export interface ISpawnpoint {
   type: string;
   uuid: string;
   components?: {
-    position?: { x: number; y: number };
-    direction?: { x: number; y: number };
+    position?: { x?: number; y?: number };
+    rigid_body?: { direction?: { x?: number; y?: number } };
+    bounding_box?: { debug?: boolean; width?: number; height?: number; color?: string };
+    event_zone?: { mode?: "contains" | "intersects"; cooldownDelay?: number; maxTimesTriggered?: number; shouldTriggerWhileActive?: boolean; events?: any[]; applyToEntityTypes?: string[] };
   };
 }
 

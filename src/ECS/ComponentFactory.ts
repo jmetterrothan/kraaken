@@ -60,6 +60,10 @@ class ComponentFactory {
         return new Components.DeathEvent(metadata);
       case "patrol_ai":
         return new Components.PatrolAI(metadata);
+      case "event_zone":
+        return new Components.EventZone(metadata);
+      case "checkpoint":
+        return new Components.Checkpoint(metadata);
       default:
         throw new Error(`Unknown component name "${name}"`);
     }

@@ -387,16 +387,16 @@ export class PlayerMovementSystem extends System {
         rigidBody.orientation.x = 1;
       }
 
-      /*
       // register orientation change
-      if (input.aim.x < 0) {
-        rigidBody.direction.x = -1; // sync aim and facing dir
-        rigidBody.orientation.x = -1;
-      } else if (input.aim.x > 0) {
-        rigidBody.direction.x = 1; // sync aim and facing dir
-        rigidBody.orientation.x = 1;
+      if (input.attack) {
+        if (input.aim.x < 0) {
+          rigidBody.direction.x = -1; // sync aim and facing dir
+          rigidBody.orientation.x = -1;
+        } else if (input.aim.x > 0) {
+          rigidBody.direction.x = 1; // sync aim and facing dir
+          rigidBody.orientation.x = 1;
+        }
       }
-        */
 
       // lock direction/orientation when wallSliding
       if ((movement.wallSliding || movement.wallClimbing) && ctx.pressingIntoRightWall) {

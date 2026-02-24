@@ -15,7 +15,7 @@ import Grid from "@src/shared/Grid";
 import Vector2 from "@src/shared/math/Vector2";
 
 import { IVector2 } from "@src/shared/models/event.model";
-import { IProjectBlueprint, ISpawnpoint, IEventZone, ILevelBlueprint, IWorldOptions } from "@src/shared/models/world.model";
+import { IProjectBlueprint, ISpawnpoint, ILevelBlueprint, IWorldOptions } from "@src/shared/models/world.model";
 import { TileLayer } from "@src/shared/models/tilemap.model";
 
 import { configSvc } from "@src/shared/services/ConfigService";
@@ -84,7 +84,6 @@ class World {
     this.gravity = this.levelBlueprint.gravity;
 
     this.levelBlueprint.spawnPoints.forEach(this.spawn.bind(this));
-    this.levelBlueprint.zones.forEach(this.createZone.bind(this));
 
     this.setClearColor(this.levelBlueprint.background);
 
@@ -145,16 +144,6 @@ class World {
     this.addEntity(entity);
 
     return entity;
-  }
-
-  public createZone({ position, width, height, color, debug = false, ...rest }: IEventZone): void {
-    const zone = new Entity("event_zone");
-
-    zone.addComponent(new Components.Position({ x: position.x, y: position.y }));
-    zone.addComponent(new Components.BoundingBox({ width, height, color, debug }));
-    zone.addComponent(new Components.EventZone(rest));
-
-    this.addEntity(zone);
   }
 
   public addSystem(system: System): World {

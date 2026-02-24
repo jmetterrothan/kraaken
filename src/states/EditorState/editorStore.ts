@@ -11,7 +11,7 @@ export interface IEditorStoreState {
   mode: EditorMode;
   terrainMode: EditorTerrainMode;
   layerId: TileLayer;
-  layers: Record<TileLayer, { tileTypeId: number }>;
+  tileSelection: Record<string, { tileTypeId: number }>;
   entityType: string | null;
 }
 
@@ -23,11 +23,7 @@ const initialState: IEditorStoreState = {
   mode: EditorMode.TERRAIN,
   terrainMode: EditorTerrainMode.PLACE,
   layerId: TileLayer.L1,
-  layers: {
-    [TileLayer.L0]: { tileTypeId: 0 },
-    [TileLayer.L1]: { tileTypeId: 0 },
-    [TileLayer.L2]: { tileTypeId: 0 },
-  },
+  tileSelection: {},
   entityType: null,
 };
 
@@ -82,15 +78,15 @@ const editorStore = {
       subject.next(state);
     }
   },
-  setSelectedTileTypeId: (tileTypeId: number): void => {
-    const prevValue = state.layers[state.layerId];
-
-    if (prevValue && tileTypeId !== prevValue.tileTypeId) {
+  setSelectedTileTypeId: (tileSet: string, tileTypeId: number): void => {
+    const prevValue = state.tileSelection[tileSet];
+    console.log(tileSet, tileTypeId, prevValue);
+    if (!prevValue || tileTypeId !== prevValue.tileTypeId) {
       state = {
         ...state,
-        layers: {
-          ...state.layers,
-          [state.layerId]: { ...prevValue, tileTypeId },
+        tileSelection: {
+          ...state.tileSelection,
+          [tileSet]: { ...prevValue, tileTypeId },
         },
       };
 

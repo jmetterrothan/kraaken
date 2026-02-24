@@ -33,7 +33,7 @@ export class PlayerCombat implements Component {
   });
 
   public get primaryWeapon(): ProjectileWeapon {
-    return this._weapon1;
+    return this._weapon2;
   }
 
   public toString(): string {

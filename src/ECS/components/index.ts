@@ -27,3 +27,4 @@ export * from "./Loot";
 export * from "./DeathEvent";
 export * from "./RespawnEvent";
 export * from "./PatrolAI";
+export * from "./Checkpoint";

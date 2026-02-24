@@ -146,16 +146,22 @@ class TerrainMode {
       }
       const tileMap = this.editor.currentLevel.world.tileMap;
 
-      const { layerId, layers, terrainMode } = this.editor.state;
+      const tileSet = tileMap.layers.get(this.editor?.state?.layerId)?.tileSet;
 
-      const { tileTypeId = 0 } = layers[layerId] || {};
+      if (!tileSet) {
+        throw new Error(`Unknown tileset ${tileSet} for layer ${this.editor.state.layerId}`);
+      }
+
+      const { layerId, tileSelection, terrainMode } = this.editor.state;
+
+      const { tileTypeId = 0 } = tileSelection[tileSet] || {};
 
       if (matchMouseBinding(mouseBindings.editor.terrainMode.place, e)) {
         if (terrainMode === EditorTerrainMode.PICK) {
           const tile = tileMap.getTileAtCoords(coords[0].x, coords[0].y);
           if (tile) {
             const tileTypeId = tile.getTileTypeId(layerId);
-            editorStore.setSelectedTileTypeId(tileTypeId);
+            editorStore.setSelectedTileTypeId(tileSet, tileTypeId);
           }
         } else if (terrainMode === EditorTerrainMode.PLACE) {
           driver.place(this.editor.currentLevelId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId })) }, true);
@@ -176,7 +182,7 @@ class TerrainMode {
         const tile = tileMap.getTileAtCoords(coords[0].x, coords[0].y);
         if (tile) {
           const tileTypeId = tile.getTileTypeId(layerId);
-          editorStore.setSelectedTileTypeId(tileTypeId);
+          editorStore.setSelectedTileTypeId(tileSet, tileTypeId);
         }
       } else if (matchMouseBinding(mouseBindings.editor.terrainMode.erase, e)) {
         driver.place(this.editor.currentLevelId, { layerId, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);

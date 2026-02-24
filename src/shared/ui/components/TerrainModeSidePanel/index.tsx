@@ -100,7 +100,7 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
     return unsubscribe;
   }, []);
 
-  const tileTypeId = editorState.layers[editorState.layerId]?.tileTypeId ?? 0;
+  const tileTypeId = editorState.tileSelection[tileSet.name]?.tileTypeId ?? 0;
 
   return (
     <SidePanel className="terrain-mode-side-panel">
@@ -114,7 +114,7 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
                   title={`row: ${row}, col: ${col}, index: ${index}`}
                   src={subImage}
                   onClick={() => {
-                    editorStore.setSelectedTileTypeId(index);
+                    editorStore.setSelectedTileTypeId(tileSet.name, index);
                   }}
                 />
               </li>
@@ -135,7 +135,7 @@ const TerrainModeSidePanel = ({ editorState, tileSet, level }: TerrainModeSidePa
                     title={`row: ${row}, col: ${col}, index: ${index}`}
                     src={subImage}
                     onClick={() => {
-                      editorStore.setSelectedTileTypeId(index);
+                      editorStore.setSelectedTileTypeId(tileSet.name, index);
                     }}
                   />
                 </li>

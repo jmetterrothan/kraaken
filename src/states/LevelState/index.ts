@@ -91,7 +91,7 @@ class LevelState extends State<LevelStateOptions> {
       world.followEntity(world.player);
       world.controlEntity(world.player);
 
-      // world.aimEntity = world.createCrosshair();
+      world.aimEntity = world.createCrosshair();
 
       this.levels.set(id, world);
     });
@@ -156,7 +156,7 @@ class LevelState extends State<LevelStateOptions> {
 
         if (entity.hasComponent(Components.RigidBody.COMPONENT_TYPE)) {
           const rigidBody = entity.getComponent(Components.RigidBody);
-          rigidBody.direction.fromValues(spawnPoint?.components?.direction?.x ?? 1, spawnPoint?.components?.direction?.y ?? 1);
+          rigidBody.direction.fromValues(spawnPoint?.components?.rigid_body?.direction?.x ?? 1, spawnPoint?.components?.rigid_body?.direction?.y ?? 1);
         }
       } else {
         this.currentLevel.spawn(spawnPoint);

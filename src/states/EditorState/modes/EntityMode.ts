@@ -130,7 +130,7 @@ class EntityMode {
 
             if (entity.hasComponent(RigidBody.COMPONENT_TYPE)) {
               const rigidBody = entity.getComponent(RigidBody);
-              rigidBody.direction.fromValues(components?.direction?.x ?? 1, components?.direction?.y ?? 1);
+              rigidBody.direction.fromValues(components?.rigid_body?.direction?.x ?? 1, components?.rigid_body?.direction?.y ?? 1);
             }
           }
 
@@ -149,10 +149,10 @@ class EntityMode {
       this.editor.registerEvent(GameEventTypes.DESPAWN_EVENT, (e: GameEvents.DespawnEvent) => {
         const { uuid, pushToStack, onSuccess, onFailure } = e.detail || {};
 
-        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevel.world.projectBlueprint.defaultLevelId);
+        const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevelId);
 
         if (!level) {
-          throw new Error(`Unknown level "${this.editor.currentLevel.world.projectBlueprint.defaultLevelId}"`);
+          throw new Error(`Unknown level "${this.editor.currentLevelId}"`);
         }
 
         const index = level.spawnPoints.findIndex((spawnPoint) => spawnPoint.uuid === uuid);
@@ -258,7 +258,7 @@ class EntityMode {
               type: this.selectedEntity.type,
               components: {
                 position: { x, y },
-                direction: { x: 1, y: 1 },
+                rigid_body: { direction: { x: 1, y: 1 } },
               },
             },
             true
@@ -282,7 +282,7 @@ class EntityMode {
                 {
                   uuid: uuidv4(),
                   type: this.editor.state.entityType,
-                  components: { position: { x, y }, direction: { x: 1, y: 1 } },
+                  components: { position: { x, y }, rigid_body: { direction: { x: 1, y: 1 } } },
                 },
                 true
               );

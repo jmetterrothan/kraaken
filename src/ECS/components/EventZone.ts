@@ -6,6 +6,7 @@ import { IGameEvent } from "@src/shared/models/world.model";
 
 import { Health } from "./Health";
 import { DamageEvent } from "./DamageEvent";
+import { Checkpoint } from "./Checkpoint";
 
 export type IEventZoneMode = "contains" | "intersects";
 
@@ -102,6 +103,15 @@ export class EventZone implements Component {
 
     this.events.forEach(({ type, data }) => {
       switch (type) {
+        case "checkpoint": {
+          if (subject.hasComponent(Checkpoint.COMPONENT_TYPE)) {
+            subject.removeComponent(Checkpoint.COMPONENT_TYPE);
+          }
+          subject.addComponent(new Checkpoint({ moveTo: data.moveTo }));
+
+          return;
+        }
+
         case "change_level": {
           dispatch(GameEvents.changeLevel(data.levelId, data.moveTo, data.lookAt));
           return;
@@ -132,8 +142,7 @@ export class EventZone implements Component {
             GameEvents.spawnEvent(
               data.uuid, //
               data.type,
-              data.position,
-              data.direction,
+              data.components,
               false
             )
           );

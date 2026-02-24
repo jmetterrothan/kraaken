@@ -102,7 +102,7 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
           />
           <Suspense>
             <ToolbarTileset
-              selected={editorState.layers[editorState.layerId].tileTypeId} //
+              selected={editorState.tileSelection[tileSet.name]?.tileTypeId ?? 0} //
               onSelect={editorStore.setSelectedTileTypeId}
               tileSet={tileSet}
               disabled={editorState.terrainMode === EditorTerrainMode.ERASE}
@@ -142,7 +142,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
     [tileSetName]
   );
 
-  const tileTypeId = editorState.layers[editorState.layerId]?.tileTypeId ?? 0;
+  const tileTypeId = editorState.tileSelection[tileSet.name]?.tileTypeId ?? 0;
 
   React.useLayoutEffect(() => {
     const editorSub = editorStore.subscribe(setEditorState);
@@ -154,7 +154,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
 
   useEffect(() => {
     if (tileSet.defaultTileIndex) {
-      editorStore.setSelectedTileTypeId(tileSet.defaultTileIndex);
+      editorStore.setSelectedTileTypeId(tileSet.name, tileSet.defaultTileIndex);
     }
   }, [tileSet.defaultTileIndex]);
 

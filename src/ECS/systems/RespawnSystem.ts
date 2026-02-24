@@ -1,5 +1,5 @@
 import { System } from "@src/ECS";
-import { Health, Position, RespawnEvent, RigidBody } from "@src/ECS/components";
+import { Checkpoint, Health, Position, RespawnEvent, RigidBody } from "@src/ECS/components";
 
 export class RespawnSystem extends System {
   constructor() {
@@ -14,14 +14,26 @@ export class RespawnSystem extends System {
       const rb = entity.getComponent(RigidBody);
       const pos = entity.getComponent(Position);
 
-      const spawnPoint = this.world.levelBlueprint.spawnPoints.find(({ uuid }) => uuid === entity.uuid);
+      const checkpoint = entity.getComponent(Checkpoint);
 
-      pos.x = spawnPoint?.components?.position?.x ?? 0;
-      pos.y = spawnPoint?.components?.position?.y ?? 0;
+      if (!checkpoint) {
+        const spawnPoint = this.world.levelBlueprint.spawnPoints.find(({ uuid }) => uuid === entity.uuid);
 
-      if (rb) {
-        rb.direction.x = spawnPoint?.components?.direction?.x ?? 1;
-        rb.direction.y = spawnPoint?.components?.direction?.y ?? 1;
+        pos.x = spawnPoint?.components?.position?.x ?? 0;
+        pos.y = spawnPoint?.components?.position?.y ?? 0;
+
+        if (rb) {
+          rb.direction.x = spawnPoint?.components?.rigid_body?.direction?.x ?? 1;
+          rb.direction.y = spawnPoint?.components?.rigid_body?.direction?.y ?? 1;
+        }
+      } else {
+        pos.x = checkpoint.moveTo.x;
+        pos.y = checkpoint.moveTo.y;
+
+        if (rb) {
+          rb.direction.x = checkpoint.lookAt.y;
+          rb.direction.y = checkpoint.lookAt.y;
+        }
       }
 
       health.value = health.maxHealth;

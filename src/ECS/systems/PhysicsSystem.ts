@@ -45,11 +45,40 @@ export class PhysicsSystem extends System {
     });
   }
 
+  public applyGroundedEntityCarry(entity: Entity, colliders: readonly Entity[], delta: number): void {
+    const movement = entity.getComponent(Movement);
+
+    if (movement && movement.groundEntity && movement.isBlockedDown) {
+      if (movement.groundEntity.hasComponent(RigidBody.COMPONENT_TYPE)) {
+        const grb = movement.groundEntity.getComponent(RigidBody);
+
+        // platform displacement for this frame (same integration rule you use)
+        const carry = grb.velocity.clone().multiply(grb.velocityModifier).multiplyScalar(delta);
+
+        if (carry.x !== 0 || carry.y !== 0) {
+          const position = entity.getComponent(Position);
+
+          // make collideWithBoundingBox/map use *carry* as the new displacement
+          position.previousValue.copy(position);
+          position.add(carry);
+
+          // resolve collisions caused by being carried
+          this.collideWithBoundingBox(entity, colliders, carry, delta);
+          this.collideWithMap(entity, carry, delta);
+        }
+
+        Vector2.destroy(carry);
+      }
+    }
+  }
+
   execute(delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
     if (entities.length === 0) {
       return;
     }
+
+    const colliders = this.world.getEntities([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Collider.COMPONENT_TYPE]);
 
     entities.forEach((entity) => {
       const position = entity.getComponent(Position);
@@ -79,15 +108,16 @@ export class PhysicsSystem extends System {
         movement.isBlockedRight = false;
         movement.isBlockedUp = false;
         movement.isBlockedDown = false;
+        movement.groundEntity = null;
       }
-
-      const colliders = this.world.getEntities([Position.COMPONENT_TYPE, BoundingBox.COMPONENT_TYPE, Collider.COMPONENT_TYPE]);
 
       if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
         this.collideWithBoundingBox(entity, colliders, step, delta);
       }
 
       this.collideWithMap(entity, step, delta);
+
+      this.applyGroundedEntityCarry(entity, colliders, delta);
 
       if (rigidBody.clampToMap) {
         this.clampToMap(entity, delta);
@@ -273,7 +303,7 @@ export class PhysicsSystem extends System {
       const prev = aabbAt(position.previousValue.x, position.previousValue.y, w, h);
       const cur = aabbAt(position.x, position.y, w, h);
 
-      let hit: BoundingBox | null = null;
+      let hit: Entity | null = null;
 
       if (dy > 0) {
         // moving DOWN: bottom crosses collider top (collider.y1)
@@ -300,15 +330,21 @@ export class PhysicsSystem extends System {
           if (prevBottom <= cBox.y1 && curBottom >= cBox.y1) {
             if (cBox.y1 < bestY1) {
               bestY1 = cBox.y1;
-              hit = cBox;
+              hit = c;
             }
           }
         }
 
         if (hit) {
-          position.y = hit.y1 - halfH - eps;
-          this.handleCollisionWithBottomSide(entity, hit, delta);
-          if (movement) movement.isBlockedDown = true;
+          const cBox = hit.getComponent(BoundingBox);
+          position.y = cBox.y1 - halfH - eps;
+
+          this.handleCollisionWithBottomSide(entity, cBox, delta);
+
+          if (movement) {
+            movement.isBlockedDown = true;
+            movement.groundEntity = hit;
+          }
         }
       } else {
         // moving UP: top crosses collider bottom (collider.y2)
@@ -333,14 +369,16 @@ export class PhysicsSystem extends System {
           if (prevTop >= cBox.y2 && curTop <= cBox.y2) {
             if (cBox.y2 > bestY2) {
               bestY2 = cBox.y2;
-              hit = cBox;
+              hit = c;
             }
           }
         }
 
         if (hit) {
-          position.y = hit.y2 + halfH + eps;
-          this.handleCollisionWithTopSide(entity, hit, delta);
+          const cBox = hit.getComponent(BoundingBox);
+
+          position.y = cBox.y2 + halfH + eps;
+          this.handleCollisionWithTopSide(entity, cBox, delta);
           if (movement) movement.isBlockedUp = true;
         }
       }

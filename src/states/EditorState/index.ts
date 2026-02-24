@@ -71,7 +71,7 @@ class EditorState extends State<EditorStateOptions> {
   public async init({ levelId, blueprint }: EditorStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
     this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
-    console.log(levelId, this.projectBlueprint.defaultLevelId);
+
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
     }
