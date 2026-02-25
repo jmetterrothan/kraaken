@@ -117,7 +117,7 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
   }
 };
 
-const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blueprint.defaultLevelId }) => {
+const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId: defaultLevelId }) => {
   const [editorState, setEditorState] = React.useState(editorStore.initialState);
 
   const { assets, levels } = blueprint;
@@ -126,6 +126,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
 
   const modal = useModal();
 
+  const levelId = defaultLevelId ?? blueprint.defaultLevelId;
   const level = levels.find((level) => level.id === levelId);
 
   const tileSetName = level?.layers[editorState.layerId].tileSet;
@@ -209,8 +210,8 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId = blu
           />
         </div>
       </Toolbar>
-      {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel editorState={editorState} tileSet={tileSet} level={level} />}
-      {editorState.mode === EditorMode.ENTITY && <EntityModeSidePanel editorState={editorState} blueprint={blueprint} />}
+      {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel projectId={projectId} levelId={levelId} editorState={editorState} tileSet={tileSet} level={level} />}
+      {editorState.mode === EditorMode.ENTITY && <EntityModeSidePanel projectId={projectId} levelId={levelId} editorState={editorState} blueprint={blueprint} />}
     </Ui>
   );
 };

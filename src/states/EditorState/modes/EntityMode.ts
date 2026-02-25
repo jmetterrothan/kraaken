@@ -248,8 +248,6 @@ class EntityMode {
         const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
         const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);
 
-        editorStore.setSelectedEntityUuid(this.focusedEntity?.uuid ?? null);
-
         if (this.selectedEntity) {
           const selectedEntityPos = this.selectedEntity.getComponent(Position);
           selectedEntityPos.fromValues(x, y);
