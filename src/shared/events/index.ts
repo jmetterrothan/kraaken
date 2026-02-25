@@ -89,7 +89,7 @@ export const saveEvent = (id: string): SaveEvent => {
 };
 
 interface ISpawnEventDetails extends IEventDetails {
-  spawnpoint: ISpawnpoint;
+  spawnPoint: ISpawnpoint;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
@@ -99,12 +99,12 @@ export type SpawnEvent = CustomEvent<ISpawnEventDetails>;
 export const spawnEvent = (uuid: string, type: string, components: any = {}, pushToStack = true): SpawnEvent => {
   return new CustomEvent<ISpawnEventDetails>(GameEventTypes.SPAWN_EVENT, {
     detail: {
-      spawnpoint: {
+      spawnPoint: {
         type,
         uuid,
         components: {
           ...components,
-          position: { x: components?.position?.x ?? 0, y: components?.position?.y ?? 0 },
+          position: { ...components?.position, x: components?.position?.x ?? 0, y: components?.position?.y ?? 0 },
           rigid_body: { ...components?.rigid_body, direction: { x: components?.rigid_body?.direction?.x ?? 0, y: components?.rigid_body?.direction?.y ?? 0 } },
         },
       },

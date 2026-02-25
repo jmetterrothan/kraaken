@@ -80,6 +80,8 @@ const AnimatedEntityImage = ({ type, selected = false, animation, tileSet }: Ani
 };
 
 type EntityModeSidePanelProps = {
+  projectId: string;
+  levelId: string;
   editorState: IEditorStoreState;
   blueprint: IProjectBlueprint;
 };

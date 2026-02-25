@@ -85,7 +85,7 @@ class EntityMode {
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
-        const { spawnpoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
+        const { spawnPoint: spawnPoint, onSuccess, onFailure, pushToStack } = e.detail || {};
 
         const level = this.editor.currentLevel.world.projectBlueprint.levels.find((level) => level.id === this.editor.currentLevelId);
 
@@ -247,6 +247,8 @@ class EntityMode {
       if (matchMouseBinding(mouseBindings.editor.entityMode.spawn, e)) {
         const x = tile && snapToGrid ? snapToTileCenter(coords.x, tileSize) : Math.round(coords.x);
         const y = tile && snapToGrid ? snapToTileCenter(coords.y, tileSize) : Math.round(coords.y);
+
+        editorStore.setSelectedEntityUuid(this.focusedEntity?.uuid ?? null);
 
         if (this.selectedEntity) {
           const selectedEntityPos = this.selectedEntity.getComponent(Position);

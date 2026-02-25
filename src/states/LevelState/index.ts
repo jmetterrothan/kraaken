@@ -142,7 +142,7 @@ class LevelState extends State<LevelStateOptions> {
     });
 
     this.registerEvent(GameEventTypes.SPAWN_EVENT, (e: GameEvents.SpawnEvent) => {
-      const { spawnpoint: spawnPoint } = e.detail || {};
+      const { spawnPoint } = e.detail || {};
 
       // if entity already exists in the world we update its position
       const entity = this.currentLevel.getEntityByUuid(spawnPoint.uuid);

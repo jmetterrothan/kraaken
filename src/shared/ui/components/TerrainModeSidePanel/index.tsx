@@ -17,6 +17,8 @@ import type { IEditorStoreState } from "@src/states/EditorState/editorStore";
 import editorStore from "@src/states/EditorState/editorStore";
 
 type TerrainModeSidePanelProps = {
+  projectId: string;
+  levelId: string;
   editorState: IEditorStoreState;
   tileSet: ISpriteData;
   level?: ILevelBlueprint;
