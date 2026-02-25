@@ -6,7 +6,7 @@ import { Entity } from "@src/ECS";
 import * as Components from "@src/ECS/components";
 import * as Systems from "@src/ECS/systems";
 
-import State from "@src/states/State";
+import State, { StateOptions } from "@src/states/State";
 import World from "@src/world/World";
 
 import LevelEditorUi from "@src/states/EditorState/LevelEditorUi";
@@ -38,9 +38,9 @@ import { Position } from "@src/ECS/components";
 import { Subscription } from "rxjs";
 import ZoneMode from "./modes/ZoneMode";
 
-interface EditorStateOptions {
-  projectId: string;
+export interface EditorStateOptions extends StateOptions {
   levelId: string | null;
+  mode?: EditorMode;
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }
 
@@ -70,7 +70,7 @@ class EditorState extends State<EditorStateOptions> {
     [EditorMode.ZONE]: ZoneMode;
   };
 
-  public async init({ levelId, blueprint }: EditorStateOptions): Promise<void> {
+  public async init({ levelId, blueprint, mode = EditorMode.TERRAIN }: EditorStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
     this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
 
@@ -117,6 +117,7 @@ class EditorState extends State<EditorStateOptions> {
     };
 
     editorStore.setScale(3);
+    editorStore.setMode(mode);
 
     console.info("Editor initialized");
   }

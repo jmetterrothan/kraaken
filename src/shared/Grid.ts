@@ -105,7 +105,11 @@ class Grid {
       this.setUniform("u_selection_max", this.selectionMax);
       this.setUniform("u_selection_color", this.selectionColor);
 
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
   }
 

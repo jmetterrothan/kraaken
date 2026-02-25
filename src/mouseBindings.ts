@@ -22,6 +22,9 @@ const mouseBindings = {
       test: [new MouseBinding({ button: MouseButton.MIDDLE })],
       despawn: [new MouseBinding({ button: MouseButton.RIGHT })],
     },
+    zoneMode: {
+      select: [new MouseBinding({ button: MouseButton.LEFT })],
+    },
   },
 };
 

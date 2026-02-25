@@ -80,7 +80,7 @@ const editorStore = {
   },
   setSelectedTileTypeId: (tileSet: string, tileTypeId: number): void => {
     const prevValue = state.tileSelection[tileSet];
-    console.log(tileSet, tileTypeId, prevValue);
+
     if (!prevValue || tileTypeId !== prevValue.tileTypeId) {
       state = {
         ...state,

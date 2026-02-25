@@ -7,7 +7,7 @@ import MenuState from "@src/states/MenuState";
 import StateManager from "@src/states/StateManager";
 import editorStore from "@src/states/EditorState/editorStore";
 
-import { GameStates, IGameOptions } from "@src/shared/models/game.model";
+import { GameState, IGameOptions } from "@src/shared/models/game.model";
 
 import * as GameEventTypes from "@src/shared/events/constants";
 import * as GameEvents from "@src/shared/events";
@@ -23,6 +23,7 @@ import "@src/assets/sass/kraaken.scss";
 import { clamp } from "./shared/utility/MathHelpers";
 import { debugSvc } from "./shared/services/Debug";
 import { DebugFlag } from "./enums/DebugFlag";
+import { StateOptions } from "./states/State";
 
 const instanceSym = Symbol("instance");
 
@@ -269,9 +270,9 @@ class Game {
     wrapper.appendChild(this.stats.dom);
 
     // State manager
-    this.stateManager.add(GameStates.MENU, new MenuState());
-    this.stateManager.add(GameStates.LEVEL, new LevelState());
-    this.stateManager.add(GameStates.EDITOR, new EditorState());
+    this.stateManager.add(GameState.MENU, new MenuState());
+    this.stateManager.add(GameState.LEVEL, new LevelState());
+    this.stateManager.add(GameState.EDITOR, new EditorState());
   }
 
   private initCanvas() {
@@ -304,7 +305,7 @@ class Game {
     gl.cullFace(gl.BACK);
 
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     gl.depthFunc(gl.LEQUAL);
 
@@ -316,7 +317,7 @@ class Game {
     this.resize(width, height);
   }
 
-  public load(projectId: string, levelId: string | null = null): void {
+  public load<O extends StateOptions = StateOptions>(state: GameState, { projectId, ...options }: O): void {
     // Driver
     driver
       .ping()
@@ -324,10 +325,10 @@ class Game {
         alert("Failed to establish a connexion with the server, some features may not work properly...");
       })
       .finally(() => {
-        this.stateManager.switch(GameStates.LEVEL, {
+        this.stateManager.switch(state, {
           projectId,
-          levelId,
           blueprint: driver.load(projectId),
+          ...options,
         });
       });
   }
@@ -498,7 +499,7 @@ class Game {
 
     // game events
     window.addEventListener(GameEventTypes.LEVEL_STATE_SWITCH_EVENT, (e: GameEvents.LevelStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.LEVEL, {
+      this.stateManager.switch(GameState.LEVEL, {
         projectId: e.detail.projectId,
         levelId: e.detail.levelId,
         blueprint: driver.load(e.detail.projectId),
@@ -506,7 +507,7 @@ class Game {
     });
 
     window.addEventListener(GameEventTypes.EDITOR_STATE_SWITCH_EVENT, (e: GameEvents.EditorStateSwitchEvent) => {
-      this.stateManager.switch(GameStates.EDITOR, {
+      this.stateManager.switch(GameState.EDITOR, {
         projectId: e.detail.projectId,
         levelId: e.detail.levelId,
         blueprint: driver.load(e.detail.projectId),

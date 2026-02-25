@@ -1,13 +1,11 @@
 import { vec2 } from "gl-matrix";
 
-import State from "@src/states/State";
+import State, { StateOptions } from "@src/states/State";
 
-class MenuState extends State<void> {
-  constructor() {
-    super();
-  }
+export type MenuStateOptions = StateOptions;
 
-  public async init(): Promise<void> {}
+class MenuState extends State<MenuStateOptions> {
+  public async init(_o: StateOptions): Promise<void> {}
 
   public mounted(): void {}
 

@@ -11,3 +11,5 @@ export enum EditorMode {
   COLLISION = 2,
   ZONE = 3,
 }
+
+export const isEditorMode = (value: unknown): value is EditorMode => typeof value === "number" && Object.values(EditorMode).includes(value);

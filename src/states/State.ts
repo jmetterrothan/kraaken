@@ -3,8 +3,14 @@ import { vec2 } from "gl-matrix";
 import { registerEvent } from "@src/shared/utility/Utility";
 import { createRoot, Root } from "react-dom/client";
 
-abstract class State<O = any> {
+export type StateOptions = {
+  projectId: string;
+};
+
+abstract class State<O extends StateOptions = StateOptions> {
   public ready = false;
+
+  protected projectId: string;
 
   protected root: Root;
 
@@ -14,7 +20,9 @@ abstract class State<O = any> {
     this.controller = new AbortController();
   }
 
-  public abstract init(options: O): Promise<void>;
+  public init({ projectId }: O): Promise<void> | void {
+    this.projectId = projectId;
+  }
 
   /**
    * Perform actions each time the state is mounted

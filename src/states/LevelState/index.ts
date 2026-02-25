@@ -4,7 +4,7 @@ import { vec2 } from "gl-matrix";
 import * as Systems from "@src/ECS/systems";
 import * as Components from "@src/ECS/components";
 
-import State from "@src/states/State";
+import State, { StateOptions } from "@src/states/State";
 import World from "@src/world/World";
 
 import SoundManager from "@src/animation/SoundManager";
@@ -24,8 +24,7 @@ import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import editorStore from "../EditorState/editorStore";
 
-interface LevelStateOptions {
-  projectId: string;
+export interface LevelStateOptions extends StateOptions {
   levelId: string | null;
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }

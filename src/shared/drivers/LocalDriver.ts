@@ -58,11 +58,16 @@ class LocalDriver extends AbstractDriver {
   }
 
   public async save(data: IProjectBlueprint): Promise<IProjectBlueprint> {
-    const response = await this.http.post<IProjectBlueprint>(`/api/projects/${this.projectId}`, { ...data, version: this.version });
+    try {
+      const response = await this.http.post<IProjectBlueprint>(`/api/projects/${this.projectId}`, { ...data, version: this.version });
 
-    this.version = response.data.version;
+      this.version = response.data.version;
 
-    return response.data;
+      return response.data;
+    } catch (e) {
+      alert("Failed to save level");
+      throw e;
+    }
   }
 
   public getAssetUrl(path: string): string {

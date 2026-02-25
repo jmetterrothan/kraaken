@@ -1,6 +1,9 @@
 import { System } from "@src/ECS";
 
 import { BoundingBox, Position, EventZone, Health } from "@src/ECS/components";
+import { DebugFlag } from "@src/enums/DebugFlag";
+import { debugSvc } from "@src/shared/services/Debug";
+import { ACTIVE_ZONE_FILL_COLOR, ACTIVE_ZONE_OUTLINE_COLOR } from "@src/states/EditorState/modes/ZoneMode";
 
 export class EventZoneSystem extends System {
   public constructor() {
@@ -29,6 +32,16 @@ export class EventZoneSystem extends System {
 
         zone.wasActive = zone.active;
         zone.active = zone.mode === "intersects" ? bbox.intersectBox(targetBbox) : bbox.containsBox(targetBbox);
+
+        if (zone.debug || debugSvc.enabled(DebugFlag.ZONE_ENTITIES)) {
+          if (zone.active) {
+            bbox.helper.outlineColor = ACTIVE_ZONE_OUTLINE_COLOR;
+            bbox.helper.fillColor = ACTIVE_ZONE_FILL_COLOR;
+          } else {
+            bbox.helper.outlineColor = bbox.helper.defaultOutlineColor;
+            bbox.helper.fillColor = bbox.helper.defaultFillColor;
+          }
+        }
 
         if (zone.wasActive !== zone.active) {
           if (zone.active) {

@@ -14,8 +14,12 @@ export interface IGameOptions {
   root: HTMLElement | null;
 }
 
-export enum GameStates {
-  MENU,
-  LEVEL,
-  EDITOR,
+export enum GameState {
+  MENU = 0,
+  LEVEL = 1,
+  EDITOR = 2,
 }
+
+export const isGameState = (value: unknown): value is GameState => {
+  return typeof value === "number" && Object.values(GameState).includes(value);
+};

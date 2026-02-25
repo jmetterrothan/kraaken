@@ -1,6 +1,7 @@
 import { vec2 } from "gl-matrix";
 
-import State from "@src/states/State";
+import State, { StateOptions } from "@src/states/State";
+import { GameState } from "@src/shared/models/game.model";
 
 class StateManager {
   private states: Map<number, State>;
@@ -8,7 +9,7 @@ class StateManager {
 
   constructor() {
     this.states = new Map<number, State>();
-    this.currentIndex = 0;
+    this.currentIndex = GameState.MENU;
   }
 
   public add(index: number, state: State): void {
@@ -61,7 +62,7 @@ class StateManager {
     }
   }
 
-  public async switch(index: number, options: any = undefined): Promise<void> {
+  public async switch<O extends StateOptions = StateOptions>(index: GameState, options: O): Promise<void> {
     if (!this.states.has(index)) {
       throw new Error(`Invalid state index provided "${index}"`);
     }
@@ -88,7 +89,7 @@ class StateManager {
     newState.mounted();
   }
 
-  public getState(index: number): State {
+  public getState(index: GameState): State {
     return this.states.get(index)!;
   }
 
