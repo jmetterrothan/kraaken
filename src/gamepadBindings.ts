@@ -1,46 +1,5 @@
 import GamepadBinding from "./shared/bindings/GamepadBinding";
 
-/*
-case 0: // A
-  break;
-
-case 1: // B
-  break;
-
-case 2: // X
-  break;
-
-case 3: // Y
-  break;
-
-case 4: // LB
-  break;
-
-case 5: // RB
-  break;
-
-case 6: // LT
-  break;
-
-case 7: // RT
-  break;
-
-case 10: // axis button
-  break;
-
-case 12: // up arrow 
-  break;
-
-case 13: // down arrow 
-  break;
-
-case 14: // left arrow 
-  break;
-
-case 15: // right arrow 
-  break;
-*/
-
 const gamepadBindings = {
   editor: {
     left: [new GamepadBinding({ index: 14 })],

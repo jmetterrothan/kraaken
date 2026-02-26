@@ -313,7 +313,7 @@ class Vector2 {
   }
 
   public toString(): string {
-    return `x:${this.x}, y:${this.y}`;
+    return `x:${this.x | 0}, y:${this.y | 0}`;
   }
 }
 

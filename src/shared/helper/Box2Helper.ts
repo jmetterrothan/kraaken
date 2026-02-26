@@ -9,13 +9,13 @@ import { gl } from "@src/Game";
 
 import { IAttributes, IUniforms } from "@src/shared/models/sprite.model";
 
-import fsColor from "@src/assets/shaders/color.fs.glsl?raw";
-import vsObject from "@src/assets/shaders/color.vs.glsl?raw";
+import fsBox from "@src/assets/shaders/box.fs.glsl?raw";
+import vsBox from "@src/assets/shaders/box.vs.glsl?raw";
 
 import { configSvc } from "../services/ConfigService";
 
 class Box2Helper {
-  private colorMaterial: Material = new Material(vsObject, fsColor);
+  private colorMaterial: Material = new Material(vsBox, fsBox);
 
   private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
   private vbo: WebGLBuffer = gl.createBuffer();

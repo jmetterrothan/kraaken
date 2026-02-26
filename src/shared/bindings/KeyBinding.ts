@@ -8,6 +8,19 @@ export type IKeyBindingMetadata = {
 
 export const IS_MAC_PLATFORM = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
+let layout: Map<string, string>;
+
+async function codeToLabelFromLayout() {
+  // @ts-expect-error
+  if ("keyboard" in navigator && navigator.keyboard && navigator.keyboard.getLayoutMap) {
+    // @ts-expect-error
+    layout = await navigator.keyboard.getLayoutMap();
+  }
+  // map.get("KeyW") -> e.g. "w" on QWERTY, "z" on AZERTY
+}
+
+codeToLabelFromLayout();
+
 const map: Record<string, string> = {
   NumpadSubtract: "-",
   NumpadAdd: "+",
@@ -33,6 +46,10 @@ const map: Record<string, string> = {
 };
 
 function codeToLabel(code: string) {
+  if (layout && layout.has(code)) {
+    return layout.get(code)!;
+  }
+
   if (map[code]) return map[code];
 
   // KeyboardEvent.code patterns
@@ -76,6 +93,7 @@ class KeyBinding {
     if (this.meta) parts.push(IS_MAC_PLATFORM ? "Cmd" : "Meta");
 
     parts.push(codeToLabel(this.code));
+
     return parts.join("+");
   }
 }

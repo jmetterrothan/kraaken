@@ -37,6 +37,13 @@ import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import { Position } from "@src/ECS/components";
 import { Subscription } from "rxjs";
 import ZoneMode from "./modes/ZoneMode";
+import { debugOverlay } from "@src/Game";
+import mouseBindings from "@src/mouseBindings";
+import gamepadBindings from "@src/gamepadBindings";
+
+let mouseBindingText = "";
+let keyBindingText = "";
+let gamepadBindingText = "";
 
 export interface EditorStateOptions extends StateOptions {
   levelId: string | null;
@@ -57,8 +64,6 @@ class EditorState extends State<EditorStateOptions> {
 
   private backupIntervalId = -1;
 
-  public mouse: Vector2 = new Vector2();
-
   public state: IEditorStoreState;
 
   public sub: Subscription;
@@ -73,6 +78,21 @@ class EditorState extends State<EditorStateOptions> {
   public async init({ levelId, blueprint, mode = EditorMode.TERRAIN }: EditorStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
     this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
+
+    mouseBindingText = Object.entries({ undo: mouseBindings.editor.undo, redo: mouseBindings.editor.redo })
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
+
+    keyBindingText = Object.entries(keyBindings.editor)
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
+
+    gamepadBindingText = Object.entries(gamepadBindings.editor)
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
 
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
@@ -106,8 +126,6 @@ class EditorState extends State<EditorStateOptions> {
     });
 
     editorStore.init();
-
-    this.mouse = new Vector2(0, 0);
 
     this.modes = {
       [EditorMode.TERRAIN]: new TerrainMode(this),
@@ -323,16 +341,34 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public update(delta: number): void {
+    debugOverlay.begin();
+
+    debugOverlay.line(`Key bindings = [${keyBindingText}]`);
+    debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
+    debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
+    debugOverlay.line(``);
+
+    debugOverlay.line(`Mouse = [${this.mouse}]`, "left");
+
+    const tile = this.currentLevel.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
+    if (tile) {
+      debugOverlay.line(`Grid = [col:${tile.col}, row:${tile.row}], Collision = ${tile.hasCollision()}, Tile = ${this.state.layerId}:${tile.getTileTypeId(this.state.layerId)}`, "left");
+    }
+
     const cursorPosition = this.currentLevel.cursor.getComponent(Position);
     cursorPosition.fromValues(this.mouse.x, this.mouse.y);
 
     this.currentLevel.world.update(delta);
     this.currentMode.update(delta);
+
+    debugOverlay.upload();
   }
 
   public render(alpha: number): void {
     this.currentLevel.world.render(alpha);
     this.currentMode.render(alpha);
+
+    debugOverlay.render();
   }
 
   public handleGamepadInput(): void {}
@@ -367,7 +403,7 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public handleMouseMove(e: MouseEvent, position: vec2): void {
-    const worldPos = this.currentLevel.world.screenToCameraCoords(position);
+    const worldPos = this.currentLevel.world.screenToWorldCoords(position);
     this.mouse = worldPos;
 
     this.currentLevel.world.handleMouseMove(e, position);

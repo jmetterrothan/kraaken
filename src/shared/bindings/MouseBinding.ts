@@ -4,6 +4,14 @@ export type IMouseBindingMetadata = {
   button: MouseButton;
 };
 
+const mapping: Record<number, string> = {
+  [MouseButton.LEFT]: "Left button",
+  [MouseButton.RIGHT]: "Right button",
+  [MouseButton.MIDDLE]: "Middle button",
+  [MouseButton.BROWSER_BACK]: "Browser back button",
+  [MouseButton.BROWSER_FORWARD]: "Browser forward button",
+};
+
 class MouseBinding {
   public readonly button: MouseButton;
 
@@ -21,6 +29,9 @@ class MouseBinding {
   }
 
   public toString() {
+    if (mapping[this.button]) {
+      return mapping[this.button];
+    }
     return this.button;
   }
 }

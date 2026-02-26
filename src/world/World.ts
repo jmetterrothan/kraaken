@@ -335,7 +335,7 @@ class World {
   }
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
-    const coords = this.screenToCameraCoords(position);
+    const coords = this.screenToWorldCoords(position);
 
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleMouseInput(e, active, coords);
@@ -343,7 +343,7 @@ class World {
   }
 
   public handleMouseMove(e: MouseEvent, position: vec2): void {
-    const coords = this.screenToCameraCoords(position);
+    const coords = this.screenToWorldCoords(position);
 
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].handleMouseMove(e, coords);
@@ -383,11 +383,30 @@ class World {
     }
   }
 
-  public screenToCameraCoords(coords: vec2): Vector2 {
+  public screenToWorldCoords(screenCoords: vec2): Vector2 {
     const camera = this.camera.getComponent(Components.Camera);
 
-    const v = vec2.transformMat3(vec2.create(), coords, camera.viewMatrixInverse);
+    const v = vec2.transformMat3(vec2.create(), screenCoords, camera.viewMatrixInverse);
     return Vector2.fromGlArray(v);
+  }
+
+  /**
+   * Returns world space coordinates in frame buffer pixel coordinates
+   */
+  public worldToScreenCoords(worldCoords: vec2): Vector2 {
+    const camera = this.camera.getComponent(Components.Camera);
+
+    const v = vec2.transformMat3(vec2.create(), worldCoords, camera.viewMatrix);
+
+    return Vector2.fromGlArray(v);
+  }
+
+  /**
+   * Returns world space coordinates in screen CSS pixel coordinates
+   */
+  public worldToScreenCssPx(worldCoords: vec2): Vector2 {
+    // cssX = deviceX / DPR
+    return this.worldToScreenCoords(worldCoords).divideScalar(configSvc.dpr);
   }
 
   public isFrustumCulled(entity: Entity): boolean {

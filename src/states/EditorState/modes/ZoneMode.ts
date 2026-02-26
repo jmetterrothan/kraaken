@@ -7,6 +7,7 @@ import { DebugFlag } from "@src/enums/DebugFlag";
 import { BoundingBox, EventZone, Position } from "@src/ECS/components";
 import { Entity } from "@src/ECS";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
+import { debugOverlay } from "@src/Game";
 
 export const ACTIVE_ZONE_OUTLINE_COLOR: vec4 = [0.6, 0.4, 1, 1];
 export const ACTIVE_ZONE_FILL_COLOR: vec4 = [0.6, 0.4, 1, 0.1];
@@ -58,6 +59,7 @@ class ZoneMode {
     this.focusedEntity = null;
 
     for (const zone of zones) {
+      const eventZone = zone.getComponent(EventZone);
       const bbox = zone.getComponent(BoundingBox);
 
       if (bbox.containsPointWithVector2(this.editor.mouse)) {
@@ -71,6 +73,9 @@ class ZoneMode {
         bbox.helper.outlineColor = bbox.helper.defaultOutlineColor;
         bbox.helper.fillColor = bbox.helper.defaultFillColor;
       }
+
+      const v = this.editor.currentLevel.world.worldToScreenCoords([bbox.x1 + bbox.width / 2, bbox.y1 + bbox.height / 2]);
+      debugOverlay.text(`${eventZone.events.map((event) => event.type).join(" | ")}`, v.x, v.y, "center");
     }
   }
 
@@ -79,7 +84,7 @@ class ZoneMode {
   public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
-    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
+    const worldPos = this.editor.currentLevel.world.screenToWorldCoords(position);
     const grid = this.editor.currentLevel.world.grid;
 
     if (active) {
@@ -101,7 +106,7 @@ class ZoneMode {
   }
 
   public handleMouseMove(_e: MouseEvent, position: vec2): void {
-    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
+    const worldPos = this.editor.currentLevel.world.screenToWorldCoords(position);
 
     this.editor.currentLevel.world.grid.setCursorPosition(worldPos);
     this.editor.currentLevel.world.grid.updateSelection(worldPos);

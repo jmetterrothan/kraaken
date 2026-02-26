@@ -120,7 +120,7 @@ class CollisionMode {
   public handleKeyboardInput(_e: KeyboardEvent, _active: boolean): void {}
 
   public handleMouseInput(e: MouseEvent, active: boolean, position: vec2): void {
-    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
+    const worldPos = this.editor.currentLevel.world.screenToWorldCoords(position);
     const grid = this.editor.currentLevel.world.grid;
 
     if (active) {
@@ -142,7 +142,7 @@ class CollisionMode {
   }
 
   public handleMouseMove(_e: MouseEvent, position: vec2): void {
-    const worldPos = this.editor.currentLevel.world.screenToCameraCoords(position);
+    const worldPos = this.editor.currentLevel.world.screenToWorldCoords(position);
 
     this.editor.currentLevel.world.grid.setCursorPosition(worldPos);
     this.editor.currentLevel.world.grid.updateSelection(worldPos);

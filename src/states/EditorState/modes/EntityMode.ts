@@ -17,6 +17,7 @@ import editorStore from "../editorStore";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import { debugSvc } from "@src/shared/services/Debug";
+import { debugOverlay } from "@src/Game";
 
 const snapToTileCenter = (value: number, tileSize: number) => {
   return Math.floor(value / tileSize) * tileSize + tileSize / 2;
@@ -72,7 +73,7 @@ class EntityMode {
 
     debugSvc.set(DebugFlag.GRID, true);
     debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, true);
+    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
     debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
 
     editorStore.subscribe((state) => {
@@ -229,6 +230,14 @@ class EntityMode {
 
       position.fromValues(Math.round(this.editor.mouse.x), Math.round(this.editor.mouse.y));
     }
+
+    if (this.focusedEntity) {
+      const bbox = this.focusedEntity.getComponent(BoundingBox);
+
+      const v = this.editor.currentLevel.world.worldToScreenCoords([bbox.x1 + bbox.width / 2, bbox.y1 - 4]);
+
+      debugOverlay.text(this.focusedEntity.type, v.x, v.y, "center");
+    }
   }
 
   public render(_alpha: number): void {}
@@ -239,7 +248,7 @@ class EntityMode {
     const snapToGrid = e.shiftKey;
 
     if (active) {
-      const coords = this.editor.currentLevel.world.screenToCameraCoords(position);
+      const coords = this.editor.currentLevel.world.screenToWorldCoords(position);
       const tileSize = this.editor.currentLevel.world.tileMap.getTileSize();
 
       const tile = this.editor.currentLevel.world.tileMap.getTileAtCoords(coords.x, coords.y);

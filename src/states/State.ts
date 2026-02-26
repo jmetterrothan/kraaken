@@ -2,6 +2,7 @@ import { vec2 } from "gl-matrix";
 
 import { registerEvent } from "@src/shared/utility/Utility";
 import { createRoot, Root } from "react-dom/client";
+import Vector2 from "@src/shared/math/Vector2";
 
 export type StateOptions = {
   projectId: string;
@@ -9,6 +10,7 @@ export type StateOptions = {
 
 abstract class State<O extends StateOptions = StateOptions> {
   public ready = false;
+  public mouse: Vector2 = new Vector2();
 
   protected projectId: string;
 
@@ -17,6 +19,8 @@ abstract class State<O extends StateOptions = StateOptions> {
   private controller: AbortController;
 
   constructor() {
+    this.mouse = new Vector2(0, 0);
+
     this.controller = new AbortController();
   }
 

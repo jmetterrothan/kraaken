@@ -20,16 +20,20 @@ import { configSvc } from "@src/shared/services/ConfigService";
 import config from "@src/config";
 
 import "@src/assets/sass/kraaken.scss";
+
 import { clamp } from "./shared/utility/MathHelpers";
 import { debugSvc } from "./shared/services/Debug";
 import { DebugFlag } from "./enums/DebugFlag";
 import { StateOptions } from "./states/State";
+
+import DebugTextOverlay from "./shared/helper/DebugTextOverlay";
 
 const instanceSym = Symbol("instance");
 
 let wrapper: HTMLElement;
 let canvas: HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
+let debugOverlay: DebugTextOverlay;
 
 class Game {
   set fullscreen(b: boolean) {
@@ -121,7 +125,7 @@ class Game {
   }
 
   public resize(targetWidth: number, targetHeight: number): void {
-    const ratio: number = window.devicePixelRatio || 1;
+    const ratio: number = configSvc.dpr;
     const scale = Math.max(1, Math.floor(this.targetScale * ratio));
 
     // fix for tearing issues
@@ -149,6 +153,8 @@ class Game {
       configSvc.scale = scale;
 
       gl.viewport(0, 0, canvas.width, canvas.height);
+
+      debugOverlay.resize(configSvc.frameSize.w, configSvc.frameSize.h, ratio);
 
       const resizeCallback = this.events.get("resize");
 
@@ -311,6 +317,8 @@ class Game {
 
     gl.clearDepth(1.0);
     gl.clearColor(0, 0, 0, 1.0);
+
+    debugOverlay = new DebugTextOverlay(gl);
 
     const { width, height } = this.computeDimensions();
 
@@ -551,6 +559,6 @@ class Game {
   };
 }
 
-export { wrapper, canvas, gl };
+export { wrapper, canvas, gl, debugOverlay };
 
 export default Game;

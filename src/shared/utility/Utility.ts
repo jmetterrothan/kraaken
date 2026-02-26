@@ -1,4 +1,5 @@
 import { vec2 } from "gl-matrix";
+import { configSvc } from "../services/ConfigService";
 
 export const isPowerOf2 = (value: number): boolean => {
   return (value & (value - 1)) === 0;
@@ -16,7 +17,7 @@ export const create2DArray = <T>(rows: number, cols: number): T[][] => {
 
 export const getCoord = (canvas: HTMLCanvasElement, x: number, y: number): vec2 => {
   const rect = canvas.getBoundingClientRect();
-  return vec2.fromValues((x - rect.left) * window.devicePixelRatio, (y - rect.top) * window.devicePixelRatio);
+  return vec2.fromValues((x - rect.left) * configSvc.dpr, (y - rect.top) * configSvc.dpr);
 };
 
 export const getMouseOffsetX = (canvas: HTMLCanvasElement, e: MouseEvent): number => {

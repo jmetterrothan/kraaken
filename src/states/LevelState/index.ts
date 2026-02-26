@@ -23,11 +23,18 @@ import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import editorStore from "../EditorState/editorStore";
+import { debugOverlay } from "@src/Game";
+import mouseBindings from "@src/mouseBindings";
+import gamepadBindings from "@src/gamepadBindings";
 
 export interface LevelStateOptions extends StateOptions {
   levelId: string | null;
   blueprint: Promise<IProjectBlueprint> | IProjectBlueprint;
 }
+
+let mouseBindingText = "";
+let keyBindingText = "";
+let gamepadBindingText = "";
 
 class LevelState extends State<LevelStateOptions> {
   public projectBlueprint: IProjectBlueprint;
@@ -38,6 +45,21 @@ class LevelState extends State<LevelStateOptions> {
   public async init({ levelId, blueprint }: LevelStateOptions): Promise<void> {
     this.projectBlueprint = await Promise.resolve(blueprint);
     this.currentLevelId = levelId ?? this.projectBlueprint.defaultLevelId;
+
+    mouseBindingText = Object.entries(mouseBindings.level)
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
+
+    keyBindingText = Object.entries(keyBindings.level)
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
+
+    gamepadBindingText = Object.entries(gamepadBindings.level)
+      .filter(([, v]) => v.length > 0)
+      .map(([k, v]) => `${k} = ${v.map((vv) => vv.toString()).join("/")}`)
+      .join(", ");
 
     for (const sound of this.projectBlueprint.assets.sounds) {
       await SoundManager.register(sound.src, sound.name);
@@ -182,11 +204,36 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public update(delta: number): void {
+    debugOverlay.begin();
+
     this.currentLevel.update(delta);
+
+    if (this.currentLevel.player) {
+      const anim = this.currentLevel.player.getComponent(Components.PlayerAnimator);
+      const health = this.currentLevel.player.getComponent(Components.Health);
+      const rb = this.currentLevel.player.getComponent(Components.RigidBody);
+      const position = this.currentLevel.player.getComponent(Components.Position);
+      const combat = this.currentLevel.player.getComponent(Components.PlayerCombat);
+
+      const healthText = health.value === health.maxHealth ? `${health.value}` : `${health.value}/${health.maxHealth}`;
+      const ammoText = combat.primaryWeapon.ammo === combat.primaryWeapon.maxAmmo ? `${combat.primaryWeapon.ammo}` : `${combat.primaryWeapon.ammo}/${combat.primaryWeapon.maxAmmo}`;
+
+      debugOverlay.line(`Key bindings = [${keyBindingText}]`);
+      debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
+      debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
+      debugOverlay.line(``);
+      debugOverlay.line(`Animation = ${anim.currentKey}`);
+      debugOverlay.line(`Position = [${position.clone()}], Speed = [${rb.velocity}], Modifier = [${rb.velocityModifier}], Gravity scale = ${rb.gravityScale}`);
+      debugOverlay.line(`Health = ${healthText}, Ammo = ${ammoText}`);
+    }
+
+    debugOverlay.upload();
   }
 
   public render(alpha: number): void {
     this.currentLevel.render(alpha);
+
+    debugOverlay.render();
   }
 
   public handleGamepadInput(): void {}
@@ -204,6 +251,9 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public handleMouseMove(e: MouseEvent, position: vec2): void {
+    const worldPos = this.currentLevel.screenToWorldCoords(position);
+    this.mouse = worldPos;
+
     this.currentLevel.handleMouseMove(e, position);
   }
 
