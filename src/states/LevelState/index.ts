@@ -26,6 +26,7 @@ import editorStore from "../EditorState/editorStore";
 import { debugOverlay } from "@src/Game";
 import mouseBindings from "@src/mouseBindings";
 import gamepadBindings from "@src/gamepadBindings";
+import { round } from "@src/shared/utility/MathHelpers";
 
 export interface LevelStateOptions extends StateOptions {
   levelId: string | null;
@@ -204,36 +205,66 @@ class LevelState extends State<LevelStateOptions> {
   }
 
   public update(delta: number): void {
-    debugOverlay.begin();
-
     this.currentLevel.update(delta);
 
     if (this.currentLevel.player) {
       const anim = this.currentLevel.player.getComponent(Components.PlayerAnimator);
-      const health = this.currentLevel.player.getComponent(Components.Health);
       const rb = this.currentLevel.player.getComponent(Components.RigidBody);
       const position = this.currentLevel.player.getComponent(Components.Position);
+      const health = this.currentLevel.player.getComponent(Components.Health);
+      const movement = this.currentLevel.player.getComponent(Components.Movement);
+
       const combat = this.currentLevel.player.getComponent(Components.PlayerCombat);
 
-      const healthText = health.value === health.maxHealth ? `${health.value}` : `${health.value}/${health.maxHealth}`;
-      const ammoText = combat.primaryWeapon.ammo === combat.primaryWeapon.maxAmmo ? `${combat.primaryWeapon.ammo}` : `${combat.primaryWeapon.ammo}/${combat.primaryWeapon.maxAmmo}`;
+      if (debugSvc.enabled(DebugFlag.STATS)) {
+        const posText = `Pos XY = ${position.clone()}`;
+        const dirText = `Dir = ${rb.direction}`;
+        const velText = `Vel = ${Math.sign(rb.velocity.x) === 1 ? "+" : Math.sign(rb.velocity.x) === -1 ? "-" : ""}${round(Math.abs(rb.velocity.x))}, ${Math.sign(rb.velocity.y) === 1 ? "+" : Math.sign(rb.velocity.y) === -1 ? "-" : ""}${round(Math.abs(rb.velocity.y))}`;
+        const velModText = `Vel Mod = ${rb.velocityModifier}`;
+        const gText = `G scale = ${rb.gravityScale}`;
 
-      debugOverlay.line(`Key bindings = [${keyBindingText}]`);
-      debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
-      debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
-      debugOverlay.line(``);
-      debugOverlay.line(`Animation = ${anim.currentKey}`);
-      debugOverlay.line(`Position = [${position.clone()}], Speed = [${rb.velocity}], Modifier = [${rb.velocityModifier}], Gravity scale = ${rb.gravityScale}`);
-      debugOverlay.line(`Health = ${healthText}, Ammo = ${ammoText}`);
+        debugOverlay.moveTo("top_right");
+        debugOverlay.line(`${posText} | ${dirText} | ${velText} | ${velModText} | ${gText}`);
+
+        const groundedText = `Grounded = ${rb.isGrounded}`;
+        const leftWallText = `L wall = ${movement.isBlockedLeft}`;
+        const rightWallText = `R wall = ${movement.isBlockedRight}`;
+
+        debugOverlay.line(`${groundedText} | ${leftWallText} | ${rightWallText}`);
+
+        const animText = `Animation = ${anim.currentKey}`;
+
+        debugOverlay.line(`${animText}`);
+      } else {
+        debugOverlay.moveTo("top_right");
+        debugOverlay.line('Press "F1" for details');
+      }
+
+      if (debugSvc.enabled(DebugFlag.HELP)) {
+        debugOverlay.moveTo("bottom_left");
+        debugOverlay.line(`Key bindings = [${keyBindingText}]`);
+        debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
+        debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
+      } else {
+        debugOverlay.moveTo("bottom_left");
+        debugOverlay.line('Press "F7" to see controls');
+      }
+
+      const healthValueText = health.value === health.maxHealth ? `${health.value}` : `${health.value}/${health.maxHealth}`;
+      const ammoValueText = combat.primaryWeapon.ammo === combat.primaryWeapon.maxAmmo ? `${combat.primaryWeapon.ammo}` : `${combat.primaryWeapon.ammo}/${combat.primaryWeapon.maxAmmo}`;
+      const dashValueText = movement.maxAirDashes === movement.airDashesRemaining ? `${movement.airDashesRemaining}` : `${movement.airDashesRemaining}/${movement.maxAirDashes}`;
+
+      const healthText = `Health = ${healthValueText}`;
+      const ammoText = `Ammo = ${ammoValueText}`;
+      const dashText = `Dash = ${dashValueText}`;
+
+      debugOverlay.moveTo("bottom_right");
+      debugOverlay.line(`${healthText} | ${ammoText} | ${dashText}`);
     }
-
-    debugOverlay.upload();
   }
 
   public render(alpha: number): void {
     this.currentLevel.render(alpha);
-
-    debugOverlay.render();
   }
 
   public handleGamepadInput(): void {}

@@ -1,6 +1,11 @@
 import config from "@src/config";
 import Vector2 from "@src/shared/math/Vector2";
 
+export const round = (value: number, digits = 1): number => {
+  const n = 10 ** Math.trunc(digits);
+  return Math.round(value * n + Number.EPSILON) / n;
+};
+
 // the maximum is exclusive and the minimum is inclusive
 export const getRandomInt = (a: number, b: number): number => {
   const min = Math.ceil(a);

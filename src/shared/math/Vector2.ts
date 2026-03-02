@@ -1,7 +1,7 @@
 import { vec2 } from "gl-matrix";
 
 import Lifo from "@src/shared/utility/Lifo";
-import { lerp, lerp2 } from "@src/shared/utility/MathHelpers";
+import { lerp, lerp2, round } from "@src/shared/utility/MathHelpers";
 import { IVector2 } from "../models/math.model";
 
 class Vector2 {
@@ -148,9 +148,9 @@ class Vector2 {
     return this;
   }
 
-  public round(): Vector2 {
-    this.x = Math.round(this.x);
-    this.y = Math.round(this.y);
+  public round(digits = 1): Vector2 {
+    this.x = round(this.x, digits);
+    this.y = round(this.y, digits);
 
     return this;
   }
@@ -313,7 +313,7 @@ class Vector2 {
   }
 
   public toString(): string {
-    return `x:${this.x | 0}, y:${this.y | 0}`;
+    return `${round(this.x, 2)}, ${round(this.y, 2)}`;
   }
 }
 

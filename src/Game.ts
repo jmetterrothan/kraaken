@@ -1,4 +1,3 @@
-import Stats from "stats-js";
 import { debounce } from "debounce";
 
 import EditorState from "@src/states/EditorState";
@@ -18,6 +17,8 @@ import { driver } from "@src/shared/drivers/DriverFactory";
 import { configSvc } from "@src/shared/services/ConfigService";
 
 import config from "@src/config";
+
+import pkg from "./../package.json";
 
 import "@src/assets/sass/kraaken.scss";
 
@@ -92,12 +93,19 @@ class Game {
   private nextTime: number;
   private lastTime: number;
 
-  private stats: any;
-  private upsPanel: any;
+  private lastTimeHud: number;
+  private nextTimeHud: number;
+  private shouldUpdateHud: boolean;
+
+  private stats: {
+    fps: number;
+    ups: number;
+  };
 
   private targetScale: number;
 
   private ups: number;
+  private fps: number;
 
   private paused: boolean;
 
@@ -114,12 +122,16 @@ class Game {
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
 
+    this.shouldUpdateHud = false;
+    this.lastTimeHud = window.performance.now();
+    this.nextTimeHud = this.lastTimeHud;
+
     this.targetScale = 1;
 
-    this.stats = new Stats();
-    this.upsPanel = this.stats.addPanel(new Stats.Panel("UPS", "#ff8", "#221"));
-
-    this.ups = 0;
+    this.stats = {
+      fps: 0,
+      ups: 0,
+    };
 
     this.paused = false; // !document.hasFocus();
   }
@@ -176,12 +188,30 @@ class Game {
   }
 
   public update(delta: number): void {
+    debugOverlay.begin();
+
+    if (debugSvc.enabled(DebugFlag.STATS)) {
+      debugOverlay.moveTo("top_right");
+
+      const vText = `Kraaken v${pkg.version}`;
+      debugOverlay.line(`${vText}`);
+
+      debugOverlay.line(`${this.stats.fps} FPS | ${this.stats.ups} UPS`);
+    }
+
     this.stateManager.update(delta);
+
+    if (this.shouldUpdateHud) {
+      debugOverlay.upload();
+    }
   }
 
   public render(alpha: number): void {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
     this.stateManager.render(alpha);
+
+    debugOverlay.render();
   }
 
   public computeDimensions(): { width: number; height: number } {
@@ -208,18 +238,23 @@ class Game {
   }
 
   public run(): void {
-    this.stats.begin();
-
     if (!this.paused) {
       const time = window.performance.now();
       const elapsed = time - this.lastTime;
 
-      if (time > this.nextTime) {
+      while (time >= this.nextTime) {
         this.nextTime += 1000;
-
-        this.upsPanel.update(this.ups);
-
+        this.stats.ups = this.ups;
+        this.stats.fps = this.fps;
         this.ups = 0;
+        this.fps = 0;
+      }
+
+      if (time >= this.nextTimeHud) {
+        this.nextTimeHud += 100;
+        this.shouldUpdateHud = true;
+      } else {
+        this.shouldUpdateHud = false;
       }
 
       this.lastTime = time;
@@ -238,11 +273,11 @@ class Game {
           this.lag = 0;
         }
       }
+
+      this.fps++;
     }
 
     this.render(this.lag / Game.MS_PER_UPDATE);
-
-    this.stats.end();
 
     window.requestAnimationFrame(this.loop);
   }
@@ -253,27 +288,6 @@ class Game {
     this.initCanvas();
     this.initWebGL();
     this.initEvents();
-
-    // Stats
-    this.stats.dom.style.position = "absolute";
-    this.stats.dom.style.top = "unset";
-    this.stats.dom.style.bottom = 0;
-    this.stats.dom.style.left = "unset";
-    this.stats.dom.style.right = 0;
-    this.stats.showPanel(-1);
-
-    [...this.stats.dom.children].forEach((c) => {
-      c.style.display = "block";
-      c.style.verticalAlign = "top";
-    });
-
-    if (debugSvc.enabled(DebugFlag.STATS)) {
-      this.stats.dom.style.display = "initial";
-    } else {
-      this.stats.dom.style.display = "none";
-    }
-
-    wrapper.appendChild(this.stats.dom);
 
     // State manager
     this.stateManager.add(GameState.MENU, new MenuState());
@@ -353,6 +367,7 @@ class Game {
       },
       false
     );
+
     window.addEventListener(
       "keydown",
       (e) => {
@@ -361,12 +376,6 @@ class Game {
             e.stopPropagation();
             e.preventDefault();
             debugSvc.toggle(DebugFlag.STATS);
-
-            if (debugSvc.enabled(DebugFlag.STATS)) {
-              this.stats.dom.style.display = "initial";
-            } else {
-              this.stats.dom.style.display = "none";
-            }
             break;
 
           case "F2":
@@ -397,6 +406,12 @@ class Game {
             e.stopPropagation();
             e.preventDefault();
             debugSvc.toggle(DebugFlag.ZONE_ENTITIES);
+            break;
+
+          case "F7":
+            e.stopPropagation();
+            e.preventDefault();
+            debugSvc.toggle(DebugFlag.HELP);
             break;
 
           case "F11":
@@ -497,9 +512,12 @@ class Game {
     window.addEventListener("focus", () => {
       this.paused = false;
 
-      const elapsed = this.nextTime - this.lastTime;
-      this.lastTime = window.performance.now();
-      this.nextTime = this.lastTime + elapsed;
+      const now = performance.now();
+      this.lastTime = now;
+      this.lag = 0;
+      this.fps = 0;
+      this.ups = 0;
+      this.nextTime = now + 1000;
     });
 
     // needed if we switch screen and the pixel ratio has changed

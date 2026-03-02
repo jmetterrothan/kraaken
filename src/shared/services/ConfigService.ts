@@ -13,6 +13,10 @@ class ConfigService {
     this.innerSize = { w: -1, h: -1 };
   }
 
+  public get aspectRatio() {
+    return window.innerWidth / window.innerHeight;
+  }
+
   public get dpr() {
     return window.devicePixelRatio ?? 1;
   }

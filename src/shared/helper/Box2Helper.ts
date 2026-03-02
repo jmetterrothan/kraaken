@@ -21,6 +21,9 @@ class Box2Helper {
   private vbo: WebGLBuffer = gl.createBuffer();
   private ibo: WebGLBuffer = gl.createBuffer();
 
+  private _width: number;
+  private _height: number;
+
   public readonly bbox: Box2;
   public readonly defaultOutlineColor: vec4;
   public readonly defaultOutlineThickness: number;
@@ -40,6 +43,9 @@ class Box2Helper {
     this.outlineColor = outlineColor;
     this.fillColor = fillColor;
     this.outlineThickness = thickness;
+
+    this._width = 0;
+    this._height = 0;
   }
 
   private attributes: IAttributes = {
@@ -94,8 +100,13 @@ class Box2Helper {
   }
 
   public resize(width: number, height: number): void {
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, width, height), gl.DYNAMIC_DRAW);
+    if (width !== this._width || height !== this._height) {
+      this._width = width;
+      this._height = height;
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, WebGL2H.createQuadVertices(0, 0, width, height), gl.DYNAMIC_DRAW);
+    }
   }
 
   private setup() {

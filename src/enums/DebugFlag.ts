@@ -6,5 +6,6 @@ export const enum DebugFlag {
   COLLISION = 1 << 3,
   PLACEABLE_ENTITIES = 1 << 4,
   ZONE_ENTITIES = 1 << 5,
+  HELP = 1 << 6,
   ALL = 0xffffffff,
 }

@@ -40,32 +40,6 @@ class EntityMode {
     this.events = [];
   }
 
-  public createPreviewEntity(type: string): void {
-    const entity = this.editor.currentLevel.world.createEntity(type);
-
-    entity.removeComponent(Placeable.COMPONENT_TYPE);
-
-    const sprite = entity.getComponent(Sprite);
-
-    sprite.renderOptions = {
-      ...sprite.renderOptions,
-      alpha: 0.65,
-    };
-
-    this.editor.currentLevel.world.addEntity(entity);
-    this.previewEntity = entity;
-
-    this.editor.currentLevel.cursor.visible = false;
-  }
-
-  public removePreviewEntity(): void {
-    if (this.previewEntity) {
-      this.editor.currentLevel.world.removeEntity(this.previewEntity);
-      this.editor.currentLevel.cursor.visible = true;
-      this.previewEntity = null;
-    }
-  }
-
   public mounted(): void {
     if (this.loaded) {
       throw new Error("Entity mode already mounted");
@@ -77,10 +51,16 @@ class EntityMode {
     debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
 
     editorStore.subscribe((state) => {
-      this.removePreviewEntity();
+      if (this.previewEntity) {
+        this.editor.currentLevel.world.removeEntity(this.previewEntity);
+        this.editor.currentLevel.cursor.visible = true;
+        this.previewEntity = null;
+      }
 
       if (state.entityType) {
-        this.createPreviewEntity(state.entityType);
+        const entity = this.editor.createPreviewEntity(state.entityType);
+        this.editor.currentLevel.cursor.visible = false;
+        this.previewEntity = entity;
       }
     });
 

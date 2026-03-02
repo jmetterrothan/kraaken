@@ -341,7 +341,7 @@ export class PlayerMovementSystem extends System {
 
       movement.landing = false;
       movement.falling = falling;
-      movement.walking = rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
+      movement.walking = !movement.isBlockedRight && !movement.isBlockedLeft && rigidBody.isGrounded && Math.abs(rigidBody.velocity.x) > Number.EPSILON;
       movement.idle = rigidBody.isGrounded && !movement.walking;
 
       movement.grabbing = movement.grabToggled && movement.grabDisableRemainingMs <= 0 && !rigidBody.isGrounded && ctx.pressingIntoWall && !movement.dashing;

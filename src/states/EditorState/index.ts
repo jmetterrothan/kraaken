@@ -34,12 +34,14 @@ import editorStore, { IEditorStoreState } from "./editorStore";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
-import { Position } from "@src/ECS/components";
+import { Animator, Placeable, Position, Sprite } from "@src/ECS/components";
 import { Subscription } from "rxjs";
 import ZoneMode from "./modes/ZoneMode";
 import { debugOverlay } from "@src/Game";
 import mouseBindings from "@src/mouseBindings";
 import gamepadBindings from "@src/gamepadBindings";
+import { DebugFlag } from "@src/enums/DebugFlag";
+import { debugSvc } from "@src/shared/services/Debug";
 
 let mouseBindingText = "";
 let keyBindingText = "";
@@ -341,18 +343,22 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public update(delta: number): void {
-    debugOverlay.begin();
+    if (debugSvc.enabled(DebugFlag.HELP)) {
+      debugOverlay.moveTo("bottom_left");
+      debugOverlay.line(`Key bindings = [${keyBindingText}]`);
+      debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
+      debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
+      debugOverlay.line("");
+    }
 
-    debugOverlay.line(`Key bindings = [${keyBindingText}]`);
-    debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
-    debugOverlay.line(`Gamepad bindings = [${gamepadBindingText}]`);
-    debugOverlay.line(``);
+    debugOverlay.moveTo("bottom_left");
+    debugOverlay.line(`Mouse = [${this.mouse}]`);
 
-    debugOverlay.line(`Mouse = [${this.mouse}]`, "left");
-
-    const tile = this.currentLevel.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
-    if (tile) {
-      debugOverlay.line(`Grid = [col:${tile.col}, row:${tile.row}], Collision = ${tile.hasCollision()}, Tile = ${this.state.layerId}:${tile.getTileTypeId(this.state.layerId)}`, "left");
+    if (debugSvc.enabled(DebugFlag.GRID)) {
+      const tile = this.currentLevel.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
+      if (tile) {
+        debugOverlay.line(`Grid = [col:${tile.col}, row:${tile.row}], Collision = ${tile.hasCollision()}, Tile = ${this.state.layerId}:${tile.getTileTypeId(this.state.layerId)}`);
+      }
     }
 
     const cursorPosition = this.currentLevel.cursor.getComponent(Position);
@@ -360,15 +366,11 @@ class EditorState extends State<EditorStateOptions> {
 
     this.currentLevel.world.update(delta);
     this.currentMode.update(delta);
-
-    debugOverlay.upload();
   }
 
   public render(alpha: number): void {
     this.currentLevel.world.render(alpha);
     this.currentMode.render(alpha);
-
-    debugOverlay.render();
   }
 
   public handleGamepadInput(): void {}
@@ -416,6 +418,27 @@ class EditorState extends State<EditorStateOptions> {
 
   public handleResize(): void {
     this.currentLevel.world.handleResize();
+  }
+
+  public createPreviewEntity(type: string): Entity {
+    const entity = this.currentLevel.world.createEntity(type);
+
+    entity.removeComponent(Placeable.COMPONENT_TYPE);
+
+    const animator = entity.getComponent(Animator);
+
+    animator.animation.pause();
+
+    const sprite = entity.getComponent(Sprite);
+
+    sprite.renderOptions = {
+      ...sprite.renderOptions,
+      alpha: 0.65,
+    };
+
+    this.currentLevel.world.addEntity(entity);
+
+    return entity;
   }
 
   public get currentMode() {

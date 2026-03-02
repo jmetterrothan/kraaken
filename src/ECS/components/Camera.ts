@@ -22,6 +22,8 @@ interface ICameraMetadata {
 type IShake = { t: number; dur: number; amp: number; freq: number; px: number; phx: number; phy: number };
 
 export class CameraShake {
+  private value: Vector2 = new Vector2();
+
   private shakes: IShake[] = [];
 
   /** Start a micro shake: px = peak amplitude in pixels, ms = duration */
@@ -38,7 +40,7 @@ export class CameraShake {
     });
   }
 
-  update(dt: number): { xPx: number; yPx: number } {
+  update(dt: number): void {
     let x = 0,
       y = 0;
 
@@ -62,7 +64,20 @@ export class CameraShake {
 
     const max = 10;
 
-    return { xPx: Math.max(-max, Math.min(x, max)), yPx: Math.max(-max, Math.min(y, max)) };
+    this.value.x = Math.max(-max, Math.min(x, max));
+    this.value.y = Math.max(-max, Math.min(y, max));
+  }
+
+  public get xPx() {
+    return this.value.x;
+  }
+
+  public get yPx() {
+    return this.value.y;
+  }
+
+  public toString() {
+    return this.value.toString();
   }
 }
 
@@ -75,7 +90,8 @@ export class Camera implements Component {
 
   public shouldUpdateProjectionMatrix = true;
 
-  public viewBox: Box2 = new Box2();
+  public viewBox: Box2;
+  public viewBoxHelper: Box2Helper;
 
   public target: Entity | null = null;
   public boundaries: Box2 | null = null;
@@ -83,6 +99,8 @@ export class Camera implements Component {
   public zoom: number = configSvc.scale;
 
   public shake: CameraShake;
+
+  public debugPosition: Vector2;
 
   public readonly smoothing: number;
 
@@ -97,9 +115,6 @@ export class Camera implements Component {
 
   public lookAhead = Vector2.create(0, 0);
 
-  private _deadzoneWidth: number;
-  private _deadzoneHeight: number;
-
   public deadzoneBox: Box2;
   public deadzoneHelper: Box2Helper;
 
@@ -113,6 +128,10 @@ export class Camera implements Component {
     this.deadzoneHFrac = deadzoneHFrac ?? 0;
 
     this.shake = new CameraShake();
+
+    this.viewBox = new Box2();
+    this.viewBoxHelper = new Box2Helper(this.viewBox, [0.95, 0.875, 0.1, 1.0]);
+    this.viewBoxHelper.init();
 
     this.deadzoneBox = new Box2();
     this.deadzoneHelper = new Box2Helper(this.deadzoneBox, [0.2, 1.0, 0.2, 1.0]);
@@ -168,32 +187,15 @@ export class Camera implements Component {
   }
 
   public renderDebug(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    // If viewBox is world-space camera rect:
-    const vw = this.viewBox.width;
-    const vh = this.viewBox.height;
-
-    const dzW = vw * this.deadzoneWFrac;
-    const dzH = vh * this.deadzoneHFrac;
-
-    const x1 = this.viewBox.x1 + (vw - dzW) * 0.5;
-    const y1 = this.viewBox.y1 + (vh - dzH) * 0.5;
-
-    if (dzW !== this._deadzoneWidth || dzH !== this._deadzoneHeight) {
-      this.deadzoneHelper.resize(dzW, dzH);
-
-      this._deadzoneWidth = dzW;
-      this._deadzoneHeight = dzH;
-    }
-
-    // Update Box2 (world coords)
-    this.deadzoneBox.setMin(x1, y1);
-    this.deadzoneBox.setMax(x1 + dzW, y1 + dzH);
-
-    const model = mat3.create();
-    mat3.fromTranslation(model, [this.deadzoneBox.x1, this.deadzoneBox.y1]);
+    const deadzoneModel = mat3.fromTranslation(mat3.create(), [this.deadzoneBox.x1, this.deadzoneBox.y1]);
 
     this.deadzoneHelper.use();
-    this.deadzoneHelper.render(projectionMatrix, viewMatrix, model);
+    this.deadzoneHelper.render(projectionMatrix, viewMatrix, deadzoneModel);
+
+    const viewBoxModel = mat3.fromTranslation(mat3.create(), [this.viewBox.x1, this.viewBox.y1]);
+
+    this.viewBoxHelper.use();
+    this.viewBoxHelper.render(projectionMatrix, viewMatrix, viewBoxModel);
   }
 
   public toString(): string {
