@@ -150,7 +150,10 @@ class EditorState extends State<EditorStateOptions> {
 
     world.addSystem(new Systems.BasicInputSystem());
     world.addSystem(new Systems.BasicMovementSystem());
+    world.addSystem(new Systems.CameraSystem());
+    world.addSystem(new Systems.AnimationSystem());
     world.addSystem(new Systems.PlaceableSystem());
+    world.addSystem(new Systems.RenderingSystem());
 
     await world.init();
 
@@ -427,7 +430,9 @@ class EditorState extends State<EditorStateOptions> {
 
     const animator = entity.getComponent(Animator);
 
-    animator.animation.pause();
+    if (animator) {
+      animator.animation.pause();
+    }
 
     const sprite = entity.getComponent(Sprite);
 

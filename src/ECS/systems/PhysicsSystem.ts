@@ -153,6 +153,7 @@ export class PhysicsSystem extends System {
     const position = entity.getComponent(Position);
     const rigidBody = entity.getComponent(RigidBody);
     const bbox = entity.getComponent(BoundingBox);
+    const movement = entity.getComponent(Movement);
 
     const boundaries = this.world.tileMap.getBoundaries();
 
@@ -173,21 +174,33 @@ export class PhysicsSystem extends System {
       x = x1;
       rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
+      if (movement) {
+        movement.isBlockedLeft = true;
+      }
     }
     if (position.y < y1) {
       y = y1;
       rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
+      if (movement) {
+        movement.isBlockedUp = true;
+      }
     }
     if (position.x > x2) {
       x = x2;
       rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
+      if (movement) {
+        movement.isBlockedRight = true;
+      }
     }
     if (position.y > y2) {
       y = y2;
       rigidBody.velocity.x = 0;
       rigidBody.velocity.y = 0;
+      if (movement) {
+        movement.isBlockedDown = true;
+      }
     }
 
     position.fromValues(x, y);

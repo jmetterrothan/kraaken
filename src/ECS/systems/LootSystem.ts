@@ -49,6 +49,7 @@ export class LootSystem extends System {
 
             if (dropRb) {
               const dir = Vector2.create(dx, dy).normalize();
+
               dropRb.velocity.x += dir.x * loot.scatter.impulse.x;
               dropRb.velocity.y -= dir.y * loot.scatter.impulse.y;
             }

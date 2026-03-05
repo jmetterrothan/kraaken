@@ -463,11 +463,11 @@ class TileMap {
   }
 
   public hasCollisionAt(r: number, c: number): boolean {
-    return (this.getTileTypeAt(TileLayer.L0, r, c) ?? 1) === 1;
+    return this.getTileAt(r, c)?.hasCollision() ?? true;
   }
 
   public hasCollisionAtCoords(x: number, y: number): boolean {
-    return (this.getTileTypeIdAtCoords(TileLayer.L0, x, y) ?? 1) === 1;
+    return this.getTileAtCoords(x, y)?.hasCollision() ?? true;
   }
 
   public getBoundaries(): Box2 {

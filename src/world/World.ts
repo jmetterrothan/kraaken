@@ -2,11 +2,10 @@ import { Observable } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 import { mat3, vec2, vec4 } from "gl-matrix";
 
-import { gl } from "@src/Game";
+import { debugOverlay, gl } from "@src/Game";
 
 import ComponentFactory from "@src/ECS/ComponentFactory";
 import { Entity, Bundle, System } from "@src/ECS";
-import * as Systems from "@src/ECS/systems";
 import * as Components from "@src/ECS/components";
 
 import TileMap from "@src/world/TileMap";
@@ -46,8 +45,6 @@ class World {
   private _entities: Entity[] = [];
   private _systems: System[] = [];
 
-  private renderer: System;
-
   private _cameras: Entity[] = [];
   private _activeCameraIndex = 0;
 
@@ -63,12 +60,6 @@ class World {
   }
 
   public async init(): Promise<void> {
-    this.addSystem(new Systems.CameraSystem());
-    this.addSystem(new Systems.AnimationSystem());
-
-    this.renderer = new Systems.RenderingSystem();
-    this.renderer.addedToWorld(this);
-
     this.tileMap = new TileMap(this.levelBlueprint);
     this.tileMap.init();
 
@@ -294,6 +285,14 @@ class World {
 
       aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
     }
+
+    if (debugSvc.enabled(DebugFlag.PLACEABLE_ENTITIES) && this.player) {
+      const bbox = this.player.getComponent(Components.BoundingBox);
+
+      const v = this.worldToScreenCoords([bbox.x1 + bbox.width / 2, bbox.y1 - 4]);
+
+      debugOverlay.text("Player", v.x, v.y, "center");
+    }
   }
 
   public render(alpha: number): void {
@@ -303,7 +302,9 @@ class World {
 
     this.tileMap.renderLayer(TileLayer.L1, this.projectionMatrix, camera.viewMatrix, alpha);
 
-    this.renderer.execute(alpha);
+    for (let i = 0, n = this._systems.length; i < n; i++) {
+      this._systems[i].render(alpha);
+    }
 
     this.tileMap.renderLayer(TileLayer.L2, this.projectionMatrix, camera.viewMatrix, alpha);
 
@@ -448,13 +449,13 @@ class World {
     return this._cameras[this._activeCameraIndex];
   }
 
+  public get entitiesCount(): number {
+    return this._entities.length;
+  }
+
   public destroy(): void {
     this.removeAllEntities();
     this.removeAllSystems();
-
-    if (this.renderer) {
-      this.renderer.removedFromWorld(this);
-    }
 
     this.grid.dispose();
 

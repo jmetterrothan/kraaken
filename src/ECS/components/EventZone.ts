@@ -7,11 +7,11 @@ import { IGameEvent } from "@src/shared/models/world.model";
 import { Health } from "./Health";
 import { DamageEvent } from "./DamageEvent";
 import { Checkpoint } from "./Checkpoint";
+import { PlayerInput } from "./PlayerInput";
 
 export type IEventZoneMode = "contains" | "intersects";
 
-type IEventZoneMetadata = {
-  events?: IGameEvent[];
+type IEventZoneMetadata = Partial<IGameEvent> & {
   cooldownDelay?: number;
   maxTimesTriggered?: number;
   shouldTriggerWhileActive?: boolean;
@@ -20,10 +20,18 @@ type IEventZoneMetadata = {
   debug?: boolean;
 };
 
-export class EventZone implements Component {
-  public static COMPONENT_TYPE = "event_zone";
+type IEventZonePerEntityState = {
+  nbTimesTriggered: number;
+  lastTimeTriggered: number;
+  active: boolean;
+  wasActive: boolean;
+};
 
-  public readonly events: IGameEvent[];
+export class EventZone implements Component {
+  public static COMPONENT_TYPE = "event";
+
+  public readonly type: string;
+  public readonly data: Record<string, any>;
   public readonly cooldownDelay: number;
   public readonly maxTimesTriggered: number;
   public readonly shouldTriggerWhileActive: boolean; // if false, entity needs to leave the zone for it to be triggerable again
@@ -31,15 +39,11 @@ export class EventZone implements Component {
   public readonly debug: boolean;
   public readonly applyToEntityTypes?: string[];
 
-  public nbTimesTriggered: number;
-  public lastTimeTriggered: number;
-
-  public active: boolean;
-  public wasActive: boolean;
-  public shouldWaitToLeave: boolean;
+  public entities: Map<string, IEventZonePerEntityState>;
 
   public constructor(metadata: IEventZoneMetadata = {}) {
-    this.events = metadata.events ?? [];
+    this.type = metadata.type ?? "unknown";
+    this.data = metadata.data ?? {};
     this.cooldownDelay = metadata.cooldownDelay ?? -1;
     this.maxTimesTriggered = metadata.maxTimesTriggered ?? -1;
     this.shouldTriggerWhileActive = metadata.shouldTriggerWhileActive ?? false;
@@ -47,39 +51,47 @@ export class EventZone implements Component {
     this.debug = metadata.debug ?? false;
     this.applyToEntityTypes = metadata.applyToEntityTypes;
 
-    this.nbTimesTriggered = 0;
-    this.lastTimeTriggered = -1;
-
-    this.active = false;
-    this.wasActive = false;
-    this.shouldWaitToLeave = false;
+    this.entities = new Map<string, IEventZonePerEntityState>();
   }
 
-  public onEnter(subject: Entity): void {
+  private enter(subject: Entity): void {
     console.debug(`Entity "${subject.uuid}" entered event zone`);
 
-    if (this.shouldTriggerWhileActive || !this.shouldWaitToLeave) {
+    const oldState = this.getEntityState(subject);
+    this.setEntityState(subject, { wasActive: oldState.active, active: true });
+
+    if (this.canBeTriggeredBy(subject)) {
       this.trigger(subject);
 
-      this.shouldWaitToLeave = true;
+      this.setEntityState(subject, { nbTimesTriggered: oldState.nbTimesTriggered + 1, lastTimeTriggered: window.performance.now() });
     }
-
-    this.active = true;
   }
 
-  public onLeave(subject: Entity): void {
+  private leave(subject: Entity): void {
     console.debug(`Entity "${subject.uuid}" left event zone`);
 
-    this.active = false;
-    this.shouldWaitToLeave = false;
+    const oldState = this.getEntityState(subject);
+    this.setEntityState(subject, { wasActive: oldState.active, active: false });
   }
 
-  public canBeTriggeredBy(entity: Entity): boolean {
-    const now = window.performance.now();
+  public update(entity: Entity, active: boolean) {
+    const oldState = this.getEntityState(entity);
 
+    if ((!oldState.active && active && !this.shouldTriggerWhileActive) || (active && this.shouldTriggerWhileActive)) {
+      this.enter(entity);
+      return;
+    }
+
+    if (oldState.active && !active) {
+      this.leave(entity);
+      return;
+    }
+  }
+
+  public canAffect(entity: Entity): boolean {
     const targetHealth = entity.getComponent(Health);
 
-    if (targetHealth.isDead) {
+    if (targetHealth && targetHealth.isDead) {
       return false;
     }
 
@@ -87,11 +99,35 @@ export class EventZone implements Component {
       return false;
     }
 
-    if (this.maxTimesTriggered > 0 && this.nbTimesTriggered >= this.maxTimesTriggered) {
+    switch (this.type) {
+      case "heal":
+      case "damage":
+        return entity.hasComponent(Health.COMPONENT_TYPE);
+
+      case "spawn":
+      case "despawn":
+      case "checkpoint":
+      case "change_level":
+        return entity.hasComponent(PlayerInput.COMPONENT_TYPE);
+    }
+
+    return true;
+  }
+
+  private canBeTriggeredBy(subject: Entity) {
+    const now = window.performance.now();
+
+    const currentState = this.entities.get(subject.uuid) ?? { active: false, wasActive: false, lastTimeTriggered: -1, nbTimesTriggered: 0 };
+
+    if (!this.shouldTriggerWhileActive && currentState.active && currentState.wasActive) {
       return false;
     }
 
-    if (this.lastTimeTriggered > 0 && this.cooldownDelay > 0 && this.lastTimeTriggered + this.cooldownDelay >= now) {
+    if (this.maxTimesTriggered !== -1 && currentState.nbTimesTriggered >= this.maxTimesTriggered) {
+      return false;
+    }
+
+    if (currentState.lastTimeTriggered > 0 && this.cooldownDelay > 0 && currentState.lastTimeTriggered + this.cooldownDelay >= now) {
       return false;
     }
 
@@ -101,66 +137,71 @@ export class EventZone implements Component {
   private trigger(subject: Entity): void {
     console.debug(`Entity "${subject.uuid}" triggered event zone`, this);
 
-    this.events.forEach(({ type, data }) => {
-      switch (type) {
-        case "checkpoint": {
-          if (subject.hasComponent(Checkpoint.COMPONENT_TYPE)) {
-            subject.removeComponent(Checkpoint.COMPONENT_TYPE);
-          }
-          subject.addComponent(new Checkpoint({ moveTo: data.moveTo }));
-
-          return;
+    switch (this.type) {
+      case "checkpoint": {
+        if (subject.hasComponent(Checkpoint.COMPONENT_TYPE)) {
+          subject.removeComponent(Checkpoint.COMPONENT_TYPE);
         }
+        subject.addComponent(new Checkpoint({ moveTo: this.data.moveTo }));
 
-        case "change_level": {
-          dispatch(GameEvents.changeLevel(data.levelId, data.moveTo, data.lookAt));
-          return;
-        }
-
-        case "damage": {
-          if (subject.hasComponent(Health.COMPONENT_TYPE)) {
-            const health = subject.getComponent(Health);
-
-            health.value += data.amount;
-
-            subject.addComponent(new DamageEvent({ amount: Math.abs(data.amount), isKill: health.isDead, hitstop: false, cameraShake: false }));
-          }
-          return;
-        }
-
-        case "heal": {
-          if (subject.hasComponent(Health.COMPONENT_TYPE)) {
-            const health = subject.getComponent(Health);
-
-            health.value += data.amount;
-          }
-          return;
-        }
-
-        case "spawn": {
-          dispatch(
-            GameEvents.spawnEvent(
-              data.uuid, //
-              data.type,
-              data.components,
-              false
-            )
-          );
-          return;
-        }
-
-        case "despawn": {
-          dispatch(GameEvents.despawnEvent(data.uuid, false));
-          return;
-        }
-
-        default:
-          console.log(`Unknown event "${type}"`);
+        return;
       }
-    });
 
-    this.nbTimesTriggered += 1;
-    this.lastTimeTriggered = window.performance.now();
+      case "change_level": {
+        dispatch(GameEvents.changeLevel(this.data.levelId, this.data.moveTo, this.data.lookAt));
+        return;
+      }
+
+      case "damage": {
+        if (subject.hasComponent(Health.COMPONENT_TYPE)) {
+          const health = subject.getComponent(Health);
+
+          health.value += this.data.amount;
+
+          subject.addComponent(new DamageEvent({ amount: Math.abs(this.data.amount), isKill: health.isDead, hitstop: false, cameraShake: false }));
+        }
+        return;
+      }
+
+      case "heal": {
+        if (subject.hasComponent(Health.COMPONENT_TYPE)) {
+          const health = subject.getComponent(Health);
+
+          health.value += this.data.amount;
+        }
+        return;
+      }
+
+      case "spawn": {
+        dispatch(
+          GameEvents.spawnEvent(
+            this.data.uuid, //
+            this.data.type,
+            this.data.components,
+            false
+          )
+        );
+        return;
+      }
+
+      case "despawn": {
+        dispatch(GameEvents.despawnEvent(this.data.uuid, false));
+        return;
+      }
+
+      default:
+        console.log(`Unsupported event "${this.type}"`);
+    }
+  }
+
+  getEntityState(subject: Entity): IEventZonePerEntityState {
+    return { active: false, wasActive: false, lastTimeTriggered: -1, nbTimesTriggered: 0, ...this.entities.get(subject.uuid) };
+  }
+
+  setEntityState(subject: Entity, state: Partial<IEventZonePerEntityState>) {
+    const oldState = this.getEntityState(subject);
+
+    this.entities.set(subject.uuid, { ...oldState, ...state });
   }
 
   public toString(): string {

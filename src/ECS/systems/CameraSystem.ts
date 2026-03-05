@@ -198,8 +198,8 @@ export class CameraSystem extends System {
           debugOverlay.text(`Dead zone = ${round(camera.deadzoneBox.width)}x${round(camera.deadzoneBox.height)}`, v1.x, v1.y, "center");
         }
 
-        const v2 = this.world.worldToScreenCoords([camera.viewBox.x1 + camera.viewBox.width / 2, camera.viewBox.y2 - 4]);
-        debugOverlay.text(`Camera XY = ${position.clone()} | Target = "${camera.target?.type ?? "null"}" | Shake = ${camera.shake}`, v2.x, v2.y, "center");
+        debugOverlay.moveTo("bottom_center");
+        debugOverlay.line(`Camera XY = ${position.clone()} | Target = "${camera.target?.type ?? "null"}" | Shake = ${camera.shake}`);
       }
     });
   }

@@ -1,33 +1,59 @@
 import { mat3 } from "gl-matrix";
 
-import { System } from "@src/ECS";
+import { Entity, System } from "@src/ECS";
 import { Position, Sprite, RigidBody, Camera, BoundingBox, EventZone, Placeable } from "@src/ECS/components";
 import { debugSvc } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
+import { debugOverlay } from "@src/Game";
 
 export class RenderingSystem extends System {
+  private entities: Entity[];
+
+  private translationMatrix = mat3.create();
+  private offsetMatrix = mat3.create();
+  private rotationMatrix = mat3.create();
+
+  private helperTranslationMatrix = mat3.create();
+  private helperOffsetMatrix = mat3.create();
+
   public constructor() {
     super([Position.COMPONENT_TYPE]);
+
+    this.entities = [];
   }
 
-  execute(_alpha: number): void {
-    const cameraComponent = this.world.camera.getComponent(Camera);
-
+  execute(_delta: number): void {
     const entities = this.world.getEntities(this.componentTypes);
 
-    if (entities.length === 0) {
-      return;
-    }
+    let n = entities.length,
+      r = 0;
 
-    entities.forEach((entity) => {
+    this.entities.length = 0;
+
+    for (let entity of entities) {
       if (!entity.visible) {
-        return;
+        continue;
       }
 
       if (this.world.isFrustumCulled(entity)) {
-        return;
+        continue;
       }
 
+      r++;
+
+      this.entities.push(entity);
+    }
+
+    if (debugSvc.enabled(DebugFlag.STATS)) {
+      debugOverlay.moveTo("top_right");
+      debugOverlay.line(`Entities = ${n} | Rendered entities = ${r}`);
+    }
+  }
+
+  render(_alpha: number) {
+    const cameraComponent = this.world.camera.getComponent(Camera);
+
+    this.entities.forEach((entity) => {
       const position = entity.getComponent(Position);
       const bbox = entity.getComponent(BoundingBox);
       const rigidBody = entity.getComponent(RigidBody);
@@ -47,17 +73,16 @@ export class RenderingSystem extends System {
           mat3.fromTranslation(position.transform, position.toGlArray());
 
           if (position.rotation !== 0) {
-            const r = mat3.fromRotation(mat3.create(), position.rotation);
-            mat3.multiply(position.transform, position.transform, r);
+            mat3.fromRotation(this.rotationMatrix, position.rotation);
+            mat3.multiply(position.transform, position.transform, this.rotationMatrix);
           }
 
           /**
            * position is located at the center of the bounding box
            */
           if (entity.hasComponent(BoundingBox.COMPONENT_TYPE)) {
-            const moveOriginMatrix = mat3.fromTranslation(mat3.create(), [-bbox.width / 2, -bbox.height / 2]);
-
-            mat3.multiply(position.transform, position.transform, moveOriginMatrix);
+            mat3.fromTranslation(this.translationMatrix, [-bboxWidth / 2, -bboxHeight / 2]);
+            mat3.multiply(position.transform, position.transform, this.translationMatrix);
           }
 
           /**
@@ -74,9 +99,8 @@ export class RenderingSystem extends System {
             offsetY += -(sprite.atlas.tileHeight - bboxHeight) + 1; // leaving a gap around of 1px to render the outline correctly
           }
 
-          const moveOriginMatrix2 = mat3.fromTranslation(mat3.create(), [offsetX, offsetY]);
-
-          mat3.multiply(position.transform, position.transform, moveOriginMatrix2);
+          mat3.fromTranslation(this.offsetMatrix, [offsetX, offsetY]);
+          mat3.multiply(position.transform, position.transform, this.offsetMatrix);
 
           position.shouldUpdateTransform = false;
         }
@@ -89,15 +113,11 @@ export class RenderingSystem extends System {
 
       // show bounding box helper
       if (bbox && (showZone || showPlaceable || bbox.debug)) {
-        const modelMatrix = mat3.create();
+        mat3.fromTranslation(this.helperTranslationMatrix, position.toGlArray());
+        mat3.fromTranslation(this.helperOffsetMatrix, [-bbox.width / 2, -bbox.height / 2]);
+        mat3.multiply(this.helperTranslationMatrix, this.helperTranslationMatrix, this.helperOffsetMatrix);
 
-        mat3.fromTranslation(modelMatrix, position.toGlArray());
-
-        const moveOriginMatrix = mat3.fromTranslation(mat3.create(), [-bbox.width / 2, -bbox.height / 2]);
-
-        mat3.multiply(modelMatrix, modelMatrix, moveOriginMatrix);
-
-        bbox.renderHelper(this.world.projectionMatrix, cameraComponent.viewMatrix, modelMatrix);
+        bbox.renderHelper(this.world.projectionMatrix, cameraComponent.viewMatrix, this.helperTranslationMatrix);
       }
     });
   }

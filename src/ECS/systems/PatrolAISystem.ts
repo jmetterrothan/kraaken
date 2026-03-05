@@ -55,6 +55,7 @@ export class PatrolAISystem extends System {
       const patrol = entity.getComponent(PatrolAI);
 
       if (health && health.isDead) {
+        rigidBody.velocity.x = 0;
         return;
       }
 

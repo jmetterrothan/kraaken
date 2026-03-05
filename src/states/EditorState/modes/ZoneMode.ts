@@ -75,7 +75,7 @@ class ZoneMode {
       }
 
       const v = this.editor.currentLevel.world.worldToScreenCoords([bbox.x1 + bbox.width / 2, bbox.y1 + bbox.height / 2]);
-      debugOverlay.text(`${eventZone.events.map((event) => event.type).join(" | ")}`, v.x, v.y, "center");
+      debugOverlay.text(`${eventZone.type}`, v.x, v.y, "center");
     }
   }
 

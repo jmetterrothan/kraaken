@@ -93,10 +93,6 @@ class Game {
   private nextTime: number;
   private lastTime: number;
 
-  private lastTimeHud: number;
-  private nextTimeHud: number;
-  private shouldUpdateHud: boolean;
-
   private stats: {
     fps: number;
     ups: number;
@@ -121,10 +117,6 @@ class Game {
     this.lag = 0;
     this.lastTime = window.performance.now();
     this.nextTime = this.lastTime;
-
-    this.shouldUpdateHud = false;
-    this.lastTimeHud = window.performance.now();
-    this.nextTimeHud = this.lastTimeHud;
 
     this.targetScale = 1;
 
@@ -195,15 +187,12 @@ class Game {
 
       const vText = `Kraaken v${pkg.version}`;
       debugOverlay.line(`${vText}`);
-
       debugOverlay.line(`${this.stats.fps} FPS | ${this.stats.ups} UPS`);
     }
 
     this.stateManager.update(delta);
 
-    if (this.shouldUpdateHud) {
-      debugOverlay.upload();
-    }
+    debugOverlay.upload();
   }
 
   public render(alpha: number): void {
@@ -248,13 +237,6 @@ class Game {
         this.stats.fps = this.fps;
         this.ups = 0;
         this.fps = 0;
-      }
-
-      if (time >= this.nextTimeHud) {
-        this.nextTimeHud += 100;
-        this.shouldUpdateHud = true;
-      } else {
-        this.shouldUpdateHud = false;
       }
 
       this.lastTime = time;
@@ -419,9 +401,10 @@ class Game {
             e.stopPropagation();
             this.fullscreen = !this.fullscreen;
             break;
-        }
 
-        this.stateManager.handleKeyboardInput(e, true);
+          default:
+            this.stateManager.handleKeyboardInput(e, true);
+        }
       },
       false
     );

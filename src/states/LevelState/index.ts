@@ -76,7 +76,9 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.PlayerInputSystem());
       world.addSystem(new Systems.PlayerMovementSystem());
       world.addSystem(new Systems.PhysicsSystem());
+      world.addSystem(new Systems.CameraSystem());
       world.addSystem(new Systems.PlayerCombatSystem());
+      world.addSystem(new Systems.AnimationSystem());
       world.addSystem(new Systems.ConsummableSystem());
       world.addSystem(new Systems.FlyingAISystem());
       world.addSystem(new Systems.EventZoneSystem());
@@ -89,6 +91,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.LootSystem());
       world.addSystem(new Systems.RespawnSystem());
       world.addSystem(new Systems.PatrolAISystem());
+      world.addSystem(new Systems.RenderingSystem());
 
       debugSvc.set(DebugFlag.ALL, false);
 
@@ -217,6 +220,9 @@ class LevelState extends State<LevelStateOptions> {
       const combat = this.currentLevel.player.getComponent(Components.PlayerCombat);
 
       if (debugSvc.enabled(DebugFlag.STATS)) {
+        debugOverlay.moveTo("top_center");
+        debugOverlay.line(`Project "${this.projectBlueprint.id}" | Level = "${this.currentLevelId}"`);
+
         const posText = `Pos XY = ${position.clone()}`;
         const dirText = `Dir = ${rb.direction}`;
         const velText = `Vel = ${Math.sign(rb.velocity.x) === 1 ? "+" : Math.sign(rb.velocity.x) === -1 ? "-" : ""}${round(Math.abs(rb.velocity.x))}, ${Math.sign(rb.velocity.y) === 1 ? "+" : Math.sign(rb.velocity.y) === -1 ? "-" : ""}${round(Math.abs(rb.velocity.y))}`;

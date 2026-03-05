@@ -12,6 +12,8 @@ export abstract class System {
 
   public abstract execute(delta: number): void;
 
+  public render(_alpha: number): void {}
+
   public handleMouseMove(_e: MouseEvent, _coords: Vector2): void {}
 
   public handleMouseInput(_e: MouseEvent, _active: boolean, _position: Vector2): void {}
