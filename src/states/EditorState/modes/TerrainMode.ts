@@ -10,13 +10,13 @@ import eventStackSvc from "@src/shared/services/EventStackService";
 import { driver } from "@src/shared/drivers/DriverFactory";
 
 import { EditorTerrainMode } from "@src/shared/models/editor.model";
-import { ITile, TileLayer } from "@src/shared/models/tilemap.model";
+import { ITile } from "@src/shared/models/tilemap.model";
 
 import editorStore from "../editorStore";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 
 class TerrainMode {
@@ -37,21 +37,21 @@ class TerrainMode {
       throw new Error("Terrain mode already mounted");
     }
 
-    debugSvc.set(DebugFlag.GRID, true);
-    debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
-    debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
+    debugStore.set(DebugFlag.GRID, true);
+    debugStore.set(DebugFlag.COLLISION, false);
+    debugStore.set(DebugFlag.PLACEABLE_ENTITIES, false);
+    debugStore.set(DebugFlag.ZONE_ENTITIES, false);
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
-        const { coords = [], layer, onSuccess, onFailure, pushToStack } = e.detail || {};
+        const { coords = [], layerId, onSuccess, onFailure, pushToStack } = e.detail || {};
 
         try {
           const tileMap = this.editor.currentLevel.world.tileMap;
 
           const prevCoords = coords.map((c) => {
             const tile = tileMap.getTileAtCoords(c.x, c.y);
-            const oldTileTypeId = tile?.getTileTypeId(layer) ?? 0;
+            const oldTileTypeId = tile?.getTileTypeId(layerId) ?? 0;
 
             return {
               ...c,
@@ -64,11 +64,11 @@ class TerrainMode {
             const tile = tileMap.getTileAtCoords(coord.x, coord.y);
 
             if (tile) {
-              if (layer === TileLayer.L0) {
-                tile.setCollision(coord.tileTypeId > 0);
-              } else {
-                tile.setTileTypeId(layer, coord.tileTypeId);
-              }
+              // FIXME: if (layer === ) {
+              //  tile.setCollision(coord.tileTypeId > 0);
+              // } else {
+              tile.setTileTypeId(layerId, coord.tileTypeId);
+              //}
             }
           });
 
@@ -79,12 +79,12 @@ class TerrainMode {
                 driver.place(
                   this.editor.currentLevelId,
                   {
-                    layerId: layer,
+                    layerId,
                     coords: prevCoords,
                   },
                   false
                 ), //
-              redo: () => driver.place(this.editor.currentLevelId, { layerId: layer, coords }, false),
+              redo: () => driver.place(this.editor.currentLevelId, { layerId, coords }, false),
             });
           }
 
@@ -100,6 +100,15 @@ class TerrainMode {
         }
       })
     );
+
+    const layers = this.editor.currentLevel.world.tileMap.layers.filter((layer) => layer.type !== "collision");
+
+    if (layers.length > 0) {
+      editorStore.setSelectedLayerId(layers[0].id);
+    }
+
+    this.editor.currentLevel.cursor.visible = false;
+    this.editor.currentLevel.world.grid.showSelection = true;
 
     this.loaded = true;
 
@@ -145,15 +154,17 @@ class TerrainMode {
       if (coords.length === 0) {
         return;
       }
-      const tileMap = this.editor.currentLevel.world.tileMap;
-
-      const tileSet = tileMap.layers.get(this.editor?.state?.layerId)?.tileSet;
-
-      if (!tileSet) {
-        throw new Error(`Unknown tileset ${tileSet} for layer ${this.editor.state.layerId}`);
-      }
 
       const { layerId, tileSelection, terrainMode } = this.editor.state;
+
+      const tileMap = this.editor.currentLevel.world.tileMap;
+      const layerIndex = tileMap.getLayerIndex(layerId);
+
+      const tileSet = tileMap.layers[layerIndex]?.tileSet;
+
+      if (!tileSet) {
+        throw new Error(`Unknown tileset ${tileSet} for layer ${layerId}`);
+      }
 
       const { tileTypeId = 0 } = tileSelection[tileSet] || {};
 
@@ -173,8 +184,8 @@ class TerrainMode {
           const tileSize = tileMap.getTileSize();
 
           if (targetTile) {
-            const targetId = targetTile.getTileTypeId(layerId);
-            const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
+            const targetTileTypeId = targetTile.getTileTypeId(layerId);
+            const listOfCoords = tileMap.floodFill(targetTile.row, targetTile.col, (tile: ITile | undefined) => typeof tile !== "undefined" && tile.getTileTypeId(layerId) === targetTileTypeId).map(({ row, col }) => ({ x: col * tileSize, y: row * tileSize }));
 
             driver.place(this.editor.currentLevelId, { layerId, coords: listOfCoords.map((c) => ({ ...c, tileTypeId })) }, true);
           }

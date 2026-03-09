@@ -1,20 +1,49 @@
 .side-panel {
   position: fixed;
-  max-width: 20dvw;
   width: 100%;
-  right: 0;
   top: var(--toolbar-height);
   height: calc(100dvh - var(--toolbar-height));
   overflow: auto;
   background: #f1f1f1;
-  z-index: 1;
-  padding: 16px;
+  box-sizing: border-box;
 
-  &__title {
-    font-weight: 600;
-    font-size: 17px;
-    color: #40506b;
-    margin-bottom: 10px;
-    margin-top: 12px;
+  &--anchor-right {
+    right: 0;
+  }
+
+  &--anchor-left {
+    left: 0;
+  }
+
+  &--auto {
+    max-width: fit-content;
+  }
+
+  &--xxs {
+    max-width: 5dvw;
+  }
+
+  &--xs {
+    max-width: 10dvw;
+  }
+
+  &--s {
+    max-width: 15dvw;
+  }
+
+  &--m {
+    max-width: 20dvw;
+  }
+
+  &--l {
+    max-width: 25dvw;
+  }
+
+  &--xl {
+    max-width: 30dvw;
+  }
+
+  &--xxl {
+    max-width: 35dvw;
   }
 }

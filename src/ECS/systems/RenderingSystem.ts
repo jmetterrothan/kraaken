@@ -2,7 +2,7 @@ import { mat3 } from "gl-matrix";
 
 import { Entity, System } from "@src/ECS";
 import { Position, Sprite, RigidBody, Camera, BoundingBox, EventZone, Placeable } from "@src/ECS/components";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import { debugOverlay } from "@src/Game";
 
@@ -44,7 +44,7 @@ export class RenderingSystem extends System {
       this.entities.push(entity);
     }
 
-    if (debugSvc.enabled(DebugFlag.STATS)) {
+    if (debugStore.enabled(DebugFlag.STATS)) {
       debugOverlay.moveTo("top_right");
       debugOverlay.line(`Entities = ${n} | Rendered entities = ${r}`);
     }
@@ -108,8 +108,8 @@ export class RenderingSystem extends System {
         sprite.render(this.world.projectionMatrix, cameraComponent.viewMatrix, position.transform, rigidBody?.orientation);
       }
 
-      const showZone = entity.hasComponent(EventZone.COMPONENT_TYPE) && debugSvc.enabled(DebugFlag.ZONE_ENTITIES);
-      const showPlaceable = entity.hasComponent(Placeable.COMPONENT_TYPE) && debugSvc.enabled(DebugFlag.PLACEABLE_ENTITIES);
+      const showZone = entity.hasComponent(EventZone.COMPONENT_TYPE) && debugStore.enabled(DebugFlag.ZONE_ENTITIES);
+      const showPlaceable = entity.hasComponent(Placeable.COMPONENT_TYPE) && debugStore.enabled(DebugFlag.PLACEABLE_ENTITIES);
 
       // show bounding box helper
       if (bbox && (showZone || showPlaceable || bbox.debug)) {

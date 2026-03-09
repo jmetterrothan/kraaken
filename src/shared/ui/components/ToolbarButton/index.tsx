@@ -7,7 +7,7 @@ export interface IToolbarButtonProps {
   active: boolean;
   disabled?: boolean;
   theme?: "blue" | "red";
-  name: string;
+  name?: string;
   kbd?: string;
   icon?: string;
   showCaret?: boolean;
@@ -27,11 +27,13 @@ const ToolbarButton = ({ theme = "blue", name, icon, active, disabled, kbd, show
             <i className={cx("fas", `fa-${icon}`)} />
           </span>
         )}
-        <span className="toolbar-button__name">
-          {name}
-          {kbd && <span className="toolbar-button__kbd">{kbd}</span>}
-          {showCaret && <i className={cx("fas", "fa-caret-down", "caret")} />}
-        </span>
+        {name && (
+          <span className="toolbar-button__name">
+            {name}
+            {kbd && <span className="toolbar-button__kbd">{kbd}</span>}
+            {showCaret && <i className={cx("fas", "fa-caret-down", "caret")} />}
+          </span>
+        )}
       </div>
       {children}
     </button>

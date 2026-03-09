@@ -1,7 +1,6 @@
 import { vec4 } from "gl-matrix";
 
 import { IVector2 } from "@src/shared/models/math.model";
-import { TileLayer } from "@src/shared/models/tilemap.model";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { ISoundData } from "@src/shared/models/sound.model";
 
@@ -46,8 +45,11 @@ export interface IEventZone {
 }
 
 export interface ILayer {
+  id: number;
+  zIndex: number;
   tileSet: string;
   visible: boolean;
+  type: "collision" | "tiles";
   data: number[];
 }
 
@@ -58,11 +60,7 @@ export interface ILevelBlueprint {
   tileMapCols: number;
   background: vec4;
   gravity: number;
-  layers: {
-    [TileLayer.L0]: ILayer;
-    [TileLayer.L1]: ILayer;
-    [TileLayer.L2]: ILayer;
-  };
+  layers: ILayer[];
   spawnPoints: ISpawnpoint[];
   zones: IEventZone[];
 }

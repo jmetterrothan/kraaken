@@ -16,7 +16,7 @@ import { vec2 } from "gl-matrix";
 import editorStore from "../editorStore";
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
 import { DebugFlag } from "@src/enums/DebugFlag";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { debugOverlay } from "@src/Game";
 
 const snapToTileCenter = (value: number, tileSize: number) => {
@@ -45,12 +45,14 @@ class EntityMode {
       throw new Error("Entity mode already mounted");
     }
 
-    debugSvc.set(DebugFlag.GRID, true);
-    debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
-    debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
+    debugStore.set(DebugFlag.GRID, true);
+    debugStore.set(DebugFlag.COLLISION, false);
+    debugStore.set(DebugFlag.PLACEABLE_ENTITIES, false);
+    debugStore.set(DebugFlag.ZONE_ENTITIES, false);
 
-    editorStore.subscribe((state) => {
+    editorStore.subscribe(() => {
+      const state = editorStore.getSnapshot();
+
       if (this.previewEntity) {
         this.editor.currentLevel.world.removeEntity(this.previewEntity);
         this.editor.currentLevel.cursor.visible = true;
@@ -169,6 +171,9 @@ class EntityMode {
       })
     );
 
+    this.editor.currentLevel.cursor.visible = true;
+    this.editor.currentLevel.world.grid.showSelection = false;
+
     this.loaded = true;
 
     console.debug("Entity mode mounted");
@@ -260,18 +265,20 @@ class EntityMode {
 
           editorStore.setSelectedEntityType(null);
         } else {
+          const { entityType } = this.editor.state;
+
           if (this.focusedEntity && this.focusedEntity.hasComponent(Placeable.COMPONENT_TYPE)) {
             this.selectedEntity = this.focusedEntity;
             this.focusedEntity = null;
             this.selectedEntity.visible = false;
             editorStore.setSelectedEntityType(this.selectedEntity.type);
           } else {
-            if (this.editor.state.entityType) {
+            if (entityType) {
               driver.spawn(
                 this.editor.currentLevelId,
                 {
                   uuid: uuidv4(),
-                  type: this.editor.state.entityType,
+                  type: entityType,
                   components: { position: { x, y }, rigid_body: { direction: { x: 1, y: 1 } } },
                 },
                 true

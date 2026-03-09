@@ -3,18 +3,16 @@ import cx from "classnames";
 
 import "./SidePanel.scss";
 
+type SidePanelSize = "auto" | "xxs" | "xs" | "s" | "m" | "l" | "xl" | "xxl";
+
 type SidePanelProps = {
+  size?: SidePanelSize;
+  anchor?: "left" | "right";
   className?: string;
 };
 
-const SidePanel = ({ className, children }: PropsWithChildren<SidePanelProps>) => {
-  return <div className={cx("side-panel", className)}>{children}</div>;
+const SidePanel = ({ size = "l", anchor = "right", className, children }: PropsWithChildren<SidePanelProps>) => {
+  return <div className={cx("side-panel", anchor && `side-panel--anchor-${anchor}`, `side-panel--${size}`, className)}>{children}</div>;
 };
-
-const SidePanelTitle = ({ children }: PropsWithChildren) => {
-  return <h4 className="side-panel__title">{children}</h4>;
-};
-
-SidePanel.Title = SidePanelTitle;
 
 export default SidePanel;

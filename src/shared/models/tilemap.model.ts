@@ -4,12 +4,6 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import { ISpriteRenderRenderOptions } from "@src/shared/models/animation.model";
 
-export enum TileLayer {
-  L0 = 1,
-  L1 = 2,
-  L2 = 3,
-}
-
 export interface ITile {
   row: number;
   col: number;
@@ -32,8 +26,8 @@ export interface ITile {
   parent: ITile | null;
   hasCollision(): boolean;
   setCollision(b: boolean): void;
-  getTileTypeId(layer: TileLayer): number;
-  setTileTypeId(layer: TileLayer, id: number): void;
+  getTileTypeId(layerId: number): number;
+  setTileTypeId(layerId: number, tileTypeId: number): void;
 }
 
 export const isTile = (value: unknown): value is ITile => {
@@ -54,8 +48,8 @@ export interface ITileTypeGroup {
 }
 
 export interface ITileTransform {
-  layer: number;
-  tileType: number;
+  layerId: number;
+  tileTypeId: number;
   row: number;
   col: number;
   index: number;

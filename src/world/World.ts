@@ -15,11 +15,10 @@ import Vector2 from "@src/shared/math/Vector2";
 
 import { IVector2 } from "@src/shared/models/event.model";
 import { IProjectBlueprint, ISpawnpoint, ILevelBlueprint, IWorldOptions } from "@src/shared/models/world.model";
-import { TileLayer } from "@src/shared/models/tilemap.model";
 
 import { configSvc } from "@src/shared/services/ConfigService";
 
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 
 class World {
@@ -286,7 +285,7 @@ class World {
       aimPosition.fromValues(playerPosition.x + playerInput.aim.x, playerPosition.y + playerInput.aim.y);
     }
 
-    if (debugSvc.enabled(DebugFlag.PLACEABLE_ENTITIES) && this.player) {
+    if (debugStore.enabled(DebugFlag.PLACEABLE_ENTITIES) && this.player) {
       const bbox = this.player.getComponent(Components.BoundingBox);
 
       const v = this.worldToScreenCoords([bbox.x1 + bbox.width / 2, bbox.y1 - 4]);
@@ -300,25 +299,23 @@ class World {
 
     const camera = this.camera.getComponent(Components.Camera);
 
-    this.tileMap.renderLayer(TileLayer.L1, this.projectionMatrix, camera.viewMatrix, alpha);
+    this.tileMap.renderLayers(this.projectionMatrix, camera.viewMatrix, alpha);
 
     for (let i = 0, n = this._systems.length; i < n; i++) {
       this._systems[i].render(alpha);
     }
 
-    this.tileMap.renderLayer(TileLayer.L2, this.projectionMatrix, camera.viewMatrix, alpha);
-
-    if (debugSvc.enabled(DebugFlag.COLLISION)) {
+    if (debugStore.enabled(DebugFlag.COLLISION)) {
       this.tileMap.renderCollisionLayer(this.projectionMatrix, camera.viewMatrix, alpha);
 
-      this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
+      //  this.tileMap.renderDebugLayer(this.projectionMatrix, camera.viewMatrix, alpha);
     }
 
-    if (debugSvc.enabled(DebugFlag.CAMERA)) {
+    if (debugStore.enabled(DebugFlag.CAMERA)) {
       camera.renderDebug(this.projectionMatrix, camera.viewMatrix, alpha);
     }
 
-    if (debugSvc.enabled(DebugFlag.GRID)) {
+    if (debugStore.enabled(DebugFlag.GRID)) {
       this.grid.use();
       this.grid.render(this.projectionMatrix, camera.viewMatrix, [camera.viewMatrix[6], camera.viewMatrix[7]]);
     }

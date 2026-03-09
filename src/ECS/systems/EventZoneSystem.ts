@@ -3,7 +3,7 @@ import { Entity, System } from "@src/ECS";
 import { BoundingBox, Position, EventZone } from "@src/ECS/components";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import { debugOverlay } from "@src/Game";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { ACTIVE_ZONE_FILL_COLOR, ACTIVE_ZONE_OUTLINE_COLOR } from "@src/states/EditorState/modes/ZoneMode";
 
 export class EventZoneSystem extends System {
@@ -40,7 +40,7 @@ export class EventZoneSystem extends System {
         if (intersects) {
           e = target;
 
-          if (eventZone.debug || debugSvc.enabled(DebugFlag.ZONE_ENTITIES)) {
+          if (eventZone.debug || debugStore.enabled(DebugFlag.ZONE_ENTITIES)) {
             const { nbTimesTriggered } = eventZone.getEntityState(target);
 
             const v = this.world.worldToScreenCoords([targetBbox.x1 + targetBbox.width / 2, targetBbox.y1 + targetBbox.height + 4]);
@@ -49,7 +49,7 @@ export class EventZoneSystem extends System {
         }
       }
 
-      if (eventZone.debug || debugSvc.enabled(DebugFlag.ZONE_ENTITIES)) {
+      if (eventZone.debug || debugStore.enabled(DebugFlag.ZONE_ENTITIES)) {
         if (e !== null) {
           bbox.helper.outlineColor = ACTIVE_ZONE_OUTLINE_COLOR;
           bbox.helper.fillColor = ACTIVE_ZONE_FILL_COLOR;

@@ -23,7 +23,7 @@ import pkg from "./../package.json";
 import "@src/assets/sass/kraaken.scss";
 
 import { clamp } from "./shared/utility/MathHelpers";
-import { debugSvc } from "./shared/services/Debug";
+import { debugStore } from "./shared/services/Debug";
 import { DebugFlag } from "./enums/DebugFlag";
 import { StateOptions } from "./states/State";
 
@@ -31,7 +31,7 @@ import DebugTextOverlay from "./shared/helper/DebugTextOverlay";
 
 const instanceSym = Symbol("instance");
 
-let wrapper: HTMLElement;
+let root: HTMLDivElement;
 let canvas: HTMLCanvasElement;
 let gl: WebGL2RenderingContext;
 let debugOverlay: DebugTextOverlay;
@@ -71,7 +71,7 @@ class Game {
       Game[instanceSym] = new Game(options);
       Game[instanceSym].init();
 
-      console.debug("Debug flags:", debugSvc.flags);
+      console.debug("Debug flags:", debugStore.getSnapshot());
     }
     return Game[instanceSym];
   }
@@ -80,7 +80,7 @@ class Game {
     allowFullscreen: true,
     height: 900,
     width: 1280,
-    root: document.body,
+    appendTo: document.body,
   };
 
   private options: IGameOptions;
@@ -145,9 +145,6 @@ class Game {
       canvas.width = hdpiW;
       canvas.height = hdpiH;
 
-      wrapper.style.width = `${w}px`;
-      wrapper.style.height = `${h}px`;
-
       configSvc.innerSize.w = canvas.width / scale;
       configSvc.innerSize.h = canvas.height / scale;
 
@@ -182,7 +179,7 @@ class Game {
   public update(delta: number): void {
     debugOverlay.begin();
 
-    if (debugSvc.enabled(DebugFlag.STATS)) {
+    if (debugStore.enabled(DebugFlag.STATS)) {
       debugOverlay.moveTo("top_right");
 
       const vText = `Kraaken v${pkg.version}`;
@@ -278,20 +275,19 @@ class Game {
   }
 
   private initCanvas() {
-    if (!this.options.root) {
-      throw new Error("Missing root elment");
+    if (!this.options.appendTo) {
+      throw new Error("Missing target element");
     }
 
-    // Main elements
-    wrapper = document.createElement("div");
-    wrapper.classList.add("kraaken");
+    root = document.createElement("div");
+    root.classList.add("kraaken");
 
     canvas = document.createElement("canvas");
     canvas.classList.add("kraaken-canvas");
     canvas.classList.add("pixelated");
 
-    wrapper.appendChild(canvas);
-    this.options.root.appendChild(wrapper);
+    root.appendChild(canvas);
+    this.options.appendTo.appendChild(root);
   }
 
   private initWebGL() {
@@ -339,7 +335,7 @@ class Game {
 
   private initEvents() {
     // disable right click contextual menu on the canvas
-    wrapper.addEventListener("contextmenu", (e) => e.preventDefault());
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Keyboard events
     window.addEventListener(
@@ -357,43 +353,43 @@ class Game {
           case "F1":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.STATS);
+            debugStore.toggle(DebugFlag.STATS);
             break;
 
           case "F2":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.CAMERA);
+            debugStore.toggle(DebugFlag.CAMERA);
             break;
 
           case "F3":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.GRID);
+            debugStore.toggle(DebugFlag.GRID);
             break;
 
           case "F4":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.COLLISION);
+            debugStore.toggle(DebugFlag.COLLISION);
             break;
 
           case "F5":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.PLACEABLE_ENTITIES);
+            debugStore.toggle(DebugFlag.PLACEABLE_ENTITIES);
             break;
 
           case "F6":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.ZONE_ENTITIES);
+            debugStore.toggle(DebugFlag.ZONE_ENTITIES);
             break;
 
           case "F7":
             e.stopPropagation();
             e.preventDefault();
-            debugSvc.toggle(DebugFlag.HELP);
+            debugStore.toggle(DebugFlag.HELP);
             break;
 
           case "F11":
@@ -427,7 +423,7 @@ class Game {
     );
 
     // Click events
-    wrapper.addEventListener(
+    canvas.addEventListener(
       "mouseup",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
@@ -439,7 +435,7 @@ class Game {
       false
     );
 
-    wrapper.addEventListener(
+    canvas.addEventListener(
       "mousedown",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
@@ -451,7 +447,7 @@ class Game {
       false
     );
 
-    wrapper.addEventListener(
+    canvas.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
         if (canvas.contains(e.target as Node)) {
@@ -463,7 +459,7 @@ class Game {
       false
     );
 
-    wrapper.addEventListener(
+    canvas.addEventListener(
       "wheel",
       (e: WheelEvent) => {
         if (canvas.contains(e.target as Node)) {
@@ -560,6 +556,6 @@ class Game {
   };
 }
 
-export { wrapper, canvas, gl, debugOverlay };
+export { root, canvas, gl, debugOverlay };
 
 export default Game;

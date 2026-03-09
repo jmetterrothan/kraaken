@@ -11,7 +11,7 @@ export interface IGameOptions {
   maxHeight?: number;
   minHeight?: number;
   allowFullscreen: boolean;
-  root: HTMLElement | null;
+  appendTo: HTMLElement | null;
 }
 
 export enum GameState {

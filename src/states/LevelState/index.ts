@@ -20,7 +20,7 @@ import LevelUi from "./LevelUi";
 import { Entity } from "@src/ECS/Entity";
 
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import editorStore from "../EditorState/editorStore";
 import { debugOverlay } from "@src/Game";
@@ -93,7 +93,7 @@ class LevelState extends State<LevelStateOptions> {
       world.addSystem(new Systems.PatrolAISystem());
       world.addSystem(new Systems.RenderingSystem());
 
-      debugSvc.set(DebugFlag.ALL, false);
+      debugStore.set(DebugFlag.ALL, false);
 
       await world.init();
 
@@ -193,16 +193,13 @@ class LevelState extends State<LevelStateOptions> {
 
   public unmounted(): void {
     // remove ui
-    this.root.unmount();
+    super.unmounted();
 
     this.levels.forEach((level) => {
       level.destroy();
     });
 
     this.levels = new Map();
-
-    // remove event listeners
-    this.flushEvents();
 
     console.debug("Level unmounted");
   }
@@ -219,7 +216,7 @@ class LevelState extends State<LevelStateOptions> {
 
       const combat = this.currentLevel.player.getComponent(Components.PlayerCombat);
 
-      if (debugSvc.enabled(DebugFlag.STATS)) {
+      if (debugStore.enabled(DebugFlag.STATS)) {
         debugOverlay.moveTo("top_center");
         debugOverlay.line(`Project "${this.projectBlueprint.id}" | Level = "${this.currentLevelId}"`);
 
@@ -246,7 +243,7 @@ class LevelState extends State<LevelStateOptions> {
         debugOverlay.line('Press "F1" for details');
       }
 
-      if (debugSvc.enabled(DebugFlag.HELP)) {
+      if (debugStore.enabled(DebugFlag.HELP)) {
         debugOverlay.moveTo("bottom_left");
         debugOverlay.line(`Key bindings = [${keyBindingText}]`);
         debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);

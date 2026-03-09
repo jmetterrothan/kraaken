@@ -5,14 +5,12 @@ import EditorState from "@src/states/EditorState";
 import * as GameEventTypes from "@src/shared/events/constants";
 import * as GameEvents from "@src/shared/events";
 
-import { TileLayer } from "@src/shared/models/tilemap.model";
-
 import { driver } from "@src/shared/drivers/DriverFactory";
 
 import { vec2 } from "gl-matrix";
 
 import mouseBindings, { matchMouseBinding } from "@src/mouseBindings";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import eventStackSvc from "@src/shared/services/EventStackService";
 
@@ -38,21 +36,21 @@ class CollisionMode {
       throw new Error("Collision mode already mounted");
     }
 
-    debugSvc.set(DebugFlag.GRID, true);
-    debugSvc.set(DebugFlag.COLLISION, true);
-    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
-    debugSvc.set(DebugFlag.ZONE_ENTITIES, false);
+    debugStore.set(DebugFlag.GRID, true);
+    debugStore.set(DebugFlag.COLLISION, true);
+    debugStore.set(DebugFlag.PLACEABLE_ENTITIES, false);
+    debugStore.set(DebugFlag.ZONE_ENTITIES, false);
 
     this.events.push(
       this.editor.registerEvent(GameEventTypes.PLACE_EVENT, (e: GameEvents.PlaceEvent) => {
-        const { coords = [], layer, onSuccess, onFailure, pushToStack } = e.detail || {};
+        const { coords = [], layerId, onSuccess, onFailure, pushToStack } = e.detail || {};
 
         try {
           const tileMap = this.editor.currentLevel.world.tileMap;
 
           const prevCoords = coords.map((c) => {
             const tile = tileMap.getTileAtCoords(c.x, c.y);
-            const oldTileTypeId = tile?.getTileTypeId(layer) ?? 0;
+            const oldTileTypeId = tile?.getTileTypeId(layerId) ?? 0;
 
             return {
               ...c,
@@ -76,12 +74,12 @@ class CollisionMode {
                 driver.place(
                   this.editor.currentLevelId,
                   {
-                    layerId: layer,
+                    layerId,
                     coords: prevCoords,
                   },
                   false
                 ), //
-              redo: () => driver.place(this.editor.currentLevelId, { layerId: layer, coords }, false),
+              redo: () => driver.place(this.editor.currentLevelId, { layerId, coords }, false),
             });
           }
 
@@ -97,6 +95,9 @@ class CollisionMode {
         }
       })
     );
+
+    this.editor.currentLevel.cursor.visible = false;
+    this.editor.currentLevel.world.grid.showSelection = true;
 
     this.loaded = true;
 
@@ -131,10 +132,11 @@ class CollisionMode {
         return;
       }
 
+      // FIXME: hardcoded layer ids
       if (matchMouseBinding(mouseBindings.editor.collisionMode.place, e)) {
-        driver.place(this.editor.currentLevelId, { layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 1 })) }, true);
+        driver.place(this.editor.currentLevelId, { layerId: 0, coords: coords.map((c) => ({ ...c, tileTypeId: 1 })) }, true);
       } else if (matchMouseBinding(mouseBindings.editor.collisionMode.erase, e)) {
-        driver.place(this.editor.currentLevelId, { layerId: TileLayer.L0, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
+        driver.place(this.editor.currentLevelId, { layerId: 0, coords: coords.map((c) => ({ ...c, tileTypeId: 0 })) }, true);
       }
 
       grid.endSelection();

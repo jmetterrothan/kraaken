@@ -1,6 +1,5 @@
 import * as GameEventTypes from "@src/shared/events/constants";
 
-import { TileLayer } from "@src/shared/models/tilemap.model";
 import { IEventDetails } from "@src/shared/models/event.model";
 import { IVector2 } from "@src/shared/models/math.model";
 import { IPlaceTileData, ISpawnpoint } from "@src/shared/models/world.model";
@@ -25,18 +24,18 @@ export const changeLevel = (levelId: string, moveTo?: IVector2, lookAt?: IVector
 
 interface IPlaceEventDetails extends IEventDetails {
   coords: IPlaceTileData[];
-  layer: TileLayer;
+  layerId: number;
   onSuccess?: () => void;
   onFailure?: () => void;
 }
 
 export type PlaceEvent = CustomEvent<IPlaceEventDetails>;
 
-export const placeEvent = (layer: TileLayer, coords: IPlaceTileData[], pushToStack = true): PlaceEvent => {
+export const placeEvent = (layerId: number, coords: IPlaceTileData[], pushToStack = true): PlaceEvent => {
   return new CustomEvent<IPlaceEventDetails>(GameEventTypes.PLACE_EVENT, {
     detail: {
       coords,
-      layer,
+      layerId,
       pushToStack,
     },
   });

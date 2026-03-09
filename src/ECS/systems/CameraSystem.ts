@@ -8,7 +8,7 @@ import { clamp, expLerpT, round } from "@src/shared/utility/MathHelpers";
 import { debugOverlay } from "@src/Game";
 import { IVector2 } from "@src/shared/models/math.model";
 import { DebugFlag } from "@src/enums/DebugFlag";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 
 export class CameraSystem extends System {
   public constructor() {
@@ -162,7 +162,7 @@ export class CameraSystem extends System {
       camera.shouldUpdateProjectionMatrix = false;
     }
 
-    if (debugSvc.enabled(DebugFlag.CAMERA)) {
+    if (debugStore.enabled(DebugFlag.CAMERA)) {
       // If viewBox is world-space camera rect:
       const vw = camera.viewBox.width;
       const vh = camera.viewBox.height;
@@ -189,7 +189,7 @@ export class CameraSystem extends System {
     entities.forEach((entity) => {
       this.updatePosition(entity, delta);
 
-      if (debugSvc.enabled(DebugFlag.CAMERA)) {
+      if (debugStore.enabled(DebugFlag.CAMERA)) {
         const camera = entity.getComponent(Camera);
         const position = entity.getComponent(Position);
 

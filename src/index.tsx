@@ -26,7 +26,6 @@ const game = Game.create({
   allowFullscreen: true,
   width: "auto",
   height: "auto",
-  root: document.getElementById("game"),
 });
 
 game.load(gameState, { projectId, levelId, mode });

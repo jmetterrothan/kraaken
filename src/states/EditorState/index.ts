@@ -35,13 +35,13 @@ import editorStore, { IEditorStoreState } from "./editorStore";
 import keyBindings, { matchKeyBinding } from "@src/keyBindings";
 
 import { Animator, Placeable, Position, Sprite } from "@src/ECS/components";
-import { Subscription } from "rxjs";
+
 import ZoneMode from "./modes/ZoneMode";
 import { debugOverlay } from "@src/Game";
 import mouseBindings from "@src/mouseBindings";
 import gamepadBindings from "@src/gamepadBindings";
 import { DebugFlag } from "@src/enums/DebugFlag";
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 
 let mouseBindingText = "";
 let keyBindingText = "";
@@ -68,7 +68,7 @@ class EditorState extends State<EditorStateOptions> {
 
   public state: IEditorStoreState;
 
-  public sub: Subscription;
+  public sub: () => void;
 
   public modes: {
     [EditorMode.TERRAIN]: TerrainMode;
@@ -116,9 +116,11 @@ class EditorState extends State<EditorStateOptions> {
 
     // await this.addLevel("3", 16, "tiles");
 
-    this.state = editorStore.initialState;
+    this.state = editorStore.getSnapshot();
 
-    this.sub = editorStore.subscribe((state) => {
+    this.sub = editorStore.subscribe(() => {
+      const state = editorStore.getSnapshot();
+
       if (this.state.mode !== state.mode) {
         this.modes[this.state.mode].unmounted();
         this.modes[state.mode].mounted();
@@ -126,8 +128,6 @@ class EditorState extends State<EditorStateOptions> {
 
       this.state = state;
     });
-
-    editorStore.init();
 
     this.modes = {
       [EditorMode.TERRAIN]: new TerrainMode(this),
@@ -191,31 +191,32 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public async addLevel(id: string, tileSize: number, tileSet: string): Promise<void> {
-    const rows = 64;
+    const rows = 128;
     const cols = 64;
 
-    const level = {
+    const level: ILevelBlueprint = {
       id,
       tileSize,
       tileMapRows: rows,
       tileMapCols: cols,
-      layers: {
-        1: {
-          tileSet,
-          data: new Array(rows * cols).fill(0),
-          visible: true,
-        },
-        2: {
-          tileSet,
-          data: new Array(rows * cols).fill(0),
-          visible: true,
-        },
-        3: {
-          tileSet,
+      layers: [
+        {
+          id: 1,
+          zIndex: 0,
+          type: "collision",
+          tileSet: "debug",
           data: new Array(rows * cols).fill(0),
           visible: false,
         },
-      },
+        {
+          id: 2,
+          zIndex: 1,
+          type: "tiles",
+          tileSet,
+          data: new Array(rows * cols).fill(0),
+          visible: true,
+        },
+      ],
       gravity: 580,
       background: [0.1, 0.1, 0.1, 1],
       spawnPoints: [],
@@ -321,12 +322,11 @@ class EditorState extends State<EditorStateOptions> {
   }
 
   public unmounted(): void {
+    super.unmounted();
+
     this.currentMode.unmounted();
 
     window.clearInterval(this.backupIntervalId);
-
-    // remove event listeners
-    this.flushEvents();
 
     // reset event history stack
     eventStackSvc.reset();
@@ -337,16 +337,13 @@ class EditorState extends State<EditorStateOptions> {
 
     this.levels = new Map();
 
-    // remove ui
-    this.root.unmount();
-
-    this.sub.unsubscribe();
+    this.sub();
 
     console.debug("Editor unmounted");
   }
 
   public update(delta: number): void {
-    if (debugSvc.enabled(DebugFlag.HELP)) {
+    if (debugStore.enabled(DebugFlag.HELP)) {
       debugOverlay.moveTo("bottom_left");
       debugOverlay.line(`Key bindings = [${keyBindingText}]`);
       debugOverlay.line(`Mouse bindings = [${mouseBindingText}]`);
@@ -357,7 +354,7 @@ class EditorState extends State<EditorStateOptions> {
     debugOverlay.moveTo("bottom_left");
     debugOverlay.line(`Mouse = [${this.mouse}]`);
 
-    if (debugSvc.enabled(DebugFlag.GRID)) {
+    if (debugStore.enabled(DebugFlag.GRID)) {
       const tile = this.currentLevel.world.tileMap.getTileAtCoords(this.mouse.x, this.mouse.y);
       if (tile) {
         debugOverlay.line(`Grid = [col:${tile.col}, row:${tile.row}], Collision = ${tile.hasCollision()}, Tile = ${this.state.layerId}:${tile.getTileTypeId(this.state.layerId)}`);

@@ -16,6 +16,8 @@ import Vector2 from "./math/Vector2";
 import { clamp } from "./utility/MathHelpers";
 
 class Grid {
+  public showSelection: boolean;
+
   private material: Material = new Material(vsObject, fsSprite);
 
   private vao: WebGLVertexArrayObject = gl.createVertexArray()!;
@@ -74,6 +76,8 @@ class Grid {
     this.selectionColor = ac;
 
     this.loaded = false;
+
+    this.showSelection = false;
   }
 
   public async init() {
@@ -100,10 +104,10 @@ class Grid {
       this.setUniform("u_scale", configSvc.scale);
       this.setUniform("u_tilesize", this.tileSize);
       this.setUniform("u_offset", offset);
-      this.setUniform("u_show_selection", true);
       this.setUniform("u_selection_min", this.selectionMin);
       this.setUniform("u_selection_max", this.selectionMax);
       this.setUniform("u_selection_color", this.selectionColor);
+      this.setUniform("u_show_selection", this.showSelection);
 
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 

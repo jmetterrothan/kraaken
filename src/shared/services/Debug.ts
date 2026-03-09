@@ -1,35 +1,46 @@
 import { DebugFlag } from "@src/enums/DebugFlag";
+import { BehaviorSubject } from "rxjs";
 
-class Debug {
-  public constructor(private _flags: number = DebugFlag.NONE) {}
+export const debugStore = (() => {
+  const subject = new BehaviorSubject<number>(DebugFlag.NONE);
 
-  enabled(flag: DebugFlag): boolean {
-    return (this._flags & flag) !== 0;
-  }
+  const subscribe = (listener: () => void) => {
+    const subscription = subject.subscribe(listener);
+    return () => subscription.unsubscribe();
+  };
 
-  set(flag: DebugFlag, on: boolean): void {
+  const getSnapshot = () => {
+    return subject.value;
+  };
+
+  const enabled = (flag: DebugFlag): boolean => {
+    return (subject.value & flag) !== 0;
+  };
+
+  const set = (flag: DebugFlag, on: boolean) => {
+    const state = getSnapshot();
+
     if (on) {
       // | (OR) take all where bit is 1 from both
-      this._flags |= flag;
+      subject.next(state | flag);
     } else {
       // & (AND) take all common 1
       // ~ (NOT) inverse
-      this._flags &= ~flag;
+      subject.next(state & ~flag);
     }
-  }
+  };
 
-  toggle(flag: DebugFlag): void {
+  const toggle = (flag: DebugFlag): void => {
+    const state = getSnapshot();
     // ^ (XOR)
-    this._flags ^= flag;
-  }
+    subject.next(state ^ flag);
+  };
 
-  get flags(): number {
-    return this._flags;
-  }
-
-  set flags(v: number) {
-    this._flags = v;
-  }
-}
-
-export const debugSvc = new Debug();
+  return {
+    subscribe,
+    getSnapshot,
+    enabled,
+    set,
+    toggle,
+  };
+})();

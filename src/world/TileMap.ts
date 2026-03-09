@@ -7,7 +7,7 @@ import World from "@src/world/World";
 
 import { ILayer, ILevelBlueprint } from "@src/shared/models/world.model";
 import { TintEffect } from "@src/shared/models/animation.model";
-import { TileLayer, ITile } from "@src/shared/models/tilemap.model";
+import { ITile } from "@src/shared/models/tilemap.model";
 
 import Box2 from "@src/shared/math/Box2";
 import Color from "@src/shared/helper/Color";
@@ -38,7 +38,10 @@ class TileMap {
   private endRow: number;
 
   public tiles: ITile[][];
-  public layers: Map<TileLayer, ILayer>;
+
+  public layers: ILayer[];
+  private collisionLayerId: number;
+  private layerIndexMapping: Map<number, number>;
 
   private boundaries: Box2;
 
@@ -69,10 +72,14 @@ class TileMap {
 
     this.tiles = create2DArray<ITile>(this.nbRows, this.nbCols);
 
-    this.layers = new Map();
-    this.layers.set(TileLayer.L0, blueprint.layers[TileLayer.L0]);
-    this.layers.set(TileLayer.L1, blueprint.layers[TileLayer.L1]);
-    this.layers.set(TileLayer.L2, blueprint.layers[TileLayer.L2]);
+    this.layers = blueprint.layers.sort((a, b) => a.zIndex - b.zIndex);
+
+    this.layerIndexMapping = this.layers.reduce((acc, layer, index) => {
+      acc.set(layer.id, index);
+      return acc;
+    }, new Map<number, number>());
+
+    this.collisionLayerId = this.layers.find((layer) => layer.type === "collision")?.id ?? 0;
 
     this.debugLayer = new Map<number, number>();
 
@@ -82,14 +89,23 @@ class TileMap {
 
     for (let r = 0; r < this.nbRows; r++) {
       for (let c = 0; c < this.nbCols; c++) {
-        const getTileTypeId = (layer: TileLayer) => {
-          const index = r * this.nbCols + c;
-          return blueprint.layers[layer].data[index] ?? 0;
+        const getTileTypeId = (layerId: number) => {
+          const layerIndex = this.getLayerIndex(layerId);
+
+          if (layerIndex !== -1) {
+            const index = r * this.nbCols + c;
+            return this.layers[layerIndex].data[index] ?? 0;
+          }
+          return 0;
         };
 
-        const setTileTypeId = (layer: TileLayer, id: number) => {
-          const index = r * this.nbCols + c;
-          blueprint.layers[layer].data[index] = id;
+        const setTileTypeId = (layerId: number, id: number) => {
+          const layerIndex = this.getLayerIndex(layerId);
+
+          if (layerIndex !== -1) {
+            const index = r * this.nbCols + c;
+            this.layers[layerIndex].data[index] = id;
+          }
         };
 
         const tile: ITile = {
@@ -123,9 +139,11 @@ class TileMap {
           parent: null,
           getTileTypeId,
           setTileTypeId,
-          hasCollision: () => getTileTypeId(TileLayer.L0) === 1,
+          hasCollision: () => {
+            return getTileTypeId(this.collisionLayerId) === 1;
+          },
           setCollision: (b) => {
-            setTileTypeId(TileLayer.L0, b ? 1 : 0);
+            setTileTypeId(this.collisionLayerId, b ? 1 : 0);
           },
         };
 
@@ -160,8 +178,14 @@ class TileMap {
     }
   }
 
-  private getLayerAtlas(layerId: TileLayer) {
-    const layer = this.layers.get(layerId);
+  private getLayerAtlasById(layerId: number) {
+    const layerIndex = this.getLayerIndex(layerId);
+
+    return this.getLayerAtlasByIndex(layerIndex);
+  }
+
+  private getLayerAtlasByIndex(layerIndex: number) {
+    const layer = this.layers[layerIndex];
 
     if (!layer || layer.tileSet === null) {
       return null;
@@ -170,29 +194,35 @@ class TileMap {
     return SpriteManager.get(layer.tileSet);
   }
 
-  public renderLayer(layerId: TileLayer, projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    const atlas = this.getLayerAtlas(layerId);
+  public renderLayers(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
+    for (let layer of this.layers) {
+      if (!layer.visible) {
+        continue;
+      }
 
-    if (!atlas) {
-      return;
-    }
+      const atlas = this.getLayerAtlasById(layer.id);
 
-    atlas.use();
+      if (!atlas) {
+        continue;
+      }
 
-    for (let r = this.startRow; r <= this.endRow; r++) {
-      for (let c = this.startCol; c <= this.endCol; c++) {
-        const tile = this.tiles[r][c];
-        const layerIndex = tile.getTileTypeId(layerId);
+      atlas.use();
 
-        if (layerIndex > 0) {
-          atlas.render(projectionMatrix, viewMatrix, tile.transform, layerIndex, tile.direction, tile.renderOptions);
+      for (let r = this.startRow; r <= this.endRow; r++) {
+        for (let c = this.startCol; c <= this.endCol; c++) {
+          const tile = this.tiles[r][c];
+          const tileTypeId = tile.getTileTypeId(layer.id);
+
+          if (tileTypeId > 0) {
+            atlas.render(projectionMatrix, viewMatrix, tile.transform, tileTypeId, tile.direction, tile.renderOptions);
+          }
         }
       }
     }
   }
 
   public renderCollisionLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
-    const atlas = this.getLayerAtlas(TileLayer.L0);
+    const atlas = this.getLayerAtlasById(this.collisionLayerId);
 
     if (!atlas) {
       return;
@@ -211,6 +241,7 @@ class TileMap {
     }
   }
 
+  /*
   public renderDebugLayer(projectionMatrix: mat3, viewMatrix: mat3, _alpha: number): void {
     const atlas = this.getLayerAtlas(TileLayer.L2);
 
@@ -233,6 +264,7 @@ class TileMap {
       }
     }
   }
+    */
 
   public floodFill(originRow: number, originCol: number, predicate: (tile?: ITile) => boolean): any[] {
     const stack: Array<{ row: number; col: number }> = [];
@@ -440,26 +472,26 @@ class TileMap {
     return this.getTileIndex(r, c);
   }
 
-  public getTileTypeIdAtCoords(layer: TileLayer, x: number, y: number): number | null {
+  public getTileTypeIdAtCoords(layerId: number, x: number, y: number): number | null {
     const r = this.getRowAtCoord(y);
     const c = this.getColAtCoord(x);
 
-    return this.getTileTypeAt(layer, r, c);
+    return this.getTileTypeAt(layerId, r, c);
   }
 
-  public getTileTypeIdAtIndex(layer: TileLayer, i: number): number {
+  public getTileTypeIdAtIndex(layerId: number, i: number): number {
     const r = Math.trunc(i / this.nbCols);
     const c = Math.trunc(i % this.nbCols);
 
-    return this.getTileTypeAt(layer, r, c) ?? 0;
+    return this.getTileTypeAt(layerId, r, c) ?? 0;
   }
 
-  public getTileTypeAt(layer: TileLayer, r: number, c: number): number | null {
+  public getTileTypeAt(layerId: number, r: number, c: number): number | null {
     const tile = this.getTileAt(r, c);
     if (!tile) {
-      console.warn(`Out of bound tile @ r:${r}, c:${c} on layer ${layer}`);
+      console.warn(`Out of bound tile @ r:${r}, c:${c} on layer index ${layerId}`);
     }
-    return tile?.getTileTypeId(layer) ?? null;
+    return tile?.getTileTypeId(layerId) ?? null;
   }
 
   public hasCollisionAt(r: number, c: number): boolean {
@@ -484,6 +516,10 @@ class TileMap {
 
   public getNbRows(): number {
     return this.nbRows;
+  }
+
+  public getLayerIndex(layerId: number) {
+    return this.layerIndexMapping.get(layerId) ?? -1;
   }
 }
 

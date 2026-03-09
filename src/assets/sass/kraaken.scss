@@ -4,29 +4,21 @@
 @use "../fonts/fontawesome-pro/css/all.css";
 
 html {
-  font-family: var(--default-font);
-  font-size: 14px;
-  background: #f1f1f1;
-}
-
-#game {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
+  font-family: var(--default-font-family);
+  font-size: var(--default-font-size);
+  background: var(--default-background-color, #fff);
 }
 
 .kraaken {
   position: relative;
   overflow: hidden;
 
-  canvas {
+  &-canvas {
     cursor: none !important;
   }
 
   &-ui {
-    font-family: var(--default-font);
+    font-family: var(--default-font-family);
     position: absolute;
     top: 0;
     left: 0;

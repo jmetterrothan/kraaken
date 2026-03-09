@@ -38,7 +38,13 @@ abstract class State<O extends StateOptions = StateOptions> {
   /**
    * Perform actions each time the state is unmounted
    */
-  public abstract unmounted(): void;
+  public unmounted(): void {
+    // remove event listeners
+    this.flushEvents();
+
+    // delete ui node
+    this.root.unmount();
+  }
 
   public abstract update(delta: number): void;
 
@@ -82,6 +88,7 @@ abstract class State<O extends StateOptions = StateOptions> {
     $kraaken.appendChild($ui);
 
     this.root = createRoot($ui);
+
     return this.root;
   }
 }

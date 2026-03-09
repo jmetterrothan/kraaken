@@ -9,6 +9,7 @@ import editorStore from "@src/states/EditorState/editorStore";
 import useTileset from "../ToolbarTileset/useTileset";
 import { ISpriteData } from "@src/shared/models/sprite.model";
 import { IAnimation } from "@src/shared/models/animation.model";
+import Panel from "../Panel";
 
 type EntityImageProps = {
   type: string;
@@ -115,21 +116,25 @@ const EntityModeSidePanel = ({ editorState, blueprint }: EntityModeSidePanelProp
 
   return (
     <SidePanel className="entity-mode-side-panel">
-      <div className="entity-group">
-        <SidePanel.Title>Entités</SidePanel.Title>
-        <ul className="entity-group__list">
-          {list.map(({ type, animation, tileSet, row, col }) => {
-            return (
-              <li key={type} title={type} data-type={type} data-row={row} data-col={col} className={cx(type === editorState.entityType && "active")}>
-                <figure>
-                  <Suspense>{animation ? <AnimatedEntityImage type={type} animation={animation} tileSet={tileSet} selected={type === editorState.entityType} /> : <EntityImage type={type} row={row} col={col} tileSet={tileSet} selected={type === editorState.entityType} />}</Suspense>
-                  <figcaption>{type}</figcaption>
-                </figure>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <Panel className="entity-group">
+        <Panel.Header>
+          <Panel.Title>Entités</Panel.Title>
+        </Panel.Header>
+        <Panel.Body>
+          <ul className="entity-group__list">
+            {list.map(({ type, animation, tileSet, row, col }) => {
+              return (
+                <li key={type} title={type} data-type={type} data-row={row} data-col={col} className={cx(type === editorState.entityType && "active")}>
+                  <figure>
+                    <Suspense>{animation ? <AnimatedEntityImage type={type} animation={animation} tileSet={tileSet} selected={type === editorState.entityType} /> : <EntityImage type={type} row={row} col={col} tileSet={tileSet} selected={type === editorState.entityType} />}</Suspense>
+                    <figcaption>{type}</figcaption>
+                  </figure>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel.Body>
+      </Panel>
     </SidePanel>
   );
 };

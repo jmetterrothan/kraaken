@@ -2,7 +2,7 @@ import { vec2, vec4 } from "gl-matrix";
 
 import EditorState from "@src/states/EditorState";
 
-import { debugSvc } from "@src/shared/services/Debug";
+import { debugStore } from "@src/shared/services/Debug";
 import { DebugFlag } from "@src/enums/DebugFlag";
 import { BoundingBox, EventZone, Position } from "@src/ECS/components";
 import { Entity } from "@src/ECS";
@@ -33,10 +33,13 @@ class ZoneMode {
       throw new Error("Zone mode already mounted");
     }
 
-    debugSvc.set(DebugFlag.GRID, true);
-    debugSvc.set(DebugFlag.COLLISION, false);
-    debugSvc.set(DebugFlag.PLACEABLE_ENTITIES, false);
-    debugSvc.set(DebugFlag.ZONE_ENTITIES, true);
+    debugStore.set(DebugFlag.GRID, true);
+    debugStore.set(DebugFlag.COLLISION, false);
+    debugStore.set(DebugFlag.PLACEABLE_ENTITIES, false);
+    debugStore.set(DebugFlag.ZONE_ENTITIES, true);
+
+    this.editor.currentLevel.cursor.visible = true;
+    this.editor.currentLevel.world.grid.showSelection = false;
 
     this.loaded = true;
 

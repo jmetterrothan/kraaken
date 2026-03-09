@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useSyncExternalStore } from "react";
 
 import Ui from "@src/shared/ui";
 import Toolbar from "@src/shared/ui/components/Toolbar";
@@ -8,7 +8,6 @@ import ToolbarSeparator from "@src/shared/ui/components/ToolbarSeparator";
 import ToolbarSelect from "@src/shared/ui/components/ToolbarSelect";
 import Modal, { useModal } from "@src/shared/ui/components/Modal";
 
-import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 import { IProjectBlueprint } from "@src/shared/models/world.model";
 
@@ -23,6 +22,9 @@ import editorStore, { IEditorStoreState } from "./editorStore";
 import keyBindings from "@src/keyBindings";
 import TerrainModeSidePanel from "@src/shared/ui/components/TerrainModeSidePanel";
 import EntityModeSidePanel from "@src/shared/ui/components/EntityModeSidePanel";
+import SidePanel from "@src/shared/ui/components/SidePanel";
+import { debugStore } from "@src/shared/services/Debug";
+import { DebugFlag } from "@src/enums/DebugFlag";
 
 interface EditorUiProps {
   projectId: string;
@@ -89,17 +91,6 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
             active={editorState.terrainMode === EditorTerrainMode.PICK}
             onClick={() => editorStore.setTerrainMode(EditorTerrainMode.PICK)}
           />
-          <ToolbarSeparator />
-          <ToolbarSelect<number>
-            icon="layer-group" //
-            selected={editorState.layerId}
-            active={false}
-            onItemClick={(option) => editorStore.setSelectedLayerId(option.value)}
-            options={[
-              { name: "Primary layer", description: "", value: TileLayer.L1 },
-              { name: "Secondary layer", description: "", value: TileLayer.L2 },
-            ]}
-          />
           <Suspense>
             <ToolbarTileset
               selected={editorState.tileSelection[tileSet.name]?.tileTypeId ?? 0} //
@@ -118,7 +109,9 @@ const ToolbarMode = ({ editorState, modal, tileSet }: ToolbarModeProps) => {
 };
 
 const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId: defaultLevelId }) => {
-  const [editorState, setEditorState] = React.useState(editorStore.initialState);
+  const editorState = useSyncExternalStore(editorStore.subscribe, editorStore.getSnapshot);
+
+  const debugState = useSyncExternalStore(debugStore.subscribe, debugStore.getSnapshot);
 
   const { assets, levels } = blueprint;
 
@@ -129,7 +122,7 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId: defa
   const levelId = defaultLevelId ?? blueprint.defaultLevelId;
   const level = levels.find((level) => level.id === levelId);
 
-  const tileSetName = level?.layers[editorState.layerId].tileSet;
+  const tileSetName = level?.layers.find((layer) => layer.id === editorState.layerId)?.tileSet;
 
   const tileSet = React.useMemo(
     () =>
@@ -144,14 +137,6 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId: defa
   );
 
   const tileTypeId = editorState.tileSelection[tileSet.name]?.tileTypeId ?? 0;
-
-  React.useLayoutEffect(() => {
-    const editorSub = editorStore.subscribe(setEditorState);
-
-    return () => {
-      editorSub.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     if (tileSet.defaultTileIndex) {
@@ -210,6 +195,16 @@ const EditorUi: React.FC<EditorUiProps> = ({ projectId, blueprint, levelId: defa
           />
         </div>
       </Toolbar>
+      <SidePanel anchor="left" size="auto">
+        <ToolbarButton
+          icon="th" //
+          disabled={editorState.loading}
+          active={(debugState & DebugFlag.GRID) !== 0}
+          onClick={() => {
+            debugStore.toggle(DebugFlag.GRID);
+          }}
+        />
+      </SidePanel>
       {editorState.mode === EditorMode.TERRAIN && <TerrainModeSidePanel projectId={projectId} levelId={levelId} editorState={editorState} tileSet={tileSet} level={level} />}
       {editorState.mode === EditorMode.ENTITY && <EntityModeSidePanel projectId={projectId} levelId={levelId} editorState={editorState} blueprint={blueprint} />}
     </Ui>

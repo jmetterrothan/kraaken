@@ -1,0 +1,25 @@
+.panel {
+  &__title {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: #40506b;
+
+    .fas {
+      margin-right: 12px;
+    }
+  }
+
+  &__header {
+    padding: 24px 16px 16px 16px;
+  }
+
+  &__body {
+    padding: 0 16px;
+  }
+
+  & + & {
+    margin-top: 24px;
+  }
+}

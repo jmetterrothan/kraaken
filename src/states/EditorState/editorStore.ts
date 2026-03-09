@@ -1,6 +1,5 @@
-import { Subject, Subscription } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-import { TileLayer } from "@src/shared/models/tilemap.model";
 import { EditorMode, EditorTerrainMode } from "@src/shared/models/editor.model";
 
 import dispatch, * as GameEvents from "@src/shared/events";
@@ -10,110 +9,130 @@ export interface IEditorStoreState {
   scale: number;
   mode: EditorMode;
   terrainMode: EditorTerrainMode;
-  layerId: TileLayer;
+  layerId: number;
   tileSelection: Record<string, { tileTypeId: number }>;
   entityType: string | null;
 }
-
-const subject = new Subject<IEditorStoreState>();
 
 const initialState: IEditorStoreState = {
   loading: false,
   scale: 5,
   mode: EditorMode.TERRAIN,
   terrainMode: EditorTerrainMode.PLACE,
-  layerId: TileLayer.L1,
+  layerId: 0,
   tileSelection: {},
   entityType: null,
 };
 
-let state: IEditorStoreState = initialState;
+const editorStore = (() => {
+  const subject = new BehaviorSubject<IEditorStoreState>(initialState);
 
-const editorStore = {
-  initialState,
-  init: (): void => {
-    state = initialState;
-    subject.next(state);
-  },
-  subscribe: (setState: (state: IEditorStoreState) => void): Subscription => {
-    return subject.subscribe(setState);
-  },
-  setLoading: (b: boolean): void => {
+  const subscribe = (listener: () => void) => {
+    const subscription = subject.subscribe(listener);
+    return () => subscription.unsubscribe();
+  };
+
+  // This function will get called at any time within the render cycle.
+  // But it mostly gets executed after the data update is notified through subscribe
+  // IMPORTANT: do not return a new object, else React will go into infinite render
+  const getSnapshot = () => {
+    return subject.value;
+  };
+
+  const setLoading = (b: boolean): void => {
+    const state = getSnapshot();
+
     if (b !== state.loading) {
-      state = {
+      subject.next({
         ...state,
         loading: b,
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setMode: (mode: IEditorStoreState["mode"]): void => {
+  };
+
+  const setMode = (mode: IEditorStoreState["mode"]): void => {
+    const state = getSnapshot();
+
     if (mode !== state.mode) {
-      state = {
+      subject.next({
         ...state,
         mode,
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setTerrainMode: (terrainMode: IEditorStoreState["terrainMode"]): void => {
+  };
+
+  const setTerrainMode = (terrainMode: IEditorStoreState["terrainMode"]): void => {
+    const state = getSnapshot();
+
     if (terrainMode !== state.terrainMode) {
-      state = {
+      subject.next({
         ...state,
         terrainMode,
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setSelectedLayerId: (layerId: TileLayer): void => {
+  };
+
+  const setSelectedLayerId = (layerId: number): void => {
+    const state = getSnapshot();
+
     if (layerId !== state.layerId) {
-      state = {
+      subject.next({
         ...state,
         layerId,
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setSelectedTileTypeId: (tileSet: string, tileTypeId: number): void => {
+  };
+
+  const setSelectedTileTypeId = (tileSet: string, tileTypeId: number): void => {
+    const state = getSnapshot();
     const prevValue = state.tileSelection[tileSet];
 
     if (!prevValue || tileTypeId !== prevValue.tileTypeId) {
-      state = {
+      subject.next({
         ...state,
         tileSelection: {
           ...state.tileSelection,
           [tileSet]: { ...prevValue, tileTypeId },
         },
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setSelectedEntityType: (entityType: IEditorStoreState["entityType"]): void => {
+  };
+
+  const setSelectedEntityType = (entityType: IEditorStoreState["entityType"]): void => {
+    const state = getSnapshot();
+
     if (entityType !== state.entityType) {
-      state = {
+      subject.next({
         ...state,
         entityType,
-      };
-
-      subject.next(state);
+      });
     }
-  },
-  setScale: (scale: IEditorStoreState["scale"]): void => {
+  };
+
+  const setScale = (scale: IEditorStoreState["scale"]): void => {
+    const state = getSnapshot();
+
     if (scale !== state.scale) {
-      state = {
+      subject.next({
         ...state,
         scale,
-      };
-
-      subject.next(state);
+      });
     }
+
     dispatch(GameEvents.zoomEvent(scale));
-  },
-};
+  };
+
+  return {
+    getSnapshot,
+    subscribe,
+    setLoading,
+    setMode,
+    setTerrainMode,
+    setSelectedLayerId,
+    setSelectedTileTypeId,
+    setSelectedEntityType,
+    setScale,
+  };
+})();
 
 export default editorStore;
